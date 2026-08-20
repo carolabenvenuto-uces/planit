@@ -14,10 +14,10 @@
 
 ## 👥 Integrantes y Roles
 
-- **Coordinador / DevOps:** @usuario
-- **Desarrollador Frontend:** @usuario
-- **Documentador / Diseñador UX:** @usuario
-- **Especialista en IA:** @usuario
+- **Coordinador / DevOps:** @carolabenvenuto-uces
+- **Desarrollador Frontend:** @ValeriaMSilva
+- **Documentador / Diseñador UX:** @ValeriaMSilva
+- **Especialista en IA:** @FacundoGuiraldes
 
 ---
 
