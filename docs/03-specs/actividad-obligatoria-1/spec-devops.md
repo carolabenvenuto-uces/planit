@@ -26,7 +26,7 @@ Para establecer las bases organizativas del proyecto, garantizar la calidad y co
 - [x] Plantillas de PR agregadas en `.github/PULL_REQUEST_TEMPLATE/` (`feature-template.md` y `release-template.md`).
 - [x] Archivo `plan.md` generado en la raíz usando GitHub Copilot en modo Agente con los requerimientos funcionales del simulador.
 - [x] Archivo `spec-devops.md` creado y commiteado en el historial de Git.
-- [x] Issue propia creada en GitHub y vinculada en esta PR (#1).
+- [x] Issue propia creada en GitHub y vinculada en esta PR (#4).
 
 ---
 
