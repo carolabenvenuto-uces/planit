@@ -19,7 +19,7 @@ Reducir la fragmentación al planificar reuniones y festejos. Busca ofrecer un s
 - HTML5 Semántico
 - CSS3 (Planificado para entregas futuras)
 - JavaScript (Planificado para entregas futuras)
-- Git & GitHub (GitFlow, GitHub Actions / Pages)
+- Git & GitHub (GitFlow, GitHub Actions / Pages planificado para el release final de la entrega)
 
 ✨ **Funcionalidades Previstas**
 - Formulario de alta y personalización de eventos.
@@ -37,7 +37,7 @@ Establecer la estructura base y el maquetado inicial en HTML5 semántico de la p
 
 📁 **Documentación**
 
-- 🖼️ [Mockup en alta resolución](docs/01-mockup/actividad-obligatoria-1/diseño-inicial.png) | [Ver diseño interactivo en Figma][Enlace a Figma próximamente por UX]
+- 🖼️ [Mockup en alta resolución](docs/01-mockup/actividad-obligatoria-1/) | [Ver diseño interactivo en Figma (Próximamente por UX)](#)
 - 📂 [Índice de Prompts de IA](docs/02-prompts/prompts.md)
 - 📜 [Changelog del Proyecto](changelog.md)
 - 📋 [Spec Maestro (Plan de Requerimientos)](plan.md)
