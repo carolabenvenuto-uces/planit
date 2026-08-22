@@ -22,7 +22,7 @@ Para establecer las bases organizativas del proyecto, garantizar la calidad y co
 
 ### Entregable de este PR (Setup e Infraestructura Base)
 - [x] Repositorio creado con ramas `master` y `develop` protegidas contra push directo y con al menos 1 revisor requerido.
-- [x] Commit inicial con estructura de carpetas completa y archivos base (`index.html`, `README.md`, `changelog.md`).
+- [x] Commit inicial con estructura de carpetas completa y archivos base (`README.md`, `changelog.md` e `index.html` en blanco como esqueleto base a ser maquetado por el rol Frontend).
 - [x] Plantillas de PR agregadas en `.github/PULL_REQUEST_TEMPLATE/` (`feature-template.md` y `release-template.md`).
 - [x] Archivo `plan.md` generado en la raíz usando GitHub Copilot en modo Agente con los requerimientos funcionales del simulador.
 - [x] Archivo `spec-devops.md` creado y commiteado en el historial de Git.
