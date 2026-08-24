@@ -30,3 +30,18 @@ Para cumplir con los requerimientos funcionales declarados en el [`plan.md`](../
 - [ ] Tabla de presupuesto estimado desglosado por categorías (`<table>`, `<th>`, `<td>`) [8].
 - [ ] Listas ordenadas/desordenadas para pasos de organización o características [8].
 - [ ] Comentarios explicativos en el código HTML indicando la aplicación futura de CSS y JS [9].
+
+---
+
+## 4. Uso de Figma MCP (Proceso con IA)
+
+Para generar la estructura HTML inicial respetando el diseño planteado, se utilizó el servidor MCP de Figma junto con GitHub Copilot en VS Code.
+
+*   **Modelo de IA utilizado:** GitHub Copilot (Modo Agente / Chat).
+*   **Prompt exacto utilizado:**
+    > *"Copilot, conectate a nuestro mockup en Figma a través del servidor Figma MCP usando el link indicado en el README principal. Con ese diseño de Cockpit Operativo, generá la estructura HTML5 semántica y accesible para index.html. Asegurate de no incluir textos de relleno y de dejar notas explicativas estructuradas para el CSS y JS futuros."*
+*   **Resultado obtenido:** Una estructura HTML5 semántica base que mapea de forma idéntica el diseño de dos columnas (formulario de carga de eventos a la izquierda y planilla financiera a la derecha) y el catálogo de experiencias ("plancitos").
+*   **Ajustes manuales realizados:**
+    1. Se enlazaron las imágenes temporales apuntando de forma relativa a la ruta física de nuestro mockup (`./docs/01-mockup/actividad-obligatoria-1/diseño-inicial.png`).
+    2. Se añadieron los datos académicos de UCES y el nombre completo de Valeria Silva en la sección del pie de página (`<footer>`).
+    3. Se agregaron y probaron los enlaces relativos directos a las especificaciones individuales (`spec-ux.md` y `spec-frontend.md`) en el menú del pie de página.
