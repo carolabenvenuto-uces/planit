@@ -37,7 +37,7 @@ Establecer la estructura base y el maquetado inicial en HTML5 semántico de la p
 
 📁 **Documentación**
 
-- 🖼️ [Mockup en alta resolución (PNG)](docs/01-mockup/actividad-obligatoria-1/diseño-inicial.png) | [Ver diseño interactivo en Figma](https://www.figma.com/design/iUmUArxu59WUYlBl2zR3xq/Wireframe?node-id=0-1&p=f&t=gdwVXpkMv10EQ6Ps-0) 
+- 🖼️ [Mockup en alta resolución (PNG)](docs/01-mockup/actividad-obligatoria-1/diseño-inicial.png) | [Ver diseño interactivo en Figma](https://www.figma.com/design/iUmUArxu59WUYlBl2zR3xq/Wireframe?node-id=0-1&t=73bOfqtaFMhw7ipm-1) 
 - 📝 [Especificación Técnica de UX (Spec-UX)](docs/03-specs/actividad-obligatoria-1/spec-ux.md)
 - 📂 [Índice de Prompts de IA](docs/02-prompts/prompts.md)
 - 📜 [Changelog del Proyecto](changelog.md)
