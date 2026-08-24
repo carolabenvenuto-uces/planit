@@ -1,50 +1,56 @@
-# Especificación Técnica (Spec) - Documentador / UX
+# Especificación Técnica (Spec) - Documentador / Diseñador UX
 
 - **Proyecto:** PlanIT - Plataforma All-in-One de Organización & Experiencias
 - **Entrega:** Actividad Obligatoria N°1
-- **Rol:** Documentador / UX
-- **Responsable:** @ValeriaMSilva
+- **Rol:** Documentador / Diseñador UX
+- **Responsable:** Valeria Silva (@ValeriaMSilva)
 - **Rama:** `feature/doc-ux-add-readme-and-mockup`
 
 ---
 
 ## 1. Qué se va a hacer
-Definición del concepto visual del producto PlanIT, diseño del prototipo/mockup interactivo en Figma, exportación de capturas de pantalla para la carpeta de documentación y redacción de la portada principal en el archivo `README.md`.
+Planificación de la interfaz de usuario (UI), estructuración del concepto de la Landing Page de PlanIT mediante mockup visual en Figma, y redacción de la especificación técnica de la experiencia de usuario (UX). Se definirá la jerarquía visual de la pantalla inicial y los componentes clave del "Cockpit Operativo".
 
 ---
 
 ## 2. Por qué se hace
-Para establecer la identidad visual, jerarquía de información y guía estética del simulador, facilitando la interpretación del proyecto a usuarios externos y sirviendo de referencia al maquetador Frontend.
+Para proveer un marco conceptual y estético antes de codificar la página base en HTML5, minimizando cambios de alcance y garantizando una experiencia de usuario accesible, limpia y unificada.
 
 ---
 
 ## 3. Criterios de Aceptación (Checklist)
 
-### Entregable de este PR
-- [ ] Mockup o prototipo visual creado en Figma representando la interfaz de PlanIT.
-- [ ] Imagen/captura del mockup subida a `docs/01-mockup/actividad-obligatoria-1/diseño-inicial.png`.
-- [ ] Archivo `README.md` redactado con la descripción del proyecto, datos del equipo, tecnologías utilizadas y enlace al archivo de Figma.
+### Entregables del Rol
+- [x] Mockup o prototipo visual creado en Figma representando la interfaz de PlanIT.
+- [x] Imagen/captura del mockup subida a la ruta `docs/01-mockup/actividad-obligatoria-1/diseño-inicial.png`.
+- [x] Archivo `README.md` redactado con la descripción del proyecto, datos del equipo, tecnologías utilizadas y enlace público al archivo de Figma.
+
+### Especificaciones Técnicas del Mockup
+- [x] **Validación de formato:** Imagen exportada localmente en formato PNG de alta calidad.
+- [x] **Resolución optimizada:** Captura con resolución nítida para la lectura de tipografías y tablas.
+- [x] **Layout de pantalla única:** Presentación clara del panel del "Cockpit" que incluye el formulario de alta y la tabla de presupuesto.
+- [x] **Comportamiento sticky:** Definición teórica del panel financiero flotante que acompaña el recorrido visual en desktop.
 
 ---
 
-## 4. Proceso de Diseño Asistido por IA (Requisito de Cátedra)
-*   **Asistente de IA:** GitHub Copilot en modo Agente (Claude-3.5-Sonnet).
-*   **Contexto provisto:** Archivo de requerimientos `plan.md` oficial de la Coordinadora.
+## 4. Diseño asistido por IA e iteraciones de UI
 
-### A. Qué se le pidió a la IA (Prompt):
-> *"Actúa como Diseñador UX Senior. Tomando como contexto el archivo 'plan.md' de PlanIT que armó mi coordinadora, recomiéndame una distribución de layout, estructura de secciones y jerarquía visual idónea para una pantalla única (desktop) que maximice la usabilidad al gestionar el evento, el presupuesto, los invitados y el catálogo de plancitos."*
+### 4.A Concepto sugerido por la IA
+Tomando el `plan.md` como contexto de diseño, se le solicitó a la IA (GitHub Copilot Agent) recomendaciones de layout para lograr un portal interactivo de organización de eventos. La IA sugirió una estructura centralizada basada en una landing de conversión inmediata.
 
-### B. Qué sugirió la IA (Layout "Cockpit Operativo"):
-1.  **Layout de Doble Columna en Escritorio:** Columna principal izquierda (8 cols) para el flujo de trabajo activo de creación/edición, y panel lateral derecho fijo (4 cols, sticky) para mostrar el resumen financiero (presupuesto y saldo) y estado del evento.
-2.  **Estructura de Secciones recomendada:**
-    *   *Mi Evento:* Formulario compacto (Nombre, Fecha, Tipo, Presupuesto, Ubicación).
-    *   *Presupuesto:* Tabla con categorías, tipo, cantidad, unitario, subtotal y KPIs de consumo.
-    *   *Invitados:* Tabla con filtros de asistencia (Todos, Confirmados, Pendientes).
-    *   *Catálogo:* Grid de 3 columnas de tarjetas ("plancitos") con barra de búsqueda superior.
+### 4.B Elementos Incorporados
+- **Cockpit Unificado:** La sección interactiva que combina la entrada del formulario y la respuesta inmediata de los cálculos del presupuesto en la misma pantalla.
+- **Grilla de Tarjetas (Grid Layout):** El catálogo de "plancitos" recreativos maquetado en bloques independientes con imágenes relativas y precios fijos.
 
-### C. Qué se decidió usar:
-*   **Se adopta el layout de "Cockpit Operativo" de doble columna:** Excelente para que el usuario complete campos a la izquierda y observe de forma inmediata el impacto en su presupuesto y confirmaciones a la derecha sin perder el foco.
-*   **Se adopta el Panel Derecho Sticky:** Los KPIs financieros de presupuesto total y saldo disponible se mantendrán fijos al hacer scroll.
+### 4.C Elementos Descartados y Justificación
+- **Descarte de navegación por pestañas (Tabs):** Se analizó la alternativa de dividir el Cockpit en dos pestañas ("Cargar Datos" y "Presupuesto Calculado"). Sin embargo, se descartó en favor de un diseño de doble columna visible en pantalla completa (scroll vertical unificado). Esta decisión se tomó para:
+  1. **Priorizar la accesibilidad (a11y):** Los lectores de pantalla de usuarios con discapacidad visual conservan mucho mejor la referencia estructural en un flujo lineal continuo sin necesidad de gestionar focos dinámicos de pestañas.
+  2. **Mantener una semántica limpia en HTML5:** Permite construir un prototipo funcional robusto para la Entrega 1 utilizando solo maquetación semántica sin depender de lógica dinámica obligatoria en JavaScript, la cual será incorporada formalmente en la Entrega 3.
 
-### D. Qué se descartó:
-*   **Se descartó la navegación por pestañas (tabs):** Se prefiere un flujo de scroll vertical continuo y secciones semánticas nativas visibles para garantizar que el maquetado inicial en HTML5 sea lo más accesible posible mediante teclado.
+### 4.D Nota sobre Responsividad (Diseño Líquido)
+El mockup visual actual ha sido diseñado tomando como referencia una resolución de pantalla de escritorio (Desktop). La adaptabilidad para dispositivos móviles (Responsive Design) será abordada en la **Entrega 2** del proyecto mediante la aplicación de hojas de estilo (CSS) con Flexbox y Media Queries, donde las columnas de visualización se apilarán verticalmente de manera fluida.
+
+---
+
+## 5. Validación de Enlaces y Figma
+Se confirma que el enlace al prototipo de Figma incorporado en el `README.md` ha sido configurado como **público (acceso permitido para cualquier usuario sin requerir inicio de sesión en Figma)** y apunta directamente al frame final del Cockpit.
