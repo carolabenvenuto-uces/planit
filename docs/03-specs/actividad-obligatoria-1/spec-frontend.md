@@ -23,13 +23,13 @@ Para cumplir con los requerimientos funcionales declarados en el [`plan.md`](../
 ## 3. Criterios de Aceptación (Checklist)
 
 ### Entregable de este PR
-- [ ] Maquetado de `index.html` con estructura semántica válida (`<header>`, `<main>`, `<footer>`, `<section>`, `<article>`, `<nav>`) [8].
-- [ ] Títulos jerárquicos (`<h1>` a `<h3>`) e información real de PlanIT (sin Lorem Ipsum) [8, 9].
-- [ ] Galería o tarjetas de experiencias con imágenes y sus respectivos atributos `alt` descriptivos [8].
-- [ ] Formulario de creación de eventos con al menos 3 campos relevantes (nombre del evento, fecha, presupuesto) [8].
-- [ ] Tabla de presupuesto estimado desglosado por categorías (`<table>`, `<th>`, `<td>`) [8].
-- [ ] Listas ordenadas/desordenadas para pasos de organización o características [8].
-- [ ] Comentarios explicativos en el código HTML indicando la aplicación futura de CSS y JS [9].
+- [x] Maquetado de `index.html` con estructura semántica válida (`<header>`, `<main>`, `<footer>`, `<section>`, `<article>`, `<nav>`) [8].
+- [x] Títulos jerárquicos (`<h1>` a `<h3>`) e información real de PlanIT (sin Lorem Ipsum) [8, 9].
+- [x] Galería o tarjetas de experiencias con imágenes y sus respectivos atributos `alt` descriptivos [8].
+- [x] Formulario de creación de eventos con al menos 3 campos relevantes (nombre del evento, fecha, presupuesto) [8].
+- [x] Tabla de presupuesto estimado desglosado por categorías (`<table>`, `<th>`, `<td>`) [8].
+- [x] Listas ordenadas/desordenadas para pasos de organización o características [8].
+- [x] Comentarios explicativos en el código HTML indicando la aplicación futura de CSS y JS [9].
 
 ---
 
