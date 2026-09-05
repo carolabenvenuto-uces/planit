@@ -53,6 +53,12 @@
         <section id="experiencias" class="experiencias-section">
             <h2>Explorá nuestros "Plancitos" Destacados</h2>
             <p>Elegí entre talleres interactivos, shows privados y gastronomía premium para sumar a tu evento.</p>
+
+            <form class="catalog-search" role="search" action="#experiencias" method="get">
+                <label for="busqueda-plancitos">Buscar experiencias</label>
+                <input type="search" id="busqueda-plancitos" name="busqueda-plancitos" placeholder="Buscá un plancito por nombre o categoría">
+                <button type="submit" aria-label="Buscar plancitos">🔍</button>
+            </form>
             
             <div class="cards-grid">
                 <!-- Tarjeta de Experiencia 1 -->
@@ -99,7 +105,7 @@
             <div class="cockpit-container">
                 
                 <!-- Formulario de Entrada -->
-                <article class="cockpit-form">
+                <div class="cockpit-form">
                     <h3>Paso 1: Datos Base del Evento</h3>
                     <form id="event-form" action="#" method="POST">
                         <div class="form-group">
@@ -150,19 +156,19 @@
                          - Capturar los valores de los inputs (nombre, fecha y presupuesto máximo) y guardarlos en variables del estado de la app [5].
                          - Habilitar campos adicionales de forma condicional si se selecciona una experiencia [5].
                     -->
-                </article>
+                </div>
 
                 <!-- Tabla de Presupuesto -->
-                <article class="cockpit-table">
+                <div class="cockpit-table">
                     <h3>Paso 2: Planilla de Presupuesto Estimado</h3>
                     <table>
                         <thead>
                             <tr>
-                                <th>Rubro / Concepto</th>
-                                <th>Categoría</th>
-                                <th>Costo Unitario ($)</th>
-                                <th>Cantidad</th>
-                                <th>Total ($)</th>
+                                <th scope="col">Rubro / Concepto</th>
+                                <th scope="col">Categoría</th>
+                                <th scope="col">Costo Unitario ($)</th>
+                                <th scope="col">Cantidad</th>
+                                <th scope="col">Total ($)</th>
                             </tr>
                         </thead>
                         <tbody id="tabla-presupuesto-body">
@@ -200,7 +206,7 @@
                          - Recalcular automáticamente el total de la columna 'Total ($)' e inyectar el valor sumado en el pie de tabla ('#costo-total-estimado') [5].
                          - Cambiar el color del costo total a rojo mediante clases si el total excede el presupuesto máximo ingresado por el usuario [5].
                     -->
-                </article>
+                </div>
 
             </div>
             <!-- FUTURO CSS: 
@@ -230,6 +236,43 @@
                  - Diseñar la lista ordenada en formato de bloques horizontales o línea de tiempo interactiva [5].
                  - Estilizar los números grandes de cada paso usando pseudoelementos (::before) con fuentes en negrita violeta [5].
             -->
+        </section>
+
+        <!-- SECCIÓN 3: GESTIÓN DE INVITADOS -->
+        <section id="invitados" class="invitados-section">
+            <h2>Gestión de Invitados</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th scope="col">Nombre</th>
+                        <th scope="col">Contacto (email/teléfono)</th>
+                        <th scope="col">Estado de confirmación</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>María González</td>
+                        <td>maria@example.com / 11 5555-0101</td>
+                        <td>Confirmado</td>
+                    </tr>
+                    <tr>
+                        <td>Juan Pérez</td>
+                        <td>juan@example.com / 11 5555-0102</td>
+                        <td>Pendiente</td>
+                    </tr>
+                    <tr>
+                        <td>Sofía Rodríguez</td>
+                        <td>sofia@example.com / 11 5555-0103</td>
+                        <td>Rechazado</td>
+                    </tr>
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td colspan="2">Total de invitados</td>
+                        <td>3</td>
+                    </tr>
+                </tfoot>
+            </table>
         </section>
 
     </main>
