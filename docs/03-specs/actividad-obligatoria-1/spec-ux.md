@@ -38,6 +38,12 @@ Para proveer un marco conceptual y estético antes de codificar la página base 
 ### 4.A Concepto sugerido por la IA
 Tomando el `plan.md` como contexto de diseño, se le solicitó a la IA (GitHub Copilot Agent) recomendaciones de layout para lograr un portal interactivo de organización de eventos. La IA sugirió una estructura centralizada basada en una landing de conversión inmediata.
 
+Prompt utilizado:
+
+```text
+Actúa como Diseñador UX Senior. Tomando como contexto el archivo 'plan.md' de PlanIT que armó mi coordinadora, recomiéndame una distribución de layout, estructura de secciones y jerarquía visual idónea para una pantalla única (desktop) que maximice la usabilidad al gestionar el evento, el presupuesto, los invitados y el catálogo de plancitos.
+```
+
 ### 4.B Elementos Incorporados
 - **Cockpit Unificado:** La sección interactiva que combina la entrada del formulario y la respuesta inmediata de los cálculos del presupuesto en la misma pantalla.
 - **Grilla de Tarjetas (Grid Layout):** El catálogo de "plancitos" recreativos maquetado en bloques independientes con imágenes relativas y precios fijos.
