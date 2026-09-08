@@ -4,10 +4,10 @@
 
 ### Added
 - [feature/coordinador-setup-repo-and-pages] Setup inicial del repositorio, Spec Maestro y entorno DevOps. PR: #4 https://github.com/carolabenvenuto-uces/planit/pull/4 | Issue: #3 - @carolabenvenuto-uces (Coordinador / DevOps)
-- [feature/doc-ux-add-readme-and-mockup] Creación del mockup de diseño inicial y especificación técnica de UX. Se exportó el diseño de Figma a formato PNG (docs/01-mockup/actividad-obligatoria-1/diseño-inicial.png), se redactó la especificación técnica individual (docs/03-specs/actividad-obligatoria-1/spec-ux.md) y se actualizaron el README.md y el changelog.md con los enlaces de documentación correspondientes. PR: #6 https://github.com/carolabenvenuto-uces/planit/pull/6 | Issue: #5 - @ValeriaMSilva (Documentador / Diseñador UX)
-- [feature/frontend-add-html-structure] Maquetado semántico inicial de la interfaz web en HTML5 (index.html) traduciendo el mockup de UX. Se redactó la especificación técnica individual (docs/03-specs/actividad-obligatoria-1/spec-frontend.md), se incluyeron tablas de presupuesto, formularios de alta de evento, catálogo de experiencias con imágenes locales y comentarios detallados de CSS y JS futuros. PR: #8 https://github.com/carolabenvenuto-uces/planit/pull/8 | Issue: #7 - @ValeriaMSilva (Desarrollador Frontend)
-- [feature/ia-sdd-setup] Investigación y definición de SDD (Spec-Driven Development), template de spec-rol.md y spec-ia.md con las dos etapas del rol. PR: [#2](https://github.com/carolabenvenuto-uces/planit/pull/2) - @FacundoGuiraldes (Especialista en IA)
-- [feature/ia-add-prompts-1-to-5] Documentación final de 5 prompts con modelos de IA distintos (Claude, GitHub Copilot, ChatGPT, Gemini Flash), índice actualizado y comparativa entre Claude y Gemini aplicados a revisión de código. PR: [#10](https://github.com/carolabenvenuto-uces/planit/pull/10) | Issue: #9 - @FacundoGuiraldes (Especialista en IA)
+- [feature/doc-ux-add-readme-and-mockup] agregar mockup de figma y especificación de diseño. PR: #6 https://github.com/carolabenvenuto-uces/planit/pull/6 | Issue: #5 - @ValeriaMSilva (Documentador / Diseñador UX)
+- [feature/frontend-add-html-structure] maquetado semántico HTML5, Cockpit de Eventos y spec-frontend. PR: #8 https://github.com/carolabenvenuto-uces/planit/pull/8 | Issue: #7 - @ValeriaMSilva (Desarrollador Frontend)
+- [feature/ia-sdd-setup] agrega spec-ia, template de spec-rol y decisiones SDD. PR: [#2](https://github.com/carolabenvenuto-uces/planit/pull/2) - @FacundoGuiraldes (Especialista en IA)
+- [feature/ia-add-prompts-1-to-5] agrega documentacion final de prompts y comparativa de modelos. PR: [#10](https://github.com/carolabenvenuto-uces/planit/pull/10) | Issue: #9 - @FacundoGuiraldes (Especialista en IA)
 
 ### Fixed
 
