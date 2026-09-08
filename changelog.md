@@ -10,6 +10,11 @@
 - [feature/ia-add-prompts-1-to-5] agrega documentacion final de prompts y comparativa de modelos. PR: [#10](https://github.com/carolabenvenuto-uces/planit/pull/10) | Issue: #9 - @FacundoGuiraldes (Especialista en IA)
 
 ### Fixed
+- [fix/ux] documentar prompt de concepto visual en spec-ux (RC7). PR: #13 - @ValeriaMSilva (Coordinador / DevOps)
+- [fix/frontend] resolver correcciones de Frontend y Especificaciones (RC4, RC5 y RC6). PR: #14 - @ValeriaMSilva (Coordinador / DevOps)
+- [fix/ia] resolver RC8 en spec-ia y eliminar .gitkeep residual en mockups. PR: #15 - @ValeriaMSilva (Coordinador / DevOps)
+- [fix/changelog] simplificar descripción de setup inicial (RCN1). PR: #16 - @ValeriaMSilva (Coordinador / DevOps)
+- [fix/changelog] aplicar cambios sugeridos para entradas de características (RCN2). PR: #17 - @ValeriaMSilva (Coordinador / DevOps)
 
 ---
 
