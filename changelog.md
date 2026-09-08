@@ -2,6 +2,7 @@
 
 ## [Unreleased]
 
+## [Release Actividad Obligatoria N°1] - 2026-08-31
 ### Added
 - [feature/coordinador-setup-repo-and-pages] Setup inicial del repositorio, Spec Maestro y entorno DevOps. PR: #4 https://github.com/carolabenvenuto-uces/planit/pull/4 | Issue: #3 - @carolabenvenuto-uces (Coordinador / DevOps)
 - [feature/doc-ux-add-readme-and-mockup] agregar mockup de figma y especificación de diseño. PR: #6 https://github.com/carolabenvenuto-uces/planit/pull/6 | Issue: #5 - @ValeriaMSilva (Documentador / Diseñador UX)
