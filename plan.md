@@ -10,6 +10,10 @@
  elaboración de los specs por rol y para la validación de Pull Requests y Code
  Reviews.
 
+ ## Actividad Obligatoria N.° 2
+
+ - [x] Actualización del mockup y de las especificaciones de la Actividad N.° 2.
+
  ## 1. Visión General del Proyecto
 
  ### 1.1 Propuesta de valor

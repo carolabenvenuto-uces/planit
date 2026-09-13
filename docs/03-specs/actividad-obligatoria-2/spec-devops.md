@@ -13,16 +13,20 @@ Resolución de Request Changes de la Actividad Obligatoria N°1 mediante ramas f
 
 ---
 
+```
 ## 2. Criterios de Aceptación (Checklist)
+
 - [x] spec-devops.md creado y commiteado en docs/03-specs/actividad-obligatoria-2/ antes de realizar otros cambios.
-- [ ] Backport de la Actividad N°1 aprobado e integrado en develop.
-- [ ] Mockup en Figma actualizado con colores, fuentes, espaciados y estados de interacción (hover/focus).
-- [ ] Imagen exportada en docs/01-mockup/actividad-obligatoria-2/diseño-con-estilos.png.
-- [ ] Enlace al archivo Figma y al mockup exportado actualizados en README.md.
-- [ ] Archivo plan.md actualizado con los objetivos de la Actividad N°2.
+- [x] Backport de la Actividad N°1 aprobado e integrado en develop.
+- [x] Mockup en Figma actualizado con colores, fuentes, espaciados y estados de interacción (hover/focus).
+- [x] Imagen exportada en docs/01-mockup/actividad-obligatoria-2/diseño-con-estilos.png.
+- [x] Enlace al archivo Figma y al mockup exportado actualizados en README.md.
+- [x] Archivo plan.md actualizado con los objetivos de la Actividad N°2.
 - [ ] Al menos 4 Code Reviews asistidos con Copilot Agent Mode realizados sobre las PRs del equipo.
 - [ ] Registro de contribuciones y PRs actualizado en changelog.md.
 - [ ] Rama release/actividad-obligatoria-2 creada desde develop y GitHub Pages habilitado.
+
+```
 
 ---
 

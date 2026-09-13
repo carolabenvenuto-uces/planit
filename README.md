@@ -38,6 +38,7 @@ Establecer la estructura base y el maquetado inicial en HTML5 semántico de la p
 📁 **Documentación**
 
 - 🖼️ [Mockup en alta resolución (PNG)](docs/01-mockup/actividad-obligatoria-1/diseño-inicial.png) | [Ver diseño interactivo en Figma](https://www.figma.com/design/iUmUArxu59WUYlBl2zR3xq/Wireframe?node-id=0-1&t=73bOfqtaFMhw7ipm-1) 
+- 🖼️ [Mockup con Estilos (PNG Local)](docs/01-mockup/actividad-obligatoria-2/diseño-con-estilos.png) | [Archivo de Figma](https://www.figma.com/design/iUmUArxu59WUYlBl2zR3xq/Wireframe?node-id=2010-4&amp;t=Ck1r6ZQCICdGpTRy-0)
 - 📝 [Especificación Técnica de UX (Spec-UX)](docs/03-specs/actividad-obligatoria-1/spec-ux.md)
 - 📂 [Índice de Prompts de IA](docs/02-prompts/prompts.md)
 - 📜 [Changelog del Proyecto](changelog.md)
@@ -49,6 +50,6 @@ Establecer la estructura base y el maquetado inicial en HTML5 semántico de la p
 
 | Nombre completo | N° de Matrícula | Usuario GitHub | Rol en esta entrega |
 | --- | --- | --- | --- |
-| Carola Benvenuto | 158686 | @carolabenvenuto-uces | Coordinador / DevOps |
-| Valeria Silva | 156612 | @ValeriaMSilva | Desarrollador Frontend y Documentador / Diseñador UX|
-| Facundo Guiraldes | 114797 | @FacundoGuiraldes | Especialista en IA y Prompt Engineering |
+| Carola Benvenuto | 158686 | @carolabenvenuto-uces | Desarrollador Frontend / CSS y Responsive |
+| Valeria Silva | 156612 | @ValeriaMSilva | Coordinador / DevOps |
+| Facundo Guiraldes | 114797 | @FacundoGuiraldes | Documentador / QA Tester |
