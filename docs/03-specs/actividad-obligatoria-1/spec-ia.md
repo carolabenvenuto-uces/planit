@@ -14,6 +14,6 @@ Qué se hará: recopilar 5 prompts (uno por integrante, modelos y métodos
 distintos), comparar 2 modelos en comparativa-modelos.md.
 
 Criterios de aceptación:
-- [ ] 5 archivos prompts-x.md con formato completo
-- [ ] prompts.md como índice con enlaces
-- [ ] comparativa-modelos.md con conclusión fundada
+- [x] 5 archivos prompts-x.md con formato completo
+- [x] prompts.md como índice con enlaces
+- [x] comparativa-modelos.md con conclusión fundada
