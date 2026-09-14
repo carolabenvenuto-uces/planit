@@ -23,7 +23,7 @@ Resolución de Request Changes de la Actividad Obligatoria N°1 mediante ramas f
 - [x] Enlace al archivo Figma y al mockup exportado actualizados en README.md.
 - [x] Archivo plan.md actualizado con los objetivos de la Actividad N°2.
 - [ ] Al menos 4 Code Reviews asistidos con Copilot Agent Mode realizados sobre las PRs del equipo.
-- [ ] Registro de contribuciones y PRs actualizado en changelog.md.
+- [x] Registro de contribuciones y PRs actualizado en changelog.md (PR #20 e Issue #19 registradas).
 - [ ] Rama release/actividad-obligatoria-2 creada desde develop y GitHub Pages habilitado.
 
 ```

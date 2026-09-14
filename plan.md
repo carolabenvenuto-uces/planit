@@ -10,9 +10,12 @@
  elaboración de los specs por rol y para la validación de Pull Requests y Code
  Reviews.
 
- ## Actividad Obligatoria N.° 2
+ ## Actividad Obligatoria N.° 2 — Alcance & Objetivos
 
- - [x] Actualización del mockup y de las especificaciones de la Actividad N.° 2.
+ - [x] **Coordinación / DevOps:** Setup de especificaciones (`spec-devops.md`), actualización de roles en `README.md`, integración de mockup Figma y registro en `changelog.md`.
+ - [ ] **Frontend / CSS:** Implementación de estilos base, paleta de colores, tipografía Inter y componentes (`styles.css`, `components.css`).
+ - [ ] **Responsive Design:** Diseño adaptativo mediante Media Queries (`responsive.css`).
+ - [ ] **Testing & QA:** Pruebas e inspección automatizada de interfaz con Playwright MCP y Copilot.
 
  ## 1. Visión General del Proyecto
 
