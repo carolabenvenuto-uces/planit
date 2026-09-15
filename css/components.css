@@ -15,7 +15,7 @@ header {
   z-index: 100;
   height: var(--header-height);
   background-color: rgba(30, 30, 36, 0.92); /* Superficie oscura con transparencia */
-  backdrop-filter: blur(12px);              /* Efecto glassmorphism moderno */
+  backdrop-filter: blur(12px);               /* Efecto glassmorphism moderno */
   -webkit-backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--color-border);
   padding: 0 var(--spacing-xl);
@@ -50,6 +50,7 @@ header {
   font-size: var(--font-size-xl);
   font-weight: var(--font-weight-black);
   background: linear-gradient(135deg, var(--color-primary-light), var(--color-secondary));
+  background-clip: text;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent; /* Tipografía con gradiente de marca */
   display: inline-block;
@@ -88,8 +89,7 @@ nav ul li a:hover {
 
 nav ul li a:focus-visible {
   outline: 2px solid var(--color-primary-light);
-  outline-offset: 2px;git add css/components.css
-git commit -m "feat(frontend): agrega estilos de componentes UI, tarjetas, formularios y estados hover/focus"
+  outline-offset: 2px;
 }
 
 nav ul li a:active {
