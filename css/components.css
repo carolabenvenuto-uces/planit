@@ -1,0 +1,631 @@
+/* ==========================================================================
+   PLANIT - Estilos de Componentes UI
+   Archivo: css/components.css
+   Rol: Desarrollador Frontend / CSS
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   1. CABECERA Y NAVEGACIÓN (Header & Navbar)
+   - Layout: Flexbox horizontal con distribución 'space-between'
+   - Box Model: Altura fija, padding horizontal, borde inferior de separación
+   -------------------------------------------------------------------------- */
+header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  height: var(--header-height);
+  background-color: rgba(30, 30, 36, 0.92); /* Superficie oscura con transparencia */
+  backdrop-filter: blur(12px);              /* Efecto glassmorphism moderno */
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--color-border);
+  padding: 0 var(--spacing-xl);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: var(--shadow-sm);
+}
+
+/* Contenedor del Logo (Elemento en Bloque Flex) */
+.logo-container {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  text-decoration: none;
+}
+
+.logo-container img {
+  max-height: 44px;
+  width: auto;
+  border-radius: var(--radius-sm);
+  transition: transform var(--transition-fast);
+}
+
+.logo-container:hover img {
+  transform: scale(1.05); /* Micro-interacción de realce */
+}
+
+/* Nombre de Marca PlanIT (Elemento en línea estilizado) */
+.logo-container span {
+  font-family: var(--font-heading);
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-black);
+  background: linear-gradient(135deg, var(--color-primary-light), var(--color-secondary));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent; /* Tipografía con gradiente de marca */
+  display: inline-block;
+}
+
+/* Menú de Navegación */
+nav ul {
+  list-style: none; /* Eliminación de viñetas estándar */
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  margin: 0;
+  padding: 0;
+}
+
+/* Enlaces de Navegación (Elementos con Box Model interactivo) */
+nav ul li a {
+  display: inline-block; /* Permite aplicar padding y transformaciones */
+  padding: var(--spacing-xs) var(--spacing-sm);
+  color: var(--color-text-secondary);
+  font-family: var(--font-heading);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  border-radius: var(--radius-sm);
+  transition: color var(--transition-fast), background-color var(--transition-fast), transform var(--transition-fast);
+  text-decoration: none;
+}
+
+/* Estados Interactivos de Navegación */
+nav ul li a:hover {
+  color: var(--color-text-primary);
+  background-color: var(--color-primary-subtle);
+  text-decoration: none;
+  transform: translateY(-1px);
+}
+
+nav ul li a:focus-visible {
+  outline: 2px solid var(--color-primary-light);
+  outline-offset: 2px;
+}
+
+nav ul li a:active {
+  transform: translateY(0);
+  background-color: rgba(108, 92, 231, 0.25);
+}
+
+/* --------------------------------------------------------------------------
+   2. SECCIÓN HERO (Hero Banner)
+   - Layout: Centrado visual, fondo destacado y llamada a la acción prominente
+   -------------------------------------------------------------------------- */
+.hero-section {
+  text-align: center;
+  padding: var(--spacing-3xl) var(--spacing-lg);
+  background: radial-gradient(circle at 50% 30%, rgba(108, 92, 231, 0.15) 0%, rgba(19, 19, 26, 0) 70%);
+  border-radius: var(--radius-lg);
+  margin-top: var(--spacing-lg);
+  margin-bottom: var(--spacing-xl);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.hero-section h1 {
+  max-width: 850px;
+  margin-left: auto;
+  margin-right: auto;
+  font-size: var(--font-size-3xl);
+  letter-spacing: -0.03em;
+}
+
+.hero-section p {
+  max-width: 680px;
+  margin-left: auto;
+  margin-right: auto;
+  font-size: var(--font-size-md);
+  color: var(--color-text-secondary);
+  margin-bottom: var(--spacing-xl);
+}
+
+/* --------------------------------------------------------------------------
+   3. BOTONES Y LLAMADAS A LA ACCIÓN (Buttons UI)
+   - Box Model: Padding interno generoso, bordes redondeados y sin outline brusco
+   -------------------------------------------------------------------------- */
+.btn-primary,
+.btn-submit {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-sm) var(--spacing-xl);
+  font-family: var(--font-heading);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-semibold);
+  color: #ffffff;
+  background: linear-gradient(135deg, var(--color-primary) 0%, #5846e0 100%);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  box-shadow: var(--shadow-md);
+  text-decoration: none;
+  transition: all var(--transition-normal);
+}
+
+/* Estados Interactivos: Botón Primario */
+.btn-primary:hover,
+.btn-submit:hover {
+  background: linear-gradient(135deg, var(--color-primary-hover) 0%, #4834d4 100%);
+  box-shadow: var(--shadow-glow);
+  transform: translateY(-2px);
+  color: #ffffff;
+  text-decoration: none;
+}
+
+.btn-primary:focus-visible,
+.btn-submit:focus-visible {
+  outline: 3px solid var(--color-primary-light);
+  outline-offset: 3px;
+}
+
+.btn-primary:active,
+.btn-submit:active {
+  transform: translateY(1px);
+  box-shadow: var(--shadow-sm);
+  background: var(--color-primary-active);
+}
+
+/* Botón de envío específico para el formulario */
+.btn-submit {
+  width: 100%; /* Ocupa el ancho completo del contenedor del formulario */
+  margin-top: var(--spacing-md);
+  padding-top: var(--spacing-md);
+  padding-bottom: var(--spacing-md);
+  font-size: var(--font-size-md);
+}
+
+/* --------------------------------------------------------------------------
+   4. CATÁLOGO DE EXPERIENCIAS ("PLANCITOS")
+   - Formulario de Búsqueda y Cuadrícula de Tarjetas
+   -------------------------------------------------------------------------- */
+.experiencias-section h2,
+.cockpit-section h2,
+.how-it-works h2,
+.invitados-section h2 {
+  margin-bottom: var(--spacing-xs);
+}
+
+.experiencias-section > p,
+.cockpit-section > p,
+.how-it-works > p {
+  color: var(--color-text-muted);
+  margin-bottom: var(--spacing-xl);
+}
+
+/* Barra de Búsqueda del Catálogo */
+.catalog-search {
+  display: flex;
+  align-items: center;
+  max-width: 540px;
+  margin-bottom: var(--spacing-2xl);
+  background-color: var(--color-bg-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-full);
+  padding: var(--spacing-2xs) var(--spacing-xs);
+  box-shadow: var(--shadow-sm);
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.catalog-search:focus-within {
+  border-color: var(--color-primary-light);
+  box-shadow: 0 0 0 3px var(--color-primary-subtle);
+}
+
+/* Ocultamiento accesible de etiqueta visual */
+.catalog-search label {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
+}
+
+.catalog-search input[type="search"] {
+  flex: 1;
+  background: transparent;
+  border: none;
+  padding: var(--spacing-xs) var(--spacing-md);
+  font-family: var(--font-body);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-primary);
+  outline: none;
+}
+
+.catalog-search input[type="search"]::placeholder {
+  color: var(--color-text-muted);
+}
+
+.catalog-search button[type="submit"] {
+  background-color: var(--color-primary);
+  border: none;
+  color: #ffffff;
+  width: 38px;
+  height: 38px;
+  border-radius: var(--radius-full);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background-color var(--transition-fast), transform var(--transition-fast);
+}
+
+.catalog-search button[type="submit"]:hover {
+  background-color: var(--color-primary-hover);
+  transform: scale(1.08);
+}
+
+/* Cuadrícula de Tarjetas (Cards Grid) */
+.cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: var(--spacing-xl);
+}
+
+/* Tarjeta de Experiencia Individual (Card Component) */
+.card-experiencia {
+  display: flex;
+  flex-direction: column;
+  background-color: var(--color-bg-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  overflow: hidden; /* Corta esquinas de la imagen según border-radius */
+  box-shadow: var(--shadow-md);
+  transition: transform var(--transition-normal), box-shadow var(--transition-normal), border-color var(--transition-normal);
+}
+
+/* Efecto Lift (Elevación) al interactuar */
+.card-experiencia:hover {
+  transform: translateY(-6px);
+  box-shadow: var(--shadow-lg);
+  border-color: rgba(108, 92, 231, 0.4);
+}
+
+.card-experiencia img {
+  width: 100%;
+  height: 190px;
+  object-fit: cover; /* Recorte armónico sin deformar la imagen */
+  border-bottom: 1px solid var(--color-border);
+  background-color: var(--color-bg-surface-alt);
+}
+
+/* Cuerpo de la Tarjeta */
+.card-content {
+  padding: var(--spacing-lg);
+  display: flex;
+  flex-direction: column;
+  flex: 1; /* Asegura distribución homogénea de alturas */
+}
+
+.card-content h3 {
+  font-size: var(--font-size-lg);
+  color: var(--color-text-primary);
+  margin-bottom: var(--spacing-xs);
+}
+
+.card-content p {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  line-height: 1.5;
+  margin-bottom: var(--spacing-lg);
+  flex: 1; /* Empuja el precio hacia la base */
+}
+
+/* Badge / Etiqueta de Precio (Elemento en línea) */
+.card-content .precio {
+  display: inline-block;
+  align-self: flex-start;
+  padding: var(--spacing-2xs) var(--spacing-sm);
+  font-family: var(--font-heading);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-accent-amber);
+  background-color: rgba(253, 203, 110, 0.12);
+  border: 1px solid rgba(253, 203, 110, 0.3);
+  border-radius: var(--radius-full);
+}
+
+/* --------------------------------------------------------------------------
+   5. COCKPIT OPERATIVO (Formulario y Tabla en Doble Columna)
+   - Layout: Contenedor con Grid de 2 columnas proporcionales
+   -------------------------------------------------------------------------- */
+.cockpit-container {
+  display: grid;
+  grid-template-columns: 1fr 1.35fr; /* 1 col para Formulario, 1.35 col para Tabla */
+  gap: var(--spacing-xl);
+  align-items: start;
+}
+
+/* Contenedores de Formulario y Tabla */
+.cockpit-form,
+.cockpit-table {
+  background-color: var(--color-bg-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-xl);
+  box-shadow: var(--shadow-md);
+}
+
+.cockpit-form h3,
+.cockpit-table h3 {
+  font-size: var(--font-size-lg);
+  margin-bottom: var(--spacing-lg);
+  padding-bottom: var(--spacing-xs);
+  border-bottom: 1px solid var(--color-border);
+  color: var(--color-primary-light);
+}
+
+/* --------------------------------------------------------------------------
+   6. CONTROLES DE FORMULARIOS (Inputs, Selects, Labels)
+   - Control estricto de Box Model y estados de foco accesibles
+   -------------------------------------------------------------------------- */
+.form-group {
+  display: block;
+  margin-bottom: var(--spacing-md);
+}
+
+.form-group label {
+  display: block; /* Ocupa su propia línea sobre el campo */
+  font-family: var(--font-heading);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: var(--spacing-2xs);
+}
+
+.form-group input,
+.form-group select {
+  width: 100%; /* Control explícito del ancho */
+  padding: var(--spacing-xs) var(--spacing-sm);
+  font-family: var(--font-body);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-primary);
+  background-color: var(--color-bg-surface-alt);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast), background-color var(--transition-fast);
+}
+
+.form-group input::placeholder {
+  color: var(--color-text-muted);
+}
+
+/* Estados Interactivos de Formulario */
+.form-group input:hover,
+.form-group select:hover {
+  border-color: rgba(108, 92, 231, 0.4);
+}
+
+.form-group input:focus,
+.form-group select:focus {
+  outline: none;
+  border-color: var(--color-primary-light);
+  box-shadow: 0 0 0 3px var(--color-primary-subtle);
+  background-color: #2b2b38;
+}
+
+/* Estilo para select dropdowns */
+.form-group select option {
+  background-color: var(--color-bg-surface);
+  color: var(--color-text-primary);
+}
+
+/* --------------------------------------------------------------------------
+   7. TABLAS DE DATOS (Presupuesto e Invitados)
+   - Control de Box Model: border-collapse, espaciado de celdas y zebra striping
+   -------------------------------------------------------------------------- */
+table {
+  width: 100%;
+  border-collapse: collapse; /* Colapso limpio de bordes */
+  font-size: var(--font-size-sm);
+  text-align: left;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+}
+
+/* Encabezados de Tabla */
+thead {
+  background-color: var(--color-bg-surface-alt);
+}
+
+th {
+  font-family: var(--font-heading);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-primary);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: var(--spacing-sm) var(--spacing-md);
+  border-bottom: 2px solid var(--color-border);
+}
+
+/* Celdas del Cuerpo */
+td {
+  padding: var(--spacing-sm) var(--spacing-md);
+  color: var(--color-text-secondary);
+  border-bottom: 1px solid var(--color-border);
+  vertical-align: middle;
+}
+
+/* Zebra Striping y Efecto Hover en Filas */
+tbody tr:nth-child(even) {
+  background-color: rgba(255, 255, 255, 0.02);
+}
+
+tbody tr:hover {
+  background-color: rgba(108, 92, 231, 0.08); /* Feedback visual al posar el cursor */
+}
+
+/* Fila Dinámica de Experiencia en Cockpit */
+#fila-experiencia-dinamica {
+  font-style: italic;
+  color: var(--color-text-muted);
+}
+
+/* Pie de Tabla (Totales y Resumen) */
+tfoot {
+  background-color: var(--color-bg-surface-alt);
+  border-top: 2px solid var(--color-border);
+}
+
+tfoot td {
+  font-family: var(--font-heading);
+  color: var(--color-text-primary);
+  border-bottom: none;
+  padding-top: var(--spacing-md);
+  padding-bottom: var(--spacing-md);
+}
+
+#costo-total-estimado {
+  font-size: var(--font-size-md);
+  color: var(--color-accent-amber);
+}
+
+/* --------------------------------------------------------------------------
+   8. SECCIÓN CÓMO FUNCIONA (How It Works Steps)
+   - Lista ordenada estilizada con badges numéricos
+   -------------------------------------------------------------------------- */
+.how-it-works {
+  background-color: var(--color-bg-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-2xl);
+  box-shadow: var(--shadow-sm);
+  margin-top: var(--spacing-xl);
+}
+
+.pasos-list {
+  list-style: none; /* Reemplazo de viñetas numéricas por badges CSS */
+  counter-reset: paso-counter;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: var(--spacing-lg);
+  padding: 0;
+  margin-top: var(--spacing-lg);
+}
+
+.pasos-list li {
+  counter-increment: paso-counter;
+  position: relative;
+  background-color: var(--color-bg-surface-alt);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-lg);
+  padding-top: var(--spacing-2xl);
+  font-size: var(--font-size-sm);
+  line-height: 1.5;
+  transition: transform var(--transition-fast), border-color var(--transition-fast);
+}
+
+.pasos-list li:hover {
+  transform: translateY(-3px);
+  border-color: var(--color-primary-light);
+}
+
+/* Badge numérico generado con pseudoelemento ::before */
+.pasos-list li::before {
+  content: counter(paso-counter);
+  position: absolute;
+  top: -16px;
+  left: var(--spacing-lg);
+  width: 34px;
+  height: 34px;
+  background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+  color: #ffffff;
+  font-family: var(--font-heading);
+  font-weight: var(--font-weight-black);
+  font-size: var(--font-size-sm);
+  border-radius: var(--radius-full);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--shadow-md);
+}
+
+.pasos-list li strong {
+  display: block;
+  font-family: var(--font-heading);
+  color: var(--color-text-primary);
+  font-size: var(--font-size-base);
+  margin-bottom: var(--spacing-xs);
+}
+
+/* --------------------------------------------------------------------------
+   9. SECCIÓN GESTIÓN DE INVITADOS
+   -------------------------------------------------------------------------- */
+.invitados-section {
+  background-color: var(--color-bg-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-xl);
+  margin-top: var(--spacing-xl);
+}
+
+.invitados-section table {
+  margin-top: var(--spacing-md);
+}
+
+/* --------------------------------------------------------------------------
+   10. PIE DE PÁGINA (Footer)
+   - Layout: Contenedor flex con alineación horizontal y jerarquía visual
+   -------------------------------------------------------------------------- */
+footer {
+  background-color: #0d0d12;
+  border-top: 1px solid var(--color-border);
+  padding: var(--spacing-2xl) var(--spacing-lg);
+  margin-top: auto;
+}
+
+.footer-content {
+  max-width: var(--container-max-width);
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: var(--spacing-md);
+}
+
+.footer-content p {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+  margin: 0;
+}
+
+.footer-content p strong {
+  color: var(--color-text-secondary);
+}
+
+.footer-content ul {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--spacing-lg);
+  margin: 0;
+  padding: 0;
+}
+
+.footer-content ul li a {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+  transition: color var(--transition-fast);
+}
+
+.footer-content ul li a:hover {
+  color: var(--color-primary-light);
+  text-decoration: underline;
+}
