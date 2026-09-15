@@ -1,0 +1,232 @@
+/* ==========================================================================
+   PLANIT - Estilos Globales, Variables y Layout Base
+   Archivo: css/styles.css
+   Rol: Desarrollador Frontend / CSS
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   0. IMPORTACIÓN DE TIPOGRAFÍAS (Google Fonts)
+   Montserrat (Títulos y énfasis jerárquico) + Open Sans (Lectura fluida y legible)
+   -------------------------------------------------------------------------- */
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700;800&family=Open+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap');
+
+/* --------------------------------------------------------------------------
+   1. DESIGN TOKENS Y VARIABLES CSS (:root)
+   Extraídas del Sistema de Diseño y Mockup Figma de PlanIT
+   -------------------------------------------------------------------------- */
+:root {
+  /* --- Paleta de Colores Primarios y de Marca --- */
+  --color-primary: #6c5ce7;          /* Violeta eléctrico: color de identidad principal */
+  --color-primary-hover: #5846e0;    /* Violeta profundo para estados interactivos :hover */
+  --color-primary-active: #4834d4;   /* Violeta oscuro para estado :active */
+  --color-primary-light: #a29bfe;   /* Violeta pastel para bordes de foco y resaltes suaves */
+  --color-primary-subtle: rgba(108, 92, 231, 0.12); /* Fondo suave con transparencia */
+
+  /* --- Paleta de Colores Secundarios y Acento --- */
+  --color-secondary: #ff7675;        /* Rosa / Coral vibrante para llamadas a la acción y acentos */
+  --color-secondary-hover: #e84118;  /* Tono rojizo intenso para hover de acciones secundarias */
+  --color-accent-amber: #fdcb6e;     /* Ámbar para precios y elementos destacados */
+
+  /* --- Superficies y Fondos Oscuros (Dark UI Theme) --- */
+  --color-bg-main: #13131a;          /* Fondo base principal de la aplicación */
+  --color-bg-surface: #1e1e24;       /* Fondo de contenedores, tarjetas y paneles */
+  --color-bg-surface-alt: #262630;   /* Fondo alternativo para filas de tabla e inputs */
+  --color-bg-elevated: #2f2f3d;      /* Fondo elevado para tarjetas en hover y modales */
+  --color-border: #383848;           /* Bordes estructurales sutiles */
+  --color-border-focus: #6c5ce7;     /* Borde activo con foco de accesibilidad */
+
+  /* --- Tipografía y Contraste de Texto Neutros --- */
+  --color-text-primary: #f8f9fa;     /* Blanco brillante para títulos y textos principales */
+  --color-text-secondary: #d1d5db;   /* Gris claro para párrafos y descripciones de alta legibilidad */
+  --color-text-muted: #9ca3af;       /* Gris medio para etiquetas secundarias y metadatos */
+  --color-text-inverse: #13131a;     /* Texto oscuro para botones con fondo claro */
+
+  /* --- Estados Semánticos de Validación --- */
+  --color-status-success: #00b894;   /* Verde para confirmaciones y estados exitosos */
+  --color-status-warning: #f39c12;   /* Amarillo/Naranja para pendientes */
+  --color-status-danger: #d63031;    /* Rojo para cancelados y errores de validación */
+
+  /* --- Familias Tipográficas --- */
+  --font-heading: 'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-body: 'Open Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+
+  /* --- Escala Tipográfica Fluida y Proporcional --- */
+  --font-size-xs: 0.75rem;    /* 12px */
+  --font-size-sm: 0.875rem;   /* 14px */
+  --font-size-base: 1rem;     /* 16px - Base de lectura */
+  --font-size-md: 1.125rem;   /* 18px */
+  --font-size-lg: 1.25rem;    /* 20px */
+  --font-size-xl: 1.5rem;     /* 24px - Títulos H3 */
+  --font-size-2xl: 2rem;      /* 32px - Títulos H2 */
+  --font-size-3xl: 2.75rem;   /* 44px - Título H1 */
+
+  /* --- Pesos Tipográficos --- */
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+  --font-weight-black: 800;
+
+  /* --- Escala de Espaciados (Basada en Grid de 4px / 8px) --- */
+  --spacing-2xs: 0.25rem;  /* 4px */
+  --spacing-xs: 0.5rem;    /* 8px */
+  --spacing-sm: 0.75rem;   /* 12px */
+  --spacing-md: 1rem;      /* 16px */
+  --spacing-lg: 1.5rem;    /* 24px */
+  --spacing-xl: 2rem;      /* 32px */
+  --spacing-2xl: 3rem;     /* 48px */
+  --spacing-3xl: 4.5rem;   /* 72px */
+
+  /* --- Radios de Borde (Border Radius) --- */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --radius-full: 9999px;
+
+  /* --- Sombras de Profundidad (Elevation Shadows) --- */
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.25);
+  --shadow-md: 0 4px 14px rgba(0, 0, 0, 0.35);
+  --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.5);
+  --shadow-glow: 0 0 18px rgba(108, 92, 231, 0.45);
+
+  /* --- Transiciones Dinámicas --- */
+  --transition-fast: 0.15s ease-in-out;
+  --transition-normal: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slow: 0.4s ease;
+
+  /* --- Layout & Breakpoints Tokens --- */
+  --container-max-width: 1200px;
+  --header-height: 80px;
+}
+
+/* --------------------------------------------------------------------------
+   2. RESET GLOBAL Y NORMALIZACIÓN DEL BOX MODEL
+   Asegura consistencia cross-browser y cálculo predecible de anchos/altos
+   -------------------------------------------------------------------------- */
+*,
+*::before,
+*::after {
+  box-sizing: border-box; /* Control explícito: padding y borders incluidos en el ancho */
+  margin: 0;
+  padding: 0;
+}
+
+/* --------------------------------------------------------------------------
+   3. ESTILOS BASE DEL DOCUMENTO Y TIPOGRAFÍA GLOBAL
+   -------------------------------------------------------------------------- */
+html {
+  font-size: 16px;
+  scroll-behavior: smooth; /* Desplazamiento fluido en anclas de navegación */
+  scroll-padding-top: calc(var(--header-height) + var(--spacing-md));
+}
+
+body {
+  font-family: var(--font-body);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-regular);
+  line-height: 1.6;
+  color: var(--color-text-secondary);
+  background-color: var(--color-bg-main);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column; /* Estructura sticky footer */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Elementos de imagen responsivos por defecto */
+img {
+  max-width: 100%;
+  height: auto;
+  display: block; /* Elimina espacio en blanco inferior inherente a inline */
+}
+
+/* --------------------------------------------------------------------------
+   4. JERARQUÍA DE TÍTULOS Y ENCABEZADOS (Headings)
+   -------------------------------------------------------------------------- */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading);
+  color: var(--color-text-primary);
+  line-height: 1.25;
+  letter-spacing: -0.02em;
+}
+
+h1 {
+  font-size: var(--font-size-3xl);
+  font-weight: var(--font-weight-black);
+  margin-bottom: var(--spacing-md);
+}
+
+h2 {
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-bold);
+  margin-bottom: var(--spacing-sm);
+  position: relative;
+}
+
+/* Detalle visual sutil bajo títulos H2 para jerarquía de secciones */
+h2::after {
+  content: '';
+  display: block;
+  width: 50px;
+  height: 4px;
+  background: linear-gradient(90deg, var(--color-primary), var(--color-secondary));
+  border-radius: var(--radius-full);
+  margin-top: var(--spacing-xs);
+}
+
+h3 {
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-semibold);
+  margin-bottom: var(--spacing-xs);
+}
+
+p {
+  margin-bottom: var(--spacing-md);
+  color: var(--color-text-secondary);
+}
+
+/* Enlaces base heredados */
+a {
+  color: var(--color-primary-light);
+  text-decoration: none;
+  transition: color var(--transition-fast);
+}
+
+a:hover {
+  color: var(--color-secondary);
+  text-decoration: underline;
+}
+
+a:focus-visible {
+  outline: 2px solid var(--color-primary-light);
+  outline-offset: 3px;
+  border-radius: var(--radius-sm);
+}
+
+/* --------------------------------------------------------------------------
+   5. ESTRUCTURA Y LAYOUT GENERAL DE PÁGINA
+   -------------------------------------------------------------------------- */
+/* Contenedor centralizado para el contenido principal */
+main {
+  flex: 1 0 auto; /* Permite empujar el footer al fondo de pantalla */
+  width: 100%;
+  max-width: var(--container-max-width);
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: var(--spacing-lg);
+  padding-right: var(--spacing-lg);
+  padding-bottom: var(--spacing-3xl);
+}
+
+/* Secciones de contenido: espaciado vertical rítmico y diferenciación en bloque */
+section {
+  display: block; /* Diferenciación semántica a nivel de bloque */
+  padding-top: var(--spacing-2xl);
+  padding-bottom: var(--spacing-2xl);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+section:last-of-type {
+  border-bottom: none;
+}

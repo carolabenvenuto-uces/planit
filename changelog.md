@@ -1,6 +1,8 @@
 # Changelog
 
 ## [Unreleased]
+### Added
+- [feature/dev-frontend-css-add-styles] Maquetado visual, design tokens en styles.css y componentes UI en components.css. PR: #22 https://github.com/carolabenvenuto-uces/planit/pull/22 | Issue: #21 - @carolabenvenuto-uces (Desarrollador Frontend / CSS)
 
 ## [Release Actividad Obligatoria N°2]
 ### Added
