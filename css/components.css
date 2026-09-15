@@ -88,7 +88,8 @@ nav ul li a:hover {
 
 nav ul li a:focus-visible {
   outline: 2px solid var(--color-primary-light);
-  outline-offset: 2px;
+  outline-offset: 2px;git add css/components.css
+git commit -m "feat(frontend): agrega estilos de componentes UI, tarjetas, formularios y estados hover/focus"
 }
 
 nav ul li a:active {
