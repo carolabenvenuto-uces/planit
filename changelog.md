@@ -2,7 +2,7 @@
 
 ## [Unreleased]
 ### Added
-- [feature/dev-frontend-css-add-styles] maquetado visual, design tokens en styles.css y componentes UI en components.css. PR: #PR_NUMERO | Issue: #ISSUE_NUMERO - @carolabenvenuto-uces (Desarrollador Frontend / CSS)
+- [feature/dev-frontend-css-add-styles] Maquetado visual, design tokens en styles.css y componentes UI en components.css. PR: #22 https://github.com/carolabenvenuto-uces/planit/pull/22 | Issue: #21 - @carolabenvenuto-uces (Desarrollador Frontend / CSS)
 
 ## [Release Actividad Obligatoria N°1] - 2026-08-31
 ### Added
