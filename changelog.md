@@ -1,6 +1,9 @@
 # Changelog
 
 ## [Unreleased]
+### Added
+- [feature/dev-frontend-css-add-styles] maquetado visual, design tokens en styles.css y componentes UI en components.css. PR: [#22](https://github.com/carolabenvenuto-uces/planit/pull/22) | Issue: #21 - @carolabenvenuto-uces (Desarrollador Frontend / CSS)
+- [feature/responsive-design-add-responsive-styles] estrategia de diseño adaptativo en responsive.css, breakpoints para mobile/tablet y prevención de overflow. PR: [#24](https://github.com/carolabenvenuto-uces/planit/pull/24) | Issue: #23 - @carolabenvenuto-uces (Especialista en Responsive Design)
 
 ## [Release Actividad Obligatoria N°2]
 ### Added

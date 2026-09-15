@@ -1,0 +1,234 @@
+/* ==========================================================================
+   PLANIT - Estilos de Diseño Adaptativo (Responsive Design)
+   Archivo: css/responsive.css
+   Rol: Especialista en Responsive Design
+   ========================================================================== */
+
+/* ==========================================================================
+   1. BREAKPOINT: TABLET & DISPOSITIVOS MEDIANOS (max-width: 992px)
+   - Objetivo: Reestructurar el layout de doble columna a una sola columna
+     apilada para pantallas táctiles medianas (iPads, tablets Android).
+   ========================================================================== */
+@media screen and (max-width: 992px) {
+  /* --- Reestructuración del Cockpit Operativo ---
+     Pasa de Grid de 2 columnas (formulario + tabla en paralelo) a 1 columna apilada.
+     El formulario queda arriba para la carga secuencial de datos y la planilla
+     financiera debajo para revisión. */
+  .cockpit-container {
+    grid-template-columns: 1fr;
+    gap: var(--spacing-lg);
+  }
+
+  /* Reducción proporcional de escala tipográfica de títulos principales */
+  h1,
+  .hero-section h1 {
+    font-size: 2.25rem;
+  }
+
+  h2 {
+    font-size: 1.75rem;
+  }
+
+  /* Ajuste de padding del contenedor principal para aprovechar espacio en tablet */
+  main {
+    padding-left: var(--spacing-md);
+    padding-right: var(--spacing-md);
+  }
+
+  /* Contenedores de tablas con scroll horizontal preventivo para evitar overflow */
+  .cockpit-table,
+  .invitados-section {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .cockpit-table table,
+  .invitados-section table {
+    min-width: 580px; /* Asegura que la información de columnas no se comprima */
+  }
+}
+
+/* ==========================================================================
+   2. BREAKPOINT: MOBILE / SMARTPHONES (max-width: 768px)
+   - Objetivo: Transformar la navegación en distribución fluida, apilar
+     tarjetas y pasos a una única columna y prevenir desbordamiento horizontal.
+   ========================================================================== */
+@media screen and (max-width: 768px) {
+  /* --- Cabecera y Navegación Adaptativa ---
+     Se elimina la altura fija para evitar solapamientos; los elementos se
+     organizan verticalmente mediante Flexbox con espaciado uniforme. */
+  header {
+    height: auto;
+    padding: var(--spacing-md) var(--spacing-md);
+    flex-direction: column;
+    gap: var(--spacing-sm);
+    position: relative; /* Evita que ocupe espacio excesivo en viewport móvil */
+  }
+
+  /* Menú de navegación adaptable con salto de línea fluido */
+  nav {
+    width: 100%;
+  }
+
+  nav ul {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: var(--spacing-xs);
+  }
+
+  nav ul li a {
+    font-size: var(--font-size-xs);
+    padding: var(--spacing-xs) var(--spacing-sm);
+  }
+
+  /* --- Sección Hero ---
+     Alineación y espaciado compacto para visibilidad inmediata (Above the fold) */
+  .hero-section {
+    padding: var(--spacing-2xl) var(--spacing-md);
+    margin-top: var(--spacing-sm);
+    margin-bottom: var(--spacing-lg);
+  }
+
+  .hero-section h1 {
+    font-size: 1.85rem;
+    line-height: 1.2;
+  }
+
+  .hero-section p {
+    font-size: var(--font-size-base);
+    margin-bottom: var(--spacing-lg);
+  }
+
+  /* --- Catálogo de Experiencias ("Plancitos") ---
+     Las tarjetas se transforman en una grilla de 1 sola columna ocupando el 100% */
+  .cards-grid {
+    grid-template-columns: 1fr;
+    gap: var(--spacing-lg);
+  }
+
+  /* Barra de búsqueda ocupa todo el ancho disponible */
+  .catalog-search {
+    max-width: 100%;
+    margin-bottom: var(--spacing-xl);
+  }
+
+  /* --- Sección "¿Cómo Funciona?" ---
+     Lista de pasos apilada verticalmente en 1 sola columna para lectura guiada */
+  .pasos-list {
+    grid-template-columns: 1fr;
+    gap: var(--spacing-xl);
+  }
+
+  /* --- Contenedores del Cockpit y Formularios ---
+     Padding optimizado para pantallas estrechas */
+  .cockpit-form,
+  .cockpit-table,
+  .invitados-section,
+  .how-it-works {
+    padding: var(--spacing-lg) var(--spacing-md);
+  }
+
+  /* --- Control de Tablas y Scroll Horizontal Fluido ---
+     Garantiza que tablas anchas no rompan el viewport ni generen scroll horizontal global */
+  .cockpit-table,
+  .invitados-section {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .cockpit-table table,
+  .invitados-section table {
+    min-width: 520px;
+    font-size: var(--font-size-xs);
+  }
+
+  th, td {
+    padding: var(--spacing-xs) var(--spacing-sm);
+  }
+
+  /* --- Footer Adaptativo ---
+     Enlaces organizados verticalmente para facilitar el toque táctil */
+  .footer-content ul {
+    flex-direction: column;
+    gap: var(--spacing-xs);
+  }
+}
+
+/* ==========================================================================
+   3. BREAKPOINT: MOBILE SMALL (max-width: 576px)
+   - Objetivo: Optimización táctil completa para pantallas ultra-compactas,
+     botones de ancho completo (full-width) y prevención de zoom forzado.
+   ========================================================================== */
+@media screen and (max-width: 576px) {
+  /* Contenedor principal con margen mínimo seguro */
+  main {
+    padding-left: var(--spacing-sm);
+    padding-right: var(--spacing-sm);
+    padding-bottom: var(--spacing-2xl);
+  }
+
+  /* Logo compacto */
+  .logo-container img {
+    max-height: 36px;
+  }
+
+  .logo-container span {
+    font-size: var(--font-size-lg);
+  }
+
+  /* --- Botones Full-Width para Interacción Táctil ---
+     Facilitan la pulsación con el pulgar en smartphones pequeños sin requerir precisión */
+  .btn-primary,
+  .btn-submit {
+    display: flex;
+    width: 100%;
+    justify-content: center;
+    padding: var(--spacing-md);
+    font-size: var(--font-size-base);
+  }
+
+  .hero-section a.btn-primary {
+    display: flex;
+    width: 100%;
+  }
+
+  /* Títulos escalados para pantallas pequeñas */
+  h1,
+  .hero-section h1 {
+    font-size: 1.5rem;
+  }
+
+  h2 {
+    font-size: 1.35rem;
+  }
+
+  h3 {
+    font-size: 1.15rem;
+  }
+
+  /* Altura de imagen en tarjetas adaptada a móviles */
+  .card-experiencia img {
+    height: 160px;
+  }
+
+  .card-content {
+    padding: var(--spacing-md);
+  }
+
+  /* Entradas de formulario: tamaño de fuente a 16px mínimo para evitar zoom en iOS */
+  .form-group input,
+  .form-group select {
+    font-size: 1rem;
+    padding: var(--spacing-sm);
+  }
+
+  /* Tabla de presupuesto y pie de tabla compacto */
+  tfoot td {
+    font-size: var(--font-size-xs);
+  }
+
+  #costo-total-estimado {
+    font-size: var(--font-size-sm);
+  }
+}
