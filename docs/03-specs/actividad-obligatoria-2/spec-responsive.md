@@ -33,24 +33,30 @@ Para garantizar la usabilidad de la plataforma en cualquier dispositivo, respeta
 
 ## 3. Criterios de Aceptación (Checklist)
 
-### Entregable de este PR (MOMENTO 1)
+### Entregable de este PR
 - [x] Especificación técnica `spec-responsive.md` commiteada en el repositorio antes que el archivo `css/responsive.css`.
-- [ ] Breakpoints definidos y documentados (mobile, tablet, desktop).
-- [ ] Layout adaptativo implementado con Flexbox y CSS Grid según la sección.
-- [ ] Todas las secciones del mockup se adaptan correctamente en los tres breakpoints.
-- [ ] No hay overflow horizontal en ningún dispositivo.
-- [ ] Pruebas de integración realizadas con el Desarrollador Frontend en localhost y GitHub Pages.
+- [x] Breakpoints definidos y documentados (mobile, tablet, desktop).
+- [x] Layout adaptativo implementado con Flexbox y CSS Grid según la sección.
+- [x] Todas las secciones del mockup se adaptan correctamente en los tres breakpoints.
+- [x] No hay overflow horizontal en ningún dispositivo.
+- [x] Pruebas de integración realizadas con el Desarrollador Frontend en localhost y GitHub Pages.
 
 ---
 
-## 4. Uso de Figma MCP y GitHub Copilot (Proceso con IA - MOMENTO 2)
+## 4. Uso de Figma MCP y GitHub Copilot (Proceso con IA)
 
 * **Modelo de IA utilizado:** GitHub Copilot (Modo Agente / Chat) con servidor MCP de Figma.
+* **Archivos adjuntos como contexto:**
+  - `docs/03-specs/actividad-obligatoria-2/spec-responsive.md`
+  - `css/styles.css`
+  - `css/components.css`
+  - `01-mockup/actividad-obligatoria-2/diseño-con-estilos.png`
 * **Prompt exacto utilizado:**
-  > *(Pendiente de completar al generar responsive.css)*
+  > *"Actúa como Especialista en Responsive Design. Tomando como contexto la especificación docs/03-specs/actividad-obligatoria-2/spec-responsive.md, las hojas de estilo existentes css/styles.css y css/components.css, y la imagen del mockup 01-mockup/actividad-obligatoria-2/diseño-con-estilos.png: Genera el archivo css/responsive.css organizando las Media Queries por breakpoints (Tablet max-width: 992px, Mobile max-width: 768px, Mobile Small max-width: 576px) en base al maquetado y diseño visual de PlanIT. Requerimientos técnicos: 1. Reestructurar el cockpit (.cockpit-container) de 2 columnas a 1 columna apilada en Tablet y Mobile. 2. Adaptar la grilla del catálogo (.cards-grid) y la lista de pasos (.pasos-list) a 1 columna en Mobile. 3. Adaptar la cabecera header y navegación nav para evitar desbordamientos en pantallas pequeñas. 4. Agregar contenedor con overflow-x: auto en las tablas para asegurar un scroll horizontal fluido sin romper el viewport. 5. Hacer botones (.btn-primary, .btn-submit) full-width en Mobile Small para facilitar la interacción táctil. 6. Incluir comentarios explicativos detallados en cada bloque de media query."*
 * **Resultado obtenido:** 
-  > *(Pendiente de completar al finalizar)*
+  Generación completa de `css/responsive.css` agrupado en 3 bloques de `@media screen`. Adaptó las grillas a 1 columna apilada y formateó las tablas con `-webkit-overflow-scrolling: touch` para garantizar desplazamiento táctil sin afectar el viewport global.
 * **Ajustes manuales realizados:**
-  > *(Pendiente de completar al finalizar)*
+  1. Forzado de `font-size: 1rem` en campos de texto/selects para el breakpoint Mobile Small (`max-width: 576px`), evitando el auto-zoom forzado que aplican los navegadores móviles en iOS/Safari al enfocar inputs.
+  2. Ajuste explícito de `min-width: 580px` (en tablet) y `520px` (en mobile) para los elementos `table`, asegurando que el contenido financiero permanezca legible sin comprimir columnas.
 * **Decisiones finales de breakpoints con justificación:**
-  > *(Pendiente de completar al finalizar)*
+  Se mantuvieron los cortes en `992px`, `768px` y `576px` por alineación con la escala estándar de Bootstrap/Tailwind y la compatibilidad probada con resoluciones táctiles habituales.
