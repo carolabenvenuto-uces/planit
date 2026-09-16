@@ -152,8 +152,8 @@ nav ul li a:active {
 }
 
 /* Estados Interactivos: Botón Primario */
-.btn-primary:hover,
-.btn-submit:hover {
+.btn-primary:not(:disabled):hover,
+.btn-submit:not(:disabled):hover {
   background: linear-gradient(135deg, var(--color-primary-hover) 0%, #4834d4 100%);
   box-shadow: var(--shadow-glow);
   transform: translateY(-2px);
@@ -177,11 +177,13 @@ nav ul li a:active {
 /* Estado Desactivado (:disabled) para Botones */
 .btn-primary:disabled,
 .btn-submit:disabled,
+.catalog-search button[type="submit"]:disabled,
 button:disabled {
   opacity: 0.6;
   cursor: not-allowed;
   box-shadow: none;
   transform: none;
+  pointer-events: none;
 }
 
 /* Botón de envío específico para el formulario */
@@ -271,7 +273,7 @@ button:disabled {
   transition: background-color var(--transition-fast), transform var(--transition-fast);
 }
 
-.catalog-search button[type="submit"]:hover {
+.catalog-search button[type="submit"]:not(:disabled):hover {
   background-color: var(--color-primary-hover);
   transform: scale(1.08);
 }
