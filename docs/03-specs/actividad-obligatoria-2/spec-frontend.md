@@ -9,7 +9,7 @@
 ---
 
 ## 1. Qué se va a hacer
-Creación y organización de las hojas de estilo CSS (`css/styles.css` y `css/components.css`) para aplicar el diseño visual completo al sitio web PlanIT (`index.html`). El maquetado y estilizado traducirá fielmente el [Mockup de Diseño Actualizado](../../docs/01-mockup/actividad-obligatoria-2/diseño-con-estilos.png) y el archivo de Figma del proyecto, respetando la paleta de colores, la jerarquía tipográfica, el Box Model y las interacciones visuales.
+Creación y organización de las hojas de estilo CSS (`css/styles.css` y `css/components.css`) para aplicar el diseño visual completo al sitio web PlanIT (`index.html`). El maquetado y estilizado traducirá fielmente el [Mockup de Diseño Actualizado](../../../01-mockup/actividad-obligatoria-2/diseño-con-estilos.png) y el archivo de Figma del proyecto, respetando la paleta de colores, la jerarquía tipográfica, el Box Model y las interacciones visuales.
 
 El desarrollo se realizó utilizando el servidor MCP de Figma junto con GitHub Copilot en modo Agente para la extracción limpia de reglas y variables CSS, realizando los refinamientos manuales necesarios.
 
