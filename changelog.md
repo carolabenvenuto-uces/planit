@@ -5,6 +5,10 @@
 - [feature/dev-frontend-css-add-styles] maquetado visual, design tokens en styles.css y componentes UI en components.css. PR: [#22](https://github.com/carolabenvenuto-uces/planit/pull/22) | Issue: #21 - @carolabenvenuto-uces (Desarrollador Frontend / CSS)
 - [feature/responsive-design-add-responsive-styles] estrategia de diseño adaptativo en responsive.css, breakpoints para mobile/tablet y prevención de overflow. PR: [#24](https://github.com/carolabenvenuto-uces/planit/pull/24) | Issue: #23 - @carolabenvenuto-uces (Especialista en Responsive Design)
 
+## [Release Actividad Obligatoria N°2]
+### Added
+- [feature/coord-devops-update-figma-and-readme] Actualización de mockup Figma, spec-devops, README y plan.md para Actividad N°2. PR: #20 https://github.com/carolabenvenuto-uces/planit/pull/20 | Issue: #19 - @ValeriaMSilva (Coordinador / DevOps)
+
 ## [Release Actividad Obligatoria N°1] - 2026-08-31
 ### Added
 - [feature/coordinador-setup-repo-and-pages] Setup inicial del repositorio, Spec Maestro y entorno DevOps. PR: #4 https://github.com/carolabenvenuto-uces/planit/pull/4 | Issue: #3 - @carolabenvenuto-uces (Coordinador / DevOps)

@@ -48,3 +48,4 @@ Para transformar la estructura HTML5 semántica en una interfaz gráfica atracti
   2. Solución de errores de sintaxis marcados por el linter (llaves y selectores mal cerrados) utilizando Copilot inline chat (`/fix`).
   3. Incorporación de transiciones con curvas cubic-bezier para suavizar los estados de hover en tarjetas y botones.
   4. Integración de pseudo-elementos (`::before` y `::after`) para numeradores dinámicos de pasos y subrayados decorativos de sección.
+  
