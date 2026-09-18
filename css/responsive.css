@@ -55,14 +55,15 @@
    ========================================================================== */
 @media screen and (max-width: 768px) {
   /* --- Cabecera y Navegación Adaptativa ---
-     Se elimina la altura fija para evitar solapamientos; los elementos se
-     organizan verticalmente mediante Flexbox con espaciado uniforme. */
+     Se mantiene la posición sticky para navegación continua y accesible */
   header {
     height: auto;
-    padding: var(--spacing-md) var(--spacing-md);
+    padding: var(--spacing-md);
     flex-direction: column;
     gap: var(--spacing-sm);
-    position: relative; /* Evita que ocupe espacio excesivo en viewport móvil */
+    position: sticky;
+    top: 0;
+    z-index: 100;
   }
 
   /* Menú de navegación adaptable con salto de línea fluido */
@@ -76,9 +77,10 @@
     gap: var(--spacing-xs);
   }
 
+  /* Área táctil optimizada para interacción móvil */
   nav ul li a {
     font-size: var(--font-size-xs);
-    padding: var(--spacing-xs) var(--spacing-sm);
+    padding: var(--spacing-sm) var(--spacing-md);
   }
 
   /* --- Sección Hero ---
