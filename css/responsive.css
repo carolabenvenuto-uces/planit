@@ -143,7 +143,11 @@
     font-size: var(--font-size-xs);
   }
 
-  th, td {
+  /* Encapsulamiento de celdas para evitar interferencias de estilo globales */
+  .cockpit-table th,
+  .cockpit-table td,
+  .invitados-section th,
+  .invitados-section td {
     padding: var(--spacing-xs) var(--spacing-sm);
   }
 
@@ -224,7 +228,8 @@
   }
 
   /* Tabla de presupuesto y pie de tabla compacto */
-  tfoot td {
+  .cockpit-table tfoot td,
+  .invitados-section tfoot td {
     font-size: var(--font-size-xs);
   }
 
