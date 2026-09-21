@@ -59,9 +59,29 @@ overlaps, texto cortado, imágenes rotas). Guardá las capturas.
 - **Prompt utilizado:**
 
 \`\`\`
-(pendiente)
+Repetí el Test Case 1 (compatibilidad desktop) contra
+http://localhost:3000, esta vez sobre la rama develop (post-merge).
+Mismo enfoque que antes: Chromium para Chrome/Edge, Firefox real, WebKit
+para Safari, en los 4 viewports. Prestá especial atención a si el bug
+de contraste en los <select> de Safari/WebKit (Issue #25) sigue
+presente o fue corregido. Guardá las capturas y confirmame con ls -la.
 \`\`\`
 
-- **Resultados:** _(pendiente)_
+- **Resultados:**
+  - 🔴 **El bug del Issue #25 sigue presente, sin corregir.** Se
+    verificó nuevamente el `appearance` computado de los `<select>`
+    afectados — sigue en `auto` en los 3 motores, mismo color/background
+    que en Momento 1. WebKit sigue pintando el control con el widget
+    nativo claro, dejando "Sumar 'Plancito' al Evento" prácticamente
+    ilegible. No se aplicó `appearance: none` ni ningún ajuste.
+  - Sin otros hallazgos nuevos: 0 imágenes rotas, 0 errores de consola,
+    0 desbordes de página en los 4 navegadores/viewports.
 - **Capturas:** `capturas/tc-1/momento-2/`
-- **Issues generados:** _(pendiente)_
+
+![Chrome 1920x1080](capturas/tc-1/momento-2/chrome-1920x1080.png)
+![Firefox 1440x900](capturas/tc-1/momento-2/firefox-1440x900.png)
+![Safari/WebKit 1280x800](capturas/tc-1/momento-2/safari-1280x800.png)
+![Edge 1280x800](capturas/tc-1/momento-2/edge-1280x800.png)
+
+- **Issues generados:** Ninguno nuevo — persiste el Issue #25 ya creado
+  en Momento 1, todavía sin resolver.

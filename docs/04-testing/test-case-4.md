@@ -52,15 +52,32 @@ docs/04-testing/capturas/tc-4/momento-1/ y confirmame con ls -la.
   pendiente de verificación manual, no como bug.
 
 ---
-
 ## Momento 2 — Testing post-merge (rama develop)
 
 - **Prompt utilizado:**
 
 \`\`\`
-(pendiente)
+Repetí el Test Case 4 (accesibilidad) contra http://localhost:3000,
+esta vez sobre la rama develop (post-merge). Mismo enfoque: axe-core
+v4.10.2 con reglas WCAG 2.1 A/AA. Verificá especialmente si el ítem
+"incomplete" de color-contrast sigue apareciendo. Guardá la captura y
+confirmame con ls -la.
 \`\`\`
 
-- **Resultados:** _(pendiente)_
+- **Resultados:**
+  - **Violaciones: 0.** 29 reglas WCAG 2.1 A/AA pasan correctamente,
+    igual que en Momento 1.
+  - El ítem "incomplete" de `color-contrast` sigue apareciendo, sin
+    cambios — mismos 5 elementos exactos que en Momento 1
+    (`.logo-container > span`, `h1`, `.hero-section > p`,
+    `.btn-primary`, `.btn-submit`), por el mismo motivo (fondo con
+    gradiente CSS que axe no puede calcular estáticamente). No es una
+    violación confirmada. Sigue pendiente de verificación manual si se
+    quiere cerrar el punto formalmente.
+
 - **Capturas:** `capturas/tc-4/momento-2/`
-- **Issues generados:** _(pendiente)_
+
+![Accesibilidad Chrome 1920x1080](capturas/tc-4/momento-2/chrome-1920x1080-a11y.png)
+
+- **Issues generados:** Ninguno — mismo resultado limpio que en
+  Momento 1, sin violaciones automáticas confirmadas.

@@ -70,9 +70,33 @@ métrica parece anormalmente alta. Guardá la captura.
 - **Prompt utilizado:**
 
 \`\`\`
-(pendiente)
+Repetí el Test Case 3 (performance) contra http://localhost:3000, esta
+vez sobre la rama develop (post-merge). Mismo enfoque que antes:
+Chromium, Performance API. Prestá especial atención a si el hallazgo
+del Issue #28 (imagen de mockup sobredimensionada) sigue presente.
+Guardá la captura y confirmame con ls -la.
 \`\`\`
 
-- **Resultados:** _(pendiente)_
+- **Resultados:**
+
+  | Métrica | Valor |
+  |---|---|
+  | DOM Interactive | 60.7 ms |
+  | DOMContentLoaded | 61.2 ms |
+  | Load completo | 112.8 ms |
+
+  Todo rápido, levemente mejor incluso que en Momento 1 (load 160.8ms
+  → 112.8ms).
+
+  🔴 **Issue #28 sigue presente, sin corregir.** `diseño-inicial.png`
+  (1440×1024px, 235 KB) se sigue usando exactamente igual: como logo
+  del header (70×50) y en las 3 tarjetas de "Plancitos Destacados"
+  (361×189 cada una). Peso total transferido ~273 KB, de los cuales
+  235 KB (86%) siguen siendo esta única imagen sin optimizar.
+
 - **Capturas:** `capturas/tc-3/momento-2/`
-- **Issues generados:** _(pendiente)_
+
+![Performance Chrome 1920x1080](capturas/tc-3/momento-2/chrome-1920x1080-performance.png)
+
+- **Issues generados:** Ninguno nuevo — persiste el Issue #28 ya creado
+  en Momento 1, todavía sin resolver.

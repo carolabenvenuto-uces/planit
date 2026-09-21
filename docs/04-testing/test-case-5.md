@@ -76,9 +76,38 @@ APIs del W3C. Sacá una captura y confirmame con ls -la.
 - **Prompt utilizado:**
 
 \`\`\`
-(pendiente)
+Repetí el Test Case 5 (estructura semántica + validación W3C) contra
+http://localhost:3000, esta vez sobre la rama develop (post-merge).
+Mismo enfoque: estructura HTML y validación W3C. Verificá especialmente
+si los 2 avisos del Issue #29 siguen presentes. Guardá la captura y
+confirmame con ls -la.
 \`\`\`
 
-- **Resultados de cada validador:** _(pendiente)_
+- **Resultados de cada validador:**
+
+  **Parte 1 — Estructura HTML semántica:** idéntica a Momento 1, sin
+  issues. Jerarquía de headings correcta, landmarks completos (1
+  header, 1 nav, 1 main, 1 footer, 5 section, 3 article), y los 7
+  controles de formulario con label asociado.
+
+  **Parte 2 — Validación W3C:** mismos resultados exactos que Momento 1.
+  - HTML: 0 errores, 0 warnings.
+  - CSS: 0 errores en los 3 archivos (mismos conteos de warnings:
+    styles.css 6, components.css 148, responsive.css 32 — dominados
+    por el aviso genérico de CSS variables).
+
+  🟡 **Los 2 avisos del Issue #29 siguen presentes, sin corregir**, en
+  las mismas líneas exactas de `components.css`:
+  - Línea 53: `background-clip: text` — "The value 'text' is deprecated".
+  - Línea 243: `clip: rect(0, 0, 0, 0)` — "The property 'clip' is
+    deprecated" (dentro de `sr-only`).
+
+  Sin cambios respecto a Momento 1 — consistente con que el issue
+  quedó abierto como mejora de baja prioridad, no bloqueante.
+
 - **Capturas:** `capturas/tc-5/momento-2/`
-- **Issues generados:** _(pendiente)_
+
+![Estructura semántica Chrome 1920x1080](capturas/tc-5/momento-2/chrome-1920x1080-semantic.png)
+
+- **Issues generados:** Ninguno nuevo — persiste el Issue #29 ya
+  creado en Momento 1, todavía sin resolver.

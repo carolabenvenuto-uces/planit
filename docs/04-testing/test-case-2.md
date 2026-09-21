@@ -64,9 +64,33 @@ las capturas.
 - **Prompt utilizado:**
 
 \`\`\`
-(pendiente)
+Repetí el Test Case 2 (responsive en dispositivos móviles) contra
+http://localhost:3000, esta vez sobre la rama develop (post-merge).
+Mismo enfoque que antes: iPhone 14 Pro 390×844, Samsung Galaxy S23
+412×915, iPad Air 820×1180. Prestá especial atención a si los 2
+hallazgos reportados en Momento 1 siguen presentes (Issue #26: tablas
+desbordadas; Issue #27: tap targets chicos). Guardá las capturas y
+confirmame con ls -la.
 \`\`\`
 
-- **Resultados:** _(pendiente)_
+- **Resultados:**
+  - 🔴 **Issue #26 sigue presente, sin corregir.** Las tablas "Planilla
+    de Presupuesto Estimado" y "Gestión de Invitados" siguen desbordando
+    su contenedor en iPhone (520px de tabla vs 366px de contenedor) y
+    Galaxy S23 (520px vs 388px). Se detectó que `.cockpit-table` ahora
+    tiene un `box-shadow` genérico de tarjeta, pero no funciona como
+    indicador de scroll (es difuso, sin dirección horizontal), y
+    `.invitados-section` sigue sin ningún indicador. Sin cambios en
+    iPad Air.
+  - 🔴 **Issue #27 sigue presente, sin corregir.** Los 3 links del
+    footer siguen midiendo 17px de alto en los 3 dispositivos, sin
+    cambios respecto a Momento 1.
+  - Sin errores de consola nuevos ni otros hallazgos.
 - **Capturas:** `capturas/tc-2/momento-2/`
-- **Issues generados:** _(pendiente)_
+
+![iPhone 14 Pro 390x844](capturas/tc-2/momento-2/iphone-14-pro-390x844.png)
+![Samsung Galaxy S23 412x915](capturas/tc-2/momento-2/galaxy-s23-412x915.png)
+![iPad Air 820x1180](capturas/tc-2/momento-2/ipad-air-820x1180.png)
+
+- **Issues generados:** Ninguno nuevo — persisten los Issues #26 y #27
+  ya creados en Momento 1, todavía sin resolver.
