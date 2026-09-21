@@ -1,7 +1,7 @@
 # Changelog
 
 ## [Unreleased]
-- [feature/doc-qa-tester-add-test-case-1] Plan de testing (spec-qa.md), ejecución de 5 test cases (compatibilidad, responsive, performance, accesibilidad, estructura HTML/CSS) en Momento 1 (pre-merge) y Momento 2 (post-merge a develop), con 5 issues de bugs/mejoras creados (#25-#29). PR: [#PENDIENTE](link) | Issue: #30 - @FacundoGuiraldes (Documentador / QA Tester)
+- [feature/doc-qa-tester-add-test-case-1] Plan de testing (spec-qa.md), ejecución de 5 test cases (compatibilidad, responsive, performance, accesibilidad, estructura HTML/CSS) en Momento 1 (pre-merge) y Momento 2 (post-merge a develop), con 5 issues de bugs/mejoras creados (#25-#29). PR: [#31](https://github.com/carolabenvenuto-uces/planit/pull/31) | Issue: #30 - @FacundoGuiraldes (Documentador / QA Tester)
 
 ## [Release Actividad Obligatoria N°1] - 2026-08-31
 ### Added
