@@ -28,10 +28,6 @@
                 <li><a href="#como-funciona">¿Cómo funciona?</a></li>
             </ul>
         </nav>
-        <!-- FUTURO CSS: 
-             - Alinear logo a la izquierda y menú de navegación a la derecha usando Flexbox con 'justify-content: space-between' [5].
-             - Estilizar la lista de enlaces de forma horizontal eliminando bullets ('list-style: none') y agregando efectos de hover dinámicos en violeta [5].
-        -->
     </header>
 
     <main id="inicio">
@@ -41,11 +37,6 @@
             <h1>Organizá tus eventos y descubrí las mejores experiencias</h1>
             <p>PlanIT unifica en una sola pantalla interactiva la gestión de tu presupuesto, tu lista de invitados y la contratación directa de experiencias recreativas exclusivas.</p>
             <a href="#cockpit" class="btn-primary">Crear mi primer evento</a>
-            <!-- FUTURO CSS: 
-                 - Centrado del texto con Flexbox [5].
-                 - Imagen de fondo en alta definición con superposición oscura (overlay) para asegurar el contraste de lectura [5].
-                 - Botón llamativo con bordes redondeados y un sutil zoom en hover [5].
-            -->
         </section>
 
         <!-- SECCIÓN 1: CATÁLOGO DE EXPERIENCIAS ("PLANCITOS") -->
@@ -60,9 +51,9 @@
             </form>
             
             <div class="cards-grid">
-                <!-- Tarjeta de Experiencia 1 -->
+                <!-- Tarjeta de Experiencia 1 (Fix #28: Carga diferida con loading="lazy") -->
                 <article class="card-experiencia">
-                    <img src="./docs/01-mockup/actividad-obligatoria-1/diseño-inicial.png" alt="Taller Cerámica y Chardonnay: Dos personas moldeando arcilla mientras sostienen copas de vino blanco">
+                    <img src="./docs/01-mockup/actividad-obligatoria-1/diseño-inicial.png" alt="Taller Cerámica y Chardonnay: Dos personas moldeando arcilla mientras sostienen copas de vino blanco" loading="lazy">
                     <div class="card-content">
                         <h3>Cerámica & Chardonnay</h3>
                         <p>Taller guiado de modelado en arcilla acompañado de una cata de vinos seleccionados y tablas de quesos artesanales.</p>
@@ -70,9 +61,9 @@
                     </div>
                 </article>
 
-                <!-- Tarjeta de Experiencia 2 -->
+                <!-- Tarjeta de Experiencia 2 (Fix #28: Carga diferida con loading="lazy") -->
                 <article class="card-experiencia">
-                    <img src="./docs/01-mockup/actividad-obligatoria-1/diseño-inicial.png" alt="Cata de Gin: Copas de balón con gin-tonic adornadas con rodajas de pomelo sobre una barra iluminada">
+                    <img src="./docs/01-mockup/actividad-obligatoria-1/diseño-inicial.png" alt="Cata de Gin: Copas de balón con gin-tonic adornadas con rodajas de pomelo sobre una barra iluminada" loading="lazy">
                     <div class="card-content">
                         <h3>Cata de Gin Premium</h3>
                         <p>Clase magistral interactiva con un bartender profesional para aprender la historia, botánicos y preparación de 3 tipos de gin.</p>
@@ -80,9 +71,9 @@
                     </div>
                 </article>
 
-                <!-- Tarjeta de Experiencia 3 -->
+                <!-- Tarjeta de Experiencia 3 (Fix #28: Carga diferida con loading="lazy") -->
                 <article class="card-experiencia">
-                    <img src="./docs/01-mockup/actividad-obligatoria-1/diseño-inicial.png" alt="Show de Magia: Mago con guantes blancos realizando un truco con cartas que parecen flotar frente a los espectadores">
+                    <img src="./docs/01-mockup/actividad-obligatoria-1/diseño-inicial.png" alt="Show de Magia: Mago con guantes blancos realizando un truco con cartas que parecen flotar frente a los espectadores" loading="lazy">
                     <div class="card-content">
                         <h3>Show de Magia Privado</h3>
                         <p>Espectáculo de ilusionismo, mentalismo y humor interactivo pensado especialmente para romper el hielo en tu festejo.</p>
@@ -90,10 +81,6 @@
                     </div>
                 </article>
             </div>
-            <!-- FUTURO CSS: 
-                 - Organizar las tarjetas de experiencias en una cuadrícula responsiva usando CSS Grid ('grid-template-columns: repeat(auto-fit, minmax(280px, 1fr))') [5].
-                 - Efecto 'lift' (elevación) y sombreado suave sobre las tarjetas al pasar el cursor [5].
-            -->
         </section>
 
         <!-- SECCIÓN 2: COCKPIT OPERATIVO (FORMULARIO Y TABLA) -->
@@ -150,11 +137,6 @@
 
                         <button type="submit" class="btn-submit">Guardar Evento en Cockpit</button>
                     </form>
-                    <!-- FUTURO JS:
-                         - Escuchar el evento 'submit' para prevenir la recarga de la página (e.preventDefault()) [5].
-                         - Capturar los valores de los inputs (nombre, fecha y presupuesto máximo) y guardarlos en variables del estado de la app [5].
-                         - Habilitar campos adicionales de forma condicional si se selecciona una experiencia [5].
-                    -->
                 </div>
 
                 <!-- Tabla de Presupuesto -->
@@ -200,19 +182,9 @@
                             </tr>
                         </tfoot>
                     </table>
-                    <!-- FUTURO JS:
-                         - Función para insertar una nueva fila dinámicamente si el usuario selecciona un "plancito" en el formulario [5].
-                         - Recalcular automáticamente el total de la columna 'Total ($)' e inyectar el valor sumado en el pie de tabla ('#costo-total-estimado') [5].
-                         - Cambiar el color del costo total a rojo mediante clases si el total excede el presupuesto máximo ingresado por el usuario [5].
-                    -->
                 </div>
 
             </div>
-            <!-- FUTURO CSS: 
-                 - Distribuir el formulario a la izquierda y la tabla a la derecha usando un contenedor de dos columnas responsivo (Grid o Flexbox) [5].
-                 - Estilizar la tabla colapsando bordes ('border-collapse: collapse') y aplicando franjas grises alternadas en las filas (zebra striping) [5].
-                 - Fijar la planilla financiera en la pantalla ('position: sticky') al scrollear en pantallas de escritorio [5].
-            -->
         </section>
 
         <!-- SECCIÓN 3: CÓMO FUNCIONA -->
@@ -231,10 +203,6 @@
                     <strong>Monitoreá tu presupuesto:</strong> Controlá los gastos calculados en tiempo real en la planilla para evitar sorpresas.
                 </li>
             </ol>
-            <!-- FUTURO CSS: 
-                 - Diseñar la lista ordenada en formato de bloques horizontales o línea de tiempo interactiva [5].
-                 - Estilizar los números grandes de cada paso usando pseudoelementos (::before) con fuentes en negrita violeta [5].
-            -->
         </section>
 
         <!-- SECCIÓN 3: GESTIÓN DE INVITADOS -->
@@ -279,17 +247,13 @@
     <!-- PIE DE PÁGINA -->
     <footer>
         <div class="footer-content">
-            <p>&copy; 2026 PlanIT S.A. - Desarrollado por <strong>Valeria Silva</strong> (Matrícula: 156612) para Programación Web I - UCES [3, 6].</p>
+            <p>&copy; 2026 PlanIT S.A. - Desarrollado por <strong>Valeria Silva</strong> (Matrícula: 156612) para Programación Web I - UCES.</p>
             <ul>
                 <li><a href="https://github.com/carolabenvenuto-uces/planit" target="_blank" rel="noopener">Repositorio Oficial en GitHub</a></li>
                 <li><a href="./docs/03-specs/actividad-obligatoria-1/spec-ux.md">Especificación UX</a></li>
                 <li><a href="./docs/03-specs/actividad-obligatoria-1/spec-frontend.md">Especificación Frontend</a></li>
             </ul>
         </div>
-        <!-- FUTURO CSS: 
-             - Fondo oscuro profundo, texto gris claro centrado y espaciado consistente [5].
-             - Mostrar la lista de enlaces de manera inline con bordes verticales de separación usando pseudoelementos [5].
-        -->
     </footer>
 
 </body>
