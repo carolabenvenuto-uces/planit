@@ -232,7 +232,7 @@ button:disabled {
   box-shadow: 0 0 0 3px var(--color-primary-subtle);
 }
 
-/* Ocultamiento accesible de etiqueta visual */
+/* Ocultamiento accesible de etiqueta visual (Fix #29 - Spec W3C) */
 .catalog-search label {
   position: absolute;
   width: 1px;
@@ -240,7 +240,7 @@ button:disabled {
   padding: 0;
   margin: -1px;
   overflow: hidden;
-  clip: rect(0, 0, 0, 0);
+  clip-path: inset(50%);
   border: 0;
 }
 
@@ -414,6 +414,9 @@ button:disabled {
   border: 1px solid var(--color-border);
   border-radius: var(--radius-sm);
   transition: border-color var(--transition-fast), box-shadow var(--transition-fast), background-color var(--transition-fast);
+  color-scheme: dark; /* Fix #25: Fuerza tema oscuro en controles nativos WebKit/Safari */
+  -webkit-appearance: none;
+  appearance: none;
 }
 
 .form-group input::placeholder {
@@ -646,9 +649,12 @@ footer {
   padding: 0;
 }
 
+/* Fix #27: Incremento de área táctil según WCAG 2.5.8 */
 .footer-content ul li a {
+  display: inline-block;
   font-size: var(--font-size-xs);
   color: var(--color-text-muted);
+  padding: var(--spacing-2xs) var(--spacing-xs);
   transition: color var(--transition-fast);
 }
 
@@ -656,4 +662,3 @@ footer {
   color: var(--color-primary-light);
   text-decoration: underline;
 }
-
