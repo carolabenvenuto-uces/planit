@@ -45,7 +45,8 @@
             <p>Elegí entre talleres interactivos, shows privados y gastronomía premium para sumar a tu evento.</p>
 
             <form class="catalog-search" role="search" action="#experiencias" method="get">
-                <label for="busqueda-plancitos">Buscar experiencias</label>
+                <!-- Fix #29: Aplicación de la clase utilitaria sr-only -->
+                <label for="busqueda-plancitos" class="sr-only">Buscar experiencias</label>
                 <input type="search" id="busqueda-plancitos" name="busqueda-plancitos" placeholder="Buscá un plancito por nombre o categoría">
                 <button type="submit" aria-label="Buscar plancitos">🔍</button>
             </form>

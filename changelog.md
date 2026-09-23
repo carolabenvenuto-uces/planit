@@ -2,8 +2,8 @@
 
 ## [Unreleased]
 ### Fixed
-- [fix/responsive] agregar indicador visual de scrollbar en tablas móviles (#26) e incrementar área táctil en enlaces del footer según WCAG (#27). PR: #32 - @carolabenvenuto-uces (Especialista en Responsive Design)
-- [fix/frontend] corregir contraste de controles select en Safari (#25) y actualizar regla accesible sr-only a spec W3C (#29). PR: #32 - @carolabenvenuto-uces (Desarrollador Frontend)
+- [fix/responsive] agregar indicador visual de scrollbar en tablas móviles (#26) e incrementar área táctil en enlaces del footer a >24px según WCAG 2.5.8 (#27). PR: #32 - @carolabenvenuto-uces (Especialista en Responsive Design)
+- [fix/frontend] corregir contraste de controles select en Safari (#25) y definir clase utilitaria accesible .sr-only con clip-path: inset(50%) según spec W3C (#29). PR: #32 - @carolabenvenuto-uces (Desarrollador Frontend)
 - [fix/perf] incorporar atributos loading lazy en imágenes del catálogo (#28). PR: #32 - @carolabenvenuto-uces (Desarrollador Frontend)
 
 ## [Release Actividad Obligatoria N°2]
