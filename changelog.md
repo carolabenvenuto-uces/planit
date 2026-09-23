@@ -1,13 +1,16 @@
 # Changelog
 
 ## [Unreleased]
-### Added
-- [feature/dev-frontend-css-add-styles] maquetado visual, design tokens en styles.css y componentes UI en components.css. PR: [#22](https://github.com/carolabenvenuto-uces/planit/pull/22) | Issue: #21 - @carolabenvenuto-uces (Desarrollador Frontend / CSS)
-- [feature/responsive-design-add-responsive-styles] estrategia de diseño adaptativo en responsive.css, breakpoints para mobile/tablet y prevención de overflow. PR: [#24](https://github.com/carolabenvenuto-uces/planit/pull/24) | Issue: #23 - @carolabenvenuto-uces (Especialista en Responsive Design)
+### Fixed
+- [fix/responsive] agregar indicador visual de scrollbar en tablas móviles (#26) e incrementar área táctil en enlaces del footer a >24px según WCAG 2.5.8 (#27). PR: #32 - @carolabenvenuto-uces (Especialista en Responsive Design)
+- [fix/frontend] corregir contraste de controles select en Safari (#25) y definir clase utilitaria accesible .sr-only con clip-path: inset(50%) según spec W3C (#29). PR: #32 - @carolabenvenuto-uces (Desarrollador Frontend)
+- [fix/perf] incorporar atributos loading lazy en imágenes del catálogo (#28). PR: #32 - @carolabenvenuto-uces (Desarrollador Frontend)
 
 ## [Release Actividad Obligatoria N°2]
 ### Added
 - [feature/coord-devops-update-figma-and-readme] Actualización de mockup Figma, spec-devops, README y plan.md para Actividad N°2. PR: #20 https://github.com/carolabenvenuto-uces/planit/pull/20 | Issue: #19 - @ValeriaMSilva (Coordinador / DevOps)
+- [feature/dev-frontend-css-add-styles] maquetado visual, design tokens en styles.css y componentes UI en components.css. PR: [#22](https://github.com/carolabenvenuto-uces/planit/pull/22) | Issue: #21 - @carolabenvenuto-uces (Desarrollador Frontend / CSS)
+- [feature/responsive-design-add-responsive-styles] estrategia de diseño adaptativo en responsive.css, breakpoints para mobile/tablet y prevención de overflow. PR: [#24](https://github.com/carolabenvenuto-uces/planit/pull/24) | Issue: #23 - @carolabenvenuto-uces (Especialista en Responsive Design)
 
 ## [Release Actividad Obligatoria N°1] - 2026-08-31
 ### Added

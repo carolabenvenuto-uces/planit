@@ -40,6 +40,8 @@
   .invitados-section {
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-primary-light) var(--color-bg-surface-alt);
   }
 
   .cockpit-table table,
@@ -130,13 +132,33 @@
     padding: var(--spacing-lg) var(--spacing-md);
   }
 
-  /* --- Control de Tablas y Scroll Horizontal Fluido ---
-     Garantiza que tablas anchas no rompan el viewport ni generen scroll horizontal global */
+  /* --- Control de Tablas e Indicador Visual de Scroll Horizontal (Fix #26) ---
+     Garantiza que tablas anchas no rompan el viewport e indican visualmente el contenido oculto */
   .cockpit-table,
   .invitados-section {
     width: 100%;
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-primary-light) var(--color-bg-surface-alt);
+  }
+
+  /* Personalización de barra de desplazamiento para navegadores WebKit */
+  .cockpit-table::-webkit-scrollbar,
+  .invitados-section::-webkit-scrollbar {
+    height: 6px;
+  }
+
+  .cockpit-table::-webkit-scrollbar-track,
+  .invitados-section::-webkit-scrollbar-track {
+    background: var(--color-bg-surface-alt);
+    border-radius: var(--radius-full);
+  }
+
+  .cockpit-table::-webkit-scrollbar-thumb,
+  .invitados-section::-webkit-scrollbar-thumb {
+    background-color: var(--color-primary-light);
+    border-radius: var(--radius-full);
   }
 
   .cockpit-table table,
