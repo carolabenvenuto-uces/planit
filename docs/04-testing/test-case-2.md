@@ -57,6 +57,12 @@ las capturas.
   - [#26 — Tablas desbordan sin indicador de scroll en mobile](https://github.com/carolabenvenuto-uces/planit/issues/26)
   - [#27 — Links de footer con área de toque menor al mínimo WCAG](https://github.com/carolabenvenuto-uces/planit/issues/27)
 
+  *Evidencia de uso de GitHub MCP: ambos issues se crearon con el*
+  *servidor `github` (verificado "✓ Connected" vía `/mcp` antes de*
+  *iniciar el testing), indicándole al agente explícitamente "Usando*
+  *el MCP de GitHub, creá un issue en carolabenvenuto-uces/planit..."*
+  *para cada uno, sin pasar por la interfaz web de GitHub.*
+
 ---
 
 ## Momento 2 — Testing post-merge (rama develop)

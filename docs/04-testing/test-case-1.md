@@ -50,7 +50,15 @@ overlaps, texto cortado, imágenes rotas). Guardá las capturas.
 ![Firefox 1440x900](capturas/tc-1/momento-1/firefox-1440x900.png)
 ![Safari/WebKit 1280x800](capturas/tc-1/momento-1/safari-1280x800.png)
 ![Edge 1280x800](capturas/tc-1/momento-1/edge-1280x800.png)
+
 - **Issues generados:** [#25 — Contraste roto en `<select>` con Safari/WebKit](https://github.com/carolabenvenuto-uces/planit/issues/25)
+
+  *Evidencia de uso de GitHub MCP: el servidor `github` (configurado en*
+  *`.mcp.json`, verificado como "✓ Connected" vía el comando `/mcp` antes*
+  *de iniciar el testing) fue el mecanismo usado para crear este issue.*
+  *Se le indicó explícitamente al agente "Usando el MCP de GitHub, creá*
+  *un issue en carolabenvenuto-uces/planit...", sin pasar por la interfaz*
+  *web de GitHub en ningún momento del proceso.*
 
 ---
 

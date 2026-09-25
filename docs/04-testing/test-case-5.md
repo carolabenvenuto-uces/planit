@@ -69,6 +69,12 @@ APIs del W3C. Sacá una captura y confirmame con ls -la.
 - **Issues generados:**
   - [#29 — Modernizar 2 propiedades CSS legacy detectadas por validador W3C](https://github.com/carolabenvenuto-uces/planit/issues/29)
 
+  *Evidencia de uso de GitHub MCP: el issue se creó con el servidor*
+  *`github` (verificado "✓ Connected" vía `/mcp` antes de iniciar el*
+  *testing), indicándole al agente explícitamente "Usando el MCP de*
+  *GitHub, creá un issue en carolabenvenuto-uces/planit...", sin pasar*
+  *por la interfaz web de GitHub.*
+
 ---
 
 ## Momento 2 — Testing post-merge (rama develop)

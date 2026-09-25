@@ -39,20 +39,25 @@ Coordinador arme la release.
 ### Momento 1 — Testing pre-merge
 - [ ] 5 test cases ejecutados con Playwright MCP contra las ramas `feature/`
   de Frontend/CSS y Responsive Design (vía Live Preview en localhost:3000)
-- [ ] Al menos un issue bug creado con GitHub MCP por cada hallazgo relevante
+  — **pendiente de resolución con Coordinación: la ejecución se realizó
+  con Playwright directo, no MCP, por una limitación técnica del canal
+  "chrome" en este entorno. Ver aclaración en cada test case.**
+- [x] Al menos un issue bug creado con GitHub MCP por cada hallazgo relevante
 - [ ] Responsables notificados sobre los bugs encontrados antes del merge
 
 ### Momento 2 — Testing post-merge a develop
 - [ ] 5 test cases re-ejecutados con Playwright MCP contra `develop` ya
-  integrado
-- [ ] Issues creados por cada nuevo hallazgo detectado en la integración
+  integrado — **misma salvedad que Momento 1: ejecutado con Playwright
+  directo.**
+- [x] Issues creados por cada nuevo hallazgo detectado en la integración
+  (persistencia de los 5 issues de Momento 1, sin hallazgos nuevos)
 - [ ] Coordinador notificado antes de la creación de la release
 
 ### Documentación
-- [ ] Los 5 test cases documentados en `docs/04-testing/` con prompt
+- [x] Los 5 test cases documentados en `docs/04-testing/` con prompt
   utilizado, hallazgos, capturas de pantalla y links a issues
-- [ ] `testing-doc.md` como índice central con resumen de issues por momento
-- [ ] `changelog.md` actualizado con la contribución de este rol
+- [x] `testing-doc.md` como índice central con resumen de issues por momento
+- [x] `changelog.md` actualizado con la contribución de este rol
 
 ---
 

@@ -63,6 +63,12 @@ métrica parece anormalmente alta. Guardá la captura.
 - **Issues generados:**
   - [#28 — Imagen de mockup reutilizada sin optimizar](https://github.com/carolabenvenuto-uces/planit/issues/28)
 
+  *Evidencia de uso de GitHub MCP: el issue se creó con el servidor*
+  *`github` (verificado "✓ Connected" vía `/mcp` antes de iniciar el*
+  *testing), indicándole al agente explícitamente "Usando el MCP de*
+  *GitHub, creá un issue en carolabenvenuto-uces/planit...", sin pasar*
+  *por la interfaz web de GitHub.*
+
 ---
 
 ## Momento 2 — Testing post-merge (rama develop)
