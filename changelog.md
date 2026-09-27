@@ -1,17 +1,7 @@
 # Changelog
 
 ## [Unreleased]
-### Fixed
-- [fix/frontend] reemplazar imagen de mockup usada como placeholder por assets específicos en logo de cabecera e imágenes de tarjetas del catálogo (#33). PR: #34 - @carolabenvenuto-uces (Desarrollador Frontend)
-- [fix/responsive] agregar indicador visual de scrollbar en tablas móviles (#26) e incrementar área táctil en enlaces del footer a >24px según WCAG 2.5.8 (#27). PR: #32 - @carolabenvenuto-uces (Especialista en Responsive Design)
-- [fix/frontend] corregir contraste de controles select en Safari (#25) y definir clase utilitaria accesible .sr-only con clip-path: inset(50%) según spec W3C (#29). PR: #32 - @carolabenvenuto-uces (Desarrollador Frontend)
-- [fix/perf] incorporar atributos loading lazy en imágenes del catálogo (#28). PR: #32 - @carolabenvenuto-uces (Desarrollador Frontend)
-
-## [Release Actividad Obligatoria N°2]
-### Added
-- [feature/coord-devops-update-figma-and-readme] Actualización de mockup Figma, spec-devops, README y plan.md para Actividad N°2. PR: #20 https://github.com/carolabenvenuto-uces/planit/pull/20 | Issue: #19 - @ValeriaMSilva (Coordinador / DevOps)
-- [feature/dev-frontend-css-add-styles] maquetado visual, design tokens en styles.css y componentes UI en components.css. PR: [#22](https://github.com/carolabenvenuto-uces/planit/pull/22) | Issue: #21 - @carolabenvenuto-uces (Desarrollador Frontend / CSS)
-- [feature/responsive-design-add-responsive-styles] estrategia de diseño adaptativo en responsive.css, breakpoints para mobile/tablet y prevención de overflow. PR: [#24](https://github.com/carolabenvenuto-uces/planit/pull/24) | Issue: #23 - @carolabenvenuto-uces (Especialista en Responsive Design)
+- [feature/doc-qa-tester-add-test-case-1] Plan de testing (spec-qa.md), ejecución de 5 test cases (compatibilidad, responsive, performance, accesibilidad, estructura HTML/CSS) en Momento 1 (pre-merge) y Momento 2 (post-merge a develop), con 5 issues de bugs/mejoras creados (#25-#29). PR: [#31](https://github.com/carolabenvenuto-uces/planit/pull/31) | Issue: #30 - @FacundoGuiraldes (Documentador / QA Tester)
 
 ## [Release Actividad Obligatoria N°1] - 2026-08-31
 ### Added
