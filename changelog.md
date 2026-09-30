@@ -1,23 +1,31 @@
 # Changelog
 
 ## [Unreleased]
-- [feature/doc-qa-tester-add-test-case-1] Plan de testing (spec-qa.md), ejecución de 5 test cases (compatibilidad, responsive, performance, accesibilidad, estructura HTML/CSS) en Momento 1 (pre-merge) y Momento 2 (post-merge a develop), con 5 issues de bugs/mejoras creados (#25-#29). PR: [#31](https://github.com/carolabenvenuto-uces/planit/pull/31) | Issue: #30 - @FacundoGuiraldes (Documentador / QA Tester)
 
-## [Release Actividad Obligatoria N°1] - 2026-08-31
+## [Release Actividad Obligatoria N°2] - 2026-09-28
+
 ### Added
-- [feature/coordinador-setup-repo-and-pages] Setup inicial del repositorio, Spec Maestro y entorno DevOps. PR: #4 https://github.com/carolabenvenuto-uces/planit/pull/4 | Issue: #3 - @carolabenvenuto-uces (Coordinador / DevOps)
-- [feature/doc-ux-add-readme-and-mockup] agregar mockup de figma y especificación de diseño. PR: #6 https://github.com/carolabenvenuto-uces/planit/pull/6 | Issue: #5 - @ValeriaMSilva (Documentador / Diseñador UX)
-- [feature/frontend-add-html-structure] maquetado semántico HTML5, Cockpit de Eventos y spec-frontend. PR: #8 https://github.com/carolabenvenuto-uces/planit/pull/8 | Issue: #7 - @ValeriaMSilva (Desarrollador Frontend)
-- [feature/ia-sdd-setup] agrega spec-ia, template de spec-rol y decisiones SDD. PR: [#2](https://github.com/carolabenvenuto-uces/planit/pull/2) - @FacundoGuiraldes (Especialista en IA)
-- [feature/ia-add-prompts-1-to-5] agrega documentacion final de prompts y comparativa de modelos. PR: [#10](https://github.com/carolabenvenuto-uces/planit/pull/10) | Issue: #9 - @FacundoGuiraldes (Especialista en IA)
+- [feature/coord-devops-update-figma-and-readme] Actualización del mockup de Figma con paleta, tipografías, espaciados y estados de interacción; exportación de `diseño-con-estilos.png`, creación de `spec-devops.md` y actualización de `README.md` y `plan.md` para la Actividad N°2. PR: [#20](https://github.com/carolabenvenuto-uces/planit/pull/20) | Issue: [#19](https://github.com/carolabenvenuto-uces/planit/issues/19) - @ValeriaMSilva (Coordinador / DevOps)
+- [feature/dev-frontend-css-add-styles] Maquetado visual generado con Figma MCP: design tokens, reset, tipografías y layout base en `styles.css`, y componentes UI con estados hover/focus en `components.css`, con `spec-frontend.md` commiteado previamente. PR: [#22](https://github.com/carolabenvenuto-uces/planit/pull/22) | Issue: [#21](https://github.com/carolabenvenuto-uces/planit/issues/21) - @carolabenvenuto-uces (Desarrollador Frontend / CSS)
+- [feature/responsive-design-add-responsive-styles] Estrategia de diseño adaptativo mobile-first en `responsive.css`: media queries por breakpoint (mobile, tablet, desktop), layouts con Flexbox/Grid y prevención de overflow horizontal, con `spec-responsive.md` commiteado previamente. PR: [#24](https://github.com/carolabenvenuto-uces/planit/pull/24) | Issue: [#23](https://github.com/carolabenvenuto-uces/planit/issues/23) - @carolabenvenuto-uces (Especialista en Responsive Design)
+- [feature/doc-qa-tester-add-test-case-1] Plan de testing (`spec-qa.md`), ejecución de 5 test cases con Playwright MCP (compatibilidad desktop, responsive móvil, performance, accesibilidad y estructura HTML/CSS) e índice `testing-doc.md`, con issues de bugs/mejoras creados con GitHub MCP ([#25](https://github.com/carolabenvenuto-uces/planit/issues/25), [#26](https://github.com/carolabenvenuto-uces/planit/issues/26), [#27](https://github.com/carolabenvenuto-uces/planit/issues/27), [#28](https://github.com/carolabenvenuto-uces/planit/issues/28), [#29](https://github.com/carolabenvenuto-uces/planit/issues/29), [#33](https://github.com/carolabenvenuto-uces/planit/issues/33)). PR: [#31](https://github.com/carolabenvenuto-uces/planit/pull/31) | Issue: [#30](https://github.com/carolabenvenuto-uces/planit/issues/30) - @FacundoGuiraldes (Documentador / QA Tester)
 
 ### Fixed
-- [fix/ux] documentar prompt de concepto visual en spec-ux (RC7). PR: #13 - @ValeriaMSilva (Coordinador / DevOps)
-- [fix/frontend] resolver correcciones de Frontend y Especificaciones (RC4, RC5 y RC6). PR: #14 - @ValeriaMSilva (Coordinador / DevOps)
-- [fix/ia] resolver RC8 en spec-ia y eliminar .gitkeep residual en mockups. PR: #15 - @ValeriaMSilva (Coordinador / DevOps)
-- [fix/changelog] simplificar descripción de setup inicial (RCN1). PR: #16 - @ValeriaMSilva (Coordinador / DevOps)
-- [fix/changelog] aplicar cambios sugeridos para entradas de características (RCN2). PR: #17 - @ValeriaMSilva (Coordinador / DevOps)
-
----
+- [fix/qa-bugfixes-ui-responsive] Resolución de hallazgos de QA detectados post-merge: contraste de `<select>` en Safari, indicador visual de scroll en tablas móviles, área táctil de enlaces del footer mayor a 24px según WCAG 2.5.8, atributos `loading="lazy"` en imágenes del catálogo y clase utilitaria `.sr-only` según spec W3C. PR: [#32](https://github.com/carolabenvenuto-uces/planit/pull/32) | Issues: [#25](https://github.com/carolabenvenuto-uces/planit/issues/25), [#26](https://github.com/carolabenvenuto-uces/planit/issues/26), [#27](https://github.com/carolabenvenuto-uces/planit/issues/27), [#28](https://github.com/carolabenvenuto-uces/planit/issues/28), [#29](https://github.com/carolabenvenuto-uces/planit/issues/29) - @carolabenvenuto-uces (Desarrollador Frontend / CSS + Especialista en Responsive Design)
+- [fix/assets-placeholder-images] Reemplazo de la imagen del mockup usada como placeholder por assets específicos (logo SVG local e imágenes livianas del catálogo). PR: [#34](https://github.com/carolabenvenuto-uces/planit/pull/34) | Issue: [#33](https://github.com/carolabenvenuto-uces/planit/issues/33) - @carolabenvenuto-uces (Desarrollador Frontend / CSS)
 
 ## [Release Actividad Obligatoria N°1] - 2026-08-31
+
+### Added
+- [feature/coordinador-setup-repo-and-pages] Setup inicial del repositorio, Spec Maestro y entorno DevOps. PR: [#4](https://github.com/carolabenvenuto-uces/planit/pull/4) | Issue: [#3](https://github.com/carolabenvenuto-uces/planit/issues/3) - @carolabenvenuto-uces (Coordinador / DevOps)
+- [feature/doc-ux-add-readme-and-mockup] Agregar mockup de Figma y especificación de diseño. PR: [#6](https://github.com/carolabenvenuto-uces/planit/pull/6) | Issue: [#5](https://github.com/carolabenvenuto-uces/planit/issues/5) - @ValeriaMSilva (Documentador / Diseñador UX)
+- [feature/frontend-add-html-structure] Maquetado semántico HTML5, Cockpit de Eventos y spec-frontend. PR: [#8](https://github.com/carolabenvenuto-uces/planit/pull/8) | Issue: [#7](https://github.com/carolabenvenuto-uces/planit/issues/7) - @ValeriaMSilva (Desarrollador Frontend)
+- [feature/ia-sdd-setup] Agrega spec-ia, template de spec-rol y decisiones SDD. PR: [#2](https://github.com/carolabenvenuto-uces/planit/pull/2) - @FacundoGuiraldes (Especialista en IA)
+- [feature/ia-add-prompts-1-to-5] Agrega documentación final de prompts y comparativa de modelos. PR: [#10](https://github.com/carolabenvenuto-uces/planit/pull/10) | Issue: [#9](https://github.com/carolabenvenuto-uces/planit/issues/9) - @FacundoGuiraldes (Especialista en IA)
+
+### Fixed
+- [fix/ux-rc7-prompt-concepto] Documentar prompt de concepto visual en spec-ux (RC7). PR: [#13](https://github.com/carolabenvenuto-uces/planit/pull/13) - @ValeriaMSilva (Coordinador / DevOps)
+- [fix/frontend-rc6-invitados-buscador] Resolver correcciones de Frontend y Especificaciones (RC4, RC5 y RC6). PR: [#14](https://github.com/carolabenvenuto-uces/planit/pull/14) - @ValeriaMSilva (Coordinador / DevOps)
+- [fix/ia-rc8-checklist] Resolver RC8 en spec-ia y eliminar .gitkeep residual en mockups. PR: [#15](https://github.com/carolabenvenuto-uces/planit/pull/15) - @ValeriaMSilva (Coordinador / DevOps)
+- [fix/devops-rcn1-changelog] Simplificar descripción de setup inicial (RCN1). PR: [#16](https://github.com/carolabenvenuto-uces/planit/pull/16) - @ValeriaMSilva (Coordinador / DevOps)
+- [fix/devops-rcn2-changelog] Aplicar cambios sugeridos para entradas de características (RCN2). PR: [#17](https://github.com/carolabenvenuto-uces/planit/pull/17) - @ValeriaMSilva (Coordinador / DevOps)
