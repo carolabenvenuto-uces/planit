@@ -68,8 +68,8 @@ tenía la Ronda 1.
 - [#26](https://github.com/carolabenvenuto-uces/planit/issues/26) — Tablas desbordan sin indicador de scroll en mobile — **cerrado** (verificado en código, Ronda 2)
 - [#27](https://github.com/carolabenvenuto-uces/planit/issues/27) — Links de footer con área de toque menor al mínimo WCAG — **cerrado, confirmado visualmente**
 - [#28](https://github.com/carolabenvenuto-uces/planit/issues/28) — Imagen de mockup reutilizada sin optimizar — **cerrado, pero fix ineficaz** (ver #33)
-- [#29](https://github.com/carolabenvenuto-uces/planit/issues/29) — Modernizar 2 propiedades CSS legacy — **abierto**, 1 de 2 avisos corregido, se sugiere cerrar
-- [#33](https://github.com/carolabenvenuto-uces/planit/issues/33) — Logo y tarjetas siguen usando el mockup como placeholder — **abierto**, nuevo hallazgo de la Ronda 2
+- [#29](https://github.com/carolabenvenuto-uces/planit/issues/29) — Modernizar 2 propiedades CSS legacy — **cerrado** (25/09/2026), resuelto con la [PR #32](https://github.com/carolabenvenuto-uces/planit/pull/32); 1 de 2 avisos corregido, el otro sin cambios intencionalmente
+- [#33](https://github.com/carolabenvenuto-uces/planit/issues/33) — Logo y tarjetas siguen usando el mockup como placeholder — **cerrado** (27/09/2026), resuelto con la [PR #34](https://github.com/carolabenvenuto-uces/planit/pull/34); hallazgo de la Ronda 2
 
 ## Puntos pendientes de Coordinación
 
