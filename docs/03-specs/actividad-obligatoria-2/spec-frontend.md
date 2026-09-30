@@ -49,3 +49,15 @@ Para transformar la estructura HTML5 semántica en una interfaz gráfica atracti
   3. Incorporación de transiciones con curvas cubic-bezier para suavizar los estados de hover en tarjetas y botones.
   4. Integración de pseudo-elementos (`::before` y `::after`) para numeradores dinámicos de pasos y subrayados decorativos de sección.
   
+
+---
+
+## 5. Corrección RC8 — Verificación de integración en GitHub Pages
+
+En la entrega original la integración Frontend/Responsive no podía verificarse sobre el producto publicado, porque GitHub Pages seguía mostrando AO1. Resuelto RC3 ([PR #37](https://github.com/carolabenvenuto-uces/planit/pull/37)), el sitio publica `release/actividad-obligatoria-2` y la integración se verificó sobre https://carolabenvenuto-uces.github.io/planit/ (commit `1aeeab6`, 2026-09-30) con Playwright:
+
+| Viewport | `styles.css` + `components.css` + `responsive.css` cargados | Overflow horizontal |
+| --- | --- | --- |
+| Mobile 390×844 | ✅ | ✅ No (las tablas se desplazan dentro de su contenedor con `overflow-x: auto`) |
+| Tablet 820×1180 | ✅ | ✅ No |
+| Desktop 1440×900 | ✅ | ✅ No |
