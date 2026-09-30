@@ -24,7 +24,8 @@ Resolución de Request Changes de la Actividad Obligatoria N°1 mediante ramas f
 - [x] Archivo plan.md actualizado con los objetivos de la Actividad N°2.
 - [x] Al menos 4 Code Reviews asistidos con Copilot Agent Mode realizados sobre las PRs del equipo.
 - [x] Registro de contribuciones y PRs actualizado en changelog.md (PR #20 e Issue #19 registradas).
-- [x] Rama release/actividad-obligatoria-2 creada desde develop y GitHub Pages habilitado.
+- [x] Rama release/actividad-obligatoria-2 creada desde develop.
+- [x] GitHub Pages publicando release/actividad-obligatoria-2 con deployment exitoso verificado (corregido en RC3, ver sección 4).
 
 ```
 
@@ -78,3 +79,26 @@ Audita la integración de las PRs del equipo para la Actividad Obligatoria N°2.
 - La restricción del canal `chrome` local se resolvió autorizando Playwright directo para las pruebas de QA.
 - La dependencia de `placehold.co` se resolvió mediante el uso del activo local `logo-planit.svg`.
 - El Momento 1 diferido de QA quedó documentado y aprobado sobre el commit pre-merge.
+
+---
+
+## 4. Corrección RC3 — Publicación de la release AO2 en GitHub Pages
+
+**Hallazgo del docente (PR #35):** al momento de la entrega, GitHub Pages seguía publicando `release/actividad-obligatoria-1` y no existía un deployment de `release/actividad-obligatoria-2`, por lo que el producto AO2 (CSS y Responsive Design) no podía verificarse. La casilla de la sección 2 que afirmaba "GitHub Pages habilitado" no se correspondía con el estado real.
+
+**Corrección aplicada:** la fuente de GitHub Pages se cambió a la rama `release/actividad-obligatoria-2` (carpeta `/`), y cada merge sobre la release dispara un nuevo build.
+
+**Evidencia de deployment exitoso:**
+
+| Dato | Valor |
+| --- | --- |
+| URL del sitio | https://carolabenvenuto-uces.github.io/planit/ |
+| Fuente configurada | `release/actividad-obligatoria-2` / `(root)` |
+| Historial de deployments | https://github.com/carolabenvenuto-uces/planit/deployments/github-pages |
+| Primer deployment AO2 | 2026-09-29, commit `7928eea` — estado `built` |
+| Deployment verificado | 2026-09-30, commit `1db0f5b` (merge de la PR #36) — estado `built` |
+
+**Verificación del contenido publicado (2026-09-30):**
+- El `index.html` publicado enlaza `css/styles.css`, `css/components.css` y `css/responsive.css`, y los tres archivos responden HTTP 200.
+- El contenido servido de `index.html`, `styles.css`, `components.css` y `responsive.css` es idéntico al de la rama `release/actividad-obligatoria-2`: el sitio publicado corresponde a AO2 y no a AO1.
+- `README.md` incluye el enlace al sitio publicado.
