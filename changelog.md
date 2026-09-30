@@ -20,6 +20,7 @@
 - [fix/qa-rc5-rc6-orden-testing] Documentación en `spec-qa.md` de la cronología real del testing: issues de QA detectados después de los merges iniciales y corregidos posteriormente con ramas `fix/*` (PRs #32 y #34), manteniendo la aclaración del Momento 1 diferido (RC5, RC6). PR: [#39](https://github.com/carolabenvenuto-uces/planit/pull/39) - @FacundoGuiraldes (Documentador / QA Tester)
 - [fix/qa-rc7-test-cases-momentos] Separación explícita de Momento 1 y Momento 2 en los 5 test cases, con estado probado, prompt, resultados, capturas e issues por momento; restauración desde el historial de git de los resultados y capturas del 21/09 y reubicación de la re-ejecución del 25/09 como segunda ejecución del Momento 2 (RC7). PR: [#40](https://github.com/carolabenvenuto-uces/planit/pull/40) - @FacundoGuiraldes (Documentador / QA Tester)
 - [fix/changelog-rc14-rc16] Registro bajo Fixed del commit directo `7928eea` sobre la release, con hash, autora, mensaje real y aclaración de ingreso directo (RC14), y corrección del rol de @FacundoGuiraldes a Documentador / QA Tester en las entradas de las PRs #36 a #40 (RC16). PR: [#41](https://github.com/carolabenvenuto-uces/planit/pull/41) - @FacundoGuiraldes (Documentador / QA Tester)
+- [fix/qa-rc15-testing-doc-estados] Actualización en `testing-doc.md` del estado de los issues #29 y #33 a cerrados, con la PR de fix que resolvió cada uno (RC15). PR: [#42](https://github.com/carolabenvenuto-uces/planit/pull/42) - @FacundoGuiraldes (Documentador / QA Tester)
 
 ## [Release Actividad Obligatoria N°1] - 2026-08-31
 
