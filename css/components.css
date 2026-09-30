@@ -1,666 +1,580 @@
 /* ==========================================================================
-   PLANIT - Estilos de Componentes UI
+   PLANIT - Componentes Reutilizables de Interfaz
    Archivo: css/components.css
    Rol: Desarrollador Frontend / CSS
+   Componentes del mockup aprobado: header, botones, paneles, formulario,
+   tablas con badges, resumen financiero, tareas, alerta, catálogo y footer.
    ========================================================================== */
 
 /* --------------------------------------------------------------------------
-   1. CABECERA Y NAVEGACIÓN (Header & Navbar)
-   - Layout: Flexbox horizontal con distribución 'space-between'
-   - Box Model: Altura fija, padding horizontal, borde inferior de separación
+   1. CABECERA Y NAVEGACIÓN
+   Flexbox en tres bloques: logo | navegación | acciones de usuario.
    -------------------------------------------------------------------------- */
-header {
+.site-header {
   position: sticky;
   top: 0;
   z-index: 100;
-  height: var(--header-height);
-  background-color: rgba(30, 30, 36, 0.92); /* Superficie oscura con transparencia */
-  backdrop-filter: blur(12px);               /* Efecto glassmorphism moderno */
-  -webkit-backdrop-filter: blur(12px);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xl);
+  min-height: var(--header-height);
+  padding: var(--spacing-xs) var(--spacing-2xl);
+  background-color: var(--color-bg-surface);
   border-bottom: 1px solid var(--color-border);
-  padding: 0 var(--spacing-xl);
+}
+
+/* Logo: enlace en línea convertido a flex para alinear isotipo y marca */
+.logo {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-black);
+  color: var(--color-primary);
+}
+
+.logo:hover {
+  color: var(--color-primary-hover);
+}
+
+.site-header nav ul {
+  display: flex;
+  gap: var(--spacing-lg);
+  list-style: none;
+}
+
+/* Enlaces de navegación: inline-block para controlar padding y borde inferior */
+.site-header nav a {
+  display: inline-block;
+  padding: var(--spacing-2xs) 0;
+  border-bottom: 2px solid transparent;
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-primary);
+}
+
+.site-header nav a:hover {
+  color: var(--color-primary);
+}
+
+/* Destino activo: subrayado índigo como en el mockup ("Mi Evento") */
+.site-header nav a[aria-current="page"] {
+  color: var(--color-primary);
+  border-bottom-color: var(--color-primary);
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  margin-left: auto; /* Empuja las acciones al extremo derecho */
+}
+
+.avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: var(--radius-full);
+  object-fit: cover;
+}
+
+/* --------------------------------------------------------------------------
+   2. BOTONES Y ESTADOS DE INTERACCIÓN (hover, focus, active, disabled)
+   -------------------------------------------------------------------------- */
+.btn-primary,
+.btn-outline,
+.btn-icon {
+  display: inline-flex; /* Elemento en línea que alinea ícono y texto */
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-xs);
+  font-family: inherit;
+  font-weight: var(--font-weight-semibold);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: background-color var(--transition-fast), color var(--transition-fast), border-color var(--transition-fast);
+}
+
+.btn-primary {
+  padding: var(--spacing-xs) var(--spacing-md);
+  font-size: var(--font-size-xs);
+  color: var(--color-text-inverse);
+  background-color: var(--color-primary);
+  border: 1px solid var(--color-primary);
+}
+
+/* :not(:disabled) evita que un botón deshabilitado reciba estilos de hover */
+.btn-primary:not(:disabled):hover {
+  color: var(--color-text-inverse);
+  background-color: var(--color-primary-hover);
+}
+
+.btn-primary:not(:disabled):active {
+  background-color: var(--color-primary-active);
+}
+
+/* Botón "Nuevo Evento" del header: mayor tamaño según el mockup */
+.btn-nuevo-evento {
+  padding: var(--spacing-sm) var(--spacing-lg);
+  font-size: var(--font-size-md);
+}
+
+.btn-nuevo-evento span {
+  font-size: var(--font-size-lg);
+  line-height: 1;
+}
+
+.btn-outline {
+  width: 100%;
+  padding: var(--spacing-2xs) var(--spacing-sm);
+  font-size: var(--font-size-2xs);
+  color: var(--color-primary);
+  background-color: var(--color-bg-surface);
+  border: 1px solid var(--color-primary);
+}
+
+.btn-outline:not(:disabled):hover {
+  color: var(--color-text-inverse);
+  background-color: var(--color-primary);
+}
+
+.btn-icon {
+  width: 36px;
+  height: 36px;
+  color: var(--color-text-secondary);
+  background-color: var(--color-bg-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-full);
+}
+
+.btn-icon:not(:disabled):hover {
+  color: var(--color-primary);
+  border-color: var(--color-primary);
+}
+
+.btn-primary:disabled,
+.btn-outline:disabled,
+.btn-icon:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* --------------------------------------------------------------------------
+   3. PANELES (tarjetas contenedoras de cada sección del dashboard)
+   Box model explícito: padding interno, borde y radio.
+   -------------------------------------------------------------------------- */
+.panel {
+  padding: var(--spacing-md);
+  background-color: var(--color-bg-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+}
+
+/* Título de panel: ícono + texto en índigo, como en el mockup */
+.panel-title {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  margin-bottom: var(--spacing-md);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-primary);
+}
+
+.panel-title svg {
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+}
+
+.panel-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  box-shadow: var(--shadow-sm);
-}
-
-/* Contenedor del Logo (Elemento en Bloque Flex) */
-.logo-container {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-sm);
-  text-decoration: none;
-}
-
-.logo-container img {
-  max-height: 44px;
-  width: auto;
-  border-radius: var(--radius-sm);
-  transition: transform var(--transition-fast);
-}
-
-.logo-container:hover img {
-  transform: scale(1.05); /* Micro-interacción de realce */
-}
-
-/* Nombre de Marca PlanIT (Elemento en línea estilizado) */
-.logo-container span {
-  font-family: var(--font-heading);
-  font-size: var(--font-size-xl);
-  font-weight: var(--font-weight-black);
-  background: linear-gradient(135deg, var(--color-primary-light), var(--color-secondary));
-  background-clip: text;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent; /* Tipografía con gradiente de marca */
-  display: inline-block;
-}
-
-/* Menú de Navegación */
-nav ul {
-  list-style: none; /* Eliminación de viñetas estándar */
-  display: flex;
-  align-items: center;
   gap: var(--spacing-md);
-  margin: 0;
-  padding: 0;
-}
-
-/* Enlaces de Navegación (Elementos con Box Model interactivo) */
-nav ul li a {
-  display: inline-block; /* Permite aplicar padding y transformaciones */
-  padding: var(--spacing-xs) var(--spacing-sm);
-  color: var(--color-text-secondary);
-  font-family: var(--font-heading);
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-medium);
-  border-radius: var(--radius-sm);
-  transition: color var(--transition-fast), background-color var(--transition-fast), transform var(--transition-fast);
-  text-decoration: none;
-}
-
-/* Estados Interactivos de Navegación */
-nav ul li a:hover {
-  color: var(--color-text-primary);
-  background-color: var(--color-primary-subtle);
-  text-decoration: none;
-  transform: translateY(-1px);
-}
-
-nav ul li a:focus-visible {
-  outline: 2px solid var(--color-primary-light);
-  outline-offset: 2px;
-}
-
-nav ul li a:active {
-  transform: translateY(0);
-  background-color: rgba(108, 92, 231, 0.25);
-}
-
-/* --------------------------------------------------------------------------
-   2. SECCIÓN HERO (Hero Banner)
-   - Layout: Centrado visual, fondo destacado y llamada a la acción prominente
-   -------------------------------------------------------------------------- */
-.hero-section {
-  text-align: center;
-  padding: var(--spacing-3xl) var(--spacing-lg);
-  background: radial-gradient(circle at 50% 30%, rgba(108, 92, 231, 0.15) 0%, rgba(19, 19, 26, 0) 70%);
-  border-radius: var(--radius-lg);
-  margin-top: var(--spacing-lg);
-  margin-bottom: var(--spacing-xl);
-  border: 1px solid rgba(255, 255, 255, 0.05);
-}
-
-.hero-section h1 {
-  max-width: 850px;
-  margin-left: auto;
-  margin-right: auto;
-  font-size: var(--font-size-3xl);
-  letter-spacing: -0.03em;
-}
-
-.hero-section p {
-  max-width: 680px;
-  margin-left: auto;
-  margin-right: auto;
-  font-size: var(--font-size-md);
-  color: var(--color-text-secondary);
-  margin-bottom: var(--spacing-xl);
-}
-
-/* --------------------------------------------------------------------------
-   3. BOTONES Y LLAMADAS A LA ACCIÓN (Buttons UI)
-   - Box Model: Padding interno generoso, bordes redondeados y sin outline brusco
-   -------------------------------------------------------------------------- */
-.btn-primary,
-.btn-submit {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: var(--spacing-sm) var(--spacing-xl);
-  font-family: var(--font-heading);
-  font-size: var(--font-size-base);
-  font-weight: var(--font-weight-semibold);
-  color: #ffffff;
-  background: linear-gradient(135deg, var(--color-primary) 0%, #5846e0 100%);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: var(--radius-md);
-  cursor: pointer;
-  box-shadow: var(--shadow-md);
-  text-decoration: none;
-  transition: all var(--transition-normal);
-}
-
-/* Estados Interactivos: Botón Primario */
-.btn-primary:not(:disabled):hover,
-.btn-submit:not(:disabled):hover {
-  background: linear-gradient(135deg, var(--color-primary-hover) 0%, #4834d4 100%);
-  box-shadow: var(--shadow-glow);
-  transform: translateY(-2px);
-  color: #ffffff;
-  text-decoration: none;
-}
-
-.btn-primary:focus-visible,
-.btn-submit:focus-visible {
-  outline: 3px solid var(--color-primary-light);
-  outline-offset: 3px;
-}
-
-.btn-primary:active,
-.btn-submit:active {
-  transform: translateY(1px);
-  box-shadow: var(--shadow-sm);
-  background: var(--color-primary-active);
-}
-
-/* Estado Desactivado (:disabled) para Botones */
-.btn-primary:disabled,
-.btn-submit:disabled,
-.catalog-search button[type="submit"]:disabled,
-button:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-  box-shadow: none;
-  transform: none;
-  pointer-events: none;
-}
-
-/* Botón de envío específico para el formulario */
-.btn-submit {
-  width: 100%; /* Ocupa el ancho completo del contenedor del formulario */
-  margin-top: var(--spacing-md);
-  padding-top: var(--spacing-md);
-  padding-bottom: var(--spacing-md);
-  font-size: var(--font-size-md);
-}
-
-/* --------------------------------------------------------------------------
-   4. CATÁLOGO DE EXPERIENCIAS ("PLANCITOS")
-   - Formulario de Búsqueda y Cuadrícula de Tarjetas
-   -------------------------------------------------------------------------- */
-.experiencias-section h2,
-.cockpit-section h2,
-.how-it-works h2,
-.invitados-section h2 {
-  margin-bottom: var(--spacing-xs);
-}
-
-.experiencias-section > p,
-.cockpit-section > p,
-.how-it-works > p {
-  color: var(--color-text-muted);
-  margin-bottom: var(--spacing-xl);
-}
-
-/* Barra de Búsqueda del Catálogo */
-.catalog-search {
-  display: flex;
-  align-items: center;
-  max-width: 540px;
-  margin-bottom: var(--spacing-2xl);
-  background-color: var(--color-bg-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-full);
-  padding: var(--spacing-2xs) var(--spacing-xs);
-  box-shadow: var(--shadow-sm);
-  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
-}
-
-.catalog-search:focus-within {
-  border-color: var(--color-primary-light);
-  box-shadow: 0 0 0 3px var(--color-primary-subtle);
-}
-
-/* Fix #29: Ocultamiento accesible con clase utilitaria .sr-only y especificación W3C moderna */
-.sr-only,
-.catalog-search label {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip-path: inset(50%);
-  white-space: nowrap;
-  border: 0;
-}
-
-.catalog-search input[type="search"] {
-  flex: 1;
-  background: transparent;
-  border: none;
-  padding: var(--spacing-xs) var(--spacing-md);
-  font-family: var(--font-body);
-  font-size: var(--font-size-sm);
-  color: var(--color-text-primary);
-  outline: none;
-}
-
-.catalog-search input[type="search"]::placeholder {
-  color: var(--color-text-muted);
-}
-
-.catalog-search button[type="submit"] {
-  background-color: var(--color-primary);
-  border: none;
-  color: #ffffff;
-  width: 38px;
-  height: 38px;
-  border-radius: var(--radius-full);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: background-color var(--transition-fast), transform var(--transition-fast);
-}
-
-.catalog-search button[type="submit"]:not(:disabled):hover {
-  background-color: var(--color-primary-hover);
-  transform: scale(1.08);
-}
-
-.catalog-search button[type="submit"]:focus-visible {
-  outline: 2px solid var(--color-primary-light);
-  outline-offset: 2px;
-}
-
-/* Cuadrícula de Tarjetas (Cards Grid) */
-.cards-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: var(--spacing-xl);
-}
-
-/* Tarjeta de Experiencia Individual (Card Component) */
-.card-experiencia {
-  display: flex;
-  flex-direction: column;
-  background-color: var(--color-bg-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-  overflow: hidden; /* Corta esquinas de la imagen según border-radius */
-  box-shadow: var(--shadow-md);
-  transition: transform var(--transition-normal), box-shadow var(--transition-normal), border-color var(--transition-normal);
-}
-
-/* Efecto Lift (Elevación) al interactuar */
-.card-experiencia:hover {
-  transform: translateY(-6px);
-  box-shadow: var(--shadow-lg);
-  border-color: rgba(108, 92, 231, 0.4);
-}
-
-.card-experiencia img {
-  width: 100%;
-  height: 190px;
-  object-fit: cover; /* Recorte armónico sin deformar la imagen */
-  border-bottom: 1px solid var(--color-border);
-  background-color: var(--color-bg-surface-alt);
-}
-
-/* Cuerpo de la Tarjeta */
-.card-content {
-  padding: var(--spacing-lg);
-  display: flex;
-  flex-direction: column;
-  flex: 1; /* Asegura distribución homogénea de alturas */
-}
-
-.card-content h3 {
-  font-size: var(--font-size-lg);
-  color: var(--color-text-primary);
-  margin-bottom: var(--spacing-xs);
-}
-
-.card-content p {
-  font-size: var(--font-size-sm);
-  color: var(--color-text-secondary);
-  line-height: 1.5;
-  margin-bottom: var(--spacing-lg);
-  flex: 1; /* Empuja el precio hacia la base */
-}
-
-/* Badge / Etiqueta de Precio (Elemento en línea) */
-.card-content .precio {
-  display: inline-block;
-  align-self: flex-start;
-  padding: var(--spacing-2xs) var(--spacing-sm);
-  font-family: var(--font-heading);
-  font-size: var(--font-size-xs);
-  font-weight: var(--font-weight-bold);
-  color: var(--color-accent-amber);
-  background-color: rgba(253, 203, 110, 0.12);
-  border: 1px solid rgba(253, 203, 110, 0.3);
-  border-radius: var(--radius-full);
-}
-
-/* --------------------------------------------------------------------------
-   5. COCKPIT OPERATIVO (Formulario y Tabla en Doble Columna)
-   - Layout: Contenedor con Grid de 2 columnas proporcionales
-   -------------------------------------------------------------------------- */
-.cockpit-container {
-  display: grid;
-  grid-template-columns: 1fr 1.35fr; /* 1 col para Formulario, 1.35 col para Tabla */
-  gap: var(--spacing-xl);
-  align-items: start;
-}
-
-/* Contenedores de Formulario y Tabla */
-.cockpit-form,
-.cockpit-table {
-  background-color: var(--color-bg-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-  padding: var(--spacing-xl);
-  box-shadow: var(--shadow-md);
-}
-
-.cockpit-form h3,
-.cockpit-table h3 {
-  font-size: var(--font-size-lg);
-  margin-bottom: var(--spacing-lg);
-  padding-bottom: var(--spacing-xs);
-  border-bottom: 1px solid var(--color-border);
-  color: var(--color-primary-light);
-}
-
-/* --------------------------------------------------------------------------
-   6. CONTROLES DE FORMULARIOS (Inputs, Selects, Labels)
-   - Control estricto de Box Model y estados de foco accesibles
-   -------------------------------------------------------------------------- */
-.form-group {
-  display: block;
   margin-bottom: var(--spacing-md);
 }
 
+.panel-header .panel-title {
+  margin-bottom: 0;
+}
+
+/* --------------------------------------------------------------------------
+   4. FORMULARIO "MI EVENTO"
+   Grid de 2 columnas; Ubicación ocupa el ancho completo.
+   -------------------------------------------------------------------------- */
+.event-form {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--spacing-sm) var(--spacing-md);
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2xs);
+}
+
+.form-group-full,
+.form-actions {
+  grid-column: 1 / -1;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+/* Labels en mayúsculas pequeñas (estilo del mockup) */
 .form-group label {
-  display: block; /* Ocupa su propia línea sobre el campo */
-  font-family: var(--font-heading);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-2xs);
   font-weight: var(--font-weight-semibold);
-  color: var(--color-text-secondary);
+  color: var(--color-text-muted);
   text-transform: uppercase;
-  letter-spacing: 0.05em;
-  margin-bottom: var(--spacing-2xs);
+  letter-spacing: 0.03em;
 }
 
 .form-group input,
-.form-group select {
-  width: 100%; /* Control explícito del ancho */
+.form-group select,
+.catalog-search input {
+  width: 100%;
   padding: var(--spacing-xs) var(--spacing-sm);
-  font-family: var(--font-body);
+  font-family: inherit;
   font-size: var(--font-size-sm);
   color: var(--color-text-primary);
-  background-color: var(--color-bg-surface-alt);
+  background-color: var(--color-bg-surface);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-sm);
-  transition: border-color var(--transition-fast), box-shadow var(--transition-fast), background-color var(--transition-fast);
-  color-scheme: dark; /* Fix #25: Fuerza tema oscuro en controles nativos WebKit/Safari */
+  color-scheme: light; /* Fix #25: controles nativos coherentes con el tema en WebKit/Safari */
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.form-group select {
   -webkit-appearance: none;
   appearance: none;
+  padding-right: var(--spacing-xl);
+  /* Flecha propia porque appearance: none elimina la nativa */
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right var(--spacing-sm) center;
+  background-size: 14px;
 }
 
-.form-group input::placeholder {
-  color: var(--color-text-muted);
-}
-
-/* Estados Interactivos de Formulario */
 .form-group input:hover,
-.form-group select:hover {
-  border-color: rgba(108, 92, 231, 0.4);
+.form-group select:hover,
+.catalog-search input:hover {
+  border-color: var(--color-border-strong);
 }
 
 .form-group input:focus,
-.form-group select:focus {
+.form-group select:focus,
+.catalog-search input:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--color-primary-ring);
   outline: none;
-  border-color: var(--color-primary-light);
-  box-shadow: 0 0 0 3px var(--color-primary-subtle);
-  background-color: #2b2b38;
 }
 
-/* Estilo para select dropdowns */
-.form-group select option {
-  background-color: var(--color-bg-surface);
-  color: var(--color-text-primary);
+.form-group input:disabled,
+.form-group select:disabled {
+  color: var(--color-text-muted);
+  background-color: var(--color-bg-muted);
+  cursor: not-allowed;
 }
 
 /* --------------------------------------------------------------------------
-   7. TABLAS DE DATOS (Presupuesto e Invitados)
-   - Control de Box Model: border-collapse, espaciado de celdas y zebra striping
-   - Selectores encapsulados para evitar colisiones globales
+   5. TABLAS DE DATOS (Presupuesto e Invitados)
+   Encapsuladas en .data-table para no afectar tablas futuras.
    -------------------------------------------------------------------------- */
-.cockpit-table table,
-.invitados-section table {
+.table-wrapper {
   width: 100%;
-  border-collapse: collapse; /* Colapso limpio de bordes */
-  font-size: var(--font-size-sm);
-  text-align: left;
-  border-radius: var(--radius-md);
-  overflow: hidden;
-  border: 1px solid var(--color-border);
+  overflow-x: auto; /* Fix #26: la tabla se desplaza dentro de su contenedor */
 }
 
-/* Encabezados de Tabla */
-.cockpit-table thead,
-.invitados-section thead {
-  background-color: var(--color-bg-surface-alt);
-}
-
-.cockpit-table th,
-.invitados-section th {
-  font-family: var(--font-heading);
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
   font-size: var(--font-size-xs);
-  font-weight: var(--font-weight-bold);
-  color: var(--color-text-primary);
+}
+
+.data-table thead th {
+  padding: var(--spacing-xs) var(--spacing-xs);
+  font-size: var(--font-size-2xs);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-muted);
   text-transform: uppercase;
-  letter-spacing: 0.04em;
-  padding: var(--spacing-sm) var(--spacing-md);
-  border-bottom: 2px solid var(--color-border);
+  text-align: left;
+  background-color: var(--color-bg-muted);
 }
 
-/* Celdas del Cuerpo */
-.cockpit-table td,
-.invitados-section td {
-  padding: var(--spacing-sm) var(--spacing-md);
-  color: var(--color-text-secondary);
+.data-table tbody th,
+.data-table tbody td {
+  padding: var(--spacing-xs);
+  text-align: left;
   border-bottom: 1px solid var(--color-border);
-  vertical-align: middle;
 }
 
-/* Zebra Striping y Efecto Hover en Filas */
-.cockpit-table tbody tr:nth-child(even),
-.invitados-section tbody tr:nth-child(even) {
-  background-color: rgba(255, 255, 255, 0.02);
+/* Primera columna como encabezado de fila: nombre o categoría en negrita */
+.data-table tbody th {
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
 }
 
-.cockpit-table tbody tr:hover,
-.invitados-section tbody tr:hover {
-  background-color: rgba(108, 92, 231, 0.08); /* Feedback visual al posar el cursor */
-}
-
-/* Fila Dinámica de Experiencia en Cockpit */
-#fila-experiencia-dinamica {
-  font-style: italic;
+.data-table tbody td {
   color: var(--color-text-muted);
 }
 
-/* Pie de Tabla (Totales y Resumen) */
-.cockpit-table tfoot,
-.invitados-section tfoot {
-  background-color: var(--color-bg-surface-alt);
-  border-top: 2px solid var(--color-border);
+.data-table tbody tr:nth-child(even) {
+  background-color: #fafafa;
 }
 
-.cockpit-table tfoot td,
-.invitados-section tfoot td {
-  font-family: var(--font-heading);
+.data-table tbody tr:hover {
+  background-color: var(--color-primary-subtle);
+}
+
+.data-table .num {
+  text-align: right;
+  white-space: nowrap;
+}
+
+.data-table .center {
+  text-align: center;
+}
+
+.data-table td.subtotal {
+  font-weight: var(--font-weight-semibold);
   color: var(--color-text-primary);
-  border-bottom: none;
-  padding-top: var(--spacing-md);
-  padding-bottom: var(--spacing-md);
 }
 
-#costo-total-estimado {
-  font-size: var(--font-size-md);
-  color: var(--color-accent-amber);
+/* Fila de total: índigo y en negrita para distinguirse del detalle */
+.data-table tfoot th,
+.data-table tfoot td {
+  padding: var(--spacing-sm) var(--spacing-xs);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-primary);
+  text-align: left;
+}
+
+.data-table tfoot td {
+  text-align: right;
+}
+
+/* Badges de estado: elementos en línea con texto visible (no dependen solo del color) */
+.badge {
+  display: inline-block;
+  padding: 2px var(--spacing-xs);
+  font-size: var(--font-size-2xs);
+  font-weight: var(--font-weight-semibold);
+  border-radius: var(--radius-sm);
+}
+
+.badge-confirmado { color: var(--color-success-text); background-color: var(--color-success-bg); }
+.badge-pendiente  { color: var(--color-warning-text); background-color: var(--color-warning-bg); }
+.badge-declinado  { color: var(--color-danger); background-color: var(--color-danger-bg); }
+
+/* --------------------------------------------------------------------------
+   6. RESUMEN FINANCIERO (columna lateral)
+   -------------------------------------------------------------------------- */
+.panel-resumen {
+  background-color: var(--color-primary-subtle);
+}
+
+.resumen-lista {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+.resumen-lista dt {
+  font-size: var(--font-size-2xs);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+}
+
+.monto {
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-bold);
+  line-height: 1.2;
+}
+
+.monto-total   { color: var(--color-primary); }
+.monto-gastado { color: var(--color-warning); }
+.monto-saldo   { color: var(--color-success); }
+
+.progress {
+  height: 6px;
+  margin-top: var(--spacing-sm);
+  background-color: var(--color-border);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+}
+
+.progress-bar {
+  display: block;
+  height: 100%;
+  background: linear-gradient(90deg, #1e1b4b, var(--color-warning));
+  border-radius: var(--radius-full);
+}
+
+.progress-legend {
+  display: flex;
+  justify-content: space-between;
+  margin: var(--spacing-2xs) 0 0;
+  font-size: var(--font-size-2xs);
+  color: var(--color-text-muted);
+}
+
+.progress-limit {
+  color: var(--color-primary);
 }
 
 /* --------------------------------------------------------------------------
-   8. SECCIÓN CÓMO FUNCIONA (How It Works Steps)
-   - Lista ordenada estilizada con badges numéricos
+   7. TAREAS PENDIENTES
    -------------------------------------------------------------------------- */
-.how-it-works {
-  background-color: var(--color-bg-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-  padding: var(--spacing-2xl);
-  box-shadow: var(--shadow-sm);
-  margin-top: var(--spacing-xl);
+.task-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+  list-style: none;
 }
 
-.pasos-list {
-  list-style: none; /* Reemplazo de viñetas numéricas por badges CSS */
-  counter-reset: paso-counter;
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-  gap: var(--spacing-lg);
-  padding: 0;
-  margin-top: var(--spacing-lg);
-}
-
-.pasos-list li {
-  counter-increment: paso-counter;
-  position: relative;
-  background-color: var(--color-bg-surface-alt);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  padding: var(--spacing-lg);
-  padding-top: var(--spacing-2xl);
-  font-size: var(--font-size-sm);
-  line-height: 1.5;
-  transition: transform var(--transition-fast), border-color var(--transition-fast);
-}
-
-.pasos-list li:hover {
-  transform: translateY(-3px);
-  border-color: var(--color-primary-light);
-}
-
-/* Badge numérico generado con pseudoelemento ::before */
-.pasos-list li::before {
-  content: counter(paso-counter);
-  position: absolute;
-  top: -16px;
-  left: var(--spacing-lg);
-  width: 34px;
-  height: 34px;
-  background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
-  color: #ffffff;
-  font-family: var(--font-heading);
-  font-weight: var(--font-weight-black);
-  font-size: var(--font-size-sm);
-  border-radius: var(--radius-full);
+.task-list li {
   display: flex;
   align-items: center;
-  justify-content: center;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-xs);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+}
+
+.task-list input {
+  width: 14px;
+  height: 14px;
+  accent-color: var(--color-primary);
+}
+
+.task-list label {
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-primary);
+  cursor: pointer;
+}
+
+/* Tarea completada: fondo gris y texto tachado (selector de hermano adyacente) */
+.task-list li:has(input:checked) {
+  background-color: var(--color-bg-muted);
+}
+
+.task-list input:checked + label {
+  color: var(--color-text-muted);
+  text-decoration: line-through;
+}
+
+/* --------------------------------------------------------------------------
+   8. ALERTA DE PRESUPUESTO
+   -------------------------------------------------------------------------- */
+.alert-warning {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  margin: 0;
+  padding: var(--spacing-sm);
+  font-size: var(--font-size-2xs);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-warning-text);
+  background-color: var(--color-warning-bg);
+  border: 1px solid var(--color-warning-border);
+  border-radius: var(--radius-md);
+}
+
+.alert-warning svg {
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+}
+
+/* --------------------------------------------------------------------------
+   9. CATÁLOGO DE PLANCITOS
+   Grid de 3 tarjetas con imagen, datos y acción.
+   -------------------------------------------------------------------------- */
+.catalog-search {
+  width: 220px;
+}
+
+.catalog-search input {
+  padding: var(--spacing-2xs) var(--spacing-sm);
+  font-size: var(--font-size-xs);
+}
+
+.cards-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--spacing-xs);
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  background-color: var(--color-bg-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  transition: box-shadow var(--transition-fast);
+}
+
+.card:hover {
   box-shadow: var(--shadow-md);
 }
 
-.pasos-list li strong {
-  display: block;
-  font-family: var(--font-heading);
-  color: var(--color-text-primary);
-  font-size: var(--font-size-base);
-  margin-bottom: var(--spacing-xs);
+.card img {
+  width: 100%;
+  aspect-ratio: 151 / 73;
+  object-fit: cover;
 }
 
-/* --------------------------------------------------------------------------
-   9. SECCIÓN GESTIÓN DE INVITADOS
-   -------------------------------------------------------------------------- */
-.invitados-section {
-  background-color: var(--color-bg-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-  padding: var(--spacing-xl);
-  margin-top: var(--spacing-xl);
-}
-
-.invitados-section table {
-  margin-top: var(--spacing-md);
-}
-
-/* --------------------------------------------------------------------------
-   10. PIE DE PÁGINA (Footer)
-   - Layout: Contenedor flex con alineación horizontal y jerarquía visual
-   -------------------------------------------------------------------------- */
-footer {
-  background-color: #0d0d12;
-  border-top: 1px solid var(--color-border);
-  padding: var(--spacing-2xl) var(--spacing-lg);
-  margin-top: auto;
-}
-
-.footer-content {
-  max-width: var(--container-max-width);
-  margin: 0 auto;
+.card-body {
   display: flex;
+  flex: 1;
   flex-direction: column;
-  align-items: center;
+  padding: var(--spacing-sm) var(--spacing-xs) var(--spacing-xs);
+}
+
+.card-body h3 {
+  margin-bottom: var(--spacing-2xs);
+  font-size: var(--font-size-xs);
+}
+
+.card-body p {
+  margin-bottom: var(--spacing-xs);
+  font-size: var(--font-size-2xs);
+  color: var(--color-text-muted);
+}
+
+/* Datos requeridos por plan.md §2.5 (categoría, cupo y zona) en una línea discreta */
+.card-body .card-meta {
+  font-style: italic;
+}
+
+.card-body .card-price {
+  margin-top: auto; /* Alinea precio y botón al pie aunque varíe la descripción */
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-primary);
+}
+
+/* --------------------------------------------------------------------------
+   10. PIE DE PÁGINA
+   -------------------------------------------------------------------------- */
+.site-footer {
+  padding: var(--spacing-md) var(--spacing-lg);
   text-align: center;
-  gap: var(--spacing-md);
+  background-color: var(--color-bg-surface);
+  border-top: 1px solid var(--color-border);
 }
 
-.footer-content p {
-  font-size: var(--font-size-xs);
-  color: var(--color-text-muted);
+.site-footer p {
   margin: 0;
-}
-
-.footer-content p strong {
-  color: var(--color-text-secondary);
-}
-
-.footer-content ul {
-  list-style: none;
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: var(--spacing-lg);
-  margin: 0;
-  padding: 0;
-}
-
-/* Fix #27: Área táctil garantizada (>= 24px) según norma WCAG 2.5.8 */
-.footer-content ul li a {
-  display: inline-block;
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-base);
   color: var(--color-text-muted);
-  padding: var(--spacing-sm) var(--spacing-sm);
-  transition: color var(--transition-fast);
-}
-
-.footer-content ul li a:hover {
-  color: var(--color-primary-light);
-  text-decoration: underline;
 }

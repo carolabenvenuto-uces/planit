@@ -1,11 +1,7 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 56">
-  <g fill="none" stroke="#8b7cff" stroke-width="3" stroke-linecap="round">
-    <path d="M40 28 15 12m25 16V7m0 21 25-16M40 28 15 44m25-16v21m0-21 25 16"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="Isotipo de PlanIT">
+  <rect width="32" height="32" rx="7" fill="#4f46e5"/>
+  <g fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="8" y="9.5" width="16" height="14" rx="2.5"/>
+    <path d="M8 14h16M12.5 7.5v4M19.5 7.5v4M13 18.5h6"/>
   </g>
-  <g fill="#ffd166">
-    <circle cx="15" cy="12" r="5"/><circle cx="40" cy="7" r="5"/>
-    <circle cx="65" cy="12" r="5"/><circle cx="15" cy="44" r="5"/>
-    <circle cx="40" cy="49" r="5"/><circle cx="65" cy="44" r="5"/>
-  </g>
-  <circle cx="40" cy="28" r="8" fill="#8b7cff" stroke="#ffd166" stroke-width="3"/>
 </svg>
