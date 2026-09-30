@@ -123,3 +123,19 @@ debe coordinar que el testing arranque en cuanto exista una rama
 
 **Responsable de esta decisión:** @ValeriaMSilva (Coordinador/DevOps),
 según lo indicado en su revisión de la PR #31.
+
+---
+
+## 6. Corrección RC5 y RC6 — Orden real del testing y de las correcciones
+
+**RC5:** los issues de QA se detectaron **después** de los merges iniciales de Frontend/CSS y Responsive Design a `develop`, y se corrigieron posteriormente mediante ramas `fix/*`, no antes del merge:
+
+| Fecha | Evento |
+| --- | --- |
+| 2026-09-18 | Merge a `develop` de [PR #22](https://github.com/carolabenvenuto-uces/planit/pull/22) (Frontend/CSS) y [PR #24](https://github.com/carolabenvenuto-uces/planit/pull/24) (Responsive Design) |
+| 2026-09-21 | Ronda 1 de testing (Momento 1 diferido + Momento 2): se crean los issues [#25](https://github.com/carolabenvenuto-uces/planit/issues/25), [#26](https://github.com/carolabenvenuto-uces/planit/issues/26), [#27](https://github.com/carolabenvenuto-uces/planit/issues/27), [#28](https://github.com/carolabenvenuto-uces/planit/issues/28) y [#29](https://github.com/carolabenvenuto-uces/planit/issues/29) |
+| 2026-09-23 | Corrección de #25–#29 con la rama `fix/qa-bugfixes-ui-responsive` ([PR #32](https://github.com/carolabenvenuto-uces/planit/pull/32)) |
+| 2026-09-25 | Ronda 2 de testing sobre `develop`: se crea el issue [#33](https://github.com/carolabenvenuto-uces/planit/issues/33) |
+| 2026-09-27 | Corrección de #33 con la rama `fix/assets-placeholder-images` ([PR #34](https://github.com/carolabenvenuto-uces/planit/pull/34)) |
+
+**RC6:** se mantiene la aclaración histórica de la sección 5: el Momento 1 **no se ejecutó realmente antes del merge**, sino de forma diferida sobre el último commit de cada rama `feature/`.
