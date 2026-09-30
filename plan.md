@@ -153,9 +153,11 @@
  - Acción claramente identificada para ver el detalle o sumar la opción al
 	 evento, aunque todavía no ejecute una operación real.
 
- El catálogo deberá incluir ejemplos de ambos grupos: proveedores tradicionales
- y experiencias empaquetadas, como taller de cerámica + vino, cata de gin y show
- de magia.
+ El catálogo mostrará las tarjetas definidas en el mockup aprobado de la Actividad
+ N°2 (`docs/01-mockup/actividad-obligatoria-2/diseño-con-estilos.png`): Gourmet
+ Finger Food, Flores Pilar y DJ Lucas & Sonido. La incorporación de experiencias
+ empaquetadas (por ejemplo, taller de cerámica + vino, cata de gin o show de magia)
+ queda para una entrega futura, previa actualización del mockup.
 
  ### 2.6 Footer
 

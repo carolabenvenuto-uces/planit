@@ -72,3 +72,17 @@ En la entrega original la integración Frontend/Responsive no podía verificarse
 | Mobile 390×844 | ✅ | ✅ No (las tablas se desplazan dentro de su contenedor con `overflow-x: auto`) |
 | Tablet 820×1180 | ✅ | ✅ No |
 | Desktop 1440×900 | ✅ | ✅ No |
+
+---
+
+## 6. Corrección RC9–RC13 — Adaptación del responsive al layout del mockup
+
+Con la alineación del producto al mockup aprobado (ver `spec-frontend.md` §6), `responsive.css` se adaptó al nuevo layout de dashboard **manteniendo los mismos breakpoints** (992px, 768px y 576px):
+
+| Breakpoint | Adaptación |
+| --- | --- |
+| ≤ 992px (tablet) | El dashboard pasa a una columna; la columna lateral (Resumen Financiero y Tareas Pendientes) se ubica debajo en 2 columnas |
+| ≤ 768px (mobile) | Header en dos filas (navegación debajo del logo), formulario en una columna, tablas con scroll horizontal interno (Fix #26) y columna lateral apilada |
+| ≤ 576px (mobile small) | Catálogo en una columna y márgenes reducidos |
+
+Verificado sin overflow horizontal en 390, 412, 576, 768, 992 y 1440 px.
