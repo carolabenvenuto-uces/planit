@@ -17,9 +17,12 @@ Reducir la fragmentación al planificar reuniones y festejos. Busca ofrecer un s
 
 💻 **Tecnologías Utilizadas**
 - HTML5 Semántico
-- CSS3 (Planificado para entregas futuras)
+- CSS3 (variables, Flexbox, Grid y Media Queries: `styles.css`, `components.css`, `responsive.css`)
 - JavaScript (Planificado para entregas futuras)
-- Git & GitHub (GitFlow, GitHub Actions / Pages planificado para el release final de la entrega)
+- Git & GitHub (GitFlow y GitHub Pages)
+- Playwright MCP y GitHub MCP (testing automatizado y registro de issues)
+
+🚀 **Sitio publicado (GitHub Pages):** [carolabenvenuto-uces.github.io/planit](https://carolabenvenuto-uces.github.io/planit/) — publicado desde la rama `release/actividad-obligatoria-2`.
 
 ✨ **Funcionalidades Previstas**
 - Formulario de alta y personalización de eventos.
@@ -31,7 +34,8 @@ Reducir la fragmentación al planificar reuniones y festejos. Busca ofrecer un s
 
 🎯 **Objetivo del entregable**
 
-Establecer la estructura base y el maquetado inicial en HTML5 semántico de la plataforma. Este entregable sienta las bases organizativas del repositorio bajo la metodología Spec-Driven Development (SDD), incluyendo la especificación maestra (`plan.md`), la documentación de prompts de IA, el diseño del mockup y las reglas de integración del equipo.
+- **Actividad Obligatoria N°2 (actual):** Incorporar estilos visuales con CSS organizados por responsabilidad (`styles.css`, `components.css` y `responsive.css`) a partir del mockup actualizado en Figma, implementar un diseño responsive mobile-first con Flexbox/Grid y Media Queries sin overflow horizontal, y validar el sitio mediante 5 test cases automatizados con Playwright MCP, registrando los hallazgos como issues con GitHub MCP.
+- **Actividad Obligatoria N°1:** Establecer la estructura base y el maquetado inicial en HTML5 semántico de la plataforma. Este entregable sienta las bases organizativas del repositorio bajo la metodología Spec-Driven Development (SDD), incluyendo la especificación maestra (`plan.md`), la documentación de prompts de IA, el diseño del mockup y las reglas de integración del equipo.
 
 ---
 
@@ -41,6 +45,7 @@ Establecer la estructura base y el maquetado inicial en HTML5 semántico de la p
 - 🖼️ [Mockup con Estilos (PNG Local)](docs/01-mockup/actividad-obligatoria-2/diseño-con-estilos.png) | [Archivo de Figma](https://www.figma.com/design/iUmUArxu59WUYlBl2zR3xq/Wireframe?node-id=2010-4&amp;t=Ck1r6ZQCICdGpTRy-0)
 - 📝 [Especificación Técnica de UX (Spec-UX)](docs/03-specs/actividad-obligatoria-1/spec-ux.md)
 - 📂 [Índice de Prompts de IA](docs/02-prompts/prompts.md)
+- 🧪 [Índice de Testing (test cases y resumen de issues)](docs/04-testing/testing-doc.md)
 - 📜 [Changelog del Proyecto](changelog.md)
 - 📋 [Spec Maestro (Plan de Requerimientos)](plan.md)
 
