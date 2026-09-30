@@ -15,6 +15,7 @@
 - [fix/assets-placeholder-images] Reemplazo de la imagen del mockup usada como placeholder por assets específicos (logo SVG local e imágenes livianas del catálogo). PR: [#34](https://github.com/carolabenvenuto-uces/planit/pull/34) | Issue: [#33](https://github.com/carolabenvenuto-uces/planit/issues/33) - @carolabenvenuto-uces (Desarrollador Frontend / CSS)
 - [fix/devops-rc1-changelog] Reconstrucción completa del changelog a partir del historial de git: sección formal de la release AO2 con todas las PRs, ramas, autores, roles e issues del equipo, links Markdown válidos y normalización de la sección AO1 (RC1). PR: [#36](https://github.com/carolabenvenuto-uces/planit/pull/36) - @FacundoGuiraldes (Coordinador / DevOps)
 - [fix/devops-rc3-github-pages] Verificación y documentación de la publicación de `release/actividad-obligatoria-2` en GitHub Pages con evidencia de deployment en `spec-devops.md`; enlace al sitio, objetivo del entregable AO2 e índice de testing en `README.md`, y objetivos de AO2 completados en `plan.md` (RC3). PR: [#37](https://github.com/carolabenvenuto-uces/planit/pull/37) - @FacundoGuiraldes (Coordinador / DevOps)
+- [fix/devops-rc8-verificacion-integracion] Verificación de la integración Frontend/Responsive sobre el sitio publicado en GitHub Pages (mobile, tablet y desktop sin overflow horizontal), documentada en `spec-frontend.md` y `spec-responsive.md` (RC8). PR: [#38](https://github.com/carolabenvenuto-uces/planit/pull/38) - @FacundoGuiraldes (Coordinador / DevOps)
 
 ## [Release Actividad Obligatoria N°1] - 2026-08-31
 

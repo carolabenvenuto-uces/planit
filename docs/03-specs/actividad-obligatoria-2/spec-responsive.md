@@ -60,3 +60,15 @@ Para garantizar la usabilidad de la plataforma en cualquier dispositivo, respeta
   2. Ajuste explícito de `min-width: 580px` (en tablet) y `520px` (en mobile) para los elementos `table`, asegurando que el contenido financiero permanezca legible sin comprimir columnas.
 * **Decisiones finales de breakpoints con justificación:**
   Se mantuvieron los cortes en `992px`, `768px` y `576px` por alineación con la escala estándar de Bootstrap/Tailwind y la compatibilidad probada con resoluciones táctiles habituales.
+
+---
+
+## 5. Corrección RC8 — Verificación de integración en GitHub Pages
+
+En la entrega original la integración Frontend/Responsive no podía verificarse sobre el producto publicado, porque GitHub Pages seguía mostrando AO1. Resuelto RC3 ([PR #37](https://github.com/carolabenvenuto-uces/planit/pull/37)), el sitio publica `release/actividad-obligatoria-2` y la integración se verificó sobre https://carolabenvenuto-uces.github.io/planit/ (commit `1aeeab6`, 2026-09-30) con Playwright:
+
+| Viewport | `styles.css` + `components.css` + `responsive.css` cargados | Overflow horizontal |
+| --- | --- | --- |
+| Mobile 390×844 | ✅ | ✅ No (las tablas se desplazan dentro de su contenedor con `overflow-x: auto`) |
+| Tablet 820×1180 | ✅ | ✅ No |
+| Desktop 1440×900 | ✅ | ✅ No |
