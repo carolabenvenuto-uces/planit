@@ -22,6 +22,7 @@
 - [fix/changelog-rc14-rc16] fix(changelog): registrar commit directo 7928eea y corregir rol en entradas #36-#40 (RC14, RC16). PR: [#41](https://github.com/carolabenvenuto-uces/planit/pull/41) - @FacundoGuiraldes (Documentador / QA Tester)
 - [fix/qa-rc15-testing-doc-estados] fix(qa): actualizar estado de los issues #29 y #33 a cerrados en testing-doc (RC15). PR: [#42](https://github.com/carolabenvenuto-uces/planit/pull/42) - @FacundoGuiraldes (Documentador / QA Tester)
 - [fix/frontend-rc9-rc13-alinear-mockup] fix(frontend): alinear producto publicado con el mockup aprobado (RC9-RC13). PR: [#43](https://github.com/carolabenvenuto-uces/planit/pull/43) - @FacundoGuiraldes (Documentador / QA Tester)
+- [fix/changelog-rc17-rc30-titulos-literales] fix(changelog): reemplazar descripciones por títulos literales de las PR #20-#43 (RC17-RC30). PR: [#44](https://github.com/carolabenvenuto-uces/planit/pull/44) - @FacundoGuiraldes (Documentador / QA Tester)
 
 ## [Release Actividad Obligatoria N°1] - 2026-08-31
 
