@@ -529,7 +529,7 @@
 
 .card img {
   width: 100%;
-  aspect-ratio: 151 / 73;
+  aspect-ratio: 1344 / 655; /* Proporción del nodo de imagen del mockup (2,05:1) */
   object-fit: cover;
 }
 
