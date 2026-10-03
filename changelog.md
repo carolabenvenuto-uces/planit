@@ -23,6 +23,7 @@
 - [fix/qa-rc15-testing-doc-estados] fix(qa): actualizar estado de los issues #29 y #33 a cerrados en testing-doc (RC15) PR: [#42](https://github.com/carolabenvenuto-uces/planit/pull/42) - @FacundoGuiraldes (Documentador / QA Tester)
 - [fix/frontend-rc9-rc13-alinear-mockup] fix(frontend): alinear producto publicado con el mockup aprobado (RC9-RC13) PR: [#43](https://github.com/carolabenvenuto-uces/planit/pull/43) - @FacundoGuiraldes (Documentador / QA Tester)
 - [fix/changelog-rc17-rc30-titulos-literales] fix(changelog): reemplazar descripciones por títulos literales de las PR #20-#43 (RC17-RC30) PR: [#44](https://github.com/carolabenvenuto-uces/planit/pull/44) - @FacundoGuiraldes (Documentador / QA Tester)
+- [fix/frontend-rc31-assets-catalogo] fix(frontend): reemplazar imágenes del catálogo por originales de Figma en alta resolución (RC31) PR: [#45](https://github.com/carolabenvenuto-uces/planit/pull/45) - @FacundoGuiraldes (Documentador / QA Tester)
 
 ## [Release Actividad Obligatoria N°1] - 2026-08-31
 
