@@ -1,0 +1,214 @@
+/* ==========================================================================
+   PLANIT - Estilos Globales, Variables y Layout Base
+   Archivo: css/styles.css
+   Rol: Desarrollador Frontend / CSS
+   Referencia visual: docs/01-mockup/actividad-obligatoria-2/diseño-con-estilos.png
+   (dashboard claro con columna principal y columna lateral).
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   0. IMPORTACIÓN DE TIPOGRAFÍA (Google Fonts)
+   Inter: tipografía del mockup y de plan.md, legible en tamaños chicos de
+   tablas y formularios.
+   -------------------------------------------------------------------------- */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+/* --------------------------------------------------------------------------
+   1. DESIGN TOKENS Y VARIABLES CSS (:root)
+   Valores tomados del mockup aprobado: tema claro, acento índigo y estados
+   semánticos para badges y alertas.
+   -------------------------------------------------------------------------- */
+:root {
+  /* --- Paleta primaria (índigo del mockup) --- */
+  --color-primary: #4f46e5;          /* Botones principales, títulos de panel y enlace activo */
+  --color-primary-hover: #4338ca;    /* Estado :hover de acciones primarias */
+  --color-primary-active: #3730a3;   /* Estado :active */
+  --color-primary-subtle: #eef2ff;   /* Fondo del panel de resumen financiero */
+  --color-primary-ring: rgba(79, 70, 229, 0.25); /* Anillo de foco accesible */
+
+  /* --- Neutros: superficies y fondos claros (Light UI Theme) --- */
+  --color-bg-main: #f5f7fb;          /* Fondo general de la página */
+  --color-bg-surface: #ffffff;       /* Fondo de paneles, header y tarjetas */
+  --color-bg-muted: #f3f4f6;         /* Encabezados de tabla y filas alternas */
+  --color-border: #e5e7eb;           /* Bordes estructurales */
+  --color-border-strong: #d1d5db;    /* Bordes de inputs */
+
+  /* --- Neutros: texto --- */
+  --color-text-primary: #111827;     /* Títulos y datos principales */
+  --color-text-secondary: #4b5563;   /* Texto de lectura */
+  --color-text-muted: #5b6270;       /* Etiquetas, metadatos y descripciones (contraste AA sobre fondos grises) */
+  --color-text-inverse: #ffffff;     /* Texto sobre botones índigo */
+
+  /* --- Secundarios semánticos (montos, badges y alertas) --- */
+  --color-success: #059669;          /* Saldo disponible y estado Confirmado */
+  --color-success-bg: #d1fae5;
+  --color-success-text: #065f46;     /* Texto de badge Confirmado (contraste AA) */
+  --color-warning: #b45309;          /* Gastado estimado y estado Pendiente */
+  --color-warning-bg: #fef3c7;
+  --color-warning-border: #fcd34d;
+  --color-warning-text: #92400e;
+  --color-danger: #b91c1c;           /* Estado Declinado */
+  --color-danger-bg: #fee2e2;
+
+  /* --- Familias tipográficas --- */
+  --font-base: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+
+  /* --- Escala tipográfica (jerarquía h1-h6, body y labels) --- */
+  --font-size-2xs: 0.6875rem; /* 11px - labels en mayúsculas y encabezados de tabla */
+  --font-size-xs: 0.75rem;    /* 12px - badges y metadatos */
+  --font-size-sm: 0.8125rem;  /* 13px - celdas de tabla e inputs */
+  --font-size-base: 0.875rem; /* 14px - texto base del dashboard */
+  --font-size-md: 1rem;       /* 16px - títulos de panel (h2) */
+  --font-size-lg: 1.25rem;    /* 20px */
+  --font-size-xl: 1.5rem;     /* 24px - logo y montos destacados */
+
+  /* --- Pesos tipográficos --- */
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+  --font-weight-black: 800;
+
+  /* --- Escala de espaciados (grid de 4px) --- */
+  --spacing-2xs: 0.25rem;  /* 4px */
+  --spacing-xs: 0.5rem;    /* 8px */
+  --spacing-sm: 0.75rem;   /* 12px */
+  --spacing-md: 1rem;      /* 16px */
+  --spacing-lg: 1.5rem;    /* 24px */
+  --spacing-xl: 2rem;      /* 32px */
+  --spacing-2xl: 3rem;     /* 48px */
+
+  /* --- Radios de borde --- */
+  --radius-sm: 6px;        /* Inputs, botones y filas de tareas */
+  --radius-md: 10px;       /* Paneles y tarjetas */
+  --radius-full: 9999px;   /* Badges, avatar y barra de progreso */
+
+  /* --- Sombras sutiles del tema claro --- */
+  --shadow-sm: 0 1px 2px rgba(17, 24, 39, 0.05);
+  --shadow-md: 0 4px 12px rgba(17, 24, 39, 0.08);
+
+  /* --- Transiciones --- */
+  --transition-fast: 0.15s ease-in-out;
+
+  /* --- Layout --- */
+  --container-max-width: 1120px;
+  --sidebar-width: 260px;
+  --header-height: 64px;
+}
+
+/* --------------------------------------------------------------------------
+   2. RESET GLOBAL Y NORMALIZACIÓN DEL BOX MODEL
+   -------------------------------------------------------------------------- */
+*,
+*::before,
+*::after {
+  box-sizing: border-box; /* padding y border incluidos en el ancho declarado */
+  margin: 0;
+  padding: 0;
+}
+
+/* --------------------------------------------------------------------------
+   3. ESTILOS BASE DEL DOCUMENTO
+   La tipografía y el color se declaran en body y se heredan al resto.
+   -------------------------------------------------------------------------- */
+html {
+  font-size: 16px;
+  scroll-behavior: smooth;
+  scroll-padding-top: calc(var(--header-height) + var(--spacing-md));
+}
+
+body {
+  font-family: var(--font-base);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-regular);
+  line-height: 1.5;
+  color: var(--color-text-secondary);
+  background-color: var(--color-bg-main);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column; /* Footer al final aunque haya poco contenido */
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Imágenes como elementos de bloque para eliminar el espacio inferior de inline */
+img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+/* --------------------------------------------------------------------------
+   4. JERARQUÍA DE TÍTULOS (h1-h6)
+   El mockup usa títulos compactos: h2 para cada panel y h3 para tarjetas.
+   -------------------------------------------------------------------------- */
+h1, h2, h3, h4, h5, h6 {
+  color: var(--color-text-primary);
+  line-height: 1.3;
+  font-weight: var(--font-weight-semibold);
+}
+
+h1 { font-size: var(--font-size-xl); }
+h2 { font-size: var(--font-size-md); }
+h3 { font-size: var(--font-size-sm); font-weight: var(--font-weight-bold); }
+h4, h5, h6 { font-size: var(--font-size-sm); }
+
+p {
+  margin-bottom: var(--spacing-sm);
+}
+
+a {
+  color: var(--color-primary);
+  text-decoration: none;
+  transition: color var(--transition-fast);
+}
+
+a:hover {
+  color: var(--color-primary-hover);
+}
+
+/* Foco visible y consistente para navegación por teclado */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* --------------------------------------------------------------------------
+   5. LAYOUT GENERAL (dashboard de dos columnas del mockup)
+   CSS Grid: columna principal flexible + columna lateral de ancho fijo.
+   -------------------------------------------------------------------------- */
+.app-layout {
+  flex: 1 0 auto;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) var(--sidebar-width);
+  gap: var(--spacing-md);
+  align-items: start;
+  width: 100%;
+  max-width: var(--container-max-width);
+  margin: 0 auto;
+  padding: var(--spacing-md) var(--spacing-lg) var(--spacing-2xl);
+}
+
+/* Cada columna apila sus paneles en bloque con separación uniforme */
+main,
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+  min-width: 0; /* Evita que tablas anchas empujen el grid */
+}
+
+/* Texto solo para lectores de pantalla (Fix #29: clip-path según spec W3C) */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}

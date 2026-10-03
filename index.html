@@ -4,293 +4,320 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PlanIT - Plataforma All-in-One de Organización & Experiencias</title>
-    <!-- FUTURO CSS: 
-         - Importar fuentes tipográficas profesionales (ej. Montserrat para títulos y Open Sans para el cuerpo) [5].
-         - Configurar variables globales de color para cumplir con la identidad de marca: Violeta Eléctrico (#6C5CE7) como primario, Rosa Vibrante (#FF7675) para acentos, fondos oscuros (#1E1E24) y textos en gris claro [5].
-         - Definir estilos de reseteo global, márgenes consistentes y accesibilidad [4].
-    -->
+    <!-- Hojas de Estilo CSS -->
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/responsive.css">
 </head>
 <body>
 
-    <!-- CABECERA PRINCIPAL -->
-    <header>
-        <div class="logo-container">
-            <!-- Logo que enlaza al mockup de diseño -->
-            <img src="./docs/01-mockup/actividad-obligatoria-1/diseño-inicial.png" alt="Logo de PlanIT: Una red de círculos interconectados que forman una P estilizada" style="max-height: 50px;">
+    <!-- CABECERA PRINCIPAL (estructura del mockup: logo, navegación y acciones de usuario) -->
+    <header class="site-header">
+        <a href="#mi-evento" class="logo">
+            <img src="./docs/01-mockup/actividad-obligatoria-2/logo-planit.svg" alt="" width="32" height="32">
             <span>PlanIT</span>
-        </div>
-        
-        <!-- Navegación principal -->
+        </a>
+
+        <!-- Navegación principal: destinos del mockup aprobado -->
         <nav aria-label="Navegación principal">
             <ul>
-                <li><a href="#inicio">Inicio</a></li>
-                <li><a href="#experiencias">Catálogo de Plancitos</a></li>
-                <li><a href="#cockpit">Cockpit de Eventos</a></li>
-                <li><a href="#como-funciona">¿Cómo funciona?</a></li>
+                <li><a href="#mi-evento" aria-current="page">Mi Evento</a></li>
+                <li><a href="#presupuesto">Presupuesto</a></li>
+                <li><a href="#invitados">Invitados</a></li>
+                <li><a href="#catalogo">Catálogo</a></li>
             </ul>
         </nav>
-        <!-- FUTURO CSS: 
-             - Alinear logo a la izquierda y menú de navegación a la derecha usando Flexbox con 'justify-content: space-between' [5].
-             - Estilizar la lista de enlaces de forma horizontal eliminando bullets ('list-style: none') y agregando efectos de hover dinámicos en violeta [5].
-        -->
+
+        <div class="header-actions">
+            <button type="button" class="btn-icon" aria-label="Notificaciones">
+                <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M6 8a6 6 0 1 1 12 0c0 7 3 9 3 9H3s3-2 3-9M10.3 21a1.94 1.94 0 0 0 3.4 0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+            <img src="./docs/01-mockup/actividad-obligatoria-2/avatar-usuario.png" alt="Foto de perfil de la usuaria" class="avatar" width="34" height="34">
+            <a href="#mi-evento" class="btn-primary btn-nuevo-evento"><span aria-hidden="true">+</span> Nuevo Evento</a>
+        </div>
     </header>
 
-    <main id="inicio">
+    <!-- LAYOUT PRINCIPAL: columna de contenido + columna lateral (dashboard del mockup) -->
+    <div class="app-layout">
 
-        <!-- SECCIÓN HERO -->
-        <section class="hero-section">
-            <h1>Organizá tus eventos y descubrí las mejores experiencias</h1>
-            <p>PlanIT unifica en una sola pantalla interactiva la gestión de tu presupuesto, tu lista de invitados y la contratación directa de experiencias recreativas exclusivas.</p>
-            <a href="#cockpit" class="btn-primary">Crear mi primer evento</a>
-            <!-- FUTURO CSS: 
-                 - Centrado del texto con Flexbox [5].
-                 - Imagen de fondo en alta definición con superposición oscura (overlay) para asegurar el contraste de lectura [5].
-                 - Botón llamativo con bordes redondeados y un sutil zoom en hover [5].
-            -->
-        </section>
+        <main>
+            <!-- Título principal para la jerarquía de headings (el mockup no lo muestra visualmente) -->
+            <h1 class="sr-only">Panel de organización de eventos de PlanIT</h1>
 
-        <!-- SECCIÓN 1: CATÁLOGO DE EXPERIENCIAS ("PLANCITOS") -->
-        <section id="experiencias" class="experiencias-section">
-            <h2>Explorá nuestros "Plancitos" Destacados</h2>
-            <p>Elegí entre talleres interactivos, shows privados y gastronomía premium para sumar a tu evento.</p>
-
-            <form class="catalog-search" role="search" action="#experiencias" method="get">
-                <label for="busqueda-plancitos">Buscar experiencias</label>
-                <input type="search" id="busqueda-plancitos" name="busqueda-plancitos" placeholder="Buscá un plancito por nombre o categoría">
-                <button type="submit" aria-label="Buscar plancitos">🔍</button>
-            </form>
-            
-            <div class="cards-grid">
-                <!-- Tarjeta de Experiencia 1 -->
-                <article class="card-experiencia">
-                    <img src="./docs/01-mockup/actividad-obligatoria-1/diseño-inicial.png" alt="Taller Cerámica y Chardonnay: Dos personas moldeando arcilla mientras sostienen copas de vino blanco">
-                    <div class="card-content">
-                        <h3>Cerámica & Chardonnay</h3>
-                        <p>Taller guiado de modelado en arcilla acompañado de una cata de vinos seleccionados y tablas de quesos artesanales.</p>
-                        <span class="precio">$25.000 por persona</span>
+            <!-- SECCIÓN 1: MI EVENTO (formulario de alta del evento) -->
+            <section id="mi-evento" class="panel" aria-labelledby="titulo-mi-evento">
+                <h2 id="titulo-mi-evento" class="panel-title">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20h9M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    Mi Evento
+                </h2>
+                <form id="event-form" class="event-form" action="#" method="post">
+                    <div class="form-group">
+                        <label for="nombre-evento">Nombre del evento</label>
+                        <input type="text" id="nombre-evento" name="nombre-evento" value="Casamiento de Sofi &amp; Mateo" required>
                     </div>
-                </article>
-
-                <!-- Tarjeta de Experiencia 2 -->
-                <article class="card-experiencia">
-                    <img src="./docs/01-mockup/actividad-obligatoria-1/diseño-inicial.png" alt="Cata de Gin: Copas de balón con gin-tonic adornadas con rodajas de pomelo sobre una barra iluminada">
-                    <div class="card-content">
-                        <h3>Cata de Gin Premium</h3>
-                        <p>Clase magistral interactiva con un bartender profesional para aprender la historia, botánicos y preparación de 3 tipos de gin.</p>
-                        <span class="precio">$32.000 por persona</span>
+                    <div class="form-group">
+                        <label for="fecha-evento">Fecha</label>
+                        <input type="date" id="fecha-evento" name="fecha-evento" value="2026-11-14" required>
                     </div>
-                </article>
-
-                <!-- Tarjeta de Experiencia 3 -->
-                <article class="card-experiencia">
-                    <img src="./docs/01-mockup/actividad-obligatoria-1/diseño-inicial.png" alt="Show de Magia: Mago con guantes blancos realizando un truco con cartas que parecen flotar frente a los espectadores">
-                    <div class="card-content">
-                        <h3>Show de Magia Privado</h3>
-                        <p>Espectáculo de ilusionismo, mentalismo y humor interactivo pensado especialmente para romper el hielo en tu festejo.</p>
-                        <span class="precio">$45.000 total (tarifa fija)</span>
+                    <div class="form-group">
+                        <label for="tipo-evento">Tipo de evento</label>
+                        <select id="tipo-evento" name="tipo-evento" required>
+                            <option value="">Seleccionar tipo de evento</option>
+                            <option value="cumpleanos">Cumpleaños</option>
+                            <option value="boda" selected>Casamiento / Boda</option>
+                            <option value="salida-casual">Salida casual</option>
+                            <option value="corporativo">Corporativo</option>
+                        </select>
                     </div>
-                </article>
-            </div>
-            <!-- FUTURO CSS: 
-                 - Organizar las tarjetas de experiencias en una cuadrícula responsiva usando CSS Grid ('grid-template-columns: repeat(auto-fit, minmax(280px, 1fr))') [5].
-                 - Efecto 'lift' (elevación) y sombreado suave sobre las tarjetas al pasar el cursor [5].
-            -->
-        </section>
+                    <div class="form-group">
+                        <label for="presupuesto-estimado">Presupuesto estimado</label>
+                        <input type="number" id="presupuesto-estimado" name="presupuesto-estimado" min="1" value="700000" required>
+                    </div>
+                    <div class="form-group form-group-full">
+                        <label for="ubicacion">Ubicación</label>
+                        <input type="text" id="ubicacion" name="ubicacion" value="Quinta El Ombú, Pilar, Buenos Aires" required>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn-primary">Guardar Cambios</button>
+                    </div>
+                </form>
+            </section>
 
-        <!-- SECCIÓN 2: COCKPIT OPERATIVO (FORMULARIO Y TABLA) -->
-        <section id="cockpit" class="cockpit-section">
-            <h2>Cockpit Operativo de Eventos</h2>
-            <p>Calculá el presupuesto estimado y planificá tu evento en tiempo real en una sola pantalla interactiva.</p>
-
-            <div class="cockpit-container">
-                
-                <!-- Formulario de Entrada -->
-                <div class="cockpit-form">
-                    <h3>Paso 1: Datos Base del Evento</h3>
-                    <form id="event-form" action="#" method="POST">
-                        <div class="form-group">
-                            <label for="nombre-evento">Nombre del Evento:</label>
-                            <input type="text" id="nombre-evento" name="nombre-evento" placeholder="Ej: Cumpleaños de Vale" required>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="fecha-evento">Fecha de Celebración:</label>
-                            <input type="date" id="fecha-evento" name="fecha-evento" required>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="presupuesto-maximo">Presupuesto Máximo ($):</label>
-                            <input type="number" id="presupuesto-maximo" name="presupuesto-maximo" min="1000" placeholder="Ej: 500000" required>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="experiencia-seleccionada">Sumar "Plancito" al Evento:</label>
-                            <select id="experiencia-seleccionada" name="experiencia-seleccionada">
-                                <option value="">-- Seleccionar experiencia (Opcional) --</option>
-                                <option value="ceramica">Cerámica & Chardonnay ($25.000 p/p)</option>
-                                <option value="gin">Cata de Gin Premium ($32.000 p/p)</option>
-                                <option value="magia">Show de Magia Privado ($45.000)</option>
-                            </select>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="tipo-evento">Tipo de Evento:</label>
-                            <select id="tipo-evento" name="tipo_evento" required>
-                                <option value="">-- Seleccionar tipo de evento --</option>
-                                <option value="social">Social</option>
-                                <option value="corporativo">Corporativo</option>
-                                <option value="academico">Académico</option>
-                                <option value="otro">Otro</option>
-                            </select>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="ubicacion">Ubicación del Evento:</label>
-                            <input type="text" id="ubicacion" name="ubicacion" placeholder="Ej: Salón La Arboleda, Av. Santa Fe 1234" required>
-                        </div>
-
-                        <button type="submit" class="btn-submit">Guardar Evento en Cockpit</button>
-                    </form>
-                    <!-- FUTURO JS:
-                         - Escuchar el evento 'submit' para prevenir la recarga de la página (e.preventDefault()) [5].
-                         - Capturar los valores de los inputs (nombre, fecha y presupuesto máximo) y guardarlos en variables del estado de la app [5].
-                         - Habilitar campos adicionales de forma condicional si se selecciona una experiencia [5].
-                    -->
-                </div>
-
-                <!-- Tabla de Presupuesto -->
-                <div class="cockpit-table">
-                    <h3>Paso 2: Planilla de Presupuesto Estimado</h3>
-                    <table>
+            <!-- SECCIÓN 2: PRESUPUESTO (tabla integrada) -->
+            <section id="presupuesto" class="panel" aria-labelledby="titulo-presupuesto">
+                <h2 id="titulo-presupuesto" class="panel-title">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    Presupuesto
+                </h2>
+                <div class="table-wrapper">
+                    <table class="data-table">
+                        <caption class="sr-only">Desglose del presupuesto estimado del evento</caption>
                         <thead>
                             <tr>
-                                <th scope="col">Rubro / Concepto</th>
                                 <th scope="col">Categoría</th>
-                                <th scope="col">Costo Unitario ($)</th>
-                                <th scope="col">Cantidad</th>
-                                <th scope="col">Total ($)</th>
+                                <th scope="col">Concepto</th>
+                                <th scope="col">Tipo</th>
+                                <th scope="col" class="num">Cantidad</th>
+                                <th scope="col" class="num">Precio unitario</th>
+                                <th scope="col" class="num">Subtotal</th>
                             </tr>
                         </thead>
-                        <tbody id="tabla-presupuesto-body">
+                        <tbody>
                             <tr>
-                                <td>Alquiler del salón base</td>
-                                <td>Infraestructura</td>
-                                <td>$150.000</td>
-                                <td>1</td>
-                                <td>$150.000</td>
+                                <th scope="row">Catering</th>
+                                <td>Finger food premium y barra libre</td>
+                                <td>Proveedor</td>
+                                <td class="num">120 pax</td>
+                                <td class="num">$3.500</td>
+                                <td class="num subtotal">$420.000</td>
                             </tr>
                             <tr>
-                                <td>Servicio de Catering y Bebidas</td>
-                                <td>Gastronomía</td>
-                                <td>$8.000</td>
-                                <td>25 invitados</td>
-                                <td>$200.000</td>
+                                <th scope="row">Decoración</th>
+                                <td>Arreglos florales y ambientación luces</td>
+                                <td>Proveedor</td>
+                                <td class="num">1 global</td>
+                                <td class="num">$70.000</td>
+                                <td class="num subtotal">$70.000</td>
                             </tr>
-                            <tr id="fila-experiencia-dinamica">
-                                <td>Ninguna seleccionada</td>
-                                <td>Experiencias / Plancitos</td>
-                                <td>$0</td>
-                                <td>-</td>
-                                <td>$0</td>
+                            <tr>
+                                <th scope="row">Sonido</th>
+                                <td>DJ set completo y sonido de pista</td>
+                                <td>Proveedor</td>
+                                <td class="num">6 horas</td>
+                                <td class="num">$8.000</td>
+                                <td class="num subtotal">$48.000</td>
+                            </tr>
+                            <tr>
+                                <th scope="row">Fotografía</th>
+                                <td>Cobertura de evento y álbum digital</td>
+                                <td>Proveedor</td>
+                                <td class="num">1 global</td>
+                                <td class="num">$32.000</td>
+                                <td class="num subtotal">$32.000</td>
+                            </tr>
+                            <tr>
+                                <th scope="row">Transporte</th>
+                                <td>Traslado de materiales y coordinación</td>
+                                <td>Proveedor</td>
+                                <td class="num">2 viajes</td>
+                                <td class="num">$5.000</td>
+                                <td class="num subtotal">$10.000</td>
                             </tr>
                         </tbody>
                         <tfoot>
                             <tr>
-                                <td colspan="4" style="text-align: right; font-weight: bold;">Costo Total Estimado:</td>
-                                <td id="costo-total-estimado" style="font-weight: bold;">$350.000</td>
+                                <th scope="row" colspan="5">Total Gastado Estimado</th>
+                                <td class="num">$580.000</td>
                             </tr>
                         </tfoot>
                     </table>
-                    <!-- FUTURO JS:
-                         - Función para insertar una nueva fila dinámicamente si el usuario selecciona un "plancito" en el formulario [5].
-                         - Recalcular automáticamente el total de la columna 'Total ($)' e inyectar el valor sumado en el pie de tabla ('#costo-total-estimado') [5].
-                         - Cambiar el color del costo total a rojo mediante clases si el total excede el presupuesto máximo ingresado por el usuario [5].
-                    -->
+                </div>
+            </section>
+
+            <!-- SECCIÓN 3: INVITADOS (lista con estado de confirmación textual) -->
+            <section id="invitados" class="panel" aria-labelledby="titulo-invitados">
+                <h2 id="titulo-invitados" class="panel-title">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    Invitados
+                </h2>
+                <div class="table-wrapper">
+                    <table class="data-table">
+                        <caption class="sr-only">Lista de invitados con contacto, mesa y estado de confirmación</caption>
+                        <thead>
+                            <tr>
+                                <th scope="col">Nombre</th>
+                                <th scope="col">Email</th>
+                                <th scope="col" class="center">Mesa</th>
+                                <th scope="col" class="center">Estado</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <th scope="row">Sofía Rodríguez</th>
+                                <td>sofia.rod@gmail.com</td>
+                                <td class="center">Mesa 3</td>
+                                <td class="center"><span class="badge badge-confirmado">Confirmado</span></td>
+                            </tr>
+                            <tr>
+                                <th scope="row">Mateo González</th>
+                                <td>mateo.gonzalez@live.com.ar</td>
+                                <td class="center">Mesa 1</td>
+                                <td class="center"><span class="badge badge-confirmado">Confirmado</span></td>
+                            </tr>
+                            <tr>
+                                <th scope="row">Valentina Benítez</th>
+                                <td>vale.benitez@outlook.com</td>
+                                <td class="center">Mesa 3</td>
+                                <td class="center"><span class="badge badge-pendiente">Pendiente</span></td>
+                            </tr>
+                            <tr>
+                                <th scope="row">Bautista Martínez</th>
+                                <td>bautimart@yahoo.com.ar</td>
+                                <td class="center">Mesa 2</td>
+                                <td class="center"><span class="badge badge-confirmado">Confirmado</span></td>
+                            </tr>
+                            <tr>
+                                <th scope="row">Camila Herrera</th>
+                                <td>camilita_h@gmail.com</td>
+                                <td class="center">Mesa 1</td>
+                                <td class="center"><span class="badge badge-declinado">Declinado</span></td>
+                            </tr>
+                            <tr>
+                                <th scope="row">Santiago Díaz</th>
+                                <td>santiago.diaz@gmail.com</td>
+                                <td class="center">Mesa 2</td>
+                                <td class="center"><span class="badge badge-pendiente">Pendiente</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- SECCIÓN 4: CATÁLOGO DE PLANCITOS RECOMENDADOS -->
+            <section id="catalogo" class="panel" aria-labelledby="titulo-catalogo">
+                <div class="panel-header">
+                    <h2 id="titulo-catalogo" class="panel-title">
+                        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m21 21-4.3-4.3M11 18a7 7 0 1 0 0-14 7 7 0 0 0 0 14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                        Catálogo de Plancitos recomendados
+                    </h2>
+                    <!-- Buscador requerido por plan.md §2.5 y por la corrección RC6 de la Actividad N°1 -->
+                    <form class="catalog-search" role="search" action="#catalogo" method="get">
+                        <label for="busqueda-catalogo" class="sr-only">Buscar en el catálogo</label>
+                        <input type="search" id="busqueda-catalogo" name="q" placeholder="Buscar proveedor o plancito">
+                    </form>
                 </div>
 
-            </div>
-            <!-- FUTURO CSS: 
-                 - Distribuir el formulario a la izquierda y la tabla a la derecha usando un contenedor de dos columnas responsivo (Grid o Flexbox) [5].
-                 - Estilizar la tabla colapsando bordes ('border-collapse: collapse') y aplicando franjas grises alternadas en las filas (zebra striping) [5].
-                 - Fijar la planilla financiera en la pantalla ('position: sticky') al scrollear en pantallas de escritorio [5].
-            -->
-        </section>
+                <div class="cards-grid">
+                    <article class="card">
+                        <img src="./docs/01-mockup/actividad-obligatoria-2/catalogo-gourmet-finger-food.jpg" alt="Mesa de catering con bandejas de mini sándwiches y bocados en varios niveles" width="1344" height="655" loading="lazy">
+                        <div class="card-body">
+                            <h3>Gourmet Finger Food</h3>
+                            <p>Selección premium fría y caliente para recepción. Variedad para todos los gustos.</p>
+                            <p class="card-meta">Catering · Hasta 200 pax · Zona Norte GBA</p>
+                            <p class="card-price">$3.500 / pax</p>
+                            <button type="button" class="btn-outline">Sumar al Evento</button>
+                        </div>
+                    </article>
 
-        <!-- SECCIÓN 3: CÓMO FUNCIONA -->
-        <section id="como-funciona" class="how-it-works">
-            <h2>Planificar con PlanIT es tan simple como 1, 2, 3</h2>
-            <p>Seguí estos sencillos pasos para organizar una experiencia inolvidable:</p>
-            
-            <ol class="pasos-list">
-                <li>
-                    <strong>Completá el formulario base:</strong> Definí el nombre, la fecha de tu evento y tu presupuesto máximo disponible.
-                </li>
-                <li>
-                    <strong>Elegí tus experiencias preferidas:</strong> Navegá por nuestro catálogo interactivo de "plancitos" y sumá talleres o shows en un clic.
-                </li>
-                <li>
-                    <strong>Monitoreá tu presupuesto:</strong> Controlá los gastos calculados en tiempo real en la planilla para evitar sorpresas.
-                </li>
-            </ol>
-            <!-- FUTURO CSS: 
-                 - Diseñar la lista ordenada en formato de bloques horizontales o línea de tiempo interactiva [5].
-                 - Estilizar los números grandes de cada paso usando pseudoelementos (::before) con fuentes en negrita violeta [5].
-            -->
-        </section>
+                    <article class="card">
+                        <img src="./docs/01-mockup/actividad-obligatoria-2/catalogo-flores-pilar.jpg" alt="Centro de mesa con rosas y peonías rosadas sobre una mesa de salón de eventos" width="1344" height="655" loading="lazy">
+                        <div class="card-body">
+                            <h3>Flores Pilar</h3>
+                            <p>Centros de mesa personalizados y ramo para novias con flores naturales de estación.</p>
+                            <p class="card-meta">Decoración · 1 evento por fecha · Pilar</p>
+                            <p class="card-price">$70.000 / base</p>
+                            <button type="button" class="btn-outline">Sumar al Evento</button>
+                        </div>
+                    </article>
 
-        <!-- SECCIÓN 3: GESTIÓN DE INVITADOS -->
-        <section id="invitados" class="invitados-section">
-            <h2>Gestión de Invitados</h2>
-            <table>
-                <thead>
-                    <tr>
-                        <th scope="col">Nombre</th>
-                        <th scope="col">Contacto (email/teléfono)</th>
-                        <th scope="col">Estado de confirmación</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>María González</td>
-                        <td>maria@example.com / 11 5555-0101</td>
-                        <td>Confirmado</td>
-                    </tr>
-                    <tr>
-                        <td>Juan Pérez</td>
-                        <td>juan@example.com / 11 5555-0102</td>
-                        <td>Pendiente</td>
-                    </tr>
-                    <tr>
-                        <td>Sofía Rodríguez</td>
-                        <td>sofia@example.com / 11 5555-0103</td>
-                        <td>Rechazado</td>
-                    </tr>
-                </tbody>
-                <tfoot>
-                    <tr>
-                        <td colspan="2">Total de invitados</td>
-                        <td>3</td>
-                    </tr>
-                </tfoot>
-            </table>
-        </section>
+                    <article class="card">
+                        <img src="./docs/01-mockup/actividad-obligatoria-2/catalogo-dj-lucas-sonido.jpg" alt="DJ con auriculares mezclando en una consola frente a una pista iluminada" width="1344" height="655" loading="lazy">
+                        <div class="card-body">
+                            <h3>DJ Lucas &amp; Sonido</h3>
+                            <p>Equipamiento de audio completo de alta fidelidad, iluminación robótica y pista de baile.</p>
+                            <p class="card-meta">Sonido · Hasta 300 personas · CABA y GBA</p>
+                            <p class="card-price">$8.000 / hora</p>
+                            <button type="button" class="btn-outline">Sumar al Evento</button>
+                        </div>
+                    </article>
+                </div>
+            </section>
 
-    </main>
+        </main>
+
+        <!-- COLUMNA LATERAL: resumen financiero, tareas y alerta (componentes del mockup) -->
+        <aside class="sidebar" aria-label="Resumen del evento">
+
+            <section class="panel panel-resumen" aria-labelledby="titulo-resumen">
+                <h2 id="titulo-resumen" class="panel-title">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21.2 15.9A10 10 0 1 1 8 2.8M22 12A10 10 0 0 0 12 2v10Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    Resumen Financiero
+                </h2>
+                <dl class="resumen-lista">
+                    <div>
+                        <dt>Presupuesto total</dt>
+                        <dd class="monto monto-total">$700.000</dd>
+                    </div>
+                    <div>
+                        <dt>Gastado estimado</dt>
+                        <dd class="monto monto-gastado">$580.000</dd>
+                    </div>
+                    <div>
+                        <dt>Saldo disponible</dt>
+                        <dd class="monto monto-saldo">$120.000</dd>
+                    </div>
+                </dl>
+                <div class="progress" role="progressbar" aria-label="Presupuesto utilizado" aria-valuenow="82" aria-valuemin="0" aria-valuemax="100">
+                    <span class="progress-bar" style="width: 82%;"></span>
+                </div>
+                <p class="progress-legend"><span>82% utilizado</span> <span class="progress-limit">Límite: $700.000</span></p>
+            </section>
+
+            <section class="panel" aria-labelledby="titulo-tareas">
+                <h2 id="titulo-tareas" class="panel-title">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 5 2 2 4-4M3 17l2 2 4-4M13 6h8M13 12h8M13 18h8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    Tareas Pendientes
+                </h2>
+                <ul class="task-list">
+                    <li><input type="checkbox" id="tarea-salon" checked><label for="tarea-salon">Confirmar salón</label></li>
+                    <li><input type="checkbox" id="tarea-invitaciones" checked><label for="tarea-invitaciones">Enviar invitaciones</label></li>
+                    <li><input type="checkbox" id="tarea-dj"><label for="tarea-dj">Contratar DJ</label></li>
+                    <li><input type="checkbox" id="tarea-menu"><label for="tarea-menu">Revisar menú</label></li>
+                    <li><input type="checkbox" id="tarea-fotografo"><label for="tarea-fotografo">Confirmar fotógrafo</label></li>
+                </ul>
+            </section>
+
+            <p class="alert-warning" role="status">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0M12 9v4M12 17h.01" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                Atención: Estás a $120.000 de tu límite de presupuesto.
+            </p>
+
+        </aside>
+    </div>
 
     <!-- PIE DE PÁGINA -->
-    <footer>
-        <div class="footer-content">
-            <p>&copy; 2026 PlanIT S.A. - Desarrollado por <strong>Valeria Silva</strong> (Matrícula: 156612) para Programación Web I - UCES [3, 6].</p>
-            <ul>
-                <li><a href="https://github.com/carolabenvenuto-uces/planit" target="_blank" rel="noopener">Repositorio Oficial en GitHub</a></li>
-                <li><a href="./docs/03-specs/actividad-obligatoria-1/spec-ux.md">Especificación UX</a></li>
-                <li><a href="./docs/03-specs/actividad-obligatoria-1/spec-frontend.md">Especificación Frontend</a></li>
-            </ul>
-        </div>
-        <!-- FUTURO CSS: 
-             - Fondo oscuro profundo, texto gris claro centrado y espaciado consistente [5].
-             - Mostrar la lista de enlaces de manera inline con bordes verticales de separación usando pseudoelementos [5].
-        -->
+    <footer class="site-footer">
+        <p>PlanIT &copy; 2026 — Proyecto universitario de organización de eventos</p>
     </footer>
 
 </body>
