@@ -3,7 +3,7 @@
 **Rol:** Desarrollador de Componentes HTML Avanzados  
 **Estudiante:** Carola Benvenuto (@carolabenvenuto-uces)  
 **Rama asignada:** `feature/dev-comp-html-avanzados-add-components`  
-**Issue principal:** #XX  *(Reemplazar XX por el número de tu issue)*  
+**Issue principal:** #47    
 **Fecha:** 5 de octubre de 2026  
 
 ---
