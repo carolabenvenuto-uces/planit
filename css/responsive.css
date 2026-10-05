@@ -1,0 +1,144 @@
+/* ==========================================================================
+   PLANIT - Estilos de Diseño Adaptativo (Responsive Design)
+   Archivo: css/responsive.css
+   Rol: Especialista en Responsive Design
+   Breakpoints documentados en spec-responsive.md: 992px, 768px y 576px.
+   ========================================================================== */
+
+/* ==========================================================================
+   1. BREAKPOINT: TABLET (max-width: 992px)
+   - El dashboard pasa de dos columnas a una: la columna lateral (resumen,
+     tareas y alerta) se ubica debajo del contenido principal.
+   ========================================================================== */
+@media screen and (max-width: 992px) {
+  .app-layout {
+    grid-template-columns: minmax(0, 1fr);
+    padding-left: var(--spacing-md);
+    padding-right: var(--spacing-md);
+  }
+
+  /* La columna lateral reparte sus paneles en 2 columnas para aprovechar el ancho */
+  .sidebar {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: start;
+  }
+
+  .sidebar .alert-warning {
+    grid-column: 1 / -1;
+  }
+
+  .site-header {
+    gap: var(--spacing-md);
+    padding: var(--spacing-xs) var(--spacing-md);
+  }
+
+  .site-header nav ul {
+    gap: var(--spacing-md);
+  }
+}
+
+/* ==========================================================================
+   2. BREAKPOINT: MOBILE (max-width: 768px)
+   - El header se reorganiza en dos filas y el formulario pasa a una columna.
+   ========================================================================== */
+@media screen and (max-width: 768px) {
+  .site-header {
+    flex-wrap: wrap;
+    row-gap: var(--spacing-xs);
+  }
+
+  /* La navegación ocupa una fila completa debajo del logo y las acciones */
+  .site-header nav {
+    order: 3;
+    width: 100%;
+  }
+
+  .site-header nav ul {
+    justify-content: space-between;
+  }
+
+  .site-header nav a {
+    font-size: var(--font-size-sm);
+  }
+
+  .btn-nuevo-evento {
+    padding: var(--spacing-xs) var(--spacing-sm);
+    font-size: var(--font-size-sm);
+  }
+
+  .event-form {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .panel-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .catalog-search {
+    width: 100%;
+  }
+
+  /* Fix #26: tablas con ancho mínimo e indicador visual de scroll horizontal */
+  .data-table {
+    min-width: 520px;
+  }
+
+  /* Celdas en una sola línea: la tabla se desplaza en vez de crecer en alto */
+  .data-table th,
+  .data-table td {
+    white-space: nowrap;
+  }
+
+  .table-wrapper {
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-primary) var(--color-bg-muted);
+  }
+
+  .table-wrapper::-webkit-scrollbar {
+    height: 6px;
+  }
+
+  .table-wrapper::-webkit-scrollbar-track {
+    background: var(--color-bg-muted);
+    border-radius: var(--radius-full);
+  }
+
+  .table-wrapper::-webkit-scrollbar-thumb {
+    background-color: var(--color-primary);
+    border-radius: var(--radius-full);
+  }
+
+  .sidebar {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* ==========================================================================
+   3. BREAKPOINT: MOBILE SMALL (max-width: 576px)
+   - Catálogo en una columna y acciones del header compactas.
+   ========================================================================== */
+@media screen and (max-width: 576px) {
+  .app-layout {
+    padding-left: var(--spacing-sm);
+    padding-right: var(--spacing-sm);
+  }
+
+  .site-header {
+    padding: var(--spacing-xs) var(--spacing-sm);
+  }
+
+  .header-actions {
+    gap: var(--spacing-xs);
+  }
+
+  .cards-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .site-footer p {
+    font-size: var(--font-size-xs);
+  }
+}

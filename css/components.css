@@ -1,0 +1,580 @@
+/* ==========================================================================
+   PLANIT - Componentes Reutilizables de Interfaz
+   Archivo: css/components.css
+   Rol: Desarrollador Frontend / CSS
+   Componentes del mockup aprobado: header, botones, paneles, formulario,
+   tablas con badges, resumen financiero, tareas, alerta, catálogo y footer.
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   1. CABECERA Y NAVEGACIÓN
+   Flexbox en tres bloques: logo | navegación | acciones de usuario.
+   -------------------------------------------------------------------------- */
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xl);
+  min-height: var(--header-height);
+  padding: var(--spacing-xs) var(--spacing-2xl);
+  background-color: var(--color-bg-surface);
+  border-bottom: 1px solid var(--color-border);
+}
+
+/* Logo: enlace en línea convertido a flex para alinear isotipo y marca */
+.logo {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-black);
+  color: var(--color-primary);
+}
+
+.logo:hover {
+  color: var(--color-primary-hover);
+}
+
+.site-header nav ul {
+  display: flex;
+  gap: var(--spacing-lg);
+  list-style: none;
+}
+
+/* Enlaces de navegación: inline-block para controlar padding y borde inferior */
+.site-header nav a {
+  display: inline-block;
+  padding: var(--spacing-2xs) 0;
+  border-bottom: 2px solid transparent;
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-primary);
+}
+
+.site-header nav a:hover {
+  color: var(--color-primary);
+}
+
+/* Destino activo: subrayado índigo como en el mockup ("Mi Evento") */
+.site-header nav a[aria-current="page"] {
+  color: var(--color-primary);
+  border-bottom-color: var(--color-primary);
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  margin-left: auto; /* Empuja las acciones al extremo derecho */
+}
+
+.avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: var(--radius-full);
+  object-fit: cover;
+}
+
+/* --------------------------------------------------------------------------
+   2. BOTONES Y ESTADOS DE INTERACCIÓN (hover, focus, active, disabled)
+   -------------------------------------------------------------------------- */
+.btn-primary,
+.btn-outline,
+.btn-icon {
+  display: inline-flex; /* Elemento en línea que alinea ícono y texto */
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-xs);
+  font-family: inherit;
+  font-weight: var(--font-weight-semibold);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: background-color var(--transition-fast), color var(--transition-fast), border-color var(--transition-fast);
+}
+
+.btn-primary {
+  padding: var(--spacing-xs) var(--spacing-md);
+  font-size: var(--font-size-xs);
+  color: var(--color-text-inverse);
+  background-color: var(--color-primary);
+  border: 1px solid var(--color-primary);
+}
+
+/* :not(:disabled) evita que un botón deshabilitado reciba estilos de hover */
+.btn-primary:not(:disabled):hover {
+  color: var(--color-text-inverse);
+  background-color: var(--color-primary-hover);
+}
+
+.btn-primary:not(:disabled):active {
+  background-color: var(--color-primary-active);
+}
+
+/* Botón "Nuevo Evento" del header: mayor tamaño según el mockup */
+.btn-nuevo-evento {
+  padding: var(--spacing-sm) var(--spacing-lg);
+  font-size: var(--font-size-md);
+}
+
+.btn-nuevo-evento span {
+  font-size: var(--font-size-lg);
+  line-height: 1;
+}
+
+.btn-outline {
+  width: 100%;
+  padding: var(--spacing-2xs) var(--spacing-sm);
+  font-size: var(--font-size-2xs);
+  color: var(--color-primary);
+  background-color: var(--color-bg-surface);
+  border: 1px solid var(--color-primary);
+}
+
+.btn-outline:not(:disabled):hover {
+  color: var(--color-text-inverse);
+  background-color: var(--color-primary);
+}
+
+.btn-icon {
+  width: 36px;
+  height: 36px;
+  color: var(--color-text-secondary);
+  background-color: var(--color-bg-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-full);
+}
+
+.btn-icon:not(:disabled):hover {
+  color: var(--color-primary);
+  border-color: var(--color-primary);
+}
+
+.btn-primary:disabled,
+.btn-outline:disabled,
+.btn-icon:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* --------------------------------------------------------------------------
+   3. PANELES (tarjetas contenedoras de cada sección del dashboard)
+   Box model explícito: padding interno, borde y radio.
+   -------------------------------------------------------------------------- */
+.panel {
+  padding: var(--spacing-md);
+  background-color: var(--color-bg-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+}
+
+/* Título de panel: ícono + texto en índigo, como en el mockup */
+.panel-title {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  margin-bottom: var(--spacing-md);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-primary);
+}
+
+.panel-title svg {
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+}
+
+.panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-md);
+}
+
+.panel-header .panel-title {
+  margin-bottom: 0;
+}
+
+/* --------------------------------------------------------------------------
+   4. FORMULARIO "MI EVENTO"
+   Grid de 2 columnas; Ubicación ocupa el ancho completo.
+   -------------------------------------------------------------------------- */
+.event-form {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--spacing-sm) var(--spacing-md);
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2xs);
+}
+
+.form-group-full,
+.form-actions {
+  grid-column: 1 / -1;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+/* Labels en mayúsculas pequeñas (estilo del mockup) */
+.form-group label {
+  font-size: var(--font-size-2xs);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.form-group input,
+.form-group select,
+.catalog-search input {
+  width: 100%;
+  padding: var(--spacing-xs) var(--spacing-sm);
+  font-family: inherit;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-primary);
+  background-color: var(--color-bg-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  color-scheme: light; /* Fix #25: controles nativos coherentes con el tema en WebKit/Safari */
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.form-group select {
+  -webkit-appearance: none;
+  appearance: none;
+  padding-right: var(--spacing-xl);
+  /* Flecha propia porque appearance: none elimina la nativa */
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right var(--spacing-sm) center;
+  background-size: 14px;
+}
+
+.form-group input:hover,
+.form-group select:hover,
+.catalog-search input:hover {
+  border-color: var(--color-border-strong);
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.catalog-search input:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--color-primary-ring);
+  outline: none;
+}
+
+.form-group input:disabled,
+.form-group select:disabled {
+  color: var(--color-text-muted);
+  background-color: var(--color-bg-muted);
+  cursor: not-allowed;
+}
+
+/* --------------------------------------------------------------------------
+   5. TABLAS DE DATOS (Presupuesto e Invitados)
+   Encapsuladas en .data-table para no afectar tablas futuras.
+   -------------------------------------------------------------------------- */
+.table-wrapper {
+  width: 100%;
+  overflow-x: auto; /* Fix #26: la tabla se desplaza dentro de su contenedor */
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--font-size-xs);
+}
+
+.data-table thead th {
+  padding: var(--spacing-xs) var(--spacing-xs);
+  font-size: var(--font-size-2xs);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  text-align: left;
+  background-color: var(--color-bg-muted);
+}
+
+.data-table tbody th,
+.data-table tbody td {
+  padding: var(--spacing-xs);
+  text-align: left;
+  border-bottom: 1px solid var(--color-border);
+}
+
+/* Primera columna como encabezado de fila: nombre o categoría en negrita */
+.data-table tbody th {
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+}
+
+.data-table tbody td {
+  color: var(--color-text-muted);
+}
+
+.data-table tbody tr:nth-child(even) {
+  background-color: #fafafa;
+}
+
+.data-table tbody tr:hover {
+  background-color: var(--color-primary-subtle);
+}
+
+.data-table .num {
+  text-align: right;
+  white-space: nowrap;
+}
+
+.data-table .center {
+  text-align: center;
+}
+
+.data-table td.subtotal {
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+}
+
+/* Fila de total: índigo y en negrita para distinguirse del detalle */
+.data-table tfoot th,
+.data-table tfoot td {
+  padding: var(--spacing-sm) var(--spacing-xs);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-primary);
+  text-align: left;
+}
+
+.data-table tfoot td {
+  text-align: right;
+}
+
+/* Badges de estado: elementos en línea con texto visible (no dependen solo del color) */
+.badge {
+  display: inline-block;
+  padding: 2px var(--spacing-xs);
+  font-size: var(--font-size-2xs);
+  font-weight: var(--font-weight-semibold);
+  border-radius: var(--radius-sm);
+}
+
+.badge-confirmado { color: var(--color-success-text); background-color: var(--color-success-bg); }
+.badge-pendiente  { color: var(--color-warning-text); background-color: var(--color-warning-bg); }
+.badge-declinado  { color: var(--color-danger); background-color: var(--color-danger-bg); }
+
+/* --------------------------------------------------------------------------
+   6. RESUMEN FINANCIERO (columna lateral)
+   -------------------------------------------------------------------------- */
+.panel-resumen {
+  background-color: var(--color-primary-subtle);
+}
+
+.resumen-lista {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+.resumen-lista dt {
+  font-size: var(--font-size-2xs);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+}
+
+.monto {
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-bold);
+  line-height: 1.2;
+}
+
+.monto-total   { color: var(--color-primary); }
+.monto-gastado { color: var(--color-warning); }
+.monto-saldo   { color: var(--color-success); }
+
+.progress {
+  height: 6px;
+  margin-top: var(--spacing-sm);
+  background-color: var(--color-border);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+}
+
+.progress-bar {
+  display: block;
+  height: 100%;
+  background: linear-gradient(90deg, #1e1b4b, var(--color-warning));
+  border-radius: var(--radius-full);
+}
+
+.progress-legend {
+  display: flex;
+  justify-content: space-between;
+  margin: var(--spacing-2xs) 0 0;
+  font-size: var(--font-size-2xs);
+  color: var(--color-text-muted);
+}
+
+.progress-limit {
+  color: var(--color-primary);
+}
+
+/* --------------------------------------------------------------------------
+   7. TAREAS PENDIENTES
+   -------------------------------------------------------------------------- */
+.task-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+  list-style: none;
+}
+
+.task-list li {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-xs);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+}
+
+.task-list input {
+  width: 14px;
+  height: 14px;
+  accent-color: var(--color-primary);
+}
+
+.task-list label {
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-primary);
+  cursor: pointer;
+}
+
+/* Tarea completada: fondo gris y texto tachado (selector de hermano adyacente) */
+.task-list li:has(input:checked) {
+  background-color: var(--color-bg-muted);
+}
+
+.task-list input:checked + label {
+  color: var(--color-text-muted);
+  text-decoration: line-through;
+}
+
+/* --------------------------------------------------------------------------
+   8. ALERTA DE PRESUPUESTO
+   -------------------------------------------------------------------------- */
+.alert-warning {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  margin: 0;
+  padding: var(--spacing-sm);
+  font-size: var(--font-size-2xs);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-warning-text);
+  background-color: var(--color-warning-bg);
+  border: 1px solid var(--color-warning-border);
+  border-radius: var(--radius-md);
+}
+
+.alert-warning svg {
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+}
+
+/* --------------------------------------------------------------------------
+   9. CATÁLOGO DE PLANCITOS
+   Grid de 3 tarjetas con imagen, datos y acción.
+   -------------------------------------------------------------------------- */
+.catalog-search {
+  width: 220px;
+}
+
+.catalog-search input {
+  padding: var(--spacing-2xs) var(--spacing-sm);
+  font-size: var(--font-size-xs);
+}
+
+.cards-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--spacing-xs);
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  background-color: var(--color-bg-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  transition: box-shadow var(--transition-fast);
+}
+
+.card:hover {
+  box-shadow: var(--shadow-md);
+}
+
+.card img {
+  width: 100%;
+  aspect-ratio: 1344 / 655; /* Proporción del nodo de imagen del mockup (2,05:1) */
+  object-fit: cover;
+}
+
+.card-body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  padding: var(--spacing-sm) var(--spacing-xs) var(--spacing-xs);
+}
+
+.card-body h3 {
+  margin-bottom: var(--spacing-2xs);
+  font-size: var(--font-size-xs);
+}
+
+.card-body p {
+  margin-bottom: var(--spacing-xs);
+  font-size: var(--font-size-2xs);
+  color: var(--color-text-muted);
+}
+
+/* Datos requeridos por plan.md §2.5 (categoría, cupo y zona) en una línea discreta */
+.card-body .card-meta {
+  font-style: italic;
+}
+
+.card-body .card-price {
+  margin-top: auto; /* Alinea precio y botón al pie aunque varíe la descripción */
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-primary);
+}
+
+/* --------------------------------------------------------------------------
+   10. PIE DE PÁGINA
+   -------------------------------------------------------------------------- */
+.site-footer {
+  padding: var(--spacing-md) var(--spacing-lg);
+  text-align: center;
+  background-color: var(--color-bg-surface);
+  border-top: 1px solid var(--color-border);
+}
+
+.site-footer p {
+  margin: 0;
+  font-size: var(--font-size-base);
+  color: var(--color-text-muted);
+}
