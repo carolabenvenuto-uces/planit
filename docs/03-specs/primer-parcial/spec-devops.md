@@ -53,6 +53,8 @@ Los Request Changes marcados por el docente en la PR [#35](https://github.com/ca
 
 Por tratarse de un grupo de 3 integrantes, el Desarrollador Frontend/Bootstrap asume también las tareas del Especialista en Componentes Bootstrap, utilizando una rama `feature/` independiente por rol.
 
+**Tablero Kanban:** [PlanIT - Primer Parcial](https://github.com/users/carolabenvenuto-uces/projects/1), vinculado al repositorio y administrado por el Coordinador / DevOps con rol Admin. El proyecto pertenece a la cuenta dueña del repositorio porque GitHub solo permite vincular a un repositorio proyectos del mismo propietario. Workflows activos: *Auto-add to project* (`is:issue is:open` sobre `planit`) e *Item closed* (mueve la tarjeta a Done).
+
 **Orden de integración planificado en `develop`:** (1) Coordinador / DevOps (mockup y README), (2) Frontend/Bootstrap, (3) Componentes Bootstrap, (4) Componentes HTML Avanzados, (5) ramas `fix/` de los hallazgos de testing.
 
 ### 5. Criterios de Aceptación (Checklist)
