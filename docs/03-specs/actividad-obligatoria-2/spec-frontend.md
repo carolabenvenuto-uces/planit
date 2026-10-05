@@ -49,3 +49,46 @@ Para transformar la estructura HTML5 semántica en una interfaz gráfica atracti
   3. Incorporación de transiciones con curvas cubic-bezier para suavizar los estados de hover en tarjetas y botones.
   4. Integración de pseudo-elementos (`::before` y `::after`) para numeradores dinámicos de pasos y subrayados decorativos de sección.
   
+
+---
+
+## 5. Corrección RC8 — Verificación de integración en GitHub Pages
+
+En la entrega original la integración Frontend/Responsive no podía verificarse sobre el producto publicado, porque GitHub Pages seguía mostrando AO1. Resuelto RC3 ([PR #37](https://github.com/carolabenvenuto-uces/planit/pull/37)), el sitio publica `release/actividad-obligatoria-2` y la integración se verificó sobre https://carolabenvenuto-uces.github.io/planit/ (commit `1aeeab6`, 2026-09-30) con Playwright:
+
+| Viewport | `styles.css` + `components.css` + `responsive.css` cargados | Overflow horizontal |
+| --- | --- | --- |
+| Mobile 390×844 | ✅ | ✅ No (las tablas se desplazan dentro de su contenedor con `overflow-x: auto`) |
+| Tablet 820×1180 | ✅ | ✅ No |
+| Desktop 1440×900 | ✅ | ✅ No |
+
+---
+
+## 6. Corrección RC9–RC13 — Alineación del producto con el mockup aprobado
+
+**Hallazgo del docente (seguimiento de la PR #35):** el sitio publicado no coincidía con `docs/01-mockup/actividad-obligatoria-2/diseño-con-estilos.png`. La implementación había ampliado el alcance por fuera del diseño pactado: tema oscuro, navegación y secciones distintas, catálogo con otros contenidos e imágenes de `placehold.co`, y faltaban componentes del mockup.
+
+**Decisión:** se adaptó el HTML/CSS al mockup aprobado, en lugar de modificar el mockup para justificar lo implementado.
+
+| RC | Mockup aprobado | Antes | Corrección aplicada |
+| --- | --- | --- | --- |
+| RC9 | Navegación: Mi Evento, Presupuesto, Invitados, Catálogo, más campana, avatar y botón "Nuevo Evento" | Inicio, Catálogo de Plancitos, Cockpit, ¿Cómo funciona? | Header y navegación del mockup; layout de dashboard con columna principal y columna lateral |
+| RC10 | Resumen Financiero y Tareas Pendientes | No existían | Columna lateral con Resumen Financiero (montos y barra de progreso), Tareas Pendientes y alerta de presupuesto |
+| RC11 | Sin hero, cockpit ni "cómo funciona" | `.hero-section`, `.cockpit-container`, `.how-it-works` | Secciones retiradas; el formulario pasa a la sección "Mi Evento" y la tabla a "Presupuesto", como en el mockup |
+| RC12 | Dashboard claro | Tema oscuro (`--color-bg-main: #13131a`) | Tokens de color claros en `:root` (fondo `#f5f7fb`, superficies blancas, acento índigo `#4f46e5`) y tipografía Inter |
+| RC13 | Catálogo: Gourmet Finger Food, Flores Pilar, DJ Lucas & Sonido | Cerámica & Chardonnay, Cata de Gin, Show de Magia, con `placehold.co` | Tarjetas del mockup con fotos locales recortadas del propio mockup (`docs/01-mockup/actividad-obligatoria-2/catalogo-*.jpg`) y logo/avatar del mockup |
+
+**Diferencias con el mockup mantenidas a propósito** (requisitos de `plan.md` y de correcciones anteriores, no alcance agregado):
+- **Buscador del catálogo:** exigido por `plan.md` §2.5 y por la corrección RC6 de la Actividad N°1 (PR #14). Se integra como un campo compacto en el encabezado del panel del catálogo.
+- **Columna "Tipo" en la tabla de presupuesto y `<caption>` accesible (visualmente oculto):** exigidos por `plan.md` §2.3.
+- **Línea de categoría, cupo y zona en cada tarjeta:** exigida por `plan.md` §2.5.
+- **`<h1>` visualmente oculto:** necesario para la jerarquía de encabezados; el mockup no muestra un título principal.
+- **Colores de texto levemente más oscuros** en etiquetas, badge "Confirmado" y monto "Gastado estimado", para cumplir contraste WCAG 2.1 AA (axe-core: 0 violaciones).
+
+`plan.md` §2.5 se actualizó para que los ejemplos del catálogo sean los del mockup.
+
+**Verificación local (Playwright + validadores):**
+- Sin overflow horizontal en 390, 412, 576, 768, 992 y 1440 px de ancho.
+- HTML: 0 errores y 0 advertencias (W3C Nu Html Checker).
+- CSS: 0 errores en `styles.css`, `components.css` y `responsive.css` (W3C CSS Validator).
+- Accesibilidad: 0 violaciones WCAG 2.1 A/AA (axe-core 4.10.2).
