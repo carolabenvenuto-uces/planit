@@ -43,26 +43,6 @@
   list-style: none;
 }
 
-/* Enlaces de navegación: inline-block para controlar padding y borde inferior */
-.site-header nav a {
-  display: inline-block;
-  padding: var(--spacing-2xs) 0;
-  border-bottom: 2px solid transparent;
-  font-size: var(--font-size-md);
-  font-weight: var(--font-weight-medium);
-  color: var(--color-text-primary);
-}
-
-.site-header nav a:hover {
-  color: var(--color-primary);
-}
-
-/* Destino activo: subrayado índigo como en el mockup ("Mi Evento") */
-.site-header nav a[aria-current="page"] {
-  color: var(--color-primary);
-  border-bottom-color: var(--color-primary);
-}
-
 .header-actions {
   display: flex;
   align-items: center;
