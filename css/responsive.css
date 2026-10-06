@@ -117,10 +117,6 @@
     gap: var(--spacing-xs);
   }
 
-  .cards-grid {
-    grid-template-columns: minmax(0, 1fr);
-  }
-
   .site-footer p {
     font-size: var(--font-size-xs);
   }
