@@ -37,8 +37,9 @@ Los Request Changes marcados por el docente en la PR [#35](https://github.com/ca
 
 ### 3. Cambios a incorporar en el mockup de Figma
 - **Grilla Bootstrap:** contenedor, sistema de 12 columnas y gutters, mostrando la distribución de las secciones (`#mi-evento`, `#presupuesto`, `#invitados`, `#catalogo` y el `aside` de resumen/tareas) en los breakpoints `xs` (< 576 px), `md` (≥ 768 px) y `lg` (≥ 992 px).
-- **Componentes avanzados de Bootstrap:** _a confirmar con el Especialista en Componentes Bootstrap (@ValeriaMSilva)_.
-- **Componentes HTML avanzados:** `<iframe>` con helper `ratio ratio-16x9` y bloque `<details>/<summary>` de preguntas frecuentes, según `spec-html-avanzados.md` (Issue [#47](https://github.com/carolabenvenuto-uces/planit/issues/47)).
+- **Componentes avanzados de Bootstrap** (confirmados con el Especialista en Componentes Bootstrap, @ValeriaMSilva): **Modal** con la ficha técnica de cada servicio del catálogo y **Toast** de confirmación ("Experiencia agregada a tu evento") al presionar "Sumar al Evento". Se descartó un Accordion para las preguntas frecuentes porque esa sección ya corresponde al componente `<details>/<summary>` del Desarrollador de Componentes HTML Avanzados.
+- **Navbar colapsable:** en tablet y mobile (< 992 px) el menú se colapsa en un botón `navbar-toggler` (☰), como parte de la migración del Desarrollador Frontend/Bootstrap.
+- **Componentes HTML avanzados:** `<iframe>` con helper `ratio ratio-16x9` (sección "Taller en Acción: Cerámica & Chardonnay") y bloque `<details>/<summary>` de preguntas frecuentes, ambos en la columna principal debajo del catálogo, según `spec-html-avanzados.md` (Issue [#47](https://github.com/carolabenvenuto-uces/planit/issues/47)).
 - **Paleta y tipografía:** mapeo de los design tokens de la Actividad N°2 a las variables de Bootstrap (`primary`, `secondary`, neutros, `font-family` y escala tipográfica), base para `css/bootstrap-overrides.css`.
 - **Estados de interacción:** `hover`, `focus` y `active` coherentes con Bootstrap para botones, enlaces y componentes.
 - **Export:** `docs/01-mockup/disenio-bootstrap.png` y enlace al archivo de Figma actualizado en `README.md`, compartido con el Desarrollador Frontend/Bootstrap antes de que comience a usar Figma MCP.
