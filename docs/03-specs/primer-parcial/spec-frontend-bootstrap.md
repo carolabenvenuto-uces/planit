@@ -39,7 +39,7 @@
 
 - Ubicar el contenido principal dentro de un `.container`.
 - Utilizar `.row` y columnas responsivas para distribuir las tarjetas o módulos operativos.
-- Configurar una grilla adaptable, por ejemplo: `.col-12 col-sm-6 col-lg-4`, ajustándola a la cantidad y jerarquía real de los servicios.
+- Configurar una grilla adaptable: `.col-12` en dispositivos móviles y `.col-md-4` (3 columnas por fila) desde tablets y escritorios.
 - Migrar cada servicio a un componente visual consistente basado en `.card`, conservando iconos, títulos, descripciones, enlaces y acciones existentes.
 - Aplicar utilidades de Bootstrap para espaciado, alineación, tipografía, colores y estados sin duplicar reglas innecesarias.
 - Garantizar alturas visualmente consistentes sin ocultar contenido ni forzar desbordamientos.
@@ -76,7 +76,17 @@ El archivo `css/bootstrap-overrides.css` será el punto central para sobrescribi
 
 ---
 
-## 4. 📱 Requisitos de Responsividad
+## 4. 🧪 Registro de Evidencias
+
+- **Prompt exacto utilizado con Figma MCP:**
+
+	> "Usando el servidor Figma MCP y el spec docs/03-specs/primer-parcial/spec-frontend-bootstrap.md como contexto, realizá la migración de index.html a la grilla de Bootstrap v5.3 y generá css/bootstrap-overrides.css a partir del siguiente mockup de Figma: https://www.figma.com/design/iUmUArxu59WUYlBl2zR3xq/Wireframe?node-id=2078-2"
+
+- **Resultado obtenido:** Migración completada exitosamente en `index.html` con inclusión de Bootstrap v5.3.3 por CDN de jsDelivr. Estructuración del layout principal en columnas `col-lg-8` (contenido) y `col-lg-4` (lateral), y catálogo en grilla `col-12` en mobile y `col-md-4` en tablet. Creación y vinculación del archivo `css/bootstrap-overrides.css` mapeando la paleta de PlanIT a variables de Bootstrap (`--bs-*`).
+
+- **Ajustes manuales realizados:** Ninguno. Verificación de responsividad ejecutada con Playwright MCP en Chromium (Test Case 6) resultando en **PASS** para iPhone 14 Pro (393×852), Samsung Galaxy S23 (360×780) e iPad Air (820×1180), sin desbordamiento horizontal y con despliegue correcto de la navbar colapsable.
+
+## 5. 📱 Requisitos de Responsividad
 
 - El layout deberá funcionar como mínimo en 320 px, 375 px, 768 px, 992 px, 1200 px y resoluciones superiores.
 - No deberá existir desplazamiento horizontal provocado por contenedores, imágenes, tablas, textos, botones o componentes.
@@ -88,7 +98,7 @@ El archivo `css/bootstrap-overrides.css` será el punto central para sobrescribi
 
 ---
 
-## 5. ♿ Accesibilidad y Calidad Semántica
+## 6. ♿ Accesibilidad y Calidad Semántica
 
 - Mantener una estructura de encabezados jerárquica y un único contenido principal identificable.
 - Usar elementos semánticos (`header`, `nav`, `main`, `section`, `article` y `footer`) cuando correspondan.
@@ -100,7 +110,7 @@ El archivo `css/bootstrap-overrides.css` será el punto central para sobrescribi
 
 ---
 
-## 6. 🗂️ Archivos y Alcance de la Implementación
+## 7. 🗂️ Archivos y Alcance de la Implementación
 
 ### Archivos a modificar o crear
 
@@ -117,7 +127,7 @@ El archivo `css/bootstrap-overrides.css` será el punto central para sobrescribi
 
 ---
 
-## 7. ✅ Criterios de Aceptación
+## 8. ✅ Criterios de Aceptación
 
 - Bootstrap v5.3 se carga correctamente desde jsDelivr y no se incluyen copias locales innecesarias.
 - `bootstrap-overrides.css` existe, está vinculado y sus reglas tienen prioridad sobre las reglas base de Bootstrap cuando corresponde.
@@ -132,7 +142,7 @@ El archivo `css/bootstrap-overrides.css` será el punto central para sobrescribi
 
 ---
 
-## 8. 🧪 Plan de Verificación y Pruebas
+## 9. 🧪 Plan de Verificación y Pruebas
 
 1. Validar el HTML y comprobar que los recursos CDN respondan correctamente.
 2. Abrir `index.html` en un navegador actualizado y revisar la consola.
@@ -145,7 +155,7 @@ El archivo `css/bootstrap-overrides.css` será el punto central para sobrescribi
 
 ---
 
-## 9. 📦 Entregables
+## 10. 📦 Entregables
 
 - `index.html` actualizado con Bootstrap v5.3 y la estructura responsiva migrada.
 - `css/bootstrap-overrides.css` creado y documentado mediante comentarios breves cuando sea necesario.
@@ -155,7 +165,7 @@ El archivo `css/bootstrap-overrides.css` será el punto central para sobrescribi
 
 ---
 
-## 10. 📝 Consideraciones de Implementación
+## 11. 📝 Consideraciones de Implementación
 
 - Bootstrap deberá utilizarse como apoyo estructural y no como motivo para eliminar estilos de negocio o componentes existentes sin justificación.
 - Las clases utilitarias deben preferirse frente a reglas CSS repetitivas cuando expresen claramente la intención.
