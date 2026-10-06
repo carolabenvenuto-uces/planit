@@ -103,10 +103,24 @@ Planificar la incorporación de los componentes interactivos Modal y Toast de Bo
 
 ## 4. Registro de Evidencias
 
-- **Prompt utilizado:** _Pendiente de completar post-implementación._
-- **Evidencia del Modal:** _Pendiente de completar post-implementación._
-- **Evidencia del Toast:** _Pendiente de completar post-implementación._
-- **Pruebas responsive:** _Pendiente de completar post-implementación._
-- **Verificación de consola y accesibilidad:** _Pendiente de completar post-implementación._
-- **Capturas o enlaces de evidencia:** _Pendiente de completar post-implementación._
-- **Issues encontrados y ramas de corrección:** _Pendiente de completar post-implementación._
+- **Prompt de implementación utilizado:**
+
+	```text
+	Usando como referencia el spec recién creado en docs/03-specs/primer-parcial/spec-componentes-bootstrap.md y el archivo index.html, implementá los siguientes 2 componentes de Bootstrap v5.3: Modal para la ficha técnica del servicio y Toast para la notificación de confirmación al presionar Sumar al evento. Verificá que el maquetado no rompa la grilla ni la adaptabilidad responsive realizada en la etapa anterior.
+	```
+
+- **Prompt de QA utilizado:**
+
+	```text
+	Usando Playwright MCP, probá index.html en un viewport de iPhone 14 Pro (393x852). Verificá que cada tarjeta del catálogo tenga los botones Ver detalle y Sumar al evento. Probá la apertura y cierre del Modal #modalDetalleServicio, la activación del Toast #toastConfirmacion desde una tarjeta y desde el Modal, el auto-hide, la ausencia de overflow horizontal y los errores de consola. Devolvé resultados PASS/FAIL con evidencia concreta.
+	```
+
+- **Estructura implementada:** 3 tarjetas del catálogo con botones `Ver detalle` (`btn btn-outline-primary`, `data-bs-toggle="modal"`, `data-bs-target="#modalDetalleServicio"`) y `Sumar al evento` (`btn btn-primary`). El Modal reutilizable contiene header con `btn-close`, título dinámico, imagen, descripción, detalles técnicos, precio y footer con `Cerrar` y `Sumar al evento`. El Toast `#toastConfirmacion` usa `toast-container position-fixed bottom-0 end-0`, mensaje de confirmación, botón de cierre y `data-bs-delay="4000"`.
+
+- **Resultado de las pruebas:** **PASS** con Playwright MCP en Chromium. Bootstrap cargó correctamente; el Modal abrió con título, imagen, descripción y precio; `btn-close` lo cerró; los botones de suma desde tarjetas y Modal mostraron el Toast; el Toast se ocultó automáticamente después de 4 segundos; no se detectó overflow horizontal ni errores de consola.
+
+- **Pruebas responsive:** PASS en iPhone 14 Pro (`393x852`). La grilla mantuvo su adaptación y los componentes no generaron desbordamiento horizontal.
+
+- **Capturas o enlaces de evidencia:** Los resultados automatizados están documentados en `docs/04-testing/test-case-7.md`. No se generaron archivos de captura.
+
+- **Issues encontrados y ramas de corrección:** Ninguno. No fue necesario crear una rama de corrección.
