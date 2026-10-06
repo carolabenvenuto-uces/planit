@@ -80,7 +80,9 @@ El archivo `css/bootstrap-overrides.css` será el punto central para sobrescribi
 
 - **Prompt exacto utilizado con Figma MCP:**
 
-	> "Usando el servidor Figma MCP y el spec docs/03-specs/primer-parcial/spec-frontend-bootstrap.md como contexto, realizá la migración de index.html a la grilla de Bootstrap v5.3 y generá css/bootstrap-overrides.css a partir del siguiente mockup de Figma: https://www.figma.com/design/iUmUArxu59WUYlBl2zR3xq/Wireframe?node-id=2078-2"
+```text
+Usando el servidor Figma MCP y el spec docs/03-specs/primer-parcial/spec-frontend-bootstrap.md como contexto, realizá la migración de index.html a la grilla de Bootstrap v5.3 y generá css/bootstrap-overrides.css a partir del siguiente mockup de Figma: https://www.figma.com/design/iUmUArxu59WUYlBl2zR3xq/Wireframe?node-id=2078-2
+```
 
 - **Resultado obtenido:** Migración completada exitosamente en `index.html` con inclusión de Bootstrap v5.3.3 por CDN de jsDelivr. Estructuración del layout principal en columnas `col-lg-8` (contenido) y `col-lg-4` (lateral), y catálogo en grilla `col-12` en mobile y `col-md-4` en tablet. Creación y vinculación del archivo `css/bootstrap-overrides.css` mapeando la paleta de PlanIT a variables de Bootstrap (`--bs-*`).
 
