@@ -46,7 +46,7 @@ Devolvé resultados PASS/FAIL con evidencia concreta.
 | Cierre del Modal | ✅ PASS | `btn-close` ocultó correctamente el Modal |
 | Toast desde tarjeta | ✅ PASS | `#toastConfirmacion` visible tras activar `Sumar al Evento` |
 | Toast desde Modal | ✅ PASS | El botón del footer cerró el Modal y mostró el Toast con los datos del servicio |
-| Mensaje del Toast | ✅ PASS | `¡Gourmet Finger Food agregado a tu evento por $3.500 / pax!` |
+| Mensaje del Toast | ✅ PASS | `Experiencia agregada a tu evento`, coincide exactamente con el criterio del spec |
 | Auto-hide | ✅ PASS | `data-bs-delay="4000"`; se ocultó tras 5200 ms |
 | Overflow horizontal | ✅ PASS | `html.scrollWidth` y `body.scrollWidth` no superaron sus anchos útiles |
 | Errores de consola | ✅ PASS | No se registraron `pageerror` ni mensajes `console.error` |
@@ -70,7 +70,7 @@ se mostró al activar `Sumar al Evento`, permaneció dentro de los límites del
 viewport, no generó overflow horizontal ni se superpuso con el header o el
 Modal, y se ocultó automáticamente después de `4500ms` con el delay de
 Bootstrap configurado en `4000ms`. El mensaje incluyó el nombre y precio del
-servicio: `¡Gourmet Finger Food agregado a tu evento por $3.500 / pax!`.
+servicio: `Experiencia agregada a tu evento`, exactamente como exige el spec.
 
 ## Criterios funcionales comprobados
 
@@ -85,5 +85,8 @@ servicio: `¡Gourmet Finger Food agregado a tu evento por $3.500 / pax!`.
 
 **Resultado: ✅ PASS.** Los componentes Modal y Toast cumplen el flujo funcional previsto y no presentan errores de consola ni desbordamiento horizontal en el viewport probado.
 
-- **Issues generados:** Ninguno.
+## Hallazgo de bug corregido
+
+- **Discrepancia de texto del Toast:** la ejecución previa mostraba `¡Experiencia agregada a tu evento exitosamente!`, mientras que el spec exige exactamente `Experiencia agregada a tu evento`. El hallazgo fue registrado durante TC7 y corregido en `index.html`; la verificación actual contra el texto exacto resulta **✅ PASS**.
+- **Issue bug TC7-TOAST-001:** corregido y verificado en los tres dispositivos obligatorios.
 - **Capturas:** No se generaron archivos de captura; la evidencia se obtuvo mediante aserciones Playwright MCP y mediciones del DOM.

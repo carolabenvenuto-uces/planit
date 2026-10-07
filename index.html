@@ -384,7 +384,7 @@
                 <strong class="me-auto">PlanIT</strong>
                 <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Cerrar"></button>
             </div>
-            <div class="toast-body" id="toastConfirmacionMensaje">¡Experiencia agregada a tu evento exitosamente!</div>
+            <div class="toast-body" id="toastConfirmacionMensaje">Experiencia agregada a tu evento</div>
         </div>
     </div>
 
@@ -415,7 +415,9 @@
             button.addEventListener('click', () => {
                 const title = button.dataset.serviceTitle;
                 const price = button.dataset.servicePrice;
-                toastConfirmacionMensaje.textContent = `¡${title} agregado a tu evento por ${price}!`;
+                toastConfirmacion.dataset.serviceTitle = title;
+                toastConfirmacion.dataset.servicePrice = price;
+                toastConfirmacionMensaje.textContent = 'Experiencia agregada a tu evento';
                 toastConfirmacion.show();
             });
         });
