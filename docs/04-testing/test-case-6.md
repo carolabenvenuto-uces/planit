@@ -10,7 +10,7 @@ Verificar que `index.html` no genere desplazamiento horizontal (overflow horizon
 - **Estado probado:** commit HEAD (`feature/dev-frontend-bootstrap-update-migration`)
 - **Página:** `http://localhost:3000/index.html`
 - **Herramienta:** Playwright MCP con Chromium
--Criterio de overflow:`document.documentElement.scrollWidth &lt;=lt;= document.documentElement.clientWidth` y la misma comprobación para `document.body` (scrollWidth == clientWidth).
+- **Criterio de overflow:**`document.documentElement.scrollWidth <= document.documentElement.clientWidth` y la misma comprobación para `document.body` (scrollWidth == clientWidth).
 - **Criterio de navegación:** El botón `.navbar-toggler` debe estar visible, el menú debe iniciar colapsado por defecto y abrirse al hacer clic, activando `aria-expanded="true"` y la clase `.show`.
 
 ### Prompt utilizado
