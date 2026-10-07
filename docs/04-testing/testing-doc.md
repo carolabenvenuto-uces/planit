@@ -44,6 +44,6 @@ Tras corregir la configuración del servidor MCP de Playwright (agregando el fla
 ## Puntos pendientes de Coordinación
 
 Según la revisión de la PR #31 (@ValeriaMSilva), quedan 2 puntos que requieren decisión de Coordinación, no corrección técnica de QA:
-1 **Uso de MCP vs Playwright directo:** resuelto en la Ronda 2 — se logró conectar el MCP real, aunque con la limitación de motor único documentada arriba. 
-2 **Momento 1 diferido:** sigue siendo una limitación de timing real (no técnica) — el testing de la Ronda 1 se ejecutó después del merge de las ramas de Carola. Se solicita a Coordinación confirmar si esta excepción metodológica se acepta, dado que no es posible retroactivamente ejecutar un test "pre-merge" sobre una rama que ya fue integrada.
+ 1. **Uso de MCP vs Playwright directo:** resuelto en la Ronda 2 — se logró conectar el MCP real, aunque con la limitación de motor único documentada arriba. 
+ 2. **Momento 1 diferido:** sigue siendo una limitación de timing real (no técnica) — el testing de la Ronda 1 se ejecutó después del merge de las ramas de Carola. Se solicita a Coordinación confirmar si esta excepción metodológica se acepta, dado que no es posible retroactivamente ejecutar un test "pre-merge" sobre una rama que ya fue integrada.
 
