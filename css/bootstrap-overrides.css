@@ -28,7 +28,9 @@
   --bs-danger-text-emphasis: var(--color-danger);
   --bs-border-color: var(--color-border);
   --bs-link-color: var(--color-primary);
+  --bs-link-color-rgb: 79, 70, 229;
   --bs-link-hover-color: var(--color-primary-hover);
+  --bs-link-hover-color-rgb: 67, 56, 202;
   --bs-font-sans-serif: var(--font-base);
   --bs-border-radius: var(--radius-sm);
   --bs-border-radius-lg: var(--radius-md);
