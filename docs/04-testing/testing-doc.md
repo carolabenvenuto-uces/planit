@@ -1,8 +1,6 @@
-# Índice de Testing — Actividad Obligatoria N°2
+# Informe de Testing — PWI 2026 (1er Parcial)
 
-Este archivo centraliza el estado de los 5 test cases ejecutados sobre
-PlanIT, cubriendo compatibilidad, responsive, performance, accesibilidad
-y estructura HTML semántica.
+Este archivo centraliza el estado de los 6 test cases ejecutados sobre PlanIT, cubriendo compatibilidad, responsive, performance, accesibilidad y estructura HTML semántica.
 
 ## Test cases
 
@@ -13,7 +11,7 @@ y estructura HTML semántica.
 | 3 | [test-case-3.md](test-case-3.md) | Performance y carga | 🔴 Fix de #28 confirmado ineficaz → nuevo Issue #33 |
 | 4 | [test-case-4.md](test-case-4.md) | Accesibilidad web | ✅ Sin violaciones |
 | 5 | [test-case-5.md](test-case-5.md) | Estructura HTML semántica y CSS | ✅ 1 de 2 avisos de #29 corregido |
-
+| 6 | [test-case-6.md](test-case-6.md) | Migración y validación responsive Bootstrap 5.3 | ✅ Sin overflow · #59-#62 (#63 pend.) |
 ## Historial de ejecuciones
 
 ### Ronda 1 — Playwright directo, 21/09/2026
