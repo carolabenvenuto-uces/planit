@@ -28,7 +28,9 @@
   --bs-danger-text-emphasis: var(--color-danger);
   --bs-border-color: var(--color-border);
   --bs-link-color: var(--color-primary);
+  --bs-link-color-rgb: 79, 70, 229;
   --bs-link-hover-color: var(--color-primary-hover);
+  --bs-link-hover-color-rgb: 67, 56, 202;
   --bs-font-sans-serif: var(--font-base);
   --bs-border-radius: var(--radius-sm);
   --bs-border-radius-lg: var(--radius-md);
@@ -36,7 +38,6 @@
 }
 
 body {
-  overflow-x: hidden;
   color: var(--bs-body-color);
   font-size: var(--bs-body-font-size);
 }
@@ -75,7 +76,7 @@ body {
 }
 
 .navbar-toggler:focus {
-  box-shadow: 0 0 0 0.2rem var(--color-primary-ring);
+  box-shadow: 0 0 0 0.25rem var(--color-primary-ring);
 }
 
 /* --------------------------------------------------------------------------
@@ -88,8 +89,6 @@ body {
 }
 
 .app-layout {
-  display: block;
-  max-width: 1140px;
   padding: var(--spacing-lg) var(--spacing-lg) var(--spacing-2xl);
 }
 

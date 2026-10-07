@@ -90,7 +90,7 @@ Usando el servidor Figma MCP y el spec docs/03-specs/primer-parcial/spec-fronten
 	- **Header / Navbar:** eliminación de las reglas legacy `.site-header nav a` en `components.css` y `responsive.css` para resolver conflictos de especificidad y restaurar los estilos del logo y el contraste del botón `Nuevo Evento`.
 	- **Grilla del Catálogo:** separación de las clases de columna Bootstrap (`col-12 col-md-4`) en un `<div>` wrapper exterior que envuelve a cada `<article>`, junto con la eliminación de `gap: 8px`, para corregir el colapso 2+1 y el padding del gutter en las imágenes.
 	- **Reboot de Bootstrap:** incorporación de reglas de neutralización en `bootstrap-overrides.css` para restablecer `padding-left: 0` y `margin-bottom: 0` en `.task-list` y `.resumen-lista`.
-	- Verificación de responsividad ejecutada con Playwright MCP en Chromium (Test Case 6), con resultado **PASS** para iPhone 14 Pro (393×852), Samsung Galaxy S23 (360×780) e iPad Air (820×1180), sin desbordamiento horizontal y con despliegue correcto de la navbar colapsable.
+	- Verificación de responsividad reejecutada con Playwright MCP en Chromium, navegando a `http://localhost:3000/index.html` (Test Case 6), con resultado **PASS** en los tres dispositivos obligatorios: iPhone 14 Pro (393×852), Samsung Galaxy S23 (360×780) e iPad Air (820×1180). La medición confirmó de forma genuina que `scrollWidth <= clientWidth` en `html` y `body`, sin la regla `overflow-x: hidden`; el catálogo se mostró en 1 columna en mobile y en 3 columnas en iPad Air, la navbar colapsable funcionó correctamente y las evidencias quedaron guardadas en `docs/04-testing/capturas/`.
 
 ## 5. 📱 Requisitos de Responsividad
 

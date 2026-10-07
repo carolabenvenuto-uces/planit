@@ -2,71 +2,70 @@
 
 ## Objetivo
 
-Verificar que `index.html` no genere desplazamiento horizontal en los viewports de iPhone 14 Pro, Samsung Galaxy S23 e iPad Air, y comprobar que la navegación responsive de Bootstrap 5.3 funcione en esos tamaños.
+Verificar que `index.html` no genere desplazamiento horizontal (overflow horizontal) en los viewports de iPhone 14 Pro, Samsung Galaxy S23 e iPad Air, y comprobar que la navegación responsive de Bootstrap 5.3 y la grilla del catálogo funcionen correctamente en esos tamaños sobre el commit HEAD.
 
 ## Ejecución
 
-- **Fecha:** 05/10/2026
-- **Estado probado:** working tree de la migración Bootstrap 5.3
-- **Página:** `file:///C:/Users/valer/OneDrive/Escritorio/planit/index.html`
+- **Fecha:** 07/10/2026
+- **Estado probado:** commit HEAD (`feature/dev-frontend-bootstrap-update-migration`)
+- **Página:** `http://localhost:3000/index.html`
 - **Herramienta:** Playwright MCP con Chromium
-- **Criterio de overflow:** `document.documentElement.scrollWidth <= document.documentElement.clientWidth` y la misma comprobación para `document.body`.
-- **Criterio de navegación:** el botón `.navbar-toggler` debe estar visible, el menú debe iniciar colapsado y abrirse al hacer click, con `aria-expanded="true"` y la clase `.show`.
+- **Criterio de overflow:** `document.documentElement.scrollWidth <= document.documentElement.clientWidth` y la misma comprobación para `document.body` (scrollWidth == clientWidth).
+- **Criterio de navegación:** El botón `.navbar-toggler` debe estar visible, el menú debe iniciar colapsado por defecto y abrirse al hacer clic, activando `aria-expanded="true"` y la clase `.show`.
 
 ### Prompt utilizado
 
 ```text
-Usando Playwright MCP, probá index.html en las resoluciones de iPhone 14 Pro,
-Samsung Galaxy S23 e iPad Air. Para cada viewport medí clientWidth y
-scrollWidth de html y body para detectar overflow horizontal. Verificá también
-que el navbar colapsado pueda abrirse con el botón toggler. Devolvé los
-resultados por dispositivo.
+Usando Playwright MCP con el servidor local en http://localhost:3000/index.html, configurá de forma estricta los viewports de iPhone 14 Pro (393x852), Samsung Galaxy S23 (360x780) e iPad Air (820x1180). Para cada viewport medí clientWidth y scrollWidth de html y body para detectar overflow horizontal, verificá el ancho del elemento main y de las tarjetas del catálogo, y comprobá que la navbar colapsada inicie cerrada y pueda abrirse con el botón toggler.
+
 ```
 
 ## Resultados
 
-| Dispositivo | Viewport | Ancho útil HTML | `scrollWidth` HTML | Ancho útil BODY | `scrollWidth` BODY | Overflow horizontal | Navbar | Catálogo |
-|---|---:|---:|---:|---:|---:|---|---|---|
-| iPhone 14 Pro | 393 × 852 | 378 px | 378 px | 378 px | 378 px | ✅ No | ✅ Colapsado y abre | ✅ 1 columna |
-| Samsung Galaxy S23 | 360 × 780 | 345 px | 345 px | 345 px | 345 px | ✅ No | ✅ Colapsado y abre | ✅ 1 columna |
-| iPad Air | 820 × 1180 | 805 px | 805 px | 805 px | 805 px | ✅ No | ✅ Colapsado y abre | ✅ 1 columna |
+| Dispositivo        | Viewport   | Ancho útil HTML | `scrollWidth` HTML | Ancho útil BODY | `scrollWidth` BODY | Overflow horizontal | Navbar             | Catálogo     |
+| ------------------ | ---------- | --------------- | ------------------ | --------------- | ------------------ | ------------------- | ------------------ | ------------ |
+| iPhone 14 Pro      | 393 × 852  | 393 px          | 393 px             | 393 px          | 393 px             | ✅ No                | ✅ Colapsado y abre | ✅ 1 columna  |
+| Samsung Galaxy S23 | 360 × 780  | 360 px          | 360 px             | 360 px          | 360 px             | ✅ No                | ✅ Colapsado y abre | ✅ 1 columna  |
+| iPad Air           | 820 × 1180 | 820 px          | 820 px             | 820 px          | 820 px             | ✅ No                | ✅ Colapsado y abre | ✅ 3 columnas |
 
-La diferencia de 15 px entre el viewport nominal y el ancho útil corresponde a la barra de desplazamiento vertical del navegador; no representa overflow horizontal. En todos los casos `scrollWidth` coincide con `clientWidth`.
+En todos los casos `scrollWidth` coincide con `clientWidth` de forma genuina sin desbordamientos.
 
 ### Verificación del navbar
 
-- Bootstrap se cargó correctamente (`window.bootstrap` disponible).
-- En los tres dispositivos el botón `.navbar-toggler` fue visible.
-- El menú inició cerrado con `aria-expanded="false"`.
-- Después del click, el menú quedó visible con `aria-expanded="true"` y la clase `.show`.
+* Bootstrap se cargó correctamente (`window.bootstrap` disponible).
+* En los tres dispositivos el botón `.navbar-toggler` fue visible.
+* El menú inició cerrado con `aria-expanded="false"`.
+* Después del clic, el menú quedó visible con `aria-expanded="true"` y la clase `.show`.
 
-### Medidas adicionales observadas
+### Medidas adicionales observadas (Commit HEAD)
 
-- iPhone 14 Pro: contenido principal y lateral de 378 px; tarjetas de catálogo de 337 px.
-- Samsung Galaxy S23: contenido principal y lateral de 345 px; tarjetas de catálogo de 303 px.
-- iPad Air: contenido principal y lateral de 781 px; tarjetas de catálogo de 246 px, tres por fila según `col-md-4`.
+* **iPhone 14 Pro:** contenido principal `main` de 393 px (100%); tarjetas de catálogo de 335 px (1 columna).
+* **Samsung Galaxy S23:** contenido principal `main` de 360 px (100%); tarjetas de catálogo de 302 px (1 columna).
+* **iPad Air:** contenido principal `.container` limitado a 696 px; tarjetas de catálogo de 202 px, tres por fila según `col-md-4`.
+
+## Capturas de Evidencia
+
+Las imágenes con viewports exactos se encuentran guardadas en `docs/04-testing/capturas/`:
+
+* `tc6-iphone14pro.png` (393 × 852 px)
+* `tc6-galaxys23.png` (360 × 780 px)
+* `tc6-ipadair.png` (820 × 1180 px)
 
 ## Conclusión
 
-**Resultado: ✅ PASS.** No se detectó overflow horizontal en ninguno de los tres dispositivos. La navegación colapsable de Bootstrap funcionó correctamente y la grilla del catálogo se adaptó sin desbordamientos.
+**Resultado: ✅ PASS.** No se detectó overflow horizontal en ninguno de los tres dispositivos. La navegación colapsable de Bootstrap funcionó correctamente y la grilla del catálogo se adaptó sin desbordamientos a 3 columnas en iPad Air y 1 columna en mobile.
 
-## Issues / Hallazgos Relacionados
+## Issues / Hallazgos Relacionados (PR #52)
 
-Los siguientes hallazgos de la revisión de la migración fueron registrados
-bajo el [Issue #51](https://github.com/carolabenvenuto-uces/planit/issues/51)
-y sus correcciones quedaron integradas en la [PR #54](https://github.com/carolabenvenuto-uces/planit/pull/54):
+Los siguientes hallazgos de la revisión de la migración fueron registrados como issues bug; #59 a #62 se corrigieron en esta PR y #63 queda pendiente para una rama fix/:
 
-- **Especificidad del header/nav:** `.site-header nav a` imponía tamaño,
-  color y padding incorrectos sobre el logo y la acción `Nuevo Evento`.
-- **Grilla del catálogo 2+1:** `gap` y `grid-template-columns` en
-  `.cards-grid` competían con `row` y `col-md-4` de Bootstrap.
-- **Padding del gutter en tarjetas:** mezclar `.card` y `.col-*` en el
-  mismo elemento desplazaba la imagen dentro del borde de la tarjeta.
-- **Reboot en listas:** Bootstrap agregaba padding y margen no deseados a
-  `.task-list` y `.resumen-lista`.
+- **[#59](https://github.com/carolabenvenuto-uces/planit/issues/59)** — [CSS/Header] Conflicto de especificidad en .site-header nav a sobreescribe estilos de Bootstrap (Corregido en commit `a15ba34`). 
+- **[#60](https://github.com/carolabenvenuto-uces/planit/issues/60)** — [CSS/Grid] Colapso erróneo 2+1 en el catálogo por interacción con gap legacy (Corregido en commit `9ed63d9`).
+- **[#61](https://github.com/carolabenvenuto-uces/planit/issues/61)** — [HTML/Grid] Mezcla de clases .card y .col- en el mismo elemento HTML (Corregido en commit `edb4ec5`).
+- **[#62](https://github.com/carolabenvenuto-uces/planit/issues/62)** — [CSS/Reboot] Falta de neutralización de paddings y márgenes en .task-list y .resumen-lista (Corregido en commit `3c97df9`). 
+- **[#63](https://github.com/carolabenvenuto-uces/planit/issues/63)** — [CSS/Responsive] Desfase en los breakpoints de media queries en responsive.css (**Pendiente** — a resolver en rama `fix/` posterior al merge).
 
 ## Limitaciones
 
 La ejecución MCP se realizó con Chromium, que es el único motor expuesto por el servidor disponible. Los nombres de dispositivos representan sus resoluciones CSS; no se ejecutó un motor WebKit o una emulación específica de Safari.
 
-- **Issues relacionados:** [#51](https://github.com/carolabenvenuto-uces/planit/issues/51)

@@ -1,8 +1,9 @@
-# Índice de Testing — Actividad Obligatoria N°2
+# Informe de Testing — PWI 2026 (1er Parcial)
 
 Este archivo centraliza el estado de los 8 test cases ejecutados sobre
 PlanIT, cubriendo compatibilidad, responsive, performance, accesibilidad
 y estructura HTML semántica.
+Este archivo centraliza el estado de los 6 test cases ejecutados sobre PlanIT, cubriendo compatibilidad, responsive, performance, accesibilidad y estructura HTML semántica.
 
 ## Test cases
 
@@ -16,6 +17,7 @@ y estructura HTML semántica.
 | 6 | [test-case-6.md](test-case-6.md) | Migración y validación responsive Bootstrap 5.3 | ✅ Sin overflow; hallazgos de UI documentados en #51 |
 | 7 | [test-case-7.md](test-case-7.md) | Modal Bootstrap: contenido, accesibilidad e interacción | ✅ PASS en 3 dispositivos; capturas enlazadas |
 | 8 | [test-case-8.md](test-case-8.md) | Toast Bootstrap: mensaje exacto, responsive y auto-hide | ✅ PASS en 3 dispositivos; capturas enlazadas |
+| 6 | [test-case-6.md](test-case-6.md) | Migración y validación responsive Bootstrap 5.3 | ✅ Sin overflow · #59-#62 (#63 pend.) |
 
 ## Historial de ejecuciones
 
