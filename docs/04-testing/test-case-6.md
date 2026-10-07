@@ -30,9 +30,18 @@ resultados por dispositivo.
 |---|---:|---:|---:|---:|---:|---|---|---|
 | iPhone 14 Pro | 393 × 852 | 378 px | 378 px | 378 px | 378 px | ✅ No | ✅ Colapsado y abre | ✅ 1 columna |
 | Samsung Galaxy S23 | 360 × 780 | 345 px | 345 px | 345 px | 345 px | ✅ No | ✅ Colapsado y abre | ✅ 1 columna |
-| iPad Air | 820 × 1180 | 805 px | 805 px | 805 px | 805 px | ✅ No | ✅ Colapsado y abre | ✅ 1 columna |
+| iPad Air | 820 × 1180 | 805 px | 805 px | 805 px | 805 px | ✅ No | ✅ Colapsado y abre | ✅ 3 columnas |
 
 La diferencia de 15 px entre el viewport nominal y el ancho útil corresponde a la barra de desplazamiento vertical del navegador; no representa overflow horizontal. En todos los casos `scrollWidth` coincide con `clientWidth` de forma natural, con `overflow-x: visible`.
+
+### Capturas
+
+Las siguientes capturas de página completa fueron tomadas con Playwright MCP sobre
+`http://localhost:3000/index.html`, una por cada viewport requerido:
+
+- [iPhone 14 Pro — 393 × 852](./capturas/tc6-iphone14pro.png)
+- [Samsung Galaxy S23 — 360 × 780](./capturas/tc6-galaxys23.png)
+- [iPad Air — 820 × 1180](./capturas/tc6-ipadair.png)
 
 ### Verificación del navbar
 
