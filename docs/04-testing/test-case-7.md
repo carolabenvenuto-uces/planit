@@ -27,6 +27,14 @@ auto-hide, la ausencia de overflow horizontal y los errores de consola.
 Devolvé resultados PASS/FAIL con evidencia concreta.
 ```
 
+## Resultados por dispositivo
+
+| Dispositivo | Viewport | Modal | Toast | Estado |
+|---|---:|---|---|---|
+| iPhone 14 Pro | 393 × 852 | Apertura, cierres y retorno de foco PASS | Visible dentro del viewport, sin solapamiento crítico, auto-hide PASS | ✅ PASS |
+| Samsung Galaxy S23 | 360 × 780 | Apertura, cierres y retorno de foco PASS | Visible dentro del viewport, sin solapamiento crítico, auto-hide PASS | ✅ PASS |
+| iPad Air | 820 × 1180 | Apertura, cierres y retorno de foco PASS | Visible dentro del viewport y sin overflow PASS | ✅ PASS |
+
 ## Resultados
 
 | Verificación | Resultado | Evidencia |
@@ -43,11 +51,33 @@ Devolvé resultados PASS/FAIL con evidencia concreta.
 | Overflow horizontal | ✅ PASS | `html.scrollWidth` y `body.scrollWidth` no superaron sus anchos útiles |
 | Errores de consola | ✅ PASS | No se registraron `pageerror` ni mensajes `console.error` |
 
+## Interacciones de accesibilidad del Modal
+
+Las interacciones se repitieron en los tres viewports, esperando el fin de la
+transición de Bootstrap antes de comprobar el estado y el foco:
+
+| Interacción | Resultado | Evidencia |
+|---|---|---|
+| Apertura desde `Ver detalle` | ✅ PASS | El Modal se mostró con `aria-modal="true"` y cargó los datos del servicio |
+| Cierre con `Escape` | ✅ PASS | El Modal se ocultó y el foco volvió al botón `Ver detalle` disparador |
+| Cierre con click en backdrop | ✅ PASS | El click fuera de `.modal-dialog` ocultó el Modal y restauró el foco |
+| Cierre con botón `Cerrar` / `X` | ✅ PASS | El botón `.btn-close` ocultó el Modal y restauró el foco |
+
+## Verificación del Toast en mobile
+
+En iPhone 14 Pro (`393 × 852`) y Samsung Galaxy S23 (`360 × 780`), el Toast
+se mostró al activar `Sumar al Evento`, permaneció dentro de los límites del
+viewport, no generó overflow horizontal ni se superpuso con el header o el
+Modal, y se ocultó automáticamente después de `4500ms` con el delay de
+Bootstrap configurado en `4000ms`. El mensaje incluyó el nombre y precio del
+servicio: `¡Gourmet Finger Food agregado a tu evento por $3.500 / pax!`.
+
 ## Criterios funcionales comprobados
 
 - Cada acción `Ver detalle` utiliza `data-bs-toggle="modal"` y `data-bs-target="#modalDetalleServicio"`.
 - La información del servicio, incluidos capacidad, duración e incluye, se completa dinámicamente desde los atributos `data-service-*` del disparador.
 - Los botones `Sumar al Evento` de las tarjetas y del Modal leen `dataset.serviceTitle` y `dataset.servicePrice` y actualizan el Toast antes de invocar `bootstrap.Toast.getOrCreateInstance(...).show()`.
+- El Modal responde a `Escape`, backdrop y botón de cierre, y devuelve el foco al botón `Ver detalle` que lo abrió.
 - El Toast tiene botón de cierre y auto-hide configurado.
 - El Modal y el Toast funcionan sin alterar la grilla responsive.
 
