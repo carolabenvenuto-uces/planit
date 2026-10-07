@@ -51,7 +51,7 @@ Las capturas correspondientes a la ejecución se encuentran almacenadas en `docs
 
 ## Issues / Hallazgos Relacionados
 
-* [#53](https://www.google.com/url?sa=E&amp;q=https%3A%2F%2Fgithub.com%2Fcarolabenvenuto-uces%2Fplanit%2Fissues%2F53) — [Componentes Bootstrap] Modal de ficha técnica y Toast de confirmación.
+- **[#58](https://github.com/carolabenvenuto-uces/planit/issues/58)** — [Componentes/Toast] Corrección del texto descriptivo del toast (Corregido y verificado en commit `bcef92d`).
 
 ## Limitaciones
 
