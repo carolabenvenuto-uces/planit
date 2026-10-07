@@ -63,7 +63,7 @@ Los siguientes hallazgos de la revisión de la migración fueron registrados y c
 -[#60](https://github.com/carolabenvenuto-uces/planit/issues/60) — [CSS/Grid] Colapso erróneo 2+1 en el catálogo por interacción con gap legacy (Corregido). 
 -[#61](https://github.com/carolabenvenuto-uces/planit/issues/61)— [HTML/Grid] Mezcla de clases .card y .col- en el mismo elemento HTML (Corregido). 
 -[#62](https://github.com/carolabenvenuto-uces/planit/issues/62) — [CSS/Reboot] Falta de neutralización de paddings y márgenes en.task-listy .resumen-lista (Corregido). 
--[#63](https://github.com/carolabenvenuto-uces/planit/issues/63) — [CSS/Responsive] Desfase en los breakpoints de media queries en responsive.css (Corregido).
+-[#63](https://github.com/carolabenvenuto-uces/planit/issues/63) — [CSS/Responsive] Desfase en los breakpoints de media queries en responsive.css (**Pendiente** — a resolver en rama `fix/` posterior al merge).
 
 ## Limitaciones
 
