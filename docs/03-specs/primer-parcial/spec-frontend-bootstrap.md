@@ -1,4 +1,4 @@
-\# 📋 Especificación Técnica: Migración Frontend a Bootstrap v5.3
+# 📋 Especificación Técnica: Migración Frontend a Bootstrap v5.3
 
 **Proyecto:** Cockpit Operativo PlanIT — Primer Parcial  
 **Rol:** Desarrollador Frontend / Bootstrap  
