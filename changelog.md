@@ -2,6 +2,11 @@
 
 ## [Unreleased]
 
+> Grupo de 3 integrantes: según la consigna del Primer Parcial, @ValeriaMSilva asume los roles de Desarrollador Frontend/Bootstrap y de Especialista en Componentes Bootstrap, con una rama `feature/` independiente por rol.
+
+### Added
+- [feature/coord-devops-update-figma-and-readme] feature/coord-devops-update-figma-and-readme: Mockup Bootstrap, README y coordinación del Primer Parcial PR: [#50](https://github.com/carolabenvenuto-uces/planit/pull/50) | Issue: [#49](https://github.com/carolabenvenuto-uces/planit/issues/49) - @FacundoGuiraldes (Coordinador / DevOps)
+
 ## [Release Actividad Obligatoria N°2] - 2026-09-28
 
 ### Added
