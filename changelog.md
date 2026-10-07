@@ -4,7 +4,7 @@
 
 ### Added
 - [feature/dev-frontend-bootstrap-update-migration] feat(frontend): migración de index.html a Bootstrap v5.3 PR: [#52](https://github.com/carolabenvenuto-uces/planit/pull/52) | Issue: [#51](https://github.com/carolabenvenuto-uces/planit/issues/51) - @ValeriaMSilva (Desarrollador Frontend / Bootstrap)
-- [feature/dev-comp-bootstrap-modal-toast] feat(components): Modal de ficha técnica y Toast de confirmación (Bootstrap 5.3) PR: [#54](https://github.com/carolabenvenuto-uces/planit/pull/54) | Issue: [#53](https://github.com/carolabenvenuto-uces/planit/issues/53) - @ValeriaMSilva (Especialista en Componentes Bootstrap)
+
 
 ### Fixed
 - [feature/dev-frontend-bootstrap-update-migration] fix(header): resolver conflicto de especificidad en .site-header nav a sobre estilos de Bootstrap según la [Issue #59](https://github.com/carolabenvenuto-uces/planit/issues/59) (commit a15ba34) - @ValeriaMSilva (Especialista en Frontend Bootstrap) 
