@@ -87,8 +87,6 @@ body {
 }
 
 .app-layout {
-  display: block;
-  max-width: 1140px;
   padding: var(--spacing-lg) var(--spacing-lg) var(--spacing-2xl);
 }
 
