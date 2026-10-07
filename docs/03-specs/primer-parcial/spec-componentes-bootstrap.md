@@ -1,9 +1,9 @@
 # Especificación Técnica: Componentes Bootstrap v5.3
 
-**Proyecto:** Cockpit Operativo PlanIT — Primer Parcial  
-**Rol:** Especialista en Componentes Bootstrap  
-**Rama:** `feature/dev-comp-bootstrap-modal-toast`  
-**Ubicación:** `docs/03-specs/primer-parcial/spec-componentes-bootstrap.md`
+**Proyecto:** Cockpit Operativo PlanIT — Primer Parcial 
+**Rol:** Especialista en Componentes Bootstrap
+**Rama:** `feature/dev-comp-bootstrap-modal-toast`
+**Nota sobre nomenclatura de la rama:** Para este grupo de 3 integrantes, el desarrollo de la tarea asignada al rol de Especialista en Componentes Bootstrap se trabajó directamente sobre la rama `feature/dev-comp-bootstrap-modal-toast` (en lugar del nombre genérico `feature/esp-componentes-bootstrap-add-components`). No se renombró posteriormente para preservar la trazabilidad del historial de commits, las referencias cruzadas en el repositorio y la vinculación activa con la PR #54 y la Issue #53.
 
 ## 1. Objetivo y Alcance
 
