@@ -57,7 +57,7 @@ Las imágenes con viewports exactos se encuentran guardadas en `docs/04-testing/
 
 ## Issues / Hallazgos Relacionados (PR #52)
 
-Los siguientes hallazgos de la revisión de la migración fueron registrados y corregidos para esta PR:
+Los siguientes hallazgos de la revisión de la migración fueron registrados como issues bug; #59 a #62 se corrigieron en esta PR y #63 queda pendiente para una rama fix/:
 
 - **[#59](https://github.com/carolabenvenuto-uces/planit/issues/59)** — [CSS/Header] Conflicto de especificidad en .site-header nav a sobreescribe estilos de Bootstrap (Corregido en commit `a15ba34`). 
 - **[#60](https://github.com/carolabenvenuto-uces/planit/issues/60)** — [CSS/Grid] Colapso erróneo 2+1 en el catálogo por interacción con gap legacy (Corregido en commit `9ed63d9`).
