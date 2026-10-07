@@ -1,6 +1,6 @@
 # Índice de Testing — Actividad Obligatoria N°2
 
-Este archivo centraliza el estado de los 6 test cases ejecutados sobre
+Este archivo centraliza el estado de los 8 test cases ejecutados sobre
 PlanIT, cubriendo compatibilidad, responsive, performance, accesibilidad
 y estructura HTML semántica.
 
@@ -14,6 +14,8 @@ y estructura HTML semántica.
 | 4 | [test-case-4.md](test-case-4.md) | Accesibilidad web | ✅ Sin violaciones |
 | 5 | [test-case-5.md](test-case-5.md) | Estructura HTML semántica y CSS | ✅ 1 de 2 avisos de #29 corregido |
 | 6 | [test-case-6.md](test-case-6.md) | Migración y validación responsive Bootstrap 5.3 | ✅ Sin overflow; hallazgos de UI documentados en #51 |
+| 7 | [test-case-7.md](test-case-7.md) | Modal Bootstrap: contenido, accesibilidad e interacción | ✅ PASS en 3 dispositivos; capturas enlazadas |
+| 8 | [test-case-8.md](test-case-8.md) | Toast Bootstrap: mensaje exacto, responsive y auto-hide | ✅ PASS en 3 dispositivos; capturas enlazadas |
 
 ## Historial de ejecuciones
 

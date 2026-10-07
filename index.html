@@ -391,7 +391,8 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
     <script>
         const modalDetalle = document.getElementById('modalDetalleServicio');
-        const toastConfirmacion = bootstrap.Toast.getOrCreateInstance(document.getElementById('toastConfirmacion'));
+        const toastConfirmacionElement = document.getElementById('toastConfirmacion');
+        const toastConfirmacion = bootstrap.Toast.getOrCreateInstance(toastConfirmacionElement);
         const toastConfirmacionMensaje = document.getElementById('toastConfirmacionMensaje');
         const modalSumarEvento = modalDetalle.querySelector('.btn-sumar-evento');
 
@@ -415,8 +416,8 @@
             button.addEventListener('click', () => {
                 const title = button.dataset.serviceTitle;
                 const price = button.dataset.servicePrice;
-                toastConfirmacion.dataset.serviceTitle = title;
-                toastConfirmacion.dataset.servicePrice = price;
+                toastConfirmacionElement.dataset.serviceTitle = title;
+                toastConfirmacionElement.dataset.servicePrice = price;
                 toastConfirmacionMensaje.textContent = 'Experiencia agregada a tu evento';
                 toastConfirmacion.show();
             });
