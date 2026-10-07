@@ -1,4 +1,3 @@
-
 # Test Case 6 (TC6) — Migración y Validación Responsive Bootstrap 5.3
 
 ## Objetivo
@@ -40,8 +39,8 @@ En todos los casos `scrollWidth` coincide con `clientWidth` de forma genuina sin
 
 ### Medidas adicionales observadas (Commit HEAD)
 
-* **iPhone 14 Pro:** contenido principal y lateral de 361 px (100%); tarjetas de catálogo de 361 px (1 columna).
-* **Samsung Galaxy S23:** contenido principal y lateral de 328 px (100%); tarjetas de catálogo de 328 px (1 columna).
+* **iPhone 14 Pro:** contenido principal `main` de 393 px (100%); tarjetas de catálogo de 335 px (1 columna).
+* **Samsung Galaxy S23:** contenido principal `main` de 360 px (100%); tarjetas de catálogo de 302 px (1 columna).
 * **iPad Air:** contenido principal `.container` limitado a 696 px; tarjetas de catálogo de 202 px, tres por fila según `col-md-4`.
 
 ## Capturas de Evidencia
@@ -64,12 +63,9 @@ Los siguientes hallazgos de la revisión de la migración fueron registrados y c
 * [#60](https://www.google.com/url?sa=E&amp;q=https%3A%2F%2Fgithub.com%2Fcarolabenvenuto-uces%2Fplanit%2Fissues%2F60) — [CSS/Grid] Colapso erróneo 2+1 en el catálogo por interacción con `gap` legacy (Corregido en commit `9ed63d9`).
 * [#61](https://www.google.com/url?sa=E&amp;q=https%3A%2F%2Fgithub.com%2Fcarolabenvenuto-uces%2Fplanit%2Fissues%2F61) — [HTML/Grid] Mezcla de clases `.card` y `.col-*` en el mismo elemento HTML (Corregido en commit `edb4ec5`).
 * [#62](https://www.google.com/url?sa=E&amp;q=https%3A%2F%2Fgithub.com%2Fcarolabenvenuto-uces%2Fplanit%2Fissues%2F62) — [CSS/Reboot] Falta de neutralización de paddings y márgenes en `.task-list` y `.resumen-lista` (Corregido en commit `3c97df9`).
-* [#63](https://www.google.com/url?sa=E&amp;q=https%3A%2F%2Fgithub.com%2Fcarolabenvenuto-uces%2Fplanit%2Fissues%2F63) — [CSS/Responsive] Desfase en los breakpoints de media queries en `responsive.css`.
+* [#63](https://www.google.com/url?sa=E&amp;q=https%3A%2F%2Fgithub.com%2Fcarolabenvenuto-uces%2Fplanit%2Fissues%2F63) — [CSS/Responsive] Desfase en los breakpoints de media queries en `responsive.css` (Pendiente de corrección para la rama `fix/` posterior al merge).
 
 ## Limitaciones
 
 La ejecución MCP se realizó con Chromium, que es el único motor expuesto por el servidor disponible. Los nombres de dispositivos representan sus resoluciones CSS; no se ejecutó un motor WebKit o una emulación específica de Safari.
 
-```
-
-```
