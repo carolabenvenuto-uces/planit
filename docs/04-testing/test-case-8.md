@@ -41,9 +41,8 @@ Usando Playwright MCP con el servidor local en http://localhost:3000/index.html,
 
 Las capturas correspondientes a la ejecución se encuentran almacenadas en `docs/04-testing/capturas/tc-8/`:
 
-* `tc8-iphone14pro-toast.png` (393 × 852 px)
-* `tc8-galaxys23-toast.png` (360 × 780 px)
-* `tc8-ipadair-toast.png` (820 × 1180 px)
+* **[Toast — iPhone 14 Pro](capturas/tc-8/tc8-toast-iphone-14-pro.png)** (393 × 852 px)
+* **[Toast — Samsung Galaxy S23](capturas/tc-8/tc8-toast-samsung-galaxy-s23.png)** (360 × 780 px) * **[Toast — iPad Air](capturas/tc-8/tc8-toast-ipad-air.png)** (820 × 1180 px)
 
 ## Conclusión
 
