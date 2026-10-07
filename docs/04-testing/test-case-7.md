@@ -39,10 +39,9 @@ Usando Playwright MCP con el servidor local en http://localhost:3000/index.html,
 ## Capturas de Evidencia
 
 Las capturas correspondientes a la ejecución se encuentran almacenadas en `docs/04-testing/capturas/tc-7/`:
-
-* `tc7-iphone14pro-modal.png` (393 × 852 px)
-* `tc7-galaxys23-modal.png` (360 × 780 px)
-* `tc7-ipadair-modal.png` (820 × 1180 px)
+ * **[Modal — iPhone 14 Pro](capturas/tc-7/tc7-modal-iphone-14-pro.png)** (393 × 852 px)
+ * **[Modal — Samsung Galaxy S23](capturas/tc-7/tc7-modal-samsung-galaxy-s23.png)** (360 × 780 px) 
+ * **[Modal — iPad Air](capturas/tc-7/tc7-modal-ipad-air.png)** (820 × 1180 px)
 
 ## Conclusión
 
