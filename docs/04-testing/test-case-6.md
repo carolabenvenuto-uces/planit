@@ -15,7 +15,7 @@ Verificar que `index.html` no genere desplazamiento horizontal (overflow horizon
 
 ### Prompt utilizado
 
-Usando Playwright MCP con el servidor local en `http://localhost:3000/index.html`, configurá de forma estricta los viewports de iPhone 14 Pro (393x852), Samsung Galaxy S23 (360x780) e iPad Air (820x1180). Para cada viewport medí `clientWidth` y `scrollWidth` de `html` y `body` para detectar overflow horizontal, verificá el ancho del elemento `main` y de las tarjetas del catálogo, y comprobá que la navbar colapsada inicie cerrada y pueda abrirse con el botón toggler.
+Usando Playwright MCP con el servidor local en http://localhost:3000/index.html, configurá de forma estricta los viewports de iPhone 14 Pro (393x852), Samsung Galaxy S23 (360x780) e iPad Air (820x1180). Para cada viewport medí clientWidth y scrollWidth de html y body para detectar overflow horizontal, verificá el ancho del elemento main y de las tarjetas del catálogo, y comprobá que la navbar colapsada inicie cerrada y pueda abrirse con el botón toggler.
 
 ## Resultados
 
