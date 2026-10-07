@@ -50,10 +50,10 @@ Las capturas correspondientes a la ejecución se encuentran almacenadas en `docs
 
 ## Issues / Hallazgos Relacionados
 
-* [#55](https://www.google.com/url?sa=E&amp;q=https%3A%2F%2Fgithub.com%2Fcarolabenvenuto-uces%2Fplanit%2Fissues%2F55) — [Componentes/Modal] Foco no capturado al abrir modal de ficha técnica (Corregido y verificado en commit `93d2192`).
-* [#56](https://www.google.com/url?sa=E&amp;q=https%3A%2F%2Fgithub.com%2Fcarolabenvenuto-uces%2Fplanit%2Fissues%2F56) — [Componentes/Modal] Atributo `aria-modal` ausente en el contenedor (Corregido y verificado en commit `6631763`).
-* [#57](https://www.google.com/url?sa=E&amp;q=https%3A%2F%2Fgithub.com%2Fcarolabenvenuto-uces%2Fplanit%2Fissues%2F57) — [CSS/Modal] Desbordamiento de texto en pantallas pequeñas (Corregido).
-* [#58](https://www.google.com/url?sa=E&amp;q=https%3A%2F%2Fgithub.com%2Fcarolabenvenuto-uces%2Fplanit%2Fissues%2F58) — [JS/Modal] Pérdida de foco al cerrar con tecla ESC (Corregido).
+-**[#55](https://github.com/carolabenvenuto-uces/planit/issues/55)**— [Componentes/Modal] Atributo `src=""` vacío en el modal de ficha técnica (Corregido y verificado). 
+-**[#56](https://github.com/carolabenvenuto-uces/planit/issues/56)**— [Componentes/Modal] Formato y estructura de la lista de detalles del producto (Corregido y verificado). 
+-**[#57](https://github.com/carolabenvenuto-uces/planit/issues/57)**— [Componentes/Modal] Ajuste del botón "Cerrar" a variante outline (Corregido y verificado en commit `e6b9d49`). 
+-**[#58](https://github.com/carolabenvenuto-uces/planit/issues/58)** — [Componentes/Toast] Corrección del texto descriptivo del toast (Corregido y verificado en commit `bcef92d`).
 
 ## Limitaciones
 
