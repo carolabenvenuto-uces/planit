@@ -73,6 +73,11 @@ transición de Bootstrap antes de comprobar el estado y el foco:
 - [Modal — Samsung Galaxy S23](capturas/tc-7/tc7-modal-samsung-galaxy-s23.png)
 - [Modal — iPad Air](capturas/tc-7/tc7-modal-ipad-air.png)
 
-## Issues
+## Issues / Hallazgos
 
-- No se generaron issues nuevos para el Modal; las interacciones y el retorno de foco resultaron **✅ PASS**.
+Los siguientes bugs fueron registrados durante la revisión del Modal y quedaron
+resueltos mediante commits de la [PR #54](https://github.com/carolabenvenuto-uces/planit/pull/54):
+
+- **[Bug #55 — Atributo `src=""` vacío en la imagen del Modal](https://github.com/carolabenvenuto-uces/planit/issues/55):** el atributo vacío incumplía la validación W3C y podía provocar una solicitud HTTP innecesaria. **Estado: ✅ Resuelto/Cerrado** mediante [`93d2192`](https://github.com/carolabenvenuto-uces/planit/commit/93d2192cfd40f0689d00e9e2dd98d09adb8d110f), que lo removió del HTML y mantuvo la carga dinámica.
+- **[Bug #56 — Falta de lista estructurada de detalles](https://github.com/carolabenvenuto-uces/planit/issues/56):** el Modal no mostraba inicialmente Capacidad, Duración, Incluye ni el badge de Proveedor verificado. **Estado: ✅ Resuelto/Cerrado** mediante [`6631763`](https://github.com/carolabenvenuto-uces/planit/commit/66317631df7a5665d2de08daf17e60b7f08a01ac), que incorporó los detalles dinámicos del servicio.
+- **[Bug #57 — Botón de cierre sin variante outline](https://github.com/carolabenvenuto-uces/planit/issues/57):** el botón `Cerrar` no utilizaba `btn-outline-secondary` como establecía la guía visual. **Estado: ✅ Resuelto/Cerrado** mediante [`3aefbe1`](https://github.com/carolabenvenuto-uces/planit/commit/3aefbe1f0af5a1c075d44e72544bc0ce10c085b3), que completó los ajustes del Modal y la evidencia de TC7.
