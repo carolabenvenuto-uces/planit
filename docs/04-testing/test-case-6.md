@@ -1,4 +1,4 @@
-# Test Case 6 — Overflow horizontal en dispositivos móviles y tablet
+# Test Case 6 (TC6) — Migración y Validación Responsive Bootstrap 5.3
 
 ## Objetivo
 
@@ -50,8 +50,23 @@ La diferencia de 15 px entre el viewport nominal y el ancho útil corresponde a 
 
 **Resultado: ✅ PASS.** No se detectó overflow horizontal en ninguno de los tres dispositivos. La navegación colapsable de Bootstrap funcionó correctamente y la grilla del catálogo se adaptó sin desbordamientos.
 
+## Issues / Hallazgos Relacionados
+
+Los siguientes hallazgos de la revisión de la migración fueron registrados
+bajo el [Issue #51](https://github.com/carolabenvenuto-uces/planit/issues/51)
+y sus correcciones quedaron integradas en la [PR #54](https://github.com/carolabenvenuto-uces/planit/pull/54):
+
+- **Especificidad del header/nav:** `.site-header nav a` imponía tamaño,
+  color y padding incorrectos sobre el logo y la acción `Nuevo Evento`.
+- **Grilla del catálogo 2+1:** `gap` y `grid-template-columns` en
+  `.cards-grid` competían con `row` y `col-md-4` de Bootstrap.
+- **Padding del gutter en tarjetas:** mezclar `.card` y `.col-*` en el
+  mismo elemento desplazaba la imagen dentro del borde de la tarjeta.
+- **Reboot en listas:** Bootstrap agregaba padding y margen no deseados a
+  `.task-list` y `.resumen-lista`.
+
 ## Limitaciones
 
 La ejecución MCP se realizó con Chromium, que es el único motor expuesto por el servidor disponible. Los nombres de dispositivos representan sus resoluciones CSS; no se ejecutó un motor WebKit o una emulación específica de Safari.
 
-- **Issues generados:** Ninguno.
+- **Issues relacionados:** [#51](https://github.com/carolabenvenuto-uces/planit/issues/51)

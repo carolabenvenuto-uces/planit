@@ -2,7 +2,7 @@
 
 ## [Unreleased]
 
-- [feature/dev-frontend-bootstrap-update-migration] feat(frontend): migración a Bootstrap v5.3, overrides CSS, spec y test case 6 PR: [Pendiente] | Issue: [#51](https://github.com/carolabenvenuto-uces/planit/issues/51) - @ValeriaMSilva (Desarrollador Frontend)
+- [feature/dev-frontend-bootstrap-update-migration] feat(frontend): migración a Bootstrap v5.3, overrides CSS, spec y test case 6; correcciones de UI para header, catálogo, tarjetas y listas PR: [#54](https://github.com/carolabenvenuto-uces/planit/pull/54) | Issue: [#51](https://github.com/carolabenvenuto-uces/planit/issues/51) - @ValeriaMSilva (Desarrollador Frontend)
 
 ## [Release Actividad Obligatoria N°2] - 2026-09-28
 
