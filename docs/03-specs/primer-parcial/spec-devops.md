@@ -59,14 +59,14 @@ Por tratarse de un grupo de 3 integrantes, el Desarrollador Frontend/Bootstrap a
 **Orden de integración planificado en `develop`:** (1) Coordinador / DevOps (mockup y README), (2) Frontend/Bootstrap, (3) Componentes Bootstrap, (4) Componentes HTML Avanzados, (5) ramas `fix/` de los hallazgos de testing.
 
 ### 5. Criterios de Aceptación (Checklist)
-- [ ] `spec-devops.md` creado y commiteado en `docs/03-specs/primer-parcial/` antes de cualquier otro cambio.
+- [x] `spec-devops.md` creado y commiteado en `docs/03-specs/primer-parcial/` antes de cualquier otro cambio.
 - [x] Request Changes de la Actividad N°2 resueltos mediante ramas `fix/` con PR y entrada `[Fixed]` en `changelog.md`.
 - [x] Backport de `release/actividad-obligatoria-2` → `develop` realizado post-merge (PR #46).
-- [ ] Mockup de Figma actualizado con la grilla de Bootstrap y los componentes avanzados elegidos.
-- [ ] Imagen exportada en `docs/01-mockup/disenio-bootstrap.png`.
-- [ ] Enlace al archivo de Figma actualizado en `README.md`.
-- [ ] Tablero Kanban en GitHub Projects con todas las issues del equipo.
-- [ ] Al menos 4 Code Reviews asistidos con Copilot Agent Mode, con Request Changes en las líneas del diff.
+- [x] Mockup de Figma actualizado con la grilla de Bootstrap y los componentes avanzados elegidos.
+- [x] Imagen exportada en `docs/01-mockup/disenio-bootstrap.png`.
+- [x] Enlace al archivo de Figma actualizado en `README.md`.
+- [x] Tablero Kanban en GitHub Projects con todas las issues del equipo.
+- [x] Al menos 4 Code Reviews asistidos con IA, con Request Changes en las líneas del diff (realizados con Claude Code; ver Momento 2).
 - [ ] Todas las PRs con al menos una revisión aprobada antes del merge.
 - [ ] `changelog.md` actualizado con las contribuciones de todo el equipo.
 - [ ] Rama `release/primer-parcial` creada desde `develop` una vez integradas todas las features.
@@ -78,13 +78,126 @@ Por tratarse de un grupo de 3 integrantes, el Desarrollador Frontend/Bootstrap a
 ---
 
 ## MOMENTO 2: Evidencia de Cierre (AL FINALIZAR)
-*(Esta sección se completará al cerrar la tarea).*
 
-### Prompts de Code Review utilizados en Copilot Agent Mode
-*(Pendiente).*
+### 1. Code Reviews asistidos con IA
 
-### Decisiones del Mockup (componentes Bootstrap incluidos y por qué)
-*(Pendiente).*
+Las revisiones se hicieron con **Claude Code** como asistente de IA, en lugar de Copilot Agent Mode. El asistente leyó cada PR (commits, diff, issues y archivos de la rama) con la CLI de GitHub, la comparó contra la consigna y el mockup, y renderizó la rama con Playwright en los anchos de los dispositivos obligatorios. Los Request Changes se cargaron en las líneas del diff desde la cuenta del Coordinador.
 
-### Obstáculos Encontrados y Resolución
-*(Pendiente).*
+| # | PR | Rol revisado | Fecha | Veredicto | Comentarios en el diff | Enlace |
+| --- | --- | --- | --- | --- | --- | --- |
+| 1 | #52 | Desarrollador Frontend/Bootstrap | 06/10/2026 | 🔁 Request changes | 14 | [Review 1](https://github.com/carolabenvenuto-uces/planit/pull/52#pullrequestreview-5435056491) |
+| 2 | #54 | Especialista en Componentes Bootstrap | 06/10/2026 | 🔁 Request changes | 20 | [Review 1](https://github.com/carolabenvenuto-uces/planit/pull/54#pullrequestreview-5435107603) |
+| 3 | #52 | Desarrollador Frontend/Bootstrap (segunda ronda) | 06/10/2026 | 🔁 Request changes | 9 | [Review 2](https://github.com/carolabenvenuto-uces/planit/pull/52#pullrequestreview-5436774359) |
+| 4 | #54 | Especialista en Componentes Bootstrap (segunda ronda) | 06/10/2026 | 🔁 Request changes | 9 | [Review 2](https://github.com/carolabenvenuto-uces/planit/pull/54#pullrequestreview-5436797395) |
+| 5 | #48 | Desarrollador de Componentes HTML Avanzados | *(pendiente)* | — | — | — |
+
+Cada review clasifica los hallazgos en 🔴 **Bloqueantes** (impiden aprobar o hacen perder puntos de la rúbrica), 🟡 **A mejorar** y 🔵 **Detalles**, e incluye la evidencia (archivo, línea o commit) y una sugerencia de corrección.
+
+#### Prompts de la primera ronda (reviews 1 y 2)
+
+La primera ronda usó un prompt detallado por rol, armado sobre la rúbrica de la consigna (adjunta al chat) y las decisiones de diseño del equipo. Los dos prompts comparten esta estructura:
+
+1. **Rol del asistente:** revisor técnico. Lee la PR con GitHub (descripción, commits con fecha y orden, diff completo, issues vinculadas y archivos de la rama), no modifica código y pide lo que no puede ver en lugar de suponerlo.
+2. **Contexto del proyecto:**
+   - mockup de Figma y grilla acordada: `col-lg-8` + `col-lg-4`, catálogo `col-12` / `col-md-4`, navbar colapsable debajo de 992 px;
+   - mapeo de tokens a variables `--bs-*`;
+   - componentes acordados (Modal y Toast);
+   - dispositivos obligatorios y `http://localhost:3000`.
+3. **Checklist por ítem de la rúbrica del rol:**
+   - spec commiteado antes que el código (verificado por el orden de los commits);
+   - Momento 1 y 2 completos;
+   - instalación o implementación;
+   - overrides;
+   - responsive y accesibilidad;
+   - test cases con prompt, capturas e issues;
+   - issues bug y ramas `fix/`;
+   - nombre de rama, template de PR y changelog.
+4. **Formato de salida:**
+   - resumen y veredicto;
+   - tabla de rúbrica con estado y evidencia;
+   - hallazgos 🔴/🟡/🔵;
+   - comentarios listos para pegar en el diff (`archivo — línea — comentario`);
+   - lo que no se pudo verificar.
+
+<details>
+<summary>Fragmento del prompt de la PR #52 (Frontend/Bootstrap)</summary>
+
+```text
+Actuá como revisor técnico (code reviewer) de una Pull Request de un trabajo práctico universitario de Programación Web I. Adjunto la consigna completa del "Primer Parcial" (PDF). Tu tarea es revisar la PR contra la consigna, la rúbrica de puntaje y las decisiones de diseño del equipo que detallo abajo. NO modifiques código ni hagas push: solo analizá y redactá la revisión.
+
+- PR #52: feature/dev-frontend-bootstrap-update-migration → develop. Autora: @ValeriaMSilva. Issues relacionadas: #51 y #53.
+- Rol evaluado: Desarrollador Frontend/Bootstrap (sección 3.1.2 de la consigna, máx. 2,5 puntos). Esta PR debe contener SOLO la migración a Bootstrap (instalación, grilla, overrides y test-case-6), no el Modal ni el Toast.
+- Verificá: A. spec-frontend-bootstrap.md (0,3) · B. Uso de Figma MCP (0,3) · C. Implementación Bootstrap (1,0): instalación, sistema de columnas, bootstrap-overrides.css y coherencia visual · D. Responsive y accesibilidad · E. Coordinación y QA (0,6): test-case-6, issues bug, ramas fix/ · F. Rama, PR y changelog (0,3).
+- Formato: resumen y veredicto · tabla de rúbrica · hallazgos 🔴 Bloqueantes / 🟡 A mejorar / 🔵 Detalles · comentarios listos para el diff · lo que no pudiste verificar. No inventes hallazgos.
+```
+</details>
+
+<details>
+<summary>Fragmento del prompt de la PR #54 (Componentes Bootstrap)</summary>
+
+```text
+Actuá como revisor técnico (code reviewer) de una Pull Request de un trabajo práctico universitario de Programación Web I. Adjunto la consigna completa del "Primer Parcial" (PDF). [...] NO modifiques código ni hagas push.
+
+- PR #54: feature/dev-comp-bootstrap-modal-toast → develop. Autora: @ValeriaMSilva. Compará también contra la PR #52 para detectar si arrastra commits de la migración.
+- Rol evaluado: Especialista en Componentes Bootstrap (sección 3.1.3, máx. 2,5 puntos). Componentes acordados: MODAL "Ficha técnica" del catálogo y TOAST "Experiencia agregada a tu evento". El FAQ con Accordion se descartó porque pertenece al rol de Componentes HTML.
+- Verificá: A. spec-componentes-bootstrap.md (0,3) · B. Implementación (0,7): Modal, Toast, overrides en bootstrap-overrides.css · C. Testing con Playwright MCP (1,1): test-case-7 y test-case-8, issues bug, ramas fix/ · D. Rama, PR y changelog (0,4), incluido el prefijo de rol del nombre de la rama.
+- Formato: el mismo que en la PR #52.
+```
+</details>
+
+#### Prompt de la segunda ronda (reviews 3 y 4)
+
+```text
+Valeria dice que ya corrigió los request changes que le hice en ambas PR.
+Chequeemos una, hagamos el segundo comentario si es necesario con los
+request changes en las líneas del diff, y luego vamos con la otra.
+```
+
+En esta ronda el asistente:
+- comparó los comentarios de la primera review con los commits nuevos;
+- renderizó cada rama con Playwright a 360, 393, 820, 992 y 1440 px;
+- probó el modal y el toast: apertura, Esc, retorno de foco, texto exacto y errores de consola;
+- detectó que la PR #54 borraba la entrada de la #52 en el changelog al integrarla;
+- publicó la segunda Request changes solo con lo pendiente, reconociendo lo ya corregido.
+
+### 2. Decisiones del Mockup
+
+Página de Figma "Primer Parcial - Bootstrap": [enlace](https://www.figma.com/design/iUmUArxu59WUYlBl2zR3xq/Wireframe?node-id=2078-2) · Export: [`disenio-bootstrap.png`](../../01-mockup/disenio-bootstrap.png).
+
+**Grilla:**
+- Tres frames con la guía de 12 columnas y gutter de 24 px (`--bs-gutter-x: 1.5rem`):
+  - **Desktop (1440 px):** márgenes de 60 px, que equivalen al `.container` de 1320 px en xxl.
+  - **Tablet (768 px):** márgenes de 24 px, `.container` de 720 px.
+  - **Mobile (393 px):** márgenes de 12 px, el ancho del iPhone 14 Pro, que es dispositivo obligatorio de testing.
+- **Desktop:** el contenido se reorganizó en `.col-lg-8` (Mi Evento, Presupuesto, Invitados, Catálogo, Video y FAQ) y `.col-lg-4` (Resumen financiero, Tareas y Alerta). En la AO2 ocupaba un bloque angosto de unos 770 px que no coincidía con ninguna columna.
+- **Tablet y mobile:** las dos columnas se apilan. El catálogo pasa de `col-md-4` (3 por fila) a `col-12` (1 por fila).
+
+**Componentes:**
+- **Navbar colapsable (`.navbar-expand-lg` + `.navbar-toggler` ☰):** al llevar el header a 720 px, el logo, los 4 links, la campana, el avatar y "Nuevo Evento" no entraban. Por eso debajo de 992 px el menú se colapsa, y en mobile "Nuevo Evento" pasa adentro del menú.
+- **Modal (`.modal .modal-lg`) — Ficha técnica:** muestra el detalle de cada servicio del catálogo (imagen, precio, capacidad, duración, qué incluye y proveedor) sin salir del dashboard. "Sumar al Evento" queda disponible en el pie. Se dibujó como superposición en los frames "Desktop / Mobile - Modal y Toast".
+- **Toast (`.toast`):** da una confirmación que no bloquea la pantalla al presionar "Sumar al Evento", con nombre y precio del servicio. Se ubica abajo a la derecha (`.toast-container .bottom-0 .end-0`). Complementa al modal sin interrumpir el flujo.
+- **Componentes HTML (rol de Carola):** se ubicaron en la columna ancha, debajo del Catálogo, porque así el iframe aprovecha el ratio 16:9:
+  - `<iframe>` con `.ratio .ratio-16x9` ("Taller en Acción: Cerámica & Chardonnay");
+  - `<details>/<summary>` con 4 preguntas frecuentes.
+- **Accordion descartado:** la primera propuesta del rol de Componentes Bootstrap era usarlo para el FAQ, lo que habría duplicado el componente `details/summary` de Carola y superpuesto los dos roles.
+
+**Guía de estilos - Bootstrap** (frame propio en Figma):
+- Mapeo de los design tokens de `styles.css` a variables de Bootstrap (`--bs-primary` #4F46E5, `--bs-success`, `--bs-warning`, `--bs-danger`, sus `*-bg-subtle`, `--bs-body-bg`, `--bs-border-color`, entre otras).
+- Tipografía Inter con su escala.
+- Estados de interacción: botón normal, hover, active, focus con anillo de 0.25rem, disabled y outline; inputs con foco; badges.
+- Tabla de breakpoints.
+
+Es la referencia para `css/bootstrap-overrides.css`.
+
+### 3. Obstáculos Encontrados y Resolución
+
+| Obstáculo | Resolución |
+| --- | --- |
+| La rama `feature/coord-devops-update-figma-and-readme` existía desde la AO1 (0 commits propios y 94 de atraso respecto de `develop`). | Se eliminó y se volvió a crear desde `develop` actualizado, para que el spec fuera el primer commit. |
+| Acceso de solo lectura al archivo de Figma (no permitía crear páginas). | Se solicitó permiso de edición a la propietaria, que lo aprobó, y el mockup siguió en el mismo archivo de las entregas anteriores. |
+| El tablero Kanban creado en la cuenta del Coordinador no se podía vincular al repositorio (GitHub solo vincula proyectos del mismo propietario). | La dueña del repositorio creó el proyecto y otorgó rol Admin al Coordinador. Se activaron los workflows *Auto-add* e *Item closed* y se eliminó el tablero duplicado. |
+| En Figma, al pasar el diseño a 768 y 393 px, el contenido se cortaba: el auto layout conservaba anchos fijos de desktop y el header tenía padding horizontal. | Se ajustaron los anchos de `planit-dashboard`, `dashboard-body`, `header-container` y `footer-container` en cada frame, las columnas pasaron a "Llenar contenedor" y el flujo de las filas a vertical. |
+| Los componentes importados como SVG entraban escalados (1108 px en lugar de 872). | Se reescalaron con la herramienta Escala (K) al ancho de cada columna (872, 720 y 369 px). |
+| El link del video propuesto para el iframe (`dQw4w9WgXcQ`) era el videoclip "Never Gonna Give You Up" y no un taller de cerámica. | Se avisó al rol de Componentes HTML para reemplazarlo por un video pertinente antes de implementar. |
+| Superposición de roles: Accordion de Bootstrap para el mismo FAQ de `details/summary`. | Se acordó reemplazarlo por un Toast de confirmación, que complementa al Modal. |
+| La PR #54 instalaba Bootstrap de nuevo, igual que la #52, y luego, al integrar la #52, borró su entrada del changelog. | Se pidió integrar la #52 en la rama de la #54 (una sola carga de Bootstrap) y conservar ambas entradas del changelog. Orden de merge: #50 → #52 → #54 → #48. |
