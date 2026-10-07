@@ -173,11 +173,11 @@ body {
    6. MODAL & TOAST CUSTOMIZATION
    -------------------------------------------------------------------------- */
 .modal {
-  --bs-modal-border-radius: 10px;
-  --bs-modal-border-color: #e5e7eb;
-  --bs-modal-header-border-color: #e5e7eb;
-  --bs-modal-footer-border-color: #e5e7eb;
-  font-family: 'Inter', sans-serif;
+  --bs-modal-border-radius: var(--radius-md);
+  --bs-modal-border-color: var(--color-border);
+  --bs-modal-header-border-color: var(--color-border);
+  --bs-modal-footer-border-color: var(--color-border);
+  font-family: var(--font-base);
 }
 
 @media (max-width: 575.98px) {
@@ -187,7 +187,7 @@ body {
 }
 
 .toast {
-  --bs-toast-border-radius: 10px;
-  --bs-toast-border-color: #e5e7eb;
-  --bs-toast-header-color: #4f46e5;
+  --bs-toast-border-radius: var(--radius-sm);
+  --bs-toast-border-color: var(--color-border);
+  --bs-toast-header-color: var(--color-primary);
 }

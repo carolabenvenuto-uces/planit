@@ -63,7 +63,7 @@ PASS/FAIL con evidencia concreta.
 
 ## Issues / Hallazgos relacionados
 
-- **TC7-TOAST-001:** discrepancia previa entre `¡Experiencia agregada a tu evento exitosamente!` y el texto exacto exigido por el spec. Corregido en `index.html` y verificado como **✅ PASS**.
+- **[Issue #58 — Corrección del texto del Toast](https://github.com/carolabenvenuto-uces/planit/issues/58):** discrepancia previa entre `¡Experiencia agregada a tu evento exitosamente!` y el texto exacto exigido por el spec. Corregido en `index.html` y verificado como **✅ PASS**.
 
 ## Conclusión
 

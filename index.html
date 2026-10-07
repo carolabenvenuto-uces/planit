@@ -379,7 +379,7 @@
 
     <!-- Toast de confirmación fijo en la esquina inferior derecha -->
     <div class="toast-container position-fixed bottom-0 end-0 p-3">
-        <div id="toastConfirmacion" class="toast" role="alert" aria-live="assertive" aria-atomic="true" data-bs-delay="4000">
+        <div id="toastConfirmacion" class="toast" role="status" aria-live="polite" aria-atomic="true" data-bs-delay="4000">
             <div class="toast-header">
                 <strong class="me-auto">PlanIT</strong>
                 <small>· ahora</small>
@@ -393,42 +393,7 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
-    <script>
-        const modalDetalle = document.getElementById('modalDetalleServicio');
-        const toastConfirmacionElement = document.getElementById('toastConfirmacion');
-        const toastConfirmacion = bootstrap.Toast.getOrCreateInstance(toastConfirmacionElement);
-        const toastConfirmacionMensaje = document.getElementById('toastConfirmacionMensaje');
-        const toastConfirmacionServicio = document.getElementById('toastConfirmacionServicio');
-        const modalSumarEvento = modalDetalle.querySelector('.btn-sumar-evento');
-
-        modalDetalle.addEventListener('show.bs.modal', (event) => {
-            const trigger = event.relatedTarget;
-            if (!trigger) return;
-
-            document.getElementById('modalDetalleServicioTitulo').textContent = trigger.dataset.serviceTitle;
-            document.getElementById('modalDetalleServicioImagen').src = trigger.dataset.serviceImage;
-            document.getElementById('modalDetalleServicioImagen').alt = trigger.dataset.serviceAlt;
-            document.getElementById('modalDetalleServicioDescripcion').textContent = trigger.dataset.serviceDescription;
-            document.getElementById('modalDetalleServicioCapacidad').textContent = trigger.dataset.serviceCapacidad;
-            document.getElementById('modalDetalleServicioDuracion').textContent = trigger.dataset.serviceDuracion;
-            document.getElementById('modalDetalleServicioIncluye').textContent = trigger.dataset.serviceIncluye;
-            document.getElementById('modalDetalleServicioPrecio').textContent = trigger.dataset.servicePrice;
-            modalSumarEvento.dataset.serviceTitle = trigger.dataset.serviceTitle;
-            modalSumarEvento.dataset.servicePrice = trigger.dataset.servicePrice;
-        });
-
-        document.querySelectorAll('.btn-sumar-evento').forEach((button) => {
-            button.addEventListener('click', () => {
-                const title = button.dataset.serviceTitle;
-                const price = button.dataset.servicePrice;
-                toastConfirmacionElement.dataset.serviceTitle = title;
-                toastConfirmacionElement.dataset.servicePrice = price;
-                toastConfirmacionServicio.textContent = `${title} · ${price}`;
-                toastConfirmacionMensaje.textContent = 'Experiencia agregada a tu evento';
-                toastConfirmacion.show();
-            });
-        });
-    </script>
+    <script src="js/componentes-bootstrap.js" defer></script>
 
 </body>
 </html>
