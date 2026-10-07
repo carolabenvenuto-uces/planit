@@ -106,7 +106,21 @@ Planificar la incorporación de los componentes interactivos Modal y Toast de Bo
 - **Prompt de implementación utilizado:**
 
 	```text
-	Usando como referencia el spec recién creado en docs/03-specs/primer-parcial/spec-componentes-bootstrap.md y el archivo index.html, implementá los siguientes 2 componentes de Bootstrap v5.3: Modal para la ficha técnica del servicio y Toast para la notificación de confirmación al presionar Sumar al evento. Verificá que el maquetado no rompa la grilla ni la adaptabilidad responsive realizada en la etapa anterior.
+	Por favor implementá en index.html y en el script de JavaScript correspondiente la funcionalidad del Modal de ficha técnica (#modalDetalleServicio) y el Toast de confirmación (#toastConfirmacion) utilizando Bootstrap v5.3:
+
+	1. Modal de Ficha Técnica:
+	- Estructurar el modal con cabecera, cuerpo y pie.
+	- Incluir en el cuerpo la imagen descriptiva (sin src inicial para cumplir validación W3C), el título, la descripción y la lista de detalles (Capacidad, Duración, Incluye y badge de Proveedor verificado).
+	- Configurar el botón de cierre en variante outline (btn-outline-secondary).
+	- Vincular los disparadores mediante data-attributes en las tarjetas del catálogo para poblar dinámicamente el modal al hacer clic en "Ver detalle".
+
+	2. Toast de Confirmación:
+	- Crear la estructura del toast con la cabecera ("· ahora") y el cuerpo con el mensaje exacto "Experiencia agregada a tu evento" junto al título y precio del servicio.
+	- Vincular los botones "Sumar al Evento" para actualizar el contenido dinámicamente y disparar el toast.
+
+	3. Estilos y Accesibilidad:
+	- Aplicar personalización de variables nativas de Bootstrap en css/bootstrap-overrides.css sin utilizar !important.
+	- Garantizar accesibilidad de teclado, cierre por tecla Escape, clic en backdrop y retorno del foco al disparador.
 	```
 
 - **Prompt de QA utilizado:**
