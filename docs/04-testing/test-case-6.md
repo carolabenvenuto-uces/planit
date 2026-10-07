@@ -59,11 +59,11 @@ Las imágenes con viewports exactos se encuentran guardadas en `docs/04-testing/
 
 Los siguientes hallazgos de la revisión de la migración fueron registrados y corregidos para esta PR:
 
-* [#59](https://www.google.com/url?sa=E&amp;q=https%3A%2F%2Fgithub.com%2Fcarolabenvenuto-uces%2Fplanit%2Fissues%2F59) — [CSS/Header] Conflicto de especificidad en `.site-header nav a` sobreescribe estilos de Bootstrap (Corregido en commit `a15ba34`).
-* [#60](https://www.google.com/url?sa=E&amp;q=https%3A%2F%2Fgithub.com%2Fcarolabenvenuto-uces%2Fplanit%2Fissues%2F60) — [CSS/Grid] Colapso erróneo 2+1 en el catálogo por interacción con `gap` legacy (Corregido en commit `9ed63d9`).
-* [#61](https://www.google.com/url?sa=E&amp;q=https%3A%2F%2Fgithub.com%2Fcarolabenvenuto-uces%2Fplanit%2Fissues%2F61) — [HTML/Grid] Mezcla de clases `.card` y `.col-*` en el mismo elemento HTML (Corregido en commit `edb4ec5`).
-* [#62](https://www.google.com/url?sa=E&amp;q=https%3A%2F%2Fgithub.com%2Fcarolabenvenuto-uces%2Fplanit%2Fissues%2F62) — [CSS/Reboot] Falta de neutralización de paddings y márgenes en `.task-list` y `.resumen-lista` (Corregido en commit `3c97df9`).
-* [#63](https://www.google.com/url?sa=E&amp;q=https%3A%2F%2Fgithub.com%2Fcarolabenvenuto-uces%2Fplanit%2Fissues%2F63) — [CSS/Responsive] Desfase en los breakpoints de media queries en `responsive.css` (Pendiente de corrección para la rama `fix/` posterior al merge).
+-[#59](https://github.com/carolabenvenuto-uces/planit/issues/59) — [CSS/Header] Conflicto de especificidad en .site-header nav a sobreescribe estilos de Bootstrap (Corregido en commit a15ba34). 
+-[#60](https://github.com/carolabenvenuto-uces/planit/issues/60) — [CSS/Grid] Colapso erróneo 2+1 en el catálogo por interacción con gap legacy (Corregido). 
+-[#61](https://github.com/carolabenvenuto-uces/planit/issues/61)— [HTML/Grid] Mezcla de clases .card y .col- en el mismo elemento HTML (Corregido). 
+-[#62](https://github.com/carolabenvenuto-uces/planit/issues/62) — [CSS/Reboot] Falta de neutralización de paddings y márgenes en.task-listy .resumen-lista (Corregido). 
+-[#63](https://github.com/carolabenvenuto-uces/planit/issues/63) — [CSS/Responsive] Desfase en los breakpoints de media queries en responsive.css (Corregido).
 
 ## Limitaciones
 
