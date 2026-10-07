@@ -6,6 +6,12 @@
 - [feature/dev-comp-bootstrap-modal-toast] feat(components): implementación de Modal de ficha técnica y Toast de confirmación PR: [#54](https://github.com/carolabenvenuto-uces/planit/pull/54) | Issue: [#53](https://github.com/carolabenvenuto-uces/planit/issues/53) - @ValeriaMSilva (Especialista en Componentes)
 - [feature/dev-frontend-bootstrap-update-migration] Feature/dev frontend bootstrap update migration PR: [#52](https://github.com/carolabenvenuto-uces/planit/pull/52) | Issue: [#51](https://github.com/carolabenvenuto-uces/planit/issues/51) - @ValeriaMSilva (Desarrollador Frontend)
 
+### Fixed
+- [feature/dev-comp-bootstrap-modal-toast] fix(modal): completar detalles dinámicos de capacidad, duración, incluye y proveedor verificado en la ficha técnica. PR: [#54](https://github.com/carolabenvenuto-uces/planit/pull/54)
+- [feature/dev-comp-bootstrap-modal-toast] fix(toast): agregar `data-*` a las acciones, corregir el texto exacto del Toast y mantener su actualización dinámica. PR: [#54](https://github.com/carolabenvenuto-uces/planit/pull/54)
+- [feature/dev-comp-bootstrap-modal-toast] style(css): personalizar variables nativas de Modal y Toast en `bootstrap-overrides.css`, sin `!important`. PR: [#54](https://github.com/carolabenvenuto-uces/planit/pull/54)
+- [feature/dev-comp-bootstrap-modal-toast] test(testing): separar TC7 y TC8, agregar capturas Playwright e indexar ambos casos. PR: [#54](https://github.com/carolabenvenuto-uces/planit/pull/54)
+
 ## [Release Actividad Obligatoria N°2] - 2026-09-28
 
 ### Added
