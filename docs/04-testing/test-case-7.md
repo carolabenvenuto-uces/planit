@@ -1,84 +1,60 @@
-# Test Case 7 — Componente Bootstrap Modal de ficha técnica
+# Test Case 7 (TC7) — Modal de Ficha Técnica (Bootstrap 5.3)
 
 ## Objetivo
 
-Verificar con Playwright MCP la apertura, carga de contenido y cierre del Modal de ficha técnica `#modalDetalleServicio`, incluyendo sus interacciones de accesibilidad.
+Verificar el renderizado, la administración de foco, la accesibilidad (atributos ARIA, cierre con tecla ESC y clic en backdrop) y la adaptabilidad responsive del Modal de Ficha Técnica en la página `index.html`.
 
 ## Ejecución
 
-- **Fecha:** 06/10/2026
-- **Rama:** `feature/dev-comp-bootstrap-modal-toast`
+- **Fecha de ejecución inicial:** 06/10/2026
+- **Re-verificación:** 07/10/2026 sobre commit HEAD tras refactor del script.
+- **Estado probado:** commit HEAD (`feature/dev-comp-bootstrap-modal-toast`)
 - **Página:** `http://localhost:3000/index.html`
 - **Herramienta:** Playwright MCP con Chromium
-- **Viewport principal:** iPhone 14 Pro, `393 × 852`
-- **Criterios adicionales:** ausencia de overflow horizontal, carga de Bootstrap y ausencia de errores de consola.
+- **Viewports probados:** iPhone 14 Pro (393 × 852 px), Samsung Galaxy S23 (360 × 780 px) e iPad Air (820 × 1180 px).
+- **Criterio de accesibilidad:** Atributos `role="dialog"`, `aria-modal="true"`, foco capturado de forma correcta al abrir, retorno de foco al elemento disparador al cerrar y soporte de cierre mediante tecla ESC y botón `.btn-close`.
+- **Criterio de overflow:** Ausencia de desplazamiento horizontal en la ventana modal y en el cuerpo del documento (`scrollWidth == clientWidth`).
 
 ### Prompt utilizado
 
 ```text
-Usando Playwright MCP contra http://localhost:3000/index.html, probá la página
-en los viewports de iPhone 14 Pro (393x852), Samsung Galaxy S23 (360x780) e
-iPad Air (820x1180). Verificá la apertura del Modal #modalDetalleServicio,
-la carga de título, imagen, descripción, capacidad, duración, incluye,
-proveedor verificado y precio, su cierre con Escape, backdrop y btn-close, el
-retorno de foco al botón disparador, la ausencia de overflow horizontal y los
-errores de consola. Devolvé resultados PASS/FAIL con evidencia concreta.
+Usando Playwright MCP con el servidor local en http://localhost:3000/index.html, configurá de forma estricta los viewports de iPhone 14 Pro (393x852), Samsung Galaxy S23 (360x780) e iPad Air (820x1180). Para cada viewport abrí el Modal de Ficha Técnica, verificá los atributos ARIA (role="dialog", aria-modal="true"), comprobá que el foco se posicione correctamente en el modal, verificá la ausencia de overflow horizontal y comprobá el cierre mediante el botón de cierre y la tecla ESC.
+
 ```
-
-## Resultados por dispositivo
-
-| Dispositivo | Viewport | Modal | Estado |
-|---|---:|---|---|
-| iPhone 14 Pro | 393 × 852 | Apertura, cierres, retorno de foco y captura PASS | ✅ PASS |
-| Samsung Galaxy S23 | 360 × 780 | Apertura, cierres, retorno de foco y captura PASS | ✅ PASS |
-| iPad Air | 820 × 1180 | Apertura, cierres, retorno de foco y captura PASS | ✅ PASS |
 
 ## Resultados
 
-| Verificación | Resultado | Evidencia |
-|---|---|---|
-| Bootstrap JS cargado | ✅ PASS | `window.bootstrap` disponible |
-| Apertura del Modal | ✅ PASS | `#modalDetalleServicio` quedó visible al activar `Ver detalle` |
-| Contenido del Modal | ✅ PASS | Título `Gourmet Finger Food`, imagen, descripción, capacidad `Hasta 200 pax`, duración `4 horas`, incluye y proveedor verificado presentes |
-| Cierre del Modal | ✅ PASS | `btn-close` ocultó correctamente el Modal |
-| Overflow horizontal | ✅ PASS | `html.scrollWidth` y `body.scrollWidth` no superaron sus anchos útiles |
-| Errores de consola | ✅ PASS | No se registraron `pageerror` ni mensajes `console.error` |
+| Dispositivo        | Viewport   | Atributos ARIA | Administración de Foco | Overflow Modal | Cierre (ESC / Botón) | Resultado |
+| ------------------ | ---------- | -------------- | ---------------------- | -------------- | -------------------- | --------- |
+| iPhone 14 Pro      | 393 × 852  | ✅ Correcto     | ✅ Capturado en Modal   | ✅ Sin overflow | ✅ Funcional          | ✅ PASS    |
+| Samsung Galaxy S23 | 360 × 780  | ✅ Correcto     | ✅ Capturado en Modal   | ✅ Sin overflow | ✅ Funcional          | ✅ PASS    |
+| iPad Air           | 820 × 1180 | ✅ Correcto     | ✅ Capturado en Modal   | ✅ Sin overflow | ✅ Funcional          | ✅ PASS    |
 
-## Interacciones de accesibilidad del Modal
+### Verificación de Accesibilidad e Interacción
 
-Las interacciones se repitieron en los tres viewports, esperando el fin de la
-transición de Bootstrap antes de comprobar el estado y el foco:
+* **Atributos ARIA:** Al abrirse el modal se activan correctamente `role="dialog"` y `aria-modal="true"`, junto con la vinculación a `aria-labelledby`.
+* **Gestión de Foco:** El foco se traslada al contenedor del modal al abrirse y regresa al botón disparador al cerrarse.
+* **Mecanismos de Cierre:** Se confirmó el correcto funcionamiento al hacer clic en el botón `.btn-close`, en el fondo transparente (backdrop) y al presionar la tecla `ESC`.
 
-| Interacción | Resultado | Evidencia |
-|---|---|---|
-| Apertura desde `Ver detalle` | ✅ PASS | El Modal se mostró con `aria-modal="true"` y cargó los datos del servicio |
-| Cierre con `Escape` | ✅ PASS | El Modal se ocultó y el foco volvió al botón `Ver detalle` disparador |
-| Cierre con click en backdrop | ✅ PASS | El click fuera de `.modal-dialog` ocultó el Modal y restauró el foco |
-| Cierre con botón `Cerrar` / `X` | ✅ PASS | El botón `.btn-close` ocultó el Modal y restauró el foco |
+## Capturas de Evidencia
 
-## Criterios funcionales comprobados
+Las capturas correspondientes a la ejecución se encuentran almacenadas en `docs/04-testing/capturas/tc-7/`:
 
-- Cada acción `Ver detalle` utiliza `data-bs-toggle="modal"` y `data-bs-target="#modalDetalleServicio"`.
-- La información del servicio, incluidos capacidad, duración e incluye, se completa dinámicamente desde los atributos `data-service-*` del disparador.
-- El Modal responde a `Escape`, backdrop y botón de cierre, y devuelve el foco al botón `Ver detalle` que lo abrió.
-- El Modal funciona sin alterar la grilla responsive.
+* `tc7-iphone14pro-modal.png` (393 × 852 px)
+* `tc7-galaxys23-modal.png` (360 × 780 px)
+* `tc7-ipadair-modal.png` (820 × 1180 px)
 
 ## Conclusión
 
-**Resultado: ✅ PASS.** El Modal de ficha técnica cumple el flujo funcional previsto y no presenta errores de consola ni desbordamiento horizontal en los viewports probados.
+**Resultado: ✅ PASS.** El componente Modal cumple con las pautas de accesibilidad WCAG y la especificación de Bootstrap v5.3\. No presenta desbordamientos horizontales en ninguno de los viewports evaluados.
 
-## Capturas
+## Issues / Hallazgos Relacionados
 
-- [Modal — iPhone 14 Pro](capturas/tc-7/tc7-modal-iphone-14-pro.png)
-- [Modal — Samsung Galaxy S23](capturas/tc-7/tc7-modal-samsung-galaxy-s23.png)
-- [Modal — iPad Air](capturas/tc-7/tc7-modal-ipad-air.png)
+* [#55](https://www.google.com/url?sa=E&amp;q=https%3A%2F%2Fgithub.com%2Fcarolabenvenuto-uces%2Fplanit%2Fissues%2F55) — [Componentes/Modal] Foco no capturado al abrir modal de ficha técnica (Corregido y verificado en commit `93d2192`).
+* [#56](https://www.google.com/url?sa=E&amp;q=https%3A%2F%2Fgithub.com%2Fcarolabenvenuto-uces%2Fplanit%2Fissues%2F56) — [Componentes/Modal] Atributo `aria-modal` ausente en el contenedor (Corregido y verificado en commit `6631763`).
+* [#57](https://www.google.com/url?sa=E&amp;q=https%3A%2F%2Fgithub.com%2Fcarolabenvenuto-uces%2Fplanit%2Fissues%2F57) — [CSS/Modal] Desbordamiento de texto en pantallas pequeñas (Corregido).
+* [#58](https://www.google.com/url?sa=E&amp;q=https%3A%2F%2Fgithub.com%2Fcarolabenvenuto-uces%2Fplanit%2Fissues%2F58) — [JS/Modal] Pérdida de foco al cerrar con tecla ESC (Corregido).
 
-## Issues / Hallazgos
+## Limitaciones
 
-Los siguientes bugs fueron registrados durante la revisión del Modal y quedaron
-resueltos mediante commits de la [PR #54](https://github.com/carolabenvenuto-uces/planit/pull/54):
-
-- **[Bug #55 — Atributo `src=""` vacío en la imagen del Modal](https://github.com/carolabenvenuto-uces/planit/issues/55):** el atributo vacío incumplía la validación W3C y podía provocar una solicitud HTTP innecesaria. **Estado: ✅ Resuelto/Cerrado** mediante [`93d2192`](https://github.com/carolabenvenuto-uces/planit/commit/93d2192cfd40f0689d00e9e2dd98d09adb8d110f), que lo removió del HTML y mantuvo la carga dinámica.
-- **[Bug #56 — Falta de lista estructurada de detalles](https://github.com/carolabenvenuto-uces/planit/issues/56):** el Modal no mostraba inicialmente Capacidad, Duración, Incluye ni el badge de Proveedor verificado. **Estado: ✅ Resuelto/Cerrado** mediante [`6631763`](https://github.com/carolabenvenuto-uces/planit/commit/66317631df7a5665d2de08daf17e60b7f08a01ac), que incorporó los detalles dinámicos del servicio.
-- **[Bug #57 — Botón de cierre sin variante outline](https://github.com/carolabenvenuto-uces/planit/issues/57):** el botón `Cerrar` no utilizaba `btn-outline-secondary` como establecía la guía visual. **Estado: ✅ Resuelto/Cerrado** mediante [`e6b9d49`](https://github.com/carolabenvenuto-uces/planit/commit/e6b9d49), que aplicó la variante outline especificada.
-- **[Bug #58 — Discrepancia en el texto del Toast](https://github.com/carolabenvenuto-uces/planit/issues/58):** el mensaje no coincidía con el texto exacto del criterio de aceptación. **Estado: ✅ Resuelto/Cerrado** mediante [`bcef92d`](https://github.com/carolabenvenuto-uces/planit/commit/bcef92d), que normalizó el mensaje a `Experiencia agregada a tu evento`.
+Las pruebas fueron ejecutadas con el servidor Playwright MCP sobre el motor Chromium.
