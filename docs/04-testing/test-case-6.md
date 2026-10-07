@@ -64,21 +64,30 @@ La tabla de presupuesto conserva su ancho intrínseco dentro de `.table-wrapper`
 
 ## Issues / Hallazgos Relacionados
 
-Los siguientes hallazgos de la revisión de la migración fueron registrados
-bajo el [Issue #51](https://github.com/carolabenvenuto-uces/planit/issues/51)
-y sus correcciones quedaron integradas en la [PR #54](https://github.com/carolabenvenuto-uces/planit/pull/54):
+El [Issue #51](https://github.com/carolabenvenuto-uces/planit/issues/51)
+corresponde a la feature de migración. Los siguientes hallazgos bug fueron
+corregidos individualmente dentro de la [PR #52](https://github.com/carolabenvenuto-uces/planit/pull/52):
 
 - **Especificidad del header/nav:** `.site-header nav a` imponía tamaño,
   color y padding incorrectos sobre el logo y la acción `Nuevo Evento`.
+  **Resolución en PR #52:** se reemplazaron esas reglas globales por overrides
+  específicos de `.navbar`, `.navbar-nav`, `.nav-link` y las acciones del header.
 - **Grilla del catálogo 2+1:** `gap` y `grid-template-columns` en
   `.cards-grid` competían con `row` y `col-md-4` de Bootstrap.
+  **Resolución en PR #52:** se eliminó la grilla personalizada y la distribución
+  quedó delegada a `.row` y `.col-md-4` de Bootstrap.
 - **Padding del gutter en tarjetas:** mezclar `.card` y `.col-*` en el
   mismo elemento desplazaba la imagen dentro del borde de la tarjeta.
+  **Resolución en PR #52:** se separó el wrapper de columna del elemento
+  `.card` para evitar el padding de gutter duplicado.
 - **Reboot en listas:** Bootstrap agregaba padding y margen no deseados a
   `.task-list` y `.resumen-lista`.
+  **Resolución en PR #52:** se agregaron overrides explícitos para
+  `padding-left` y `margin-bottom`.
 
 ## Limitaciones
 
 La ejecución MCP se realizó con Chromium, que es el único motor expuesto por el servidor disponible. Los nombres de dispositivos representan sus resoluciones CSS; no se ejecutó un motor WebKit o una emulación específica de Safari.
 
-- **Issues relacionados:** [#51](https://github.com/carolabenvenuto-uces/planit/issues/51)
+- **Issue de la feature:** [#51](https://github.com/carolabenvenuto-uces/planit/issues/51)
+- **PR con las correcciones:** [#52](https://github.com/carolabenvenuto-uces/planit/pull/52)
