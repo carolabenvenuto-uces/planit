@@ -6,12 +6,13 @@ Verificar que `index.html` no genere desplazamiento horizontal en los viewports 
 
 ## Ejecución
 
-- **Fecha:** 05/10/2026
+- **Fecha:** 07/10/2026
 - **Estado probado:** working tree de la migración Bootstrap 5.3
-- **Página:** `file:///C:/Users/valer/OneDrive/Escritorio/planit/index.html`
+- **Página:** `http://localhost:3000/index.html`
 - **Herramienta:** Playwright MCP con Chromium
 - **Criterio de overflow:** `document.documentElement.scrollWidth <= document.documentElement.clientWidth` y la misma comprobación para `document.body`.
 - **Criterio de navegación:** el botón `.navbar-toggler` debe estar visible, el menú debe iniciar colapsado y abrirse al hacer click, con `aria-expanded="true"` y la clase `.show`.
+- **Condición adicional:** la medición se realizó sin `overflow-x: hidden`; `overflow-x` computado quedó en `visible` para `html` y `body`.
 
 ### Prompt utilizado
 
@@ -31,7 +32,7 @@ resultados por dispositivo.
 | Samsung Galaxy S23 | 360 × 780 | 345 px | 345 px | 345 px | 345 px | ✅ No | ✅ Colapsado y abre | ✅ 1 columna |
 | iPad Air | 820 × 1180 | 805 px | 805 px | 805 px | 805 px | ✅ No | ✅ Colapsado y abre | ✅ 1 columna |
 
-La diferencia de 15 px entre el viewport nominal y el ancho útil corresponde a la barra de desplazamiento vertical del navegador; no representa overflow horizontal. En todos los casos `scrollWidth` coincide con `clientWidth`.
+La diferencia de 15 px entre el viewport nominal y el ancho útil corresponde a la barra de desplazamiento vertical del navegador; no representa overflow horizontal. En todos los casos `scrollWidth` coincide con `clientWidth` de forma natural, con `overflow-x: visible`.
 
 ### Verificación del navbar
 
@@ -42,9 +43,11 @@ La diferencia de 15 px entre el viewport nominal y el ancho útil corresponde a 
 
 ### Medidas adicionales observadas
 
-- iPhone 14 Pro: contenido principal y lateral de 378 px; tarjetas de catálogo de 337 px.
-- Samsung Galaxy S23: contenido principal y lateral de 345 px; tarjetas de catálogo de 303 px.
-- iPad Air: contenido principal y lateral de 781 px; tarjetas de catálogo de 246 px, tres por fila según `col-md-4`.
+- iPhone 14 Pro: contenido principal de 378 px; tarjetas de catálogo de 321 px.
+- Samsung Galaxy S23: contenido principal de 345 px; tarjetas de catálogo de 287 px.
+- iPad Air: contenido principal de 781 px; tarjetas de catálogo de 230 px, tres por fila según `col-md-4`. El layout principal sigue apilado porque el breakpoint `col-lg-8`/`col-lg-4` todavía no aplica a 820 px.
+
+La tabla de presupuesto conserva su ancho intrínseco dentro de `.table-wrapper`, que funciona como contenedor desplazable local. Ese contenido no aumenta el `scrollWidth` del documento ni genera desborde horizontal global.
 
 ## Conclusión
 

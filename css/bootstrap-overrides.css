@@ -36,7 +36,6 @@
 }
 
 body {
-  overflow-x: hidden;
   color: var(--bs-body-color);
   font-size: var(--bs-body-font-size);
 }
