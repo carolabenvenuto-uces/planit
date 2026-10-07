@@ -135,16 +135,16 @@ Usando el servidor Figma MCP y el spec docs/03-specs/primer-parcial/spec-fronten
 
 ## 8. ✅ Criterios de Aceptación
 
-- Bootstrap v5.3 se carga correctamente desde jsDelivr y no se incluyen copias locales innecesarias.
-- `bootstrap-overrides.css` existe, está vinculado y sus reglas tienen prioridad sobre las reglas base de Bootstrap cuando corresponde.
-- Header, catálogo/cockpit y footer utilizan contenedores, filas y columnas de Bootstrap.
-- La navegación colapsa y se expande correctamente en dispositivos móviles.
-- Las tarjetas y columnas se reorganizan sin superposiciones ni contenido cortado.
-- No se detecta overflow horizontal en los viewports definidos.
-- Se conservan la funcionalidad, los enlaces, los contenidos y la identidad visual existentes.
-- La consola del navegador no presenta errores JavaScript, recursos faltantes ni errores de carga de estilos.
-- El resultado supera una revisión visual en desktop, tablet y mobile.
-- La navegación por teclado y los estados de foco son funcionales.
+- [x] Bootstrap v5.3 se carga correctamente desde jsDelivr y no se incluyen copias locales innecesarias.
+- [x] `bootstrap-overrides.css` existe, está vinculado y sus reglas tienen prioridad sobre las reglas base de Bootstrap cuando corresponde.
+- [x] Header, catálogo/cockpit y footer utilizan contenedores, filas y columnas de Bootstrap.
+- [x] La navegación colapsa y se expande correctamente en dispositivos móviles.
+- [x] Las tarjetas y columnas se reorganizan sin superposiciones ni contenido cortado.
+- [x] No se detecta overflow horizontal en los viewports definidos.
+- [x] Se conservan la funcionalidad, los enlaces, los contenidos y la identidad visual existentes.
+- [x] La consola del navegador no presenta errores JavaScript, recursos faltantes ni errores de carga de estilos.
+- [x] El resultado supera una revisión visual en desktop, tablet y mobile.
+- [x] La navegación por teclado y los estados de foco son funcionales.
 
 ---
 
