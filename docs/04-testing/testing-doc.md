@@ -13,7 +13,7 @@ y estructura HTML semántica.
 | 3 | [test-case-3.md](test-case-3.md) | Performance y carga | 🔴 Fix de #28 confirmado ineficaz → nuevo Issue #33 |
 | 4 | [test-case-4.md](test-case-4.md) | Accesibilidad web | ✅ Sin violaciones |
 | 5 | [test-case-5.md](test-case-5.md) | Estructura HTML semántica y CSS | ✅ 1 de 2 avisos de #29 corregido |
-| 6 | [test-case-6.md](test-case-6.md) | Migración y validación responsive Bootstrap 5.3 | ✅ Sin overflow; hallazgos de UI documentados en #51 |
+| 6 | [test-case-6.md](test-case-6.md) | Migración y validación responsive Bootstrap 5.3 | ✅ PASS en 3 viewports; bugs [#58](https://github.com/carolabenvenuto-uces/planit/issues/58), [#59](https://github.com/carolabenvenuto-uces/planit/issues/59), [#60](https://github.com/carolabenvenuto-uces/planit/issues/60), [#61](https://github.com/carolabenvenuto-uces/planit/issues/61), [#62](https://github.com/carolabenvenuto-uces/planit/issues/62) corregidos en [PR #52](https://github.com/carolabenvenuto-uces/planit/pull/52) |
 
 ## Historial de ejecuciones
 
@@ -71,6 +71,7 @@ tenía la Ronda 1.
 - [#28](https://github.com/carolabenvenuto-uces/planit/issues/28) — Imagen de mockup reutilizada sin optimizar — **cerrado, pero fix ineficaz** (ver #33)
 - [#29](https://github.com/carolabenvenuto-uces/planit/issues/29) — Modernizar 2 propiedades CSS legacy — **cerrado** (25/09/2026), resuelto con la [PR #32](https://github.com/carolabenvenuto-uces/planit/pull/32); 1 de 2 avisos corregido, el otro sin cambios intencionalmente
 - [#33](https://github.com/carolabenvenuto-uces/planit/issues/33) — Logo y tarjetas siguen usando el mockup como placeholder — **cerrado** (27/09/2026), resuelto con la [PR #34](https://github.com/carolabenvenuto-uces/planit/pull/34); hallazgo de la Ronda 2
+- [#58](https://github.com/carolabenvenuto-uces/planit/issues/58), [#59](https://github.com/carolabenvenuto-uces/planit/issues/59), [#60](https://github.com/carolabenvenuto-uces/planit/issues/60), [#61](https://github.com/carolabenvenuto-uces/planit/issues/61), [#62](https://github.com/carolabenvenuto-uces/planit/issues/62) — Hallazgos de integración Bootstrap del TC6 — **resueltos en la [PR #52](https://github.com/carolabenvenuto-uces/planit/pull/52)**
 
 ## Puntos pendientes de Coordinación
 
