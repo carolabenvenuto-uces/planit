@@ -242,7 +242,10 @@
                                 <p>Selección premium fría y caliente para recepción. Variedad para todos los gustos.</p>
                                 <p class="card-meta">Catering · Hasta 200 pax · Zona Norte GBA</p>
                                 <p class="card-price">$3.500 / pax</p>
-                                <button type="button" class="btn-outline">Sumar al Evento</button>
+                                <div class="card-actions d-grid gap-2 mt-2">
+                                    <button type="button" class="btn btn-outline-primary btn-ver-detalle" data-bs-toggle="modal" data-bs-target="#modalDetalleServicio" data-service-title="Gourmet Finger Food" data-service-image="./docs/01-mockup/actividad-obligatoria-2/catalogo-gourmet-finger-food.jpg" data-service-alt="Mesa de catering con bandejas de mini sándwiches y bocados en varios niveles" data-service-description="Selección premium fría y caliente para recepción. Variedad para todos los gustos." data-service-details="Catering · Hasta 200 pax · Zona Norte GBA" data-service-capacidad="Hasta 200 pax" data-service-duracion="4 horas" data-service-incluye="Finger food frío y caliente, montaje y reposición" data-service-price="$3.500 / pax">Ver detalle</button>
+                                    <button type="button" class="btn btn-primary btn-sumar-evento" data-service-title="Gourmet Finger Food" data-service-price="$3.500 / pax">Sumar al Evento</button>
+                                </div>
                             </div>
                         </article>
                     </div>
@@ -255,7 +258,10 @@
                                 <p>Centros de mesa personalizados y ramo para novias con flores naturales de estación.</p>
                                 <p class="card-meta">Decoración · 1 evento por fecha · Pilar</p>
                                 <p class="card-price">$70.000 / base</p>
-                                <button type="button" class="btn-outline">Sumar al Evento</button>
+                                <div class="card-actions d-grid gap-2 mt-2">
+                                    <button type="button" class="btn btn-outline-primary btn-ver-detalle" data-bs-toggle="modal" data-bs-target="#modalDetalleServicio" data-service-title="Flores Pilar" data-service-image="./docs/01-mockup/actividad-obligatoria-2/catalogo-flores-pilar.jpg" data-service-alt="Centro de mesa con rosas y peonías rosadas sobre una mesa de salón de eventos" data-service-description="Centros de mesa personalizados y ramo para novias con flores naturales de estación." data-service-details="Decoración · 1 evento por fecha · Pilar" data-service-capacidad="1 evento por fecha" data-service-duracion="1 jornada de montaje" data-service-incluye="Centros de mesa personalizados y ramo para novias" data-service-price="$70.000 / base">Ver detalle</button>
+                                    <button type="button" class="btn btn-primary btn-sumar-evento" data-service-title="Flores Pilar" data-service-price="$70.000 / base">Sumar al Evento</button>
+                                </div>
                             </div>
                         </article>
                     </div>
@@ -268,7 +274,10 @@
                                 <p>Equipamiento de audio completo de alta fidelidad, iluminación robótica y pista de baile.</p>
                                 <p class="card-meta">Sonido · Hasta 300 personas · CABA y GBA</p>
                                 <p class="card-price">$8.000 / hora</p>
-                                <button type="button" class="btn-outline">Sumar al Evento</button>
+                                <div class="card-actions d-grid gap-2 mt-2">
+                                    <button type="button" class="btn btn-outline-primary btn-ver-detalle" data-bs-toggle="modal" data-bs-target="#modalDetalleServicio" data-service-title="DJ Lucas &amp; Sonido" data-service-image="./docs/01-mockup/actividad-obligatoria-2/catalogo-dj-lucas-sonido.jpg" data-service-alt="DJ con auriculares mezclando en una consola frente a una pista iluminada" data-service-description="Equipamiento de audio completo de alta fidelidad, iluminación robótica y pista de baile." data-service-details="Sonido · Hasta 300 personas · CABA y GBA" data-service-capacidad="Hasta 300 personas" data-service-duracion="6 horas" data-service-incluye="DJ, sonido de alta fidelidad e iluminación robótica" data-service-price="$8.000 / hora">Ver detalle</button>
+                                    <button type="button" class="btn btn-primary btn-sumar-evento" data-service-title="DJ Lucas &amp; Sonido" data-service-price="$8.000 / hora">Sumar al Evento</button>
+                                </div>
                             </div>
                         </article>
                     </div>
@@ -335,6 +344,56 @@
         </div>
     </footer>
 
+    <!-- Modal reutilizable para la ficha técnica del servicio seleccionado -->
+    <div class="modal fade" id="modalDetalleServicio" tabindex="-1" aria-labelledby="modalDetalleServicioTitulo" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 class="modal-title" id="modalDetalleServicioTitulo">Detalle del servicio</h2>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row g-4 align-items-start">
+                        <div class="col-12 col-md-5">
+                            <img id="modalDetalleServicioImagen" class="img-fluid rounded" alt="">
+                        </div>
+                        <div class="col-12 col-md-7">
+                            <p id="modalDetalleServicioDescripcion"></p>
+                            <ul class="list-unstyled small mb-0" aria-label="Detalles del servicio">
+                                <li><strong>Capacidad:</strong> <span id="modalDetalleServicioCapacidad"></span></li>
+                                <li><strong>Duración:</strong> <span id="modalDetalleServicioDuracion"></span></li>
+                                <li><strong>Incluye:</strong> <span id="modalDetalleServicioIncluye"></span></li>
+                                <li><span>Proveedor verificado</span></li>
+                            </ul>
+                            <p id="modalDetalleServicioPrecio" class="fw-bold"></p>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cerrar</button>
+                    <button type="button" class="btn btn-primary btn-sumar-evento" data-bs-dismiss="modal" data-service-title="" data-service-price="">Sumar al Evento</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast de confirmación fijo en la esquina inferior derecha -->
+    <div class="toast-container position-fixed bottom-0 end-0 p-3">
+        <div id="toastConfirmacion" class="toast" role="status" aria-live="polite" aria-atomic="true" data-bs-delay="4000">
+            <div class="toast-header">
+                <strong class="me-auto">PlanIT</strong>
+                <small>· ahora</small>
+                <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Cerrar"></button>
+            </div>
+            <div class="toast-body">
+                <p id="toastConfirmacionServicio" class="mb-1"></p>
+                <p id="toastConfirmacionMensaje" class="mb-0">Experiencia agregada a tu evento</p>
+            </div>
+        </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <script src="js/componentes-bootstrap.js" defer></script>
+
 </body>
 </html>
