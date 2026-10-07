@@ -3,10 +3,11 @@
 ## [Unreleased]
 
 ### Added
-- [feature/dev-frontend-bootstrap-update-migration] feat(frontend): migración de index.html a Bootstrap v5.3 PR: [#52](https://github.com/carolabenvenuto-uces/planit/pull/52) | Issue: [#51](https://github.com/carolabenvenuto-uces/planit/issues/51) - @ValeriaMSilva (Desarrollador Frontend)
+- [feature/dev-frontend-bootstrap-update-migration] feat(frontend): migración de index.html a Bootstrap v5.3 PR: [#52](https://github.com/carolabenvenuto-uces/planit/pull/52) | Issue: [#51](https://github.com/carolabenvenuto-uces/planit/issues/51) - @ValeriaMSilva (Desarrollador Frontend / Bootstrap)
+- [feature/dev-comp-bootstrap-modal-toast] feat(components): Modal de ficha técnica y Toast de confirmación (Bootstrap 5.3) PR: [#54](https://github.com/carolabenvenuto-uces/planit/pull/54) | Issue: [#53](https://github.com/carolabenvenuto-uces/planit/issues/53) - @ValeriaMSilva (Especialista en Componentes Bootstrap)
 
 ### Fixed
-- [feature/dev-frontend-bootstrap-update-migration] fix(frontend): resolver bugs de integración Bootstrap del TC6 PR: [#52](https://github.com/carolabenvenuto-uces/planit/pull/52) | Issues: [#58](https://github.com/carolabenvenuto-uces/planit/issues/58), [#59](https://github.com/carolabenvenuto-uces/planit/issues/59), [#60](https://github.com/carolabenvenuto-uces/planit/issues/60), [#61](https://github.com/carolabenvenuto-uces/planit/issues/61), [#62](https://github.com/carolabenvenuto-uces/planit/issues/62) - @ValeriaMSilva (Desarrollador Frontend / Bootstrap)
+- [feature/dev-comp-bootstrap-modal-toast] refactor(components): modularizar interacción Modal/Toast, ajustar accesibilidad y tokens CSS, y corregir el texto del Toast según la [Issue #58](https://github.com/carolabenvenuto-uces/planit/issues/58) - @ValeriaMSilva (Especialista en Componentes Bootstrap)
 
 ## [Release Actividad Obligatoria N°2] - 2026-09-28
 

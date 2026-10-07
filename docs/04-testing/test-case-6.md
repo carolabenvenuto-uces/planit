@@ -6,13 +6,12 @@ Verificar que `index.html` no genere desplazamiento horizontal en los viewports 
 
 ## Ejecución
 
-- **Fecha:** 07/10/2026
+- **Fecha:** 05/10/2026
 - **Estado probado:** working tree de la migración Bootstrap 5.3
-- **Página:** `http://localhost:3000/index.html`
+- **Página:** `file:///C:/Users/valer/OneDrive/Escritorio/planit/index.html`
 - **Herramienta:** Playwright MCP con Chromium
 - **Criterio de overflow:** `document.documentElement.scrollWidth <= document.documentElement.clientWidth` y la misma comprobación para `document.body`.
 - **Criterio de navegación:** el botón `.navbar-toggler` debe estar visible, el menú debe iniciar colapsado y abrirse al hacer click, con `aria-expanded="true"` y la clase `.show`.
-- **Condición adicional:** la medición se realizó sin `overflow-x: hidden`; `overflow-x` computado quedó en `visible` para `html` y `body`.
 
 ### Prompt utilizado
 
@@ -30,18 +29,9 @@ resultados por dispositivo.
 |---|---:|---:|---:|---:|---:|---|---|---|
 | iPhone 14 Pro | 393 × 852 | 378 px | 378 px | 378 px | 378 px | ✅ No | ✅ Colapsado y abre | ✅ 1 columna |
 | Samsung Galaxy S23 | 360 × 780 | 345 px | 345 px | 345 px | 345 px | ✅ No | ✅ Colapsado y abre | ✅ 1 columna |
-| iPad Air | 820 × 1180 | 805 px | 805 px | 805 px | 805 px | ✅ No | ✅ Colapsado y abre | ✅ 3 columnas (3 por fila) |
+| iPad Air | 820 × 1180 | 805 px | 805 px | 805 px | 805 px | ✅ No | ✅ Colapsado y abre | ✅ 1 columna |
 
-La diferencia de 15 px entre el viewport nominal y el ancho útil corresponde a la barra de desplazamiento vertical del navegador; no representa overflow horizontal. En todos los casos `scrollWidth` coincide con `clientWidth` de forma natural, con `overflow-x: visible`.
-
-### Capturas
-
-Las siguientes capturas de página completa fueron tomadas con Playwright MCP sobre
-`http://localhost:3000/index.html`, una por cada viewport requerido:
-
-- [iPhone 14 Pro — 393 × 852](./capturas/tc6-iphone14pro.png)
-- [Samsung Galaxy S23 — 360 × 780](./capturas/tc6-galaxys23.png)
-- [iPad Air — 820 × 1180](./capturas/tc6-ipadair.png)
+La diferencia de 15 px entre el viewport nominal y el ancho útil corresponde a la barra de desplazamiento vertical del navegador; no representa overflow horizontal. En todos los casos `scrollWidth` coincide con `clientWidth`.
 
 ### Verificación del navbar
 
@@ -52,32 +42,31 @@ Las siguientes capturas de página completa fueron tomadas con Playwright MCP so
 
 ### Medidas adicionales observadas
 
-- iPhone 14 Pro: contenido principal de 378 px; tarjetas de catálogo de 321 px.
-- Samsung Galaxy S23: contenido principal de 345 px; tarjetas de catálogo de 287 px.
-- iPad Air: `main` de 696 px y tarjetas de catálogo de 202 px, tres por fila según `col-md-4`. El `.container` limita el layout al ancho Bootstrap de 720 px en este viewport.
-
-La tabla de presupuesto conserva su ancho intrínseco dentro de `.table-wrapper`, que funciona como contenedor desplazable local. Ese contenido no aumenta el `scrollWidth` del documento ni genera desborde horizontal global.
+- iPhone 14 Pro: contenido principal y lateral de 378 px; tarjetas de catálogo de 337 px.
+- Samsung Galaxy S23: contenido principal y lateral de 345 px; tarjetas de catálogo de 303 px.
+- iPad Air: contenido principal y lateral de 781 px; tarjetas de catálogo de 246 px, tres por fila según `col-md-4`.
 
 ## Conclusión
 
 **Resultado: ✅ PASS.** No se detectó overflow horizontal en ninguno de los tres dispositivos. La navegación colapsable de Bootstrap funcionó correctamente y la grilla del catálogo se adaptó sin desbordamientos.
 
-## Issues / Hallazgos
+## Issues / Hallazgos Relacionados
 
-El [Issue #51](https://github.com/carolabenvenuto-uces/planit/issues/51)
-corresponde a la feature de migración. Los bugs detectados y sus correcciones
-quedaron trazados en la [PR #52](https://github.com/carolabenvenuto-uces/planit/pull/52):
+Los siguientes hallazgos de la revisión de la migración fueron registrados
+bajo el [Issue #51](https://github.com/carolabenvenuto-uces/planit/issues/51)
+y sus correcciones quedaron integradas en la [PR #54](https://github.com/carolabenvenuto-uces/planit/pull/54):
 
-- **[Issue #58 — Conflicto de especificidad en `.site-header nav a`](https://github.com/carolabenvenuto-uces/planit/issues/58):** las reglas legacy sobrescribían los estilos del logo y de `Nuevo Evento`. Corregido mediante [`a15ba34`](https://github.com/carolabenvenuto-uces/planit/commit/a15ba34).
-- **[Issue #59 — Colapso 2+1 del catálogo por `gap` legacy](https://github.com/carolabenvenuto-uces/planit/issues/59):** el `gap` personalizado interfería con la fila Bootstrap. Corregido mediante [`9ed63d9`](https://github.com/carolabenvenuto-uces/planit/commit/9ed63d9).
-- **[Issue #60 — Mezcla de `.card` y `.col-*` en el mismo elemento](https://github.com/carolabenvenuto-uces/planit/issues/60):** el padding de gutter desplazaba el contenido de las tarjetas. Corregido mediante [`edb4ec5`](https://github.com/carolabenvenuto-uces/planit/commit/edb4ec5).
-- **[Issue #61 — Falta de reseteo Reboot en listas](https://github.com/carolabenvenuto-uces/planit/issues/61):** Bootstrap agregaba padding y margen no deseados a `.task-list` y `.resumen-lista`. Corregido mediante [`3c97df9`](https://github.com/carolabenvenuto-uces/planit/commit/3c97df9).
-- **[Issue #62 — Incompatibilidad de breakpoints en `responsive.css`](https://github.com/carolabenvenuto-uces/planit/issues/62):** reglas responsive heredadas no estaban alineadas con los breakpoints nativos de Bootstrap. Corregido en la [PR #52](https://github.com/carolabenvenuto-uces/planit/pull/52).
+- **Especificidad del header/nav:** `.site-header nav a` imponía tamaño,
+  color y padding incorrectos sobre el logo y la acción `Nuevo Evento`.
+- **Grilla del catálogo 2+1:** `gap` y `grid-template-columns` en
+  `.cards-grid` competían con `row` y `col-md-4` de Bootstrap.
+- **Padding del gutter en tarjetas:** mezclar `.card` y `.col-*` en el
+  mismo elemento desplazaba la imagen dentro del borde de la tarjeta.
+- **Reboot en listas:** Bootstrap agregaba padding y margen no deseados a
+  `.task-list` y `.resumen-lista`.
 
 ## Limitaciones
 
 La ejecución MCP se realizó con Chromium, que es el único motor expuesto por el servidor disponible. Los nombres de dispositivos representan sus resoluciones CSS; no se ejecutó un motor WebKit o una emulación específica de Safari.
 
-- **Issue de la feature:** [#51](https://github.com/carolabenvenuto-uces/planit/issues/51)
-- **Issues bug:** [#58](https://github.com/carolabenvenuto-uces/planit/issues/58), [#59](https://github.com/carolabenvenuto-uces/planit/issues/59), [#60](https://github.com/carolabenvenuto-uces/planit/issues/60), [#61](https://github.com/carolabenvenuto-uces/planit/issues/61), [#62](https://github.com/carolabenvenuto-uces/planit/issues/62)
-- **PR con las correcciones:** [#52](https://github.com/carolabenvenuto-uces/planit/pull/52)
+- **Issues relacionados:** [#51](https://github.com/carolabenvenuto-uces/planit/issues/51)
