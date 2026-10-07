@@ -3,7 +3,8 @@
 ## [Unreleased]
 
 ### Added
-- [feature/dev-comp-bootstrap-modal-toast] feat(components): implementación de Modal de ficha técnica y Toast de confirmación PR: [#54](https://github.com/carolabenvenuto-uces/planit/pull/54) | Issue: [#53](https://github.com/carolabenvenuto-uces/planit/issues/53) - @ValeriaMSilva (Especialista en Componentes)
+- [feature/dev-frontend-bootstrap-update-migration] feat(frontend): migración de index.html a Bootstrap v5.3 PR: [#52](https://github.com/carolabenvenuto-uces/planit/pull/52) | Issue: [#51](https://github.com/carolabenvenuto-uces/planit/issues/51) - @ValeriaMSilva (Desarrollador Frontend / Bootstrap)
+- [feature/dev-comp-bootstrap-modal-toast] feat(components): Modal de ficha técnica y Toast de confirmación (Bootstrap 5.3) PR: [#54](https://github.com/carolabenvenuto-uces/planit/pull/54) | Issue: [#53](https://github.com/carolabenvenuto-uces/planit/issues/53) - @ValeriaMSilva (Especialista en Componentes Bootstrap)
 
 ## [Release Actividad Obligatoria N°2] - 2026-09-28
 
