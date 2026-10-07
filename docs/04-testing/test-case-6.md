@@ -30,7 +30,7 @@ resultados por dispositivo.
 |---|---:|---:|---:|---:|---:|---|---|---|
 | iPhone 14 Pro | 393 × 852 | 378 px | 378 px | 378 px | 378 px | ✅ No | ✅ Colapsado y abre | ✅ 1 columna |
 | Samsung Galaxy S23 | 360 × 780 | 345 px | 345 px | 345 px | 345 px | ✅ No | ✅ Colapsado y abre | ✅ 1 columna |
-| iPad Air | 820 × 1180 | 805 px | 805 px | 805 px | 805 px | ✅ No | ✅ Colapsado y abre | ✅ 3 columnas |
+| iPad Air | 820 × 1180 | 805 px | 805 px | 805 px | 805 px | ✅ No | ✅ Colapsado y abre | ✅ 3 columnas (3 por fila) |
 
 La diferencia de 15 px entre el viewport nominal y el ancho útil corresponde a la barra de desplazamiento vertical del navegador; no representa overflow horizontal. En todos los casos `scrollWidth` coincide con `clientWidth` de forma natural, con `overflow-x: visible`.
 
