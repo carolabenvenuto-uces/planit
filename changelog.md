@@ -7,7 +7,7 @@
 - [feature/dev-comp-bootstrap-modal-toast] feat(components): Modal de ficha técnica y Toast de confirmación (Bootstrap 5.3) PR: [#54](https://github.com/carolabenvenuto-uces/planit/pull/54) | Issue: [#53](https://github.com/carolabenvenuto-uces/planit/issues/53) - @ValeriaMSilva (Especialista en Componentes Bootstrap)
 
 ### Fixed
-- [feature/dev-comp-bootstrap-modal-toast] refactor(components): modularizar interacción Modal/Toast, ajustar accesibilidad y tokens CSS, y corregir el texto del Toast según la [Issue #58](https://github.com/carolabenvenuto-uces/planit/issues/58) - @ValeriaMSilva (Especialista en Componentes Bootstrap)
+- [feature/dev-comp-bootstrap-modal-toast] refactor(components): modularizar interacción Modal/Toast, ajustar accesibilidad y tokens CSS, y corregir los bugs de componentes de la [PR #54](https://github.com/carolabenvenuto-uces/planit/pull/54) | Issues: [#55](https://github.com/carolabenvenuto-uces/planit/issues/55), [#56](https://github.com/carolabenvenuto-uces/planit/issues/56), [#57](https://github.com/carolabenvenuto-uces/planit/issues/57), [#58](https://github.com/carolabenvenuto-uces/planit/issues/58) - @ValeriaMSilva (Especialista en Componentes Bootstrap)
 
 ## [Release Actividad Obligatoria N°2] - 2026-09-28
 

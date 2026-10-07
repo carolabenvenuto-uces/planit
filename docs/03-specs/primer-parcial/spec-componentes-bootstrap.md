@@ -78,28 +78,28 @@ Planificar la incorporación de los componentes interactivos Modal y Toast de Bo
 
 ### Modal
 
-- [ ] Cada ítem o acción del catálogo permite abrir la ficha técnica del servicio correspondiente.
-- [ ] El modal contiene botón `btn-close`, título, imagen, descripción completa, precio y botón `Sumar al Evento`.
-- [ ] El modal puede cerrarse con el botón de cierre, la tecla `Escape` y el comportamiento estándar de Bootstrap configurado.
-- [ ] El contenido se adapta correctamente a 320 px, 375 px, 768 px, 992 px y resoluciones superiores.
-- [ ] El foco se gestiona correctamente y el modal tiene una relación válida entre `aria-labelledby` y su título.
+- [x] Cada ítem o acción del catálogo permite abrir la ficha técnica del servicio correspondiente.
+- [x] El modal contiene botón `btn-close`, título, imagen, descripción completa, precio y botón `Sumar al Evento`.
+- [x] El modal puede cerrarse con el botón de cierre, la tecla `Escape` y el comportamiento estándar de Bootstrap configurado.
+- [x] El contenido se adapta correctamente a 320 px, 375 px, 768 px, 992 px y resoluciones superiores.
+- [x] El foco se gestiona correctamente y el modal tiene una relación válida entre `aria-labelledby` y su título.
 
 ### Toast
 
-- [ ] Al presionar `Sumar al Evento` se muestra un Toast sin recargar la página.
-- [ ] El Toast usa `toast-container position-fixed bottom-0 end-0`.
-- [ ] El mensaje visible es exactamente “Experiencia agregada a tu evento”.
-- [ ] Tiene auto-hide con temporizador configurado y botón de cierre manual.
-- [ ] Sus atributos `role`, `aria-live` y `aria-atomic` permiten anunciar la confirmación.
-- [ ] No genera overflow horizontal ni tapa de forma permanente controles del catálogo.
+- [x] Al presionar `Sumar al Evento` se muestra un Toast sin recargar la página.
+- [x] El Toast usa `toast-container position-fixed bottom-0 end-0`.
+- [x] El mensaje visible es exactamente “Experiencia agregada a tu evento”.
+- [x] Tiene auto-hide con temporizador configurado y botón de cierre manual.
+- [x] Sus atributos `role`, `aria-live` y `aria-atomic` permiten anunciar la confirmación.
+- [x] No genera overflow horizontal ni tapa de forma permanente controles del catálogo.
 
 ### Integración y calidad
 
-- [ ] Bootstrap v5.3 y su bundle JavaScript cargan sin errores ni recursos faltantes.
-- [ ] Modal y Toast respetan la paleta y la tipografía de PlanIT mediante los overrides existentes.
-- [ ] La consola del navegador no presenta errores JavaScript al abrir, cerrar o reutilizar los componentes.
-- [ ] La interacción funciona con mouse y teclado.
-- [ ] Se ejecutan pruebas responsive y se documentan los resultados.
+- [x] Bootstrap v5.3 y su bundle JavaScript cargan sin errores ni recursos faltantes.
+- [x] Modal y Toast respetan la paleta y la tipografía de PlanIT mediante los overrides existentes.
+- [x] La consola del navegador no presenta errores JavaScript al abrir, cerrar o reutilizar los componentes.
+- [x] La interacción funciona con mouse y teclado.
+- [x] Se ejecutan pruebas responsive y se documentan los resultados.
 
 ## 4. Registro de Evidencias
 
@@ -147,4 +147,8 @@ Planificar la incorporación de los componentes interactivos Modal y Toast de Bo
 - Se ajustó el Toast al criterio de aceptación del spec: mensaje exacto `Experiencia agregada a tu evento`, marca de tiempo `· ahora`, título y precio del servicio.
 - Se normalizaron e integraron los `data-attributes` y el mapeo de IDs entre las tarjetas, `#modalDetalleServicio` y `#toastConfirmacion`.
 
-- **Issues y hallazgos:** La implementación y sus criterios de aceptación están trazados en el [Issue #53](https://github.com/carolabenvenuto-uces/planit/issues/53) y resueltos en la [PR #54](https://github.com/carolabenvenuto-uces/planit/pull/54). No se registraron issues bug adicionales para estos ajustes; no se inventan referencias inexistentes.
+- **Issues y hallazgos:** La implementación y sus criterios de aceptación están trazados en el [Issue #53](https://github.com/carolabenvenuto-uces/planit/issues/53) y resueltos en la [PR #54](https://github.com/carolabenvenuto-uces/planit/pull/54). Los bugs asociados quedaron cerrados:
+	- [Issue #55 — Atributo `src=""` vacío en la imagen del Modal](https://github.com/carolabenvenuto-uces/planit/issues/55), corregido mediante [`93d2192`](https://github.com/carolabenvenuto-uces/planit/commit/93d2192cfd40f0689d00e9e2dd98d09adb8d110f).
+	- [Issue #56 — Falta de lista de detalles en el Modal](https://github.com/carolabenvenuto-uces/planit/issues/56), corregido mediante [`6631763`](https://github.com/carolabenvenuto-uces/planit/commit/66317631df7a5665d2de08daf17e60b7f08a01ac).
+	- [Issue #57 — Botón “Cerrar” sin variante outline](https://github.com/carolabenvenuto-uces/planit/issues/57), corregido mediante [`e6b9d49`](https://github.com/carolabenvenuto-uces/planit/commit/e6b9d49).
+	- [Issue #58 — Discrepancia en el texto del Toast](https://github.com/carolabenvenuto-uces/planit/issues/58), corregido mediante [`bcef92d`](https://github.com/carolabenvenuto-uces/planit/commit/bcef92d).
