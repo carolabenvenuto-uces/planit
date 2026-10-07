@@ -126,15 +126,25 @@ Planificar la incorporación de los componentes interactivos Modal y Toast de Bo
 - **Prompt de QA utilizado:**
 
 	```text
-	Usando Playwright MCP, probá index.html en un viewport de iPhone 14 Pro (393x852). Verificá que cada tarjeta del catálogo tenga los botones Ver detalle y Sumar al evento. Probá la apertura y cierre del Modal #modalDetalleServicio, la activación del Toast #toastConfirmacion desde una tarjeta y desde el Modal, el auto-hide, la ausencia de overflow horizontal y los errores de consola. Devolvé resultados PASS/FAIL con evidencia concreta.
+	Usando Playwright MCP, ejecutá de forma automatizada los Test Cases 7 (Modal) y 8 (Toast) navegando a http://localhost:3000/index.html. Repetí ambas verificaciones en los tres dispositivos obligatorios: iPhone 14 Pro (393x852), Samsung Galaxy S23 (360x780) e iPad Air (820x1180). Para TC7 verificá la apertura y cierre de #modalDetalleServicio, el botón Cerrar, la tecla Escape, el cierre mediante backdrop, el retorno del foco al disparador, la carga dinámica de contenido, la visualización responsive y la ausencia de overflow horizontal. Para TC8 verificá la activación desde tarjetas y Modal, el mensaje exacto, título y precio del servicio, la marca de tiempo, el auto-hide, el cierre manual, la visualización responsive y la ausencia de overflow horizontal. Registrá resultados PASS/FAIL, errores de consola y capturas de evidencia por dispositivo.
 	```
 
 - **Estructura implementada:** 3 tarjetas del catálogo con botones `Ver detalle` (`btn btn-outline-primary`, `data-bs-toggle="modal"`, `data-bs-target="#modalDetalleServicio"`) y `Sumar al evento` (`btn btn-primary`). El Modal reutilizable contiene header con `btn-close`, título dinámico, imagen, descripción, detalles técnicos, precio y footer con `Cerrar` y `Sumar al evento`. El Toast `#toastConfirmacion` usa `toast-container position-fixed bottom-0 end-0`, mensaje de confirmación, botón de cierre y `data-bs-delay="4000"`.
 
-- **Resultado de las pruebas:** **PASS** con Playwright MCP en Chromium. Bootstrap cargó correctamente; el Modal abrió con título, imagen, descripción y precio; `btn-close` lo cerró; los botones de suma desde tarjetas y Modal mostraron el Toast; el Toast se ocultó automáticamente después de 4 segundos; no se detectó overflow horizontal ni errores de consola.
+- **Resultado de las pruebas:** **PASS** con Playwright MCP en Chromium sobre `http://localhost:3000/index.html` en los tres dispositivos obligatorios. **TC7 (Modal):** PASS en iPhone 14 Pro (`393x852`), Samsung Galaxy S23 (`360x780`) e iPad Air (`820x1180`): el modal abrió con contenido dinámico, permitió cierre por botón, Escape y backdrop, devolvió el foco al disparador y mantuvo la maquetación responsive sin overflow horizontal. **TC8 (Toast):** PASS en los mismos tres dispositivos: se activó desde tarjetas y Modal, mostró el mensaje exacto, título, precio y marca de tiempo, permitió cierre manual y auto-hide, sin overflow horizontal ni errores de consola.
 
-- **Pruebas responsive:** PASS en iPhone 14 Pro (`393x852`). La grilla mantuvo su adaptación y los componentes no generaron desbordamiento horizontal.
+- **Pruebas responsive:** PASS en iPhone 14 Pro (`393x852`), Samsung Galaxy S23 (`360x780`) e iPad Air (`820x1180`). La grilla y ambos componentes mantuvieron su adaptación en los tres viewports y no generaron desbordamiento horizontal.
 
-- **Capturas o enlaces de evidencia:** Los resultados automatizados están documentados en `docs/04-testing/test-case-7.md`. No se generaron archivos de captura.
+- **Capturas o enlaces de evidencia:** Los resultados automatizados están documentados en `docs/04-testing/test-case-7.md` y `docs/04-testing/test-case-8.md`. Capturas completas por dispositivo:
+	- TC7 Modal: [`tc7-modal-iphone-14-pro.png`](../../04-testing/capturas/tc-7/tc7-modal-iphone-14-pro.png), [`tc7-modal-samsung-galaxy-s23.png`](../../04-testing/capturas/tc-7/tc7-modal-samsung-galaxy-s23.png), [`tc7-modal-ipad-air.png`](../../04-testing/capturas/tc-7/tc7-modal-ipad-air.png).
+	- TC8 Toast: [`tc8-toast-iphone-14-pro.png`](../../04-testing/capturas/tc-8/tc8-toast-iphone-14-pro.png), [`tc8-toast-samsung-galaxy-s23.png`](../../04-testing/capturas/tc-8/tc8-toast-samsung-galaxy-s23.png), [`tc8-toast-ipad-air.png`](../../04-testing/capturas/tc-8/tc8-toast-ipad-air.png).
 
-- **Issues encontrados y ramas de corrección:** Ninguno. No fue necesario crear una rama de corrección.
+### Ajustes manuales
+
+- Se removió el atributo `src=""` vacío de la imagen del Modal para cumplir con la validación W3C.
+- Se incorporó la lista completa de detalles del servicio en el Modal: Capacidad, Duración, Incluye y badge de Proveedor verificado.
+- Se aplicó la variante `btn-outline-secondary` al botón `Cerrar` del Modal.
+- Se ajustó el Toast al criterio de aceptación del spec: mensaje exacto `Experiencia agregada a tu evento`, marca de tiempo `· ahora`, título y precio del servicio.
+- Se normalizaron e integraron los `data-attributes` y el mapeo de IDs entre las tarjetas, `#modalDetalleServicio` y `#toastConfirmacion`.
+
+- **Issues y hallazgos:** La implementación y sus criterios de aceptación están trazados en el [Issue #53](https://github.com/carolabenvenuto-uces/planit/issues/53) y resueltos en la [PR #54](https://github.com/carolabenvenuto-uces/planit/pull/54). No se registraron issues bug adicionales para estos ajustes; no se inventan referencias inexistentes.
