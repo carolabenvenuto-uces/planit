@@ -31,7 +31,7 @@ Tras corregir la configuración del servidor MCP de Playwright (agregando el fla
 
 * Issues #25, #27: confirmados resueltos (#27 visualmente, #25 a nivel de código, sin poder confirmar en WebKit real por la limitación de motor)
 * Issue #26: fix verificado en CSS, no confirmable visualmente por limitación del entorno headless (scrollbars overlay en Linux)
-* Issue #28: **fix confirmado ineficaz** — el análisis de performance demostró que `loading="lazy"` en 3 de 4 imágenes no tiene ningún impacto real, porque el logo (que no recibió el fix) fuerza la descarga igual. Se creó el [Issue #33](https://www.google.com/url?sa=E&amp;q=https%3A%2F%2Fgithub.com%2Fcarolabenvenuto-uces%2Fplanit%2Fissues%2F33) documentando este hallazgo con evidencia del diff real del PR #32.
+* Issue #28: **fix confirmado ineficaz** — el análisis de performance demostró que `loading="lazy"` en 3 de 4 imágenes no tiene ningún impacto real, porque el logo (que no recibió el fix) fuerza la descarga igual. Se creó el [Issue #33](https://github.com/carolabenvenuto-uces/planit/issues/33) documentando este hallazgo con evidencia del diff real del PR #32.
 * Issue #29: 1 de 2 avisos corregido (`clip-path`), el otro intencionalmente sin cambios según la propia sugerencia del issue. Se sugiere cerrarlo.
 
 ## Resumen de issues
