@@ -6,7 +6,7 @@ Verificar con Playwright MCP la activación, el mensaje exacto, la posición res
 
 ## Ejecución
 
-- **Fecha:** 07/10/2026
+- **Fecha:** 06/10/2026
 - **Rama:** `feature/dev-comp-bootstrap-modal-toast`
 - **Página:** `http://localhost:3000/index.html`
 - **Herramienta:** Playwright MCP con Chromium
@@ -30,9 +30,9 @@ PASS/FAIL con evidencia concreta.
 
 | Dispositivo | Viewport | Toast | Estado |
 |---|---:|---|---|
-| iPhone 14 Pro | 393 × 852 | Mensaje exacto, dentro del viewport, sin solapamiento crítico y auto-hide PASS | ✅ PASS |
-| Samsung Galaxy S23 | 360 × 780 | Mensaje exacto, dentro del viewport, sin solapamiento crítico y auto-hide PASS | ✅ PASS |
-| iPad Air | 820 × 1180 | Mensaje exacto, dentro del viewport y auto-hide PASS | ✅ PASS |
+| iPhone 14 Pro | 393 × 852 | Nombre/precio, `· ahora`, mensaje exacto, dentro del viewport, sin solapamiento crítico y auto-hide PASS | ✅ PASS |
+| Samsung Galaxy S23 | 360 × 780 | Nombre/precio, `· ahora`, mensaje exacto, dentro del viewport, sin solapamiento crítico y auto-hide PASS | ✅ PASS |
+| iPad Air | 820 × 1180 | Nombre/precio, `· ahora`, mensaje exacto, dentro del viewport y auto-hide PASS | ✅ PASS |
 
 ## Resultados
 
@@ -41,7 +41,7 @@ PASS/FAIL con evidencia concreta.
 | Bootstrap JS cargado | ✅ PASS | `window.bootstrap` disponible |
 | Toast desde tarjeta | ✅ PASS | Se mostró al activar `Sumar al Evento` |
 | Toast desde Modal | ✅ PASS | El botón del Modal heredó los datos del servicio y mostró el Toast |
-| Texto exacto del Toast | ✅ PASS | `Experiencia agregada a tu evento` coincide exactamente con el spec |
+| Contenido del Toast | ✅ PASS | Muestra `Gourmet Finger Food · $3.500 / pax`, marca `· ahora` y `Experiencia agregada a tu evento` |
 | Posición mobile | ✅ PASS | El Toast permaneció dentro del viewport y no se superpuso con header o Modal |
 | Overflow horizontal | ✅ PASS | `html.scrollWidth` y `body.scrollWidth` no superaron sus anchos útiles |
 | Auto-hide | ✅ PASS | `data-bs-delay="4000"`; se ocultó después de 4500 ms |
@@ -50,7 +50,7 @@ PASS/FAIL con evidencia concreta.
 ## Criterios funcionales comprobados
 
 - Los botones `.btn-sumar-evento` leen `dataset.serviceTitle` y `dataset.servicePrice` antes de mostrar el Toast.
-- El texto visible es exactamente `Experiencia agregada a tu evento`, sin signos ni texto adicional.
+- El cuerpo muestra el nombre y precio del servicio, junto con el texto exacto `Experiencia agregada a tu evento`.
 - La instancia se muestra mediante `bootstrap.Toast.getOrCreateInstance(...).show()`.
 - El Toast incluye botón de cierre y auto-hide configurado.
 - En mobile no bloquea el header ni el Modal y no provoca overflow horizontal.

@@ -23,7 +23,6 @@ la carga de título, imagen, descripción, capacidad, duración, incluye,
 proveedor verificado y precio, su cierre con Escape, backdrop y btn-close, el
 retorno de foco al botón disparador, la ausencia de overflow horizontal y los
 errores de consola. Devolvé resultados PASS/FAIL con evidencia concreta.
-Devolvé resultados PASS/FAIL con evidencia concreta.
 ```
 
 ## Resultados por dispositivo

@@ -363,14 +363,14 @@
                                 <li><strong>Capacidad:</strong> <span id="modalDetalleServicioCapacidad"></span></li>
                                 <li><strong>Duración:</strong> <span id="modalDetalleServicioDuracion"></span></li>
                                 <li><strong>Incluye:</strong> <span id="modalDetalleServicioIncluye"></span></li>
-                                <li>Proveedor verificado</li>
+                                <li><span>Proveedor verificado</span></li>
                             </ul>
                             <p id="modalDetalleServicioPrecio" class="fw-bold"></p>
                         </div>
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cerrar</button>
                     <button type="button" class="btn btn-primary btn-sumar-evento" data-bs-dismiss="modal" data-service-title="" data-service-price="">Sumar al Evento</button>
                 </div>
             </div>
@@ -382,9 +382,13 @@
         <div id="toastConfirmacion" class="toast" role="alert" aria-live="assertive" aria-atomic="true" data-bs-delay="4000">
             <div class="toast-header">
                 <strong class="me-auto">PlanIT</strong>
+                <small>· ahora</small>
                 <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Cerrar"></button>
             </div>
-            <div class="toast-body" id="toastConfirmacionMensaje">Experiencia agregada a tu evento</div>
+            <div class="toast-body">
+                <p id="toastConfirmacionServicio" class="mb-1"></p>
+                <p id="toastConfirmacionMensaje" class="mb-0">Experiencia agregada a tu evento</p>
+            </div>
         </div>
     </div>
 
@@ -394,6 +398,7 @@
         const toastConfirmacionElement = document.getElementById('toastConfirmacion');
         const toastConfirmacion = bootstrap.Toast.getOrCreateInstance(toastConfirmacionElement);
         const toastConfirmacionMensaje = document.getElementById('toastConfirmacionMensaje');
+        const toastConfirmacionServicio = document.getElementById('toastConfirmacionServicio');
         const modalSumarEvento = modalDetalle.querySelector('.btn-sumar-evento');
 
         modalDetalle.addEventListener('show.bs.modal', (event) => {
@@ -418,6 +423,7 @@
                 const price = button.dataset.servicePrice;
                 toastConfirmacionElement.dataset.serviceTitle = title;
                 toastConfirmacionElement.dataset.servicePrice = price;
+                toastConfirmacionServicio.textContent = `${title} · ${price}`;
                 toastConfirmacionMensaje.textContent = 'Experiencia agregada a tu evento';
                 toastConfirmacion.show();
             });
