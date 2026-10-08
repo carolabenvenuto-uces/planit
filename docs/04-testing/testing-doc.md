@@ -14,7 +14,7 @@ Este archivo centraliza el estado de los 10 test cases ejecutados sobre PlanIT, 
 | 6 | [test-case-6.md](test-case-6.md) | Migración y validación responsive Bootstrap 5.3 | ✅ Sin overflow · #59-#62 (#63 pend.) |
 | 7 | [test-case-7.md](test-case-7.md) | Modal Bootstrap: contenido, accesibilidad e interacción | ✅ PASS en 3 dispositivos; capturas enlazadas |
 | 8 | [test-case-8.md](test-case-8.md) | Toast Bootstrap: mensaje exacto, responsive y auto-hide | ✅ PASS en 3 dispositivos; capturas enlazadas |
-| 9 | [test-case-9.md](test-case-9.md) | Componente Iframe Multimedia (Taller Video) | ✅ PASS en 3 dispositivos (iPhone 14 Pro, Galaxy S23, iPad Air) |
+| 9 | [test-case-9.md](test-case-9.md) | Componente Iframe Multimedia (Taller Video) | ⏳ Evidencia manual pendiente en 3 dispositivos |
 | 10 | [test-case-10.md](test-case-10.md) | Componente Details/Summary (FAQ Eventos) | ✅ PASS en 3 dispositivos (iPhone 14 Pro, Galaxy S23, iPad Air) |
 
 ## Historial de ejecuciones
