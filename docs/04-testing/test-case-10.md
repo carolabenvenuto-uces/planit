@@ -15,6 +15,7 @@ Verificar la correcta funcionalidad, accesibilidad e interacción semántica del
 
 ```text
 Usando Playwright MCP con el servidor local en http://localhost:3000/index.html, configurá los viewports de iPhone 14 Pro (393x852), Samsung Galaxy S23 (360x780) e iPad Air (820x1180). Navegá a la sección #faq-section, comprobá que los elementos <details> inicien colapsados, interactuá haciendo clic sobre cada <summary> para validar la conmutación del atributo 'open' y verifiques la legibilidad del texto en 360 px.
+`````
 
 ## Resultados
 
