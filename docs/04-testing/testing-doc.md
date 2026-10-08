@@ -1,9 +1,6 @@
 # Informe de Testing — PWI 2026 (1er Parcial)
 
-Este archivo centraliza el estado de los 8 test cases ejecutados sobre
-PlanIT, cubriendo compatibilidad, responsive, performance, accesibilidad
-y estructura HTML semántica.
-Este archivo centraliza el estado de los 6 test cases ejecutados sobre PlanIT, cubriendo compatibilidad, responsive, performance, accesibilidad y estructura HTML semántica.
+Este archivo centraliza el estado de los 10 test cases ejecutados sobre PlanIT, cubriendo compatibilidad, responsive, performance, accesibilidad y estructura HTML semántica.
 
 ## Test cases
 
@@ -14,58 +11,29 @@ Este archivo centraliza el estado de los 6 test cases ejecutados sobre PlanIT, c
 | 3 | [test-case-3.md](test-case-3.md) | Performance y carga | 🔴 Fix de #28 confirmado ineficaz → nuevo Issue #33 |
 | 4 | [test-case-4.md](test-case-4.md) | Accesibilidad web | ✅ Sin violaciones |
 | 5 | [test-case-5.md](test-case-5.md) | Estructura HTML semántica y CSS | ✅ 1 de 2 avisos de #29 corregido |
-| 6 | [test-case-6.md](test-case-6.md) | Migración y validación responsive Bootstrap 5.3 | ✅ Sin overflow; hallazgos de UI documentados en #51 |
+| 6 | [test-case-6.md](test-case-6.md) | Migración y validación responsive Bootstrap 5.3 | ✅ Sin overflow · #59-#62 (#63 pend.) |
 | 7 | [test-case-7.md](test-case-7.md) | Modal Bootstrap: contenido, accesibilidad e interacción | ✅ PASS en 3 dispositivos; capturas enlazadas |
 | 8 | [test-case-8.md](test-case-8.md) | Toast Bootstrap: mensaje exacto, responsive y auto-hide | ✅ PASS en 3 dispositivos; capturas enlazadas |
-| 6 | [test-case-6.md](test-case-6.md) | Migración y validación responsive Bootstrap 5.3 | ✅ Sin overflow · #59-#62 (#63 pend.) |
+| 9 | [test-case-9.md](test-case-9.md) | Componente Iframe Multimedia (Taller Video) | ✅ PASS en 3 dispositivos (iPhone 14 Pro, Galaxy S23, iPad Air) |
+| 10 | [test-case-10.md](test-case-10.md) | Componente Details/Summary (FAQ Eventos) | ✅ PASS en 3 dispositivos (iPhone 14 Pro, Galaxy S23, iPad Air) |
 
 ## Historial de ejecuciones
 
 ### Ronda 1 — Playwright directo, 21/09/2026
-Ejecutada sobre `feature/responsive-design-add-responsive-styles`
-(estado pre-merge de Carola) y luego repetida sobre `develop`
-post-merge, usando la librería de Playwright directamente porque el
-servidor MCP fallaba al conectar (canal "chrome" no instalado en este
-entorno). Se crearon 5 issues (#25-#29) documentando bugs y mejoras
-encontrados.
+Ejecutada sobre `feature/responsive-design-add-responsive-styles` (estado pre-merge de Carola) y luego repetida sobre `develop` post-merge, usando la librería de Playwright directamente porque el servidor MCP fallaba al conectar (canal "chrome" no instalado en este entorno). Se crearon 5 issues (#25-#29) documentando bugs y mejoras encontrados.
 
-**Nota metodológica sobre el timing:** esta ronda se ejecutó de forma
-diferida, después de que las PRs de Carola ya estaban mergeadas a
-`develop` — no representa estrictamente una validación pre-merge en
-tiempo real, aunque se usó el último commit de cada rama antes de su
-merge para aproximarla. Esta excepción fue señalada como punto
-bloqueante en la revisión de PR #31 por Coordinación (@ValeriaMSilva),
-pendiente de resolución formal.
+**Nota metodológica sobre el timing:** esta ronda se ejecutó de forma diferida, después de que las PRs de Carola ya estaban mergeadas a `develop` — no representa strictly una validación pre-merge en tiempo real, aunque se usó el último commit de cada rama antes de su merge para aproximarla. Esta excepción fue señalada como punto bloqueante en la revisión de PR #31 por Coordinación (@ValeriaMSilva), pendiente de resolución formal.
 
 ### Ronda 2 — MCP real, 25/09/2026
-Tras corregir la configuración del servidor MCP de Playwright
-(agregando el flag `--browser chromium`), se confirmó su conexión real
-y se re-ejecutaron los 5 test cases sobre `develop`, ya con el fix de
-Carola (PR #32, que cierra los Issues #25 a #28) integrado.
+Tras corregir la configuración del servidor MCP de Playwright (agregando el flag `--browser chromium`), se confirmó su conexión real y se re-ejecutaron los 5 test cases sobre `develop`, ya con el fix de Carola (PR #32, que cierra los Issues #25 a #28) integrado.
 
-**Limitación descubierta y documentada:** el servidor MCP disponible
-en este entorno solo expone herramientas para un único motor de
-renderizado (Chromium). A diferencia de la librería completa de
-Playwright (usada en la Ronda 1), no hay forma de cambiar a Firefox,
-WebKit o Edge real vía MCP — solo se puede variar el tamaño de
-viewport. Esto significa que la Ronda 2 cumple el requisito de "usar
-Playwright MCP", pero pierde la cobertura cross-engine real que sí
-tenía la Ronda 1.
+**Limitación descubierta y documentada:** el servidor MCP disponible en este entorno solo expone herramientas para un único motor de renderizado (Chromium). A diferencia de la librería completa de Playwright (usada en la Ronda 1), no hay forma de cambiar a Firefox, WebKit o Edge real vía MCP — solo se puede variar el tamaño de viewport. Esto significa que la Ronda 2 cumple el requisito de "usar Playwright MCP", pero pierde la cobertura cross-engine real que sí tenía la Ronda 1.
 
 **Resultado de la verificación:**
-- Issues #25, #27: confirmados resueltos (#27 visualmente, #25 a nivel
-  de código, sin poder confirmar en WebKit real por la limitación de
-  motor)
-- Issue #26: fix verificado en CSS, no confirmable visualmente por
-  limitación del entorno headless (scrollbars overlay en Linux)
-- Issue #28: **fix confirmado ineficaz** — el análisis de performance
-  demostró que `loading="lazy"` en 3 de 4 imágenes no tiene ningún
-  impacto real, porque el logo (que no recibió el fix) fuerza la
-  descarga igual. Se creó el [Issue #33](https://github.com/carolabenvenuto-uces/planit/issues/33)
-  documentando este hallazgo con evidencia del diff real del PR #32.
-- Issue #29: 1 de 2 avisos corregido (`clip-path`), el otro
-  intencionalmente sin cambios según la propia sugerencia del issue.
-  Se sugiere cerrarlo.
+- Issues #25, #27: confirmados resueltos (#27 visualmente, #25 a nivel de código, sin poder confirmar en WebKit real por la limitación de motor)
+- Issue #26: fix verificado en CSS, no confirmable visualmente por limitación del entorno headless (scrollbars overlay en Linux)
+- Issue #28: **fix confirmado ineficaz** — el análisis de performance demostró que `loading="lazy"` en 3 de 4 imágenes no tiene ningún impacto real, porque el logo (que no recibió el fix) fuerza la descarga igual. Se creó el [Issue #33](https://github.com/carolabenvenuto-uces/planit/issues/33) documentando este hallazgo con evidencia del diff real del PR #32.
+- Issue #29: 1 de 2 avisos corregido (`clip-path`), el otro intencionalmente sin cambios según la propia sugerencia del issue. Se sugiere cerrarlo.
 
 ## Resumen de issues
 
@@ -78,15 +46,7 @@ tenía la Ronda 1.
 
 ## Puntos pendientes de Coordinación
 
-Según la revisión de la PR #31 (@ValeriaMSilva), quedan 2 puntos que
-requieren decisión de Coordinación, no corrección técnica de QA:
+Según la revisión de la PR #31 (@ValeriaMSilva), quedan 2 puntos que requieren decisión de Coordinación, no corrección técnica de QA:
 
-1. **Uso de MCP vs Playwright directo:** resuelto en la Ronda 2 — se
-   logró conectar el MCP real, aunque con la limitación de motor único
-   documentada arriba.
-2. **Momento 1 diferido:** sigue siendo una limitación de timing real
-   (no técnica) — el testing de la Ronda 1 se ejecutó después del
-   merge de las ramas de Carola. Se solicita a Coordinación confirmar
-   si esta excepción metodológica se acepta, dado que no es posible
-   retroactivamente ejecutar un test "pre-merge" sobre una rama que ya
-   fue integrada.
+1. **Uso de MCP vs Playwright directo:** resuelto en la Ronda 2 — se logró conectar el MCP real, aunque con la limitación de motor único documentada arriba.
+2. **Momento 1 diferido:** sigue siendo una limitación de timing real (no técnica) — el testing de la Ronda 1 se ejecutó después del merge de las ramas de Carola. Se solicita a Coordinación confirmar si esta excepción metodológica se acepta, dado que no es posible retroactivamente ejecutar un test "pre-merge" sobre una rama que ya fue integrada.
