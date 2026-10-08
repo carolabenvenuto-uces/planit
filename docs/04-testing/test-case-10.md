@@ -14,21 +14,22 @@ Verificar la correcta funcionalidad, accesibilidad e interacción semántica del
 ### Prompt utilizado
 
 ```text
-Usando Playwright MCP con el servidor local en http://localhost:3000/index.html, configurá los viewports de iPhone 14 Pro (393x852), Samsung Galaxy S23 (360x780) e iPad Air (820x1180). Navegá a la sección #faq-section, comprobá que los elementos <details> inicien colapsados, interactuá haciendo clic sobre cada <summary> para validar la conmutación del atributo 'open' y verifiques la legibilidad del texto en 360 px.
-`````
+Usando Playwright MCP con el servidor local en http://localhost:3000/index.html, configurá los viewports de iPhone 14 Pro (393x852), Samsung Galaxy S23 (360x780) e iPad Air (820x1180). Navegá a #faq-section, comprobá que cada <details> inicie colapsado, activá su <summary> con Tab+Enter y Tab+Espacio para verificar la conmutación de open, el foco visible, la diferencia de estilos abierto/cerrado y la legibilidad a 360 px.
+```
 
 ## Resultados
 
 | Dispositivo | Viewport | Estado Inicial | Interacción Click / Key | Estilo Abierto (`open`) | Overflow | Resultado |
 | --- | --- | --- | --- | --- | --- | --- |
-| iPhone 14 Pro | 393 × 852 | ✅ Colapsado | ✅ Despliega contenido | ✅ Borde índigo `var(--color-primary)` | ✅ Sin overflow | ✅ PASS |
-| Samsung Galaxy S23 | 360 × 780 | ✅ Colapsado | ✅ Despliega contenido | ✅ Borde índigo `var(--color-primary)` | ✅ Sin overflow | ✅ PASS |
-| iPad Air | 820 × 1180 | ✅ Colapsado | ✅ Despliega contenido | ✅ Borde índigo `var(--color-primary)` | ✅ Sin overflow | ✅ PASS |
+| iPhone 14 Pro | 393 × 852 | ✅ Colapsado | ✅ Enter / Espacio | ✅ Fondo y borde abierto distintos; indicador +/− | ✅ Sin overflow | ✅ PASS |
+| Samsung Galaxy S23 | 360 × 780 | ✅ Colapsado | ✅ Enter / Espacio | ✅ Fondo y borde abierto distintos; indicador +/− | ✅ Sin overflow | ✅ PASS |
+| iPad Air | 820 × 1180 | ✅ Colapsado | ✅ Enter / Espacio | ✅ Fondo y borde abierto distintos; indicador +/− | ✅ Sin overflow | ✅ PASS |
 
 ### Verificación de Accesibilidad e Interacción
 
 - **Acceso por Teclado:** Cada ítem `<summary>` es nativamente enfocable mediante la tecla Tab y responde a la activación por Enter o Espacio.
-- **Estilos y Transición:** Estilos aplicados mediante `.custom-faq-item[open]` que destacan el borde en color primario índigo (`var(--color-primary)` = `#4f46e5`) y alternan el indicador accesible.
+- **Foco Visible:** El anillo `:focus-visible` índigo aparece al llegar al `<summary>` con Tab.
+- **Estados:** Cerrado usa fondo muted y borde neutral con indicador `+`; abierto usa fondo de superficie, borde primario `var(--color-primary)` e indicador `−`. El estado abierto se diferencia sin depender solo del color.
 
 ## Capturas de Evidencia
 
@@ -45,4 +46,4 @@ Las capturas con los viewports correspondientes se encuentran en `docs/04-testin
 ## Issues / Hallazgos Relacionados
 
 - **[#47](https://github.com/carolabenvenuto-uces/planit/issues/47)** — Integración y validación de componentes HTML avanzados.
-- **[Bug / Accesibilidad]** — Agregado indicador visual de foco `:focus-visible` para navegación por teclado en los elementos `<summary>`.
+- **[#66](https://github.com/carolabenvenuto-uces/planit/issues/66)** — Foco visible y estado visual abierto/cerrado del FAQ.
