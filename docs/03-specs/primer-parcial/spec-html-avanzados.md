@@ -1,10 +1,10 @@
 # Especificación Técnica: Desarrollador de Componentes HTML Avanzados
 
-**Rol:** Desarrollador de Componentes HTML Avanzados  
-**Estudiante:** Carola Benvenuto (@carolabenvenuto-uces)  
-**Rama asignada:** `feature/dev-comp-html-avanzados-add-components`  
-**Issue principal:** #47    
-**Fecha:** 5 de octubre de 2026  
+**Rol:** Desarrollador de Componentes HTML Avanzados
+**Estudiante:** Carola Benvenuto (@carolabenvenuto-uces)
+**Rama asignada:** `feature/dev-comp-html-avanzados-add-components`
+**Issue principal:** #47
+**Fecha:** 5 de octubre de 2026
 
 ---
 
