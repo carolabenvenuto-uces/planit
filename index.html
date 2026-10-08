@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PlanIT - Plataforma All-in-One de Organización & Experiencias</title>
+    <title>PlanIT - Plataforma All-in-One de Organización &amp; Experiencias</title>
     <!-- Bootstrap 5.3, estilos base del proyecto y personalizaciones -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     <link rel="stylesheet" href="css/styles.css">
@@ -30,6 +30,8 @@
                     <li class="nav-item"><a class="nav-link" href="#presupuesto">Presupuesto</a></li>
                     <li class="nav-item"><a class="nav-link" href="#invitados">Invitados</a></li>
                     <li class="nav-item"><a class="nav-link" href="#catalogo">Catálogo</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#taller-video">Taller</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#faq-section">FAQ</a></li>
                 </ul>
                 <div class="header-actions">
                     <button type="button" class="btn-icon" aria-label="Notificaciones">
@@ -281,6 +283,90 @@
                             </div>
                         </article>
                     </div>
+                </div>
+            </section>
+
+            <!-- ========================================== -->
+            <!-- SECCIÓN: COMPONENTES HTML AVANZADOS       -->
+            <!-- ========================================== -->
+
+            <!-- 1. Componente Iframe Multimedia con Helper Ratio de Bootstrap -->
+            <section id="taller-video" class="panel" aria-labelledby="titulo-taller-video">
+                <div class="panel-header">
+                    <h2 id="titulo-taller-video" class="panel-title">
+                        <svg viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="M8 5v14l11-7Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        Taller en Acción: Cerámica &amp; Chardonnay
+                    </h2>
+                </div>
+                <p class="text-muted small mb-3">
+                    Descubrí cómo se vive la experiencia en directo: técnicas de modelado en torno artesanal, maridaje guiado y ambiente exclusivo.
+                </p>
+                <div class="ratio ratio-16x9">
+                    <iframe
+                        src="https://www.youtube-nocookie.com/embed/5vi0UQDYNCw"
+                        title="Visita al taller: La Cacharra Cerámica"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                        referrerpolicy="strict-origin-when-cross-origin"
+                        loading="lazy"
+                        allowfullscreen>
+                    </iframe>
+                </div>
+            </section>
+
+            <!-- 2. Componente Details / Summary para Preguntas Frecuentes (FAQ) -->
+            <section id="faq-section" class="panel" aria-labelledby="titulo-faq">
+                <div class="panel-header">
+                    <h2 id="titulo-faq" class="panel-title">
+                        <svg viewBox="0 0 24 24" aria-hidden="true">
+                            <circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="2"/>
+                            <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                            <line x1="12" y1="17" x2="12.01" y2="17" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                        Preguntas Frecuentes
+                    </h2>
+                </div>
+                <p class="text-muted small mb-4">
+                    Resolvemos tus dudas principales sobre la organización de eventos y reservas de experiencias en PlanIT.
+                </p>
+
+                <div class="d-flex flex-column gap-3">
+                    <details class="custom-faq-item">
+                        <summary class="fw-semibold text-dark d-flex justify-content-between align-items-center">
+                            <span>¿Cómo funciona la reserva de una experiencia en PlanIT?</span>
+                        </summary>
+                        <p class="mt-3 mb-0 text-secondary small">
+                            Seleccionás la experiencia de tu preferencia desde el catálogo, elegís la fecha y cantidad de invitados, y enviás la solicitud. Nuestro equipo coordinará los proveedores y te confirmará la reserva en menos de 24 horas.
+                        </p>
+                    </details>
+
+                    <details class="custom-faq-item">
+                        <summary class="fw-semibold text-dark d-flex justify-content-between align-items-center">
+                            <span>¿Se pueden personalizar los servicios del catálogo para un evento privado?</span>
+                        </summary>
+                        <p class="mt-3 mb-0 text-secondary small">
+                            ¡Sí! Cada paquete es 100% adaptable. Podés solicitar ajustes de menú, horarios extendidos, ambientación temática o añadir servicios adicionales como catering gourmet o fotografía profesional.
+                        </p>
+                    </details>
+
+                    <details class="custom-faq-item">
+                        <summary class="fw-semibold text-dark d-flex justify-content-between align-items-center">
+                            <span>¿Con cuánta anticipación debo confirmar el presupuesto estimado?</span>
+                        </summary>
+                        <p class="mt-3 mb-0 text-secondary small">
+                            Recomendamos congelar la reserva y confirmar el presupuesto con al menos 15 días de anticipación para garantizar la disponibilidad de locaciones y proveedores exclusivos.
+                        </p>
+                    </details>
+
+                    <details class="custom-faq-item">
+                        <summary class="fw-semibold text-dark d-flex justify-content-between align-items-center">
+                            <span>¿Qué políticas de cancelación se aplican a los proveedores de la plataforma?</span>
+                        </summary>
+                        <p class="mt-3 mb-0 text-secondary small">
+                            Podés cancelar o reprogramar sin costo hasta 7 días antes de la fecha del evento. Cancelaciones dentro de los 7 días previos pueden estar sujetas a retenciones según las políticas individuales de cada proveedor.
+                        </p>
+                    </details>
                 </div>
             </section>
 
