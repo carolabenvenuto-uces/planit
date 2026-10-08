@@ -3,10 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PlanIT - Plataforma All-in-One de Organización & Experiencias</title>
-    <!-- Bootstrap 5.3, Bootstrap Icons, estilos base del proyecto y personalizaciones -->
+    <title>PlanIT - Plataforma All-in-One de Organización &amp; Experiencias</title>
+    <!-- Bootstrap 5.3, estilos base del proyecto y personalizaciones -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="css/styles.css">
     <link rel="stylesheet" href="css/components.css">
     <link rel="stylesheet" href="css/responsive.css">
@@ -223,18 +222,18 @@
             </section>
 
             <!-- SECCIÓN 4: CATÁLOGO DE PLANCITOS RECOMENDADOS -->
-<section id="catalogo" class="panel" aria-labelledby="titulo-catalogo">
-    <div class="panel-header">
-        <h2 id="titulo-catalogo" class="panel-title">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m21 21-4.3-4.3M11 18a7 7 0 1 0 0-14 7 7 0 0 0 0 14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            Catálogo de Plancitos recomendados
-        </h2>
-        <!-- Búsqueda rápida dentro del catálogo -->
-        <form class="catalog-search" role="search" action="#catalogo" method="get">
-            <label for="busqueda-catalogo" class="sr-only">Buscar en el catálogo</label>
-            <input type="search" id="busqueda-catalogo" name="q" placeholder="Buscar proveedor o plancito">
-        </form>
-    </div>
+            <section id="catalogo" class="panel" aria-labelledby="titulo-catalogo">
+                <div class="panel-header">
+                    <h2 id="titulo-catalogo" class="panel-title">
+                        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m21 21-4.3-4.3M11 18a7 7 0 1 0 0-14 7 7 0 0 0 0 14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                        Catálogo de Plancitos recomendados
+                    </h2>
+                    <!-- Búsqueda rápida dentro del catálogo -->
+                    <form class="catalog-search" role="search" action="#catalogo" method="get">
+                        <label for="busqueda-catalogo" class="sr-only">Buscar en el catálogo</label>
+                        <input type="search" id="busqueda-catalogo" name="q" placeholder="Buscar proveedor o plancito">
+                    </form>
+                </div>
 
                 <div class="cards-grid row g-3">
                     <div class="col-12 col-md-4">
@@ -292,39 +291,49 @@
             <!-- ========================================== -->
 
             <!-- 1. Componente Iframe Multimedia con Helper Ratio de Bootstrap -->
-            <section id="taller-video" class="panel my-4 p-4 bg-white rounded-3 shadow-sm border" aria-labelledby="titulo-taller-video">
-                <div class="d-flex align-items-center mb-3">
-                    <h2 id="titulo-taller-video" class="panel-title mb-0 h4 fw-bold text-dark">
-                        <i class="bi bi-play-btn-fill text-danger me-2"></i>Taller en Acción: Cerámica &amp; Chardonnay
+            <section id="taller-video" class="panel" aria-labelledby="titulo-taller-video">
+                <div class="panel-header">
+                    <h2 id="titulo-taller-video" class="panel-title">
+                        <svg viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="M8 5v14l11-7Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        Taller en Acción: Cerámica &amp; Chardonnay
                     </h2>
                 </div>
                 <p class="text-muted small mb-3">
                     Descubrí cómo se vive la experiencia en directo: técnicas de modelado en torno artesanal, maridaje guiado y ambiente exclusivo.
                 </p>
-                <div class="ratio ratio-16x9 rounded-3 overflow-hidden shadow-sm">
-                    <iframe
-                        src="https://www.youtube.com/embed/5vi0UQDYNCw"
-                        title="Taller en Acción: Cerámica y Chardonnay - PlanIT"
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                <div class="ratio ratio-16x9">
+                    <iframe 
+                        src="https://www.youtube-nocookie.com/embed/5vi0UQDYNCw" 
+                        title="Visita al taller: La Cacharra Cerámica" 
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+                        referrerpolicy="strict-origin-when-cross-origin" 
+                        loading="lazy" 
                         allowfullscreen>
                     </iframe>
                 </div>
             </section>
 
             <!-- 2. Componente Details / Summary para Preguntas Frecuentes (FAQ) -->
-            <section id="faq-section" class="panel my-4 p-4 bg-white rounded-3 shadow-sm border" aria-labelledby="titulo-faq">
-                <div class="d-flex align-items-center mb-3">
-                    <h2 id="titulo-faq" class="panel-title mb-0 h4 fw-bold text-dark">
-                        <i class="bi bi-question-circle-fill text-primary me-2"></i>Preguntas Frecuentes (FAQ)
+            <section id="faq-section" class="panel" aria-labelledby="titulo-faq">
+                <div class="panel-header">
+                    <h2 id="titulo-faq" class="panel-title">
+                        <svg viewBox="0 0 24 24" aria-hidden="true">
+                            <circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="2"/>
+                            <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                            <line x1="12" y1="17" x2="12.01" y2="17" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                        Preguntas Frecuentes de Eventos
                     </h2>
                 </div>
                 <p class="text-muted small mb-4">
                     Resolvemos tus dudas principales sobre la organización de eventos y reservas de experiencias en PlanIT.
                 </p>
 
-                <div class="faq-accordion d-flex flex-column gap-3">
+                <div class="d-flex flex-column gap-3">
                     <details class="p-3 border rounded-3 bg-light custom-faq-item">
-                        <summary class="fw-semibold text-dark cursor-pointer d-flex justify-content-between align-items-center">
+                        <summary class="fw-semibold text-dark d-flex justify-content-between align-items-center">
                             <span>¿Cómo funciona la reserva de una experiencia en PlanIT?</span>
                         </summary>
                         <p class="mt-3 mb-0 text-secondary small">
@@ -333,7 +342,7 @@
                     </details>
 
                     <details class="p-3 border rounded-3 bg-light custom-faq-item">
-                        <summary class="fw-semibold text-dark cursor-pointer d-flex justify-content-between align-items-center">
+                        <summary class="fw-semibold text-dark d-flex justify-content-between align-items-center">
                             <span>¿Se pueden personalizar los servicios del catálogo para un evento privado?</span>
                         </summary>
                         <p class="mt-3 mb-0 text-secondary small">
@@ -342,7 +351,7 @@
                     </details>
 
                     <details class="p-3 border rounded-3 bg-light custom-faq-item">
-                        <summary class="fw-semibold text-dark cursor-pointer d-flex justify-content-between align-items-center">
+                        <summary class="fw-semibold text-dark d-flex justify-content-between align-items-center">
                             <span>¿Con cuánta anticipación debo confirmar el presupuesto estimado?</span>
                         </summary>
                         <p class="mt-3 mb-0 text-secondary small">
@@ -351,7 +360,7 @@
                     </details>
 
                     <details class="p-3 border rounded-3 bg-light custom-faq-item">
-                        <summary class="fw-semibold text-dark cursor-pointer d-flex justify-content-between align-items-center">
+                        <summary class="fw-semibold text-dark d-flex justify-content-between align-items-center">
                             <span>¿Qué políticas de cancelación se aplican a los proveedores de la plataforma?</span>
                         </summary>
                         <p class="mt-3 mb-0 text-secondary small">
