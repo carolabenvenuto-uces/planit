@@ -49,5 +49,18 @@ Se utilizará `@playwright/mcp` ejecutando tests sobre `http://localhost:3000` p
 
 ---
 
-## MOMENTO 2: Evidencia y Cierre (AL FINALIZAR)
-*(Esta sección se completará al cerrar la tarea con los prompts, hallazgos y evidencias de testing).*
+## MOMENTO 2 — Evidencia de Cierre e Integración
+
+### 1. Resumen del Desarrollo
+- Se incorporó el componente `<iframe>` multimedia con la URL del taller de cerámica artesanal (`https://www.youtube.com/embed/5vi0UQDYNCw`), envuelto en el helper responsivo `.ratio.ratio-16x9` de Bootstrap en la sección `#taller-video`.
+- Se maquetó la sección `#faq-section` de Preguntas Frecuentes utilizando la estructura semántica nativa `<details>` y `<summary>`, con estilos personalizados `.custom-faq-item` en `css/components.css`.
+- Ambos componentes quedaron ubicados al final de la columna principal `col-lg-8`, respetando la grilla de 12 columnas aprobada en el Figma.
+
+### 2. Evidencia de Testing Automatizado
+- **Test Case 9 (TC9):** Validación responsiva y de accesibilidad para `<iframe>`. Estado: `PASS`.
+- **Test Case 10 (TC10):** Validación de conmutación del atributo `open` y navegación por teclado en `<details>/<summary>`. Estado: `PASS`.
+
+### 3. Trazabilidad
+- **PR:** [#48](https://github.com/carolabenvenuto-uces/planit/pull/48)
+- **Issue:** [#47](https://github.com/carolabenvenuto-uces/planit/issues/47)
+- **Branch:** `feature/dev-comp-html-avanzados-add-components`
