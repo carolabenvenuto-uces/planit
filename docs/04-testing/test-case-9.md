@@ -15,6 +15,7 @@ Verificar que el componente `<iframe>` integrado en la sección `#taller-video` 
 
 ```text
 Usando Playwright MCP con el servidor local en http://localhost:3000/index.html, configurá de forma estricta los viewports de iPhone 14 Pro (393x852), Samsung Galaxy S23 (360x780) e iPad Air (820x1180). Para cada viewport navegá a la sección #taller-video, verificá la visibilidad del contenedor ratio-16x9, comprobá que el atributo src apunte al video promocional del taller de cerámica, validá el atributo title accesible y verificá que no se produzca desbordamiento horizontal.
+`````
 
 ## Resultados
 
