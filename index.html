@@ -3,44 +3,52 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PlanIT - Plataforma All-in-One de Organización & Experiencias</title>
-    <!-- Hojas de Estilo CSS -->
+    <title>PlanIT - Plataforma All-in-One de Organización &amp; Experiencias</title>
+    <!-- Bootstrap 5.3, estilos base del proyecto y personalizaciones -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     <link rel="stylesheet" href="css/styles.css">
     <link rel="stylesheet" href="css/components.css">
     <link rel="stylesheet" href="css/responsive.css">
+    <link rel="stylesheet" href="css/bootstrap-overrides.css">
 </head>
 <body>
 
     <!-- CABECERA PRINCIPAL (estructura del mockup: logo, navegación y acciones de usuario) -->
     <header class="site-header">
-        <a href="#mi-evento" class="logo">
-            <img src="./docs/01-mockup/actividad-obligatoria-2/logo-planit.svg" alt="" width="32" height="32">
-            <span>PlanIT</span>
-        </a>
-
-        <!-- Navegación principal: destinos del mockup aprobado -->
-        <nav aria-label="Navegación principal">
-            <ul>
-                <li><a href="#mi-evento" aria-current="page">Mi Evento</a></li>
-                <li><a href="#presupuesto">Presupuesto</a></li>
-                <li><a href="#invitados">Invitados</a></li>
-                <li><a href="#catalogo">Catálogo</a></li>
-            </ul>
-        </nav>
-
-        <div class="header-actions">
-            <button type="button" class="btn-icon" aria-label="Notificaciones">
-                <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M6 8a6 6 0 1 1 12 0c0 7 3 9 3 9H3s3-2 3-9M10.3 21a1.94 1.94 0 0 0 3.4 0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <nav class="navbar navbar-expand-lg container-fluid" aria-label="Navegación principal">
+            <a href="#mi-evento" class="navbar-brand logo">
+                <img src="./docs/01-mockup/actividad-obligatoria-2/logo-planit.svg" alt="" width="32" height="32">
+                <span>PlanIT</span>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#main-navigation" aria-controls="main-navigation" aria-expanded="false" aria-label="Abrir navegación">
+                <span class="navbar-toggler-icon"></span>
             </button>
-            <img src="./docs/01-mockup/actividad-obligatoria-2/avatar-usuario.png" alt="Foto de perfil de la usuaria" class="avatar" width="34" height="34">
-            <a href="#mi-evento" class="btn-primary btn-nuevo-evento"><span aria-hidden="true">+</span> Nuevo Evento</a>
-        </div>
+            <div class="collapse navbar-collapse" id="main-navigation">
+                <!-- Navegación principal: destinos del mockup aprobado -->
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item"><a class="nav-link" href="#mi-evento" aria-current="page">Mi Evento</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#presupuesto">Presupuesto</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#invitados">Invitados</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#catalogo">Catálogo</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#taller-video">Taller</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#faq-section">FAQ</a></li>
+                </ul>
+                <div class="header-actions">
+                    <button type="button" class="btn-icon" aria-label="Notificaciones">
+                        <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M6 8a6 6 0 1 1 12 0c0 7 3 9 3 9H3s3-2 3-9M10.3 21a1.94 1.94 0 0 0 3.4 0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    </button>
+                    <img src="./docs/01-mockup/actividad-obligatoria-2/avatar-usuario.png" alt="Foto de perfil de la usuaria" class="avatar" width="34" height="34">
+                    <a href="#mi-evento" class="btn-primary btn-nuevo-evento"><span aria-hidden="true">+</span> Nuevo Evento</a>
+                </div>
+            </div>
+        </nav>
     </header>
 
     <!-- LAYOUT PRINCIPAL: columna de contenido + columna lateral (dashboard del mockup) -->
-    <div class="app-layout">
+    <div class="container app-layout">
+        <div class="row g-4">
 
-        <main>
+        <main class="col-12 col-lg-8">
             <!-- Título principal para la jerarquía de headings (el mockup no lo muestra visualmente) -->
             <h1 class="sr-only">Panel de organización de eventos de PlanIT</h1>
 
@@ -227,46 +235,145 @@
                     </form>
                 </div>
 
-                <div class="cards-grid">
-                    <article class="card">
-                        <img src="./docs/01-mockup/actividad-obligatoria-2/catalogo-gourmet-finger-food.jpg" alt="Mesa de catering con bandejas de mini sándwiches y bocados en varios niveles" width="1344" height="655" loading="lazy">
-                        <div class="card-body">
-                            <h3>Gourmet Finger Food</h3>
-                            <p>Selección premium fría y caliente para recepción. Variedad para todos los gustos.</p>
-                            <p class="card-meta">Catering · Hasta 200 pax · Zona Norte GBA</p>
-                            <p class="card-price">$3.500 / pax</p>
-                            <button type="button" class="btn-outline">Sumar al Evento</button>
-                        </div>
-                    </article>
+                <div class="cards-grid row g-3">
+                    <div class="col-12 col-md-4">
+                        <article class="card">
+                            <img src="./docs/01-mockup/actividad-obligatoria-2/catalogo-gourmet-finger-food.jpg" alt="Mesa de catering con bandejas de mini sándwiches y bocados en varios niveles" width="1344" height="655" loading="lazy">
+                            <div class="card-body">
+                                <h3>Gourmet Finger Food</h3>
+                                <p>Selección premium fría y caliente para recepción. Variedad para todos los gustos.</p>
+                                <p class="card-meta">Catering · Hasta 200 pax · Zona Norte GBA</p>
+                                <p class="card-price">$3.500 / pax</p>
+                                <div class="card-actions d-grid gap-2 mt-2">
+                                    <button type="button" class="btn btn-outline-primary btn-ver-detalle" data-bs-toggle="modal" data-bs-target="#modalDetalleServicio" data-service-title="Gourmet Finger Food" data-service-image="./docs/01-mockup/actividad-obligatoria-2/catalogo-gourmet-finger-food.jpg" data-service-alt="Mesa de catering con bandejas de mini sándwiches y bocados en varios niveles" data-service-description="Selección premium fría y caliente para recepción. Variedad para todos los gustos." data-service-details="Catering · Hasta 200 pax · Zona Norte GBA" data-service-capacidad="Hasta 200 pax" data-service-duracion="4 horas" data-service-incluye="Finger food frío y caliente, montaje y reposición" data-service-price="$3.500 / pax">Ver detalle</button>
+                                    <button type="button" class="btn btn-primary btn-sumar-evento" data-service-title="Gourmet Finger Food" data-service-price="$3.500 / pax">Sumar al Evento</button>
+                                </div>
+                            </div>
+                        </article>
+                    </div>
 
-                    <article class="card">
-                        <img src="./docs/01-mockup/actividad-obligatoria-2/catalogo-flores-pilar.jpg" alt="Centro de mesa con rosas y peonías rosadas sobre una mesa de salón de eventos" width="1344" height="655" loading="lazy">
-                        <div class="card-body">
-                            <h3>Flores Pilar</h3>
-                            <p>Centros de mesa personalizados y ramo para novias con flores naturales de estación.</p>
-                            <p class="card-meta">Decoración · 1 evento por fecha · Pilar</p>
-                            <p class="card-price">$70.000 / base</p>
-                            <button type="button" class="btn-outline">Sumar al Evento</button>
-                        </div>
-                    </article>
+                    <div class="col-12 col-md-4">
+                        <article class="card">
+                            <img src="./docs/01-mockup/actividad-obligatoria-2/catalogo-flores-pilar.jpg" alt="Centro de mesa con rosas y peonías rosadas sobre una mesa de salón de eventos" width="1344" height="655" loading="lazy">
+                            <div class="card-body">
+                                <h3>Flores Pilar</h3>
+                                <p>Centros de mesa personalizados y ramo para novias con flores naturales de estación.</p>
+                                <p class="card-meta">Decoración · 1 evento por fecha · Pilar</p>
+                                <p class="card-price">$70.000 / base</p>
+                                <div class="card-actions d-grid gap-2 mt-2">
+                                    <button type="button" class="btn btn-outline-primary btn-ver-detalle" data-bs-toggle="modal" data-bs-target="#modalDetalleServicio" data-service-title="Flores Pilar" data-service-image="./docs/01-mockup/actividad-obligatoria-2/catalogo-flores-pilar.jpg" data-service-alt="Centro de mesa con rosas y peonías rosadas sobre una mesa de salón de eventos" data-service-description="Centros de mesa personalizados y ramo para novias con flores naturales de estación." data-service-details="Decoración · 1 evento por fecha · Pilar" data-service-capacidad="1 evento por fecha" data-service-duracion="1 jornada de montaje" data-service-incluye="Centros de mesa personalizados y ramo para novias" data-service-price="$70.000 / base">Ver detalle</button>
+                                    <button type="button" class="btn btn-primary btn-sumar-evento" data-service-title="Flores Pilar" data-service-price="$70.000 / base">Sumar al Evento</button>
+                                </div>
+                            </div>
+                        </article>
+                    </div>
 
-                    <article class="card">
-                        <img src="./docs/01-mockup/actividad-obligatoria-2/catalogo-dj-lucas-sonido.jpg" alt="DJ con auriculares mezclando en una consola frente a una pista iluminada" width="1344" height="655" loading="lazy">
-                        <div class="card-body">
-                            <h3>DJ Lucas &amp; Sonido</h3>
-                            <p>Equipamiento de audio completo de alta fidelidad, iluminación robótica y pista de baile.</p>
-                            <p class="card-meta">Sonido · Hasta 300 personas · CABA y GBA</p>
-                            <p class="card-price">$8.000 / hora</p>
-                            <button type="button" class="btn-outline">Sumar al Evento</button>
-                        </div>
-                    </article>
+                    <div class="col-12 col-md-4">
+                        <article class="card">
+                            <img src="./docs/01-mockup/actividad-obligatoria-2/catalogo-dj-lucas-sonido.jpg" alt="DJ con auriculares mezclando en una consola frente a una pista iluminada" width="1344" height="655" loading="lazy">
+                            <div class="card-body">
+                                <h3>DJ Lucas &amp; Sonido</h3>
+                                <p>Equipamiento de audio completo de alta fidelidad, iluminación robótica y pista de baile.</p>
+                                <p class="card-meta">Sonido · Hasta 300 personas · CABA y GBA</p>
+                                <p class="card-price">$8.000 / hora</p>
+                                <div class="card-actions d-grid gap-2 mt-2">
+                                    <button type="button" class="btn btn-outline-primary btn-ver-detalle" data-bs-toggle="modal" data-bs-target="#modalDetalleServicio" data-service-title="DJ Lucas &amp; Sonido" data-service-image="./docs/01-mockup/actividad-obligatoria-2/catalogo-dj-lucas-sonido.jpg" data-service-alt="DJ con auriculares mezclando en una consola frente a una pista iluminada" data-service-description="Equipamiento de audio completo de alta fidelidad, iluminación robótica y pista de baile." data-service-details="Sonido · Hasta 300 personas · CABA y GBA" data-service-capacidad="Hasta 300 personas" data-service-duracion="6 horas" data-service-incluye="DJ, sonido de alta fidelidad e iluminación robótica" data-service-price="$8.000 / hora">Ver detalle</button>
+                                    <button type="button" class="btn btn-primary btn-sumar-evento" data-service-title="DJ Lucas &amp; Sonido" data-service-price="$8.000 / hora">Sumar al Evento</button>
+                                </div>
+                            </div>
+                        </article>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ========================================== -->
+            <!-- SECCIÓN: COMPONENTES HTML AVANZADOS       -->
+            <!-- ========================================== -->
+
+            <!-- 1. Componente Iframe Multimedia con Helper Ratio de Bootstrap -->
+            <section id="taller-video" class="panel" aria-labelledby="titulo-taller-video">
+                <div class="panel-header">
+                    <h2 id="titulo-taller-video" class="panel-title">
+                        <svg viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="M8 5v14l11-7Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        Taller en Acción: Cerámica &amp; Chardonnay
+                    </h2>
+                </div>
+                <p class="text-muted small mb-3">
+                    Descubrí cómo se vive la experiencia en directo: técnicas de modelado en torno artesanal, maridaje guiado y ambiente exclusivo.
+                </p>
+                <div class="ratio ratio-16x9">
+                    <iframe
+                        src="https://www.youtube-nocookie.com/embed/5vi0UQDYNCw"
+                        title="Visita al taller: La Cacharra Cerámica"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                        referrerpolicy="strict-origin-when-cross-origin"
+                        loading="lazy"
+                        allowfullscreen>
+                    </iframe>
+                </div>
+            </section>
+
+            <!-- 2. Componente Details / Summary para Preguntas Frecuentes (FAQ) -->
+            <section id="faq-section" class="panel" aria-labelledby="titulo-faq">
+                <div class="panel-header">
+                    <h2 id="titulo-faq" class="panel-title">
+                        <svg viewBox="0 0 24 24" aria-hidden="true">
+                            <circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="2"/>
+                            <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                            <line x1="12" y1="17" x2="12.01" y2="17" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                        Preguntas Frecuentes
+                    </h2>
+                </div>
+                <p class="text-muted small mb-4">
+                    Resolvemos tus dudas principales sobre la organización de eventos y reservas de experiencias en PlanIT.
+                </p>
+
+                <div class="d-flex flex-column gap-3">
+                    <details class="custom-faq-item">
+                        <summary class="fw-semibold text-dark d-flex justify-content-between align-items-center">
+                            <span>¿Cómo funciona la reserva de una experiencia en PlanIT?</span>
+                        </summary>
+                        <p class="mt-3 mb-0 text-secondary small">
+                            Seleccionás la experiencia de tu preferencia desde el catálogo, elegís la fecha y cantidad de invitados, y enviás la solicitud. Nuestro equipo coordinará los proveedores y te confirmará la reserva en menos de 24 horas.
+                        </p>
+                    </details>
+
+                    <details class="custom-faq-item">
+                        <summary class="fw-semibold text-dark d-flex justify-content-between align-items-center">
+                            <span>¿Se pueden personalizar los servicios del catálogo para un evento privado?</span>
+                        </summary>
+                        <p class="mt-3 mb-0 text-secondary small">
+                            ¡Sí! Cada paquete es 100% adaptable. Podés solicitar ajustes de menú, horarios extendidos, ambientación temática o añadir servicios adicionales como catering gourmet o fotografía profesional.
+                        </p>
+                    </details>
+
+                    <details class="custom-faq-item">
+                        <summary class="fw-semibold text-dark d-flex justify-content-between align-items-center">
+                            <span>¿Con cuánta anticipación debo confirmar el presupuesto estimado?</span>
+                        </summary>
+                        <p class="mt-3 mb-0 text-secondary small">
+                            Recomendamos congelar la reserva y confirmar el presupuesto con al menos 15 días de anticipación para garantizar la disponibilidad de locaciones y proveedores exclusivos.
+                        </p>
+                    </details>
+
+                    <details class="custom-faq-item">
+                        <summary class="fw-semibold text-dark d-flex justify-content-between align-items-center">
+                            <span>¿Qué políticas de cancelación se aplican a los proveedores de la plataforma?</span>
+                        </summary>
+                        <p class="mt-3 mb-0 text-secondary small">
+                            Podés cancelar o reprogramar sin costo hasta 7 días antes de la fecha del evento. Cancelaciones dentro de los 7 días previos pueden estar sujetas a retenciones según las políticas individuales de cada proveedor.
+                        </p>
+                    </details>
                 </div>
             </section>
 
         </main>
 
         <!-- COLUMNA LATERAL: resumen financiero, tareas y alerta (componentes del mockup) -->
-        <aside class="sidebar" aria-label="Resumen del evento">
+        <aside class="sidebar col-12 col-lg-4" aria-label="Resumen del evento">
 
             <section class="panel panel-resumen" aria-labelledby="titulo-resumen">
                 <h2 id="titulo-resumen" class="panel-title">
@@ -313,12 +420,66 @@
             </p>
 
         </aside>
+        </div>
     </div>
 
     <!-- PIE DE PÁGINA -->
     <footer class="site-footer">
-        <p>PlanIT &copy; 2026 — Proyecto universitario de organización de eventos</p>
+        <div class="container">
+            <p>PlanIT &copy; 2026 — Proyecto universitario de organización de eventos</p>
+        </div>
     </footer>
+
+    <!-- Modal reutilizable para la ficha técnica del servicio seleccionado -->
+    <div class="modal fade" id="modalDetalleServicio" tabindex="-1" aria-labelledby="modalDetalleServicioTitulo" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 class="modal-title" id="modalDetalleServicioTitulo">Detalle del servicio</h2>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row g-4 align-items-start">
+                        <div class="col-12 col-md-5">
+                            <img id="modalDetalleServicioImagen" class="img-fluid rounded" alt="">
+                        </div>
+                        <div class="col-12 col-md-7">
+                            <p id="modalDetalleServicioDescripcion"></p>
+                            <ul class="list-unstyled small mb-0" aria-label="Detalles del servicio">
+                                <li><strong>Capacidad:</strong> <span id="modalDetalleServicioCapacidad"></span></li>
+                                <li><strong>Duración:</strong> <span id="modalDetalleServicioDuracion"></span></li>
+                                <li><strong>Incluye:</strong> <span id="modalDetalleServicioIncluye"></span></li>
+                                <li><span>Proveedor verificado</span></li>
+                            </ul>
+                            <p id="modalDetalleServicioPrecio" class="fw-bold"></p>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cerrar</button>
+                    <button type="button" class="btn btn-primary btn-sumar-evento" data-bs-dismiss="modal" data-service-title="" data-service-price="">Sumar al Evento</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast de confirmación fijo en la esquina inferior derecha -->
+    <div class="toast-container position-fixed bottom-0 end-0 p-3">
+        <div id="toastConfirmacion" class="toast" role="status" aria-live="polite" aria-atomic="true" data-bs-delay="4000">
+            <div class="toast-header">
+                <strong class="me-auto">PlanIT</strong>
+                <small>· ahora</small>
+                <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Cerrar"></button>
+            </div>
+            <div class="toast-body">
+                <p id="toastConfirmacionServicio" class="mb-1"></p>
+                <p id="toastConfirmacionMensaje" class="mb-0">Experiencia agregada a tu evento</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <script src="js/componentes-bootstrap.js" defer></script>
 
 </body>
 </html>
