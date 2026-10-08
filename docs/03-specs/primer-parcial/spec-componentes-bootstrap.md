@@ -1,0 +1,154 @@
+# Especificación Técnica: Componentes Bootstrap v5.3
+
+**Proyecto:** Cockpit Operativo PlanIT — Primer Parcial 
+**Rol:** Especialista en Componentes Bootstrap
+**Rama:** `feature/dev-comp-bootstrap-modal-toast`
+**Nota sobre nomenclatura de la rama:** Para este grupo de 3 integrantes, el desarrollo de la tarea asignada al rol de Especialista en Componentes Bootstrap se trabajó directamente sobre la rama `feature/dev-comp-bootstrap-modal-toast` (en lugar del nombre genérico `feature/esp-componentes-bootstrap-add-components`). No se renombró posteriormente para preservar la trazabilidad del historial de commits, las referencias cruzadas en el repositorio y la vinculación activa con la PR #54 y la Issue #53.
+
+## 1. Objetivo y Alcance
+
+### Objetivo
+
+Planificar la incorporación de los componentes interactivos Modal y Toast de Bootstrap v5.3 en el catálogo del Cockpit Operativo PlanIT, manteniendo la identidad visual existente y utilizando el bundle JavaScript oficial de Bootstrap.
+
+### Alcance
+
+- Incorporar un Modal para consultar la ficha técnica y la vista previa detallada de cada servicio del catálogo.
+- Incorporar un Toast para confirmar de forma interactiva que un servicio fue agregado al evento.
+- Mantener la compatibilidad con la grilla responsive, la paleta de PlanIT y los estilos existentes.
+- Garantizar que ambos componentes sean utilizables con mouse, teclado y tecnologías de asistencia.
+- No modificar la lógica de persistencia ni implementar una API: la interacción se limitará al estado de la interfaz.
+
+## 2. Definición Técnica de Componentes
+
+### 2.1. Modal de Bootstrap v5.3
+
+**Uso funcional:** ficha técnica y vista previa detallada del servicio al hacer clic en un ítem del catálogo.
+
+**Estructura prevista:**
+
+- Un disparador por servicio del catálogo, asociado mediante `data-bs-toggle="modal"` y `data-bs-target="#serviceModal"`.
+- Un contenedor raíz con las clases `modal fade`, atributo `id="serviceModal"`, `tabindex="-1"`, `aria-labelledby` y `aria-hidden="true"`.
+- Estructura interna basada en `modal-dialog`, `modal-content`, `modal-header`, `modal-body` y `modal-footer`.
+- Botón de cierre con las clases `btn-close`, `data-bs-dismiss="modal"`, `aria-label="Cerrar"` y foco accesible.
+- Título del servicio dentro de `modal-title`, identificado por el `aria-labelledby` del modal.
+- Imagen responsiva del servicio con `img-fluid` y texto alternativo descriptivo.
+- Descripción completa del servicio, categoría o alcance, y precio correspondiente.
+- Botón `Sumar al Evento` en el pie del modal, con `data-bs-dismiss="modal"` después de ejecutar la confirmación.
+- Uso de atributos `data-*` o una fuente de datos equivalente para completar el contenido del modal según el servicio seleccionado, sin duplicar modales innecesariamente.
+
+**Comportamiento esperado:**
+
+- El modal se abre al seleccionar un servicio del catálogo.
+- Bootstrap administra el foco, el backdrop y el cierre mediante `btn-close`, tecla `Escape` y click fuera del contenido cuando corresponda.
+- El contenido no debe generar overflow horizontal en mobile, tablet ni desktop.
+- La imagen debe conservar su proporción y adaptarse al ancho disponible.
+
+### 2.2. Toast de Bootstrap v5.3
+
+**Uso funcional:** notificación emergente e interactiva de confirmación al presionar `Sumar al Evento`.
+
+**Estructura prevista:**
+
+- Un contenedor global `toast-container position-fixed bottom-0 end-0` para ubicar las notificaciones en la esquina inferior derecha.
+- Un elemento con las clases `toast`, `role="alert"`, `aria-live="assertive"` y `aria-atomic="true"`.
+- Encabezado del toast con la identidad PlanIT y botón de cierre mediante `btn-close` y `data-bs-dismiss="toast"`.
+- Mensaje visible exacto: **“Experiencia agregada a tu evento”**.
+- Configuración de temporizador y auto-hide mediante Bootstrap, con duración documentada en la implementación.
+- Botón de cierre disponible para descartar el toast manualmente antes de que finalice el temporizador.
+- Separación visual suficiente respecto de los bordes de la pantalla y adaptación a viewports pequeños.
+
+**Comportamiento esperado:**
+
+- Al activar `Sumar al Evento`, el toast se muestra sin recargar la página.
+- El toast permanece visible durante el intervalo configurado y luego se oculta automáticamente.
+- El usuario puede cerrarlo manualmente mediante el botón de cierre.
+- La notificación no debe bloquear la navegación ni ocultar controles importantes del catálogo.
+- El mensaje debe ser anunciado por tecnologías de asistencia mediante los atributos ARIA definidos.
+
+### 2.3. Integración visual y técnica
+
+- Utilizar Bootstrap v5.3 desde el CDN y `bootstrap.bundle.min.js`, que incluye Popper para los componentes interactivos.
+- Mantener la carga de `css/bootstrap-overrides.css` después de Bootstrap y de los estilos base del proyecto.
+- Reutilizar las variables de color, tipografía, bordes y sombras de PlanIT mediante las variables CSS existentes y los overrides de Bootstrap.
+- Evitar estilos inline salvo la configuración dinámica estrictamente necesaria para el contenido del componente.
+- Mantener nombres accesibles, foco visible y orden de tabulación coherente.
+
+## 3. Criterios de Aceptación
+
+### Modal
+
+- [x] Cada ítem o acción del catálogo permite abrir la ficha técnica del servicio correspondiente.
+- [x] El modal contiene botón `btn-close`, título, imagen, descripción completa, precio y botón `Sumar al Evento`.
+- [x] El modal puede cerrarse con el botón de cierre, la tecla `Escape` y el comportamiento estándar de Bootstrap configurado.
+- [x] El contenido se adapta correctamente a 320 px, 375 px, 768 px, 992 px y resoluciones superiores.
+- [x] El foco se gestiona correctamente y el modal tiene una relación válida entre `aria-labelledby` y su título.
+
+### Toast
+
+- [x] Al presionar `Sumar al Evento` se muestra un Toast sin recargar la página.
+- [x] El Toast usa `toast-container position-fixed bottom-0 end-0`.
+- [x] El mensaje visible es exactamente “Experiencia agregada a tu evento”.
+- [x] Tiene auto-hide con temporizador configurado y botón de cierre manual.
+- [x] Sus atributos `role`, `aria-live` y `aria-atomic` permiten anunciar la confirmación.
+- [x] No genera overflow horizontal ni tapa de forma permanente controles del catálogo.
+
+### Integración y calidad
+
+- [x] Bootstrap v5.3 y su bundle JavaScript cargan sin errores ni recursos faltantes.
+- [x] Modal y Toast respetan la paleta y la tipografía de PlanIT mediante los overrides existentes.
+- [x] La consola del navegador no presenta errores JavaScript al abrir, cerrar o reutilizar los componentes.
+- [x] La interacción funciona con mouse y teclado.
+- [x] Se ejecutan pruebas responsive y se documentan los resultados.
+
+## 4. Registro de Evidencias
+
+- **Prompt de implementación utilizado:**
+
+	```text
+	Por favor implementá en index.html y en el script de JavaScript correspondiente la funcionalidad del Modal de ficha técnica (#modalDetalleServicio) y el Toast de confirmación (#toastConfirmacion) utilizando Bootstrap v5.3:
+
+	1. Modal de Ficha Técnica:
+	- Estructurar el modal con cabecera, cuerpo y pie.
+	- Incluir en el cuerpo la imagen descriptiva (sin src inicial para cumplir validación W3C), el título, la descripción y la lista de detalles (Capacidad, Duración, Incluye y badge de Proveedor verificado).
+	- Configurar el botón de cierre en variante outline (btn-outline-secondary).
+	- Vincular los disparadores mediante data-attributes en las tarjetas del catálogo para poblar dinámicamente el modal al hacer clic en "Ver detalle".
+
+	2. Toast de Confirmación:
+	- Crear la estructura del toast con la cabecera ("· ahora") y el cuerpo con el mensaje exacto "Experiencia agregada a tu evento" junto al título y precio del servicio.
+	- Vincular los botones "Sumar al Evento" para actualizar el contenido dinámicamente y disparar el toast.
+
+	3. Estilos y Accesibilidad:
+	- Aplicar personalización de variables nativas de Bootstrap en css/bootstrap-overrides.css sin utilizar !important.
+	- Garantizar accesibilidad de teclado, cierre por tecla Escape, clic en backdrop y retorno del foco al disparador.
+	```
+
+- **Prompt de QA utilizado:**
+
+	```text
+	Usando Playwright MCP, ejecutá de forma automatizada los Test Cases 7 (Modal) y 8 (Toast) navegando a http://localhost:3000/index.html. Repetí ambas verificaciones en los tres dispositivos obligatorios: iPhone 14 Pro (393x852), Samsung Galaxy S23 (360x780) e iPad Air (820x1180). Para TC7 verificá la apertura y cierre de #modalDetalleServicio, el botón Cerrar, la tecla Escape, el cierre mediante backdrop, el retorno del foco al disparador, la carga dinámica de contenido, la visualización responsive y la ausencia de overflow horizontal. Para TC8 verificá la activación desde tarjetas y Modal, el mensaje exacto, título y precio del servicio, la marca de tiempo, el auto-hide, el cierre manual, la visualización responsive y la ausencia de overflow horizontal. Registrá resultados PASS/FAIL, errores de consola y capturas de evidencia por dispositivo.
+	```
+
+- **Estructura implementada:** 3 tarjetas del catálogo con botones `Ver detalle` (`btn btn-outline-primary`, `data-bs-toggle="modal"`, `data-bs-target="#modalDetalleServicio"`) y `Sumar al evento` (`btn btn-primary`). El Modal reutilizable contiene header con `btn-close`, título dinámico, imagen, descripción, detalles técnicos, precio y footer con `Cerrar` y `Sumar al evento`. El Toast `#toastConfirmacion` usa `toast-container position-fixed bottom-0 end-0`, mensaje de confirmación, botón de cierre y `data-bs-delay="4000"`.
+
+- **Resultado de las pruebas:** **PASS** con Playwright MCP en Chromium sobre `http://localhost:3000/index.html` en los tres dispositivos obligatorios. **TC7 (Modal):** PASS en iPhone 14 Pro (`393x852`), Samsung Galaxy S23 (`360x780`) e iPad Air (`820x1180`): el modal abrió con contenido dinámico, permitió cierre por botón, Escape y backdrop, devolvió el foco al disparador y mantuvo la maquetación responsive sin overflow horizontal. **TC8 (Toast):** PASS en los mismos tres dispositivos: se activó desde tarjetas y Modal, mostró el mensaje exacto, título, precio y marca de tiempo, permitió cierre manual y auto-hide, sin overflow horizontal ni errores de consola.
+
+- **Pruebas responsive:** PASS en iPhone 14 Pro (`393x852`), Samsung Galaxy S23 (`360x780`) e iPad Air (`820x1180`). La grilla y ambos componentes mantuvieron su adaptación en los tres viewports y no generaron desbordamiento horizontal.
+
+- **Capturas o enlaces de evidencia:** Los resultados automatizados están documentados en `docs/04-testing/test-case-7.md` y `docs/04-testing/test-case-8.md`. Capturas completas por dispositivo:
+	- TC7 Modal: [`tc7-modal-iphone-14-pro.png`](../../04-testing/capturas/tc-7/tc7-modal-iphone-14-pro.png), [`tc7-modal-samsung-galaxy-s23.png`](../../04-testing/capturas/tc-7/tc7-modal-samsung-galaxy-s23.png), [`tc7-modal-ipad-air.png`](../../04-testing/capturas/tc-7/tc7-modal-ipad-air.png).
+	- TC8 Toast: [`tc8-toast-iphone-14-pro.png`](../../04-testing/capturas/tc-8/tc8-toast-iphone-14-pro.png), [`tc8-toast-samsung-galaxy-s23.png`](../../04-testing/capturas/tc-8/tc8-toast-samsung-galaxy-s23.png), [`tc8-toast-ipad-air.png`](../../04-testing/capturas/tc-8/tc8-toast-ipad-air.png).
+
+### Ajustes manuales
+
+- Se removió el atributo `src=""` vacío de la imagen del Modal para cumplir con la validación W3C.
+- Se incorporó la lista completa de detalles del servicio en el Modal: Capacidad, Duración, Incluye y badge de Proveedor verificado.
+- Se aplicó la variante `btn-outline-secondary` al botón `Cerrar` del Modal.
+- Se ajustó el Toast al criterio de aceptación del spec: mensaje exacto `Experiencia agregada a tu evento`, marca de tiempo `· ahora`, título y precio del servicio.
+- Se normalizaron e integraron los `data-attributes` y el mapeo de IDs entre las tarjetas, `#modalDetalleServicio` y `#toastConfirmacion`.
+
+- **Issues y hallazgos:** La implementación y sus criterios de aceptación están trazados en el [Issue #53](https://github.com/carolabenvenuto-uces/planit/issues/53) y resueltos en la [PR #54](https://github.com/carolabenvenuto-uces/planit/pull/54). Los bugs asociados quedaron cerrados:
+	- [Issue #55 — Atributo `src=""` vacío en la imagen del Modal](https://github.com/carolabenvenuto-uces/planit/issues/55), corregido mediante [`93d2192`](https://github.com/carolabenvenuto-uces/planit/commit/93d2192cfd40f0689d00e9e2dd98d09adb8d110f).
+	- [Issue #56 — Falta de lista de detalles en el Modal](https://github.com/carolabenvenuto-uces/planit/issues/56), corregido mediante [`6631763`](https://github.com/carolabenvenuto-uces/planit/commit/66317631df7a5665d2de08daf17e60b7f08a01ac).
+	- [Issue #57 — Botón “Cerrar” sin variante outline](https://github.com/carolabenvenuto-uces/planit/issues/57), corregido mediante [`e6b9d49`](https://github.com/carolabenvenuto-uces/planit/commit/e6b9d49).
+	- [Issue #58 — Discrepancia en el texto del Toast](https://github.com/carolabenvenuto-uces/planit/issues/58), corregido mediante [`bcef92d`](https://github.com/carolabenvenuto-uces/planit/commit/bcef92d).
