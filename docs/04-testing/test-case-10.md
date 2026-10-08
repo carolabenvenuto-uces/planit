@@ -1,54 +1,47 @@
-# Test Case 10 (TC10) — Desplegables de Preguntas Frecuentes (<details>/<summary>)
+# Test Case 10 (TC10) — Validación del Componente Details / Summary (FAQ)
 
 ## Objetivo
 
-Verificar la interacción nativa de apertura y cierre, el cambio de estado de los indicadores visuales, la accesibilidad por teclado y la adaptación responsiva de la sección Preguntas Frecuentes (FAQ) en index.html.
+Verificar la correcta funcionalidad, accesibilidad e interacción semántica del componente `<details>` y `<summary>` en la sección `#faq-section` a lo largo de los viewports de iPhone 14 Pro, Samsung Galaxy S23 e iPad Air, garantizando la conmutación de apertura/cierre sin uso de JavaScript.
 
 ## Ejecución
 
-- **Fecha de ejecución inicial:** 07/10/2026
-- **Estado probado:** commit HEAD (feature/dev-comp-html-avanzados-add-components)
+- **Fecha:** 07/10/2026
+- **Estado probado:** commit HEAD (`feature/dev-comp-html-avanzados-add-components`)
 - **Página:** http://localhost:3000/index.html
 - **Herramienta:** Playwright MCP con Chromium
-- **Viewports probados:** iPhone 14 Pro (393 × 852 px), Samsung Galaxy S23 (360 × 780 px) e iPad Air (820 × 1180 px).
-- **Criterio de accesibilidad:** Navegación nativa por teclado mediante Tab, Enter y Espacio sin requerir scripts adicionales.
-- **Criterio de comportamiento:** Despliegue de respuesta al hacer clic en <summary>, conmutación del atributo open y actualización del pseudoelemento visual (➕ / ➖).
-- **Criterio de overflow:** Ausencia de desbordamiento horizontal durante la expansión de los paneles (scrollWidth == clientWidth).
 
 ### Prompt utilizado
 
-Usando Playwright MCP con el servidor local en http://localhost:3000/index.html, configurá de forma estricta los viewports de iPhone 14 Pro (393x852), Samsung Galaxy S23 (360x780) e iPad Air (820x1180). Para cada viewport interactuá con los elementos <summary> de la sección #faq-section, verificá la conmutación del atributo open en <details>, comprobá la visibilidad de las respuestas y asegurate de que no haya desbordamiento horizontal.
+```text
+Usando Playwright MCP con el servidor local en http://localhost:3000/index.html, configurá los viewports de iPhone 14 Pro (393x852), Samsung Galaxy S23 (360x780) e iPad Air (820x1180). Navegá a la sección #faq-section, comprobá que los elementos <details> inicien colapsados, interactuá haciendo clic sobre cada <summary> para validar la conmutación del atributo 'open' y verifiques la legibilidad del texto en 360 px.
 
 ## Resultados
 
-| Dispositivo | Viewport | Navegación Teclado | Interacción Clic / Despliegue | Atributo open / Estilos | Overflow | Resultado |
+| Dispositivo | Viewport | Estado Inicial | Interacción Click / Key | Estilo Abierto (`open`) | Overflow | Resultado |
 | --- | --- | --- | --- | --- | --- | --- |
-| iPhone 14 Pro | 393 × 852 | ✅ Correcto | ✅ Expande / Contrae | ✅ Conmuta correctamente | ✅ Sin overflow | ✅ PASS |
-| Samsung Galaxy S23 | 360 × 780 | ✅ Correcto | ✅ Expande / Contrae | ✅ Conmuta correctamente | ✅ Sin overflow | ✅ PASS |
-| iPad Air | 820 × 1180 | ✅ Correcto | ✅ Expande / Contrae | ✅ Conmuta correctamente | ✅ Sin overflow | ✅ PASS |
+| iPhone 14 Pro | 393 × 852 | ✅ Colapsado | ✅ Despliega contenido | ✅ Borde índigo `var(--color-primary)` | ✅ Sin overflow | ✅ PASS |
+| Samsung Galaxy S23 | 360 × 780 | ✅ Colapsado | ✅ Despliega contenido | ✅ Borde índigo `var(--color-primary)` | ✅ Sin overflow | ✅ PASS |
+| iPad Air | 820 × 1180 | ✅ Colapsado | ✅ Despliega contenido | ✅ Borde índigo `var(--color-primary)` | ✅ Sin overflow | ✅ PASS |
 
 ### Verificación de Accesibilidad e Interacción
 
-- **Acceso por Teclado:** Cada ítem <summary> es nativamente enfocable mediante la tecla Tab y responde a la activación por Enter o Espacio.
-- **Estilos y Transición:** Estilos aplicados mediante .custom-faq-item[open] que destacan el borde en azul primario (#0d6efd) y conmutan el ícono ➕ a ➖.
-- **Comportamiento:** La expansión del contenido ajusta dinámicamente la altura del panel sin romper el layout ni empujar elementos fuera del viewport.
+- **Acceso por Teclado:** Cada ítem `<summary>` es nativamente enfocable mediante la tecla Tab y responde a la activación por Enter o Espacio.
+- **Estilos y Transición:** Estilos aplicados mediante `.custom-faq-item[open]` que destacan el borde en color primario índigo (`var(--color-primary)` = `#4f46e5`) y alternan el indicador accesible.
 
 ## Capturas de Evidencia
 
-Las capturas correspondientes a la ejecución se encuentran almacenadas en docs/04-testing/capturas/tc-10/:
+Las capturas con los viewports correspondientes se encuentran en `docs/04-testing/capturas/tc-10/`:
 
-- **[FAQ — iPhone 14 Pro](capturas/tc-10/tc10-faq-iphone-14-pro.png)** (393 × 852 px)
-- **[FAQ — Samsung Galaxy S23](capturas/tc-10/tc10-faq-samsung-galaxy-s23.png)** (360 × 780 px)
-- **[FAQ — iPad Air](capturas/tc-10/tc10-faq-ipad-air.png)** (820 × 1180 px)
+- **[TC10 — iPhone 14 Pro](capturas/tc-10/tc10-faq-iphone-14-pro.png)** (393 × 852 px)
+- **[TC10 — Samsung Galaxy S23](capturas/tc-10/tc10-faq-samsung-galaxy-s23.png)** (360 × 780 px)
+- **[TC10 — iPad Air](capturas/tc-10/tc10-faq-ipad-air.png)** (820 × 1180 px)
 
 ## Conclusión
 
-**Resultado: ✅ PASS.** Los componentes <details> y <summary> funcionan según los estándares de HTML5 y accesibilidad nativa, respondiendo correctamente en todos los dispositivos evaluados.
+**Resultado: ✅ PASS.** El componente desplegable de Preguntas Frecuentes opera correctamente de forma nativa en todos los dispositivos testeados.
 
 ## Issues / Hallazgos Relacionados
 
 - **[#47](https://github.com/carolabenvenuto-uces/planit/issues/47)** — Integración y validación de componentes HTML avanzados.
-
-## Limitaciones
-
-Las pruebas fueron ejecutadas con el servidor Playwright MCP sobre el motor Chromium.
+- **[Bug / Accesibilidad]** — Agregado indicador visual de foco `:focus-visible` para navegación por teclado en los elementos `<summary>`.
