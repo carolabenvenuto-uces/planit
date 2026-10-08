@@ -557,13 +557,13 @@
    11. COMPONENTES HTML AVANZADOS (FAQ DETAILS)
    -------------------------------------------------------------------------- */
 .custom-faq-item {
-  transition: background-color 0.2s ease-in-out, border-color 0.2s ease-in-out;
+  transition: background-color 0.2s ease-in-out, border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
 }
 
 .custom-faq-item[open] {
-  background-color: var(--color-bg-surface) !important;
-  border-color: var(--color-primary) !important;
-  box-shadow: 0 2px 8px rgba(79, 70, 229, 0.08);
+  background-color: var(--color-bg-surface);
+  border-color: var(--color-primary);
+  box-shadow: 0 2px 8px var(--color-primary-shadow, rgba(79, 70, 229, 0.08));
 }
 
 .custom-faq-item summary {
@@ -576,12 +576,24 @@
   display: none;
 }
 
+.custom-faq-item summary:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
 .custom-faq-item summary::after {
-  content: '➕';
-  font-size: 0.85rem;
-  transition: transform 0.2s ease;
+  content: '';
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-right: 2px solid var(--color-primary);
+  border-bottom: 2px solid var(--color-primary);
+  transform: rotate(45deg);
+  transition: transform 0.2s ease-in-out;
+  margin-left: 12px;
 }
 
 .custom-faq-item[open] summary::after {
-  content: '➖';
+  transform: rotate(-135deg);
 }
