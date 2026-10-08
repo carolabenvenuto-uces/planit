@@ -9,14 +9,6 @@
 - [feature/dev-frontend-bootstrap-update-migration] feat(frontend): migración de index.html a Bootstrap v5.3 PR: [#52](https://github.com/carolabenvenuto-uces/planit/pull/52) | Issue: [#51](https://github.com/carolabenvenuto-uces/planit/issues/51) - @ValeriaMSilva (Desarrollador Frontend / Bootstrap)
 - [feature/dev-comp-bootstrap-modal-toast] feat(components): Modal de ficha técnica y Toast de confirmación (Bootstrap 5.3) PR: [#54](https://github.com/carolabenvenuto-uces/planit/pull/54) | Issue: [#53](https://github.com/carolabenvenuto-uces/planit/issues/53) - @ValeriaMSilva (Especialista en Componentes Bootstrap)(Nota sobre naming: se utilizó la nomenclatura dev-comp- para agrupar los desarrollos específicos de componentes de interfaz).
 
-### Fixed
-- [feature/dev-comp-bootstrap-modal-toast] refactor(components): modularizar interacción Modal/Toast, ajustar accesibilidad y tokens CSS, y corregir los bugs de componentes de la [PR #54](https://github.com/carolabenvenuto-uces/planit/pull/54) | Issues: [#55](https://github.com/carolabenvenuto-uces/planit/issues/55), [#56](https://github.com/carolabenvenuto-uces/planit/issues/56), [#57](https://github.com/carolabenvenuto-uces/planit/issues/57), [#58](https://github.com/carolabenvenuto-uces/planit/issues/58) - @ValeriaMSilva (Especialista en Componentes Bootstrap)
-- [feature/dev-frontend-bootstrap-update-migration] fix(header): resolver conflicto de especificidad en .site-header nav a sobre estilos de Bootstrap según la [Issue #59](https://github.com/carolabenvenuto-uces/planit/issues/59) (commit a15ba34) - @ValeriaMSilva (Especialista en Frontend Bootstrap)
-- [feature/dev-frontend-bootstrap-update-migration] fix(grid): corregir colapso 2+1 en catálogo eliminando interacción con gap legacy según la [Issue #60](https://github.com/carolabenvenuto-uces/planit/issues/60) (commit 9ed63d9) - @ValeriaMSilva (Especialista en Frontend Bootstrap)
-- [feature/dev-frontend-bootstrap-update-migration] fix(cards): separar clases .card y .col- en elementos HTML independientes según la [Issue #61](https://github.com/carolabenvenuto-uces/planit/issues/61) (commit edb4ec5) - @ValeriaMSilva (Especialista en Frontend Bootstrap)
-- [feature/dev-frontend-bootstrap-update-migration] fix(reboot): neutralizar márgenes y paddings no deseados en.task-list y .resumen-lista según la [Issue #62](https://github.com/carolabenvenuto-uces/planit/issues/62) (commit 3c97df9) - @ValeriaMSilva (Especialista en Frontend Bootstrap)
-
-
 ## [Release Actividad Obligatoria N°2] - 2026-09-28
 
 ### Added
