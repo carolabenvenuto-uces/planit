@@ -67,8 +67,8 @@ Por tratarse de un grupo de 3 integrantes, el Desarrollador Frontend/Bootstrap a
 - [x] Enlace al archivo de Figma actualizado en `README.md`.
 - [x] Tablero Kanban en GitHub Projects con todas las issues del equipo.
 - [x] Al menos 4 Code Reviews asistidos con IA, con Request Changes en las líneas del diff (realizados con Claude Code; ver Momento 2).
-- [ ] Todas las PRs con al menos una revisión aprobada antes del merge.
-- [ ] `changelog.md` actualizado con las contribuciones de todo el equipo.
+- [x] Todas las PRs con al menos una revisión aprobada antes del merge (#50, #52 y #54; #48 en corrección).
+- [x] `changelog.md` actualizado con las contribuciones de todo el equipo.
 - [ ] Rama `release/primer-parcial` creada desde `develop` una vez integradas todas las features.
 - [ ] GitHub Pages publicando `release/primer-parcial` con el sitio accesible.
 - [ ] PR `release/primer-parcial` → `master` creada con el template de release y publicada en Slack.
@@ -83,17 +83,32 @@ Por tratarse de un grupo de 3 integrantes, el Desarrollador Frontend/Bootstrap a
 
 Las revisiones se hicieron con **Claude Code** como asistente de IA, en lugar de Copilot Agent Mode. El asistente leyó cada PR (commits, diff, issues y archivos de la rama) con la CLI de GitHub, la comparó contra la consigna y el mockup, y renderizó la rama con Playwright en los anchos de los dispositivos obligatorios. Los Request Changes se cargaron en las líneas del diff desde la cuenta del Coordinador.
 
-| # | PR | Rol revisado | Fecha | Veredicto | Comentarios en el diff | Enlace |
+| # | PR | Rol revisado | Fecha (ART) | Veredicto | Comentarios en el diff | Enlace |
 | --- | --- | --- | --- | --- | --- | --- |
-| 1 | #52 | Desarrollador Frontend/Bootstrap | 06/10/2026 | 🔁 Request changes | 14 | [Review 1](https://github.com/carolabenvenuto-uces/planit/pull/52#pullrequestreview-5435056491) |
-| 2 | #54 | Especialista en Componentes Bootstrap | 06/10/2026 | 🔁 Request changes | 20 | [Review 1](https://github.com/carolabenvenuto-uces/planit/pull/54#pullrequestreview-5435107603) |
-| 3 | #52 | Desarrollador Frontend/Bootstrap (segunda ronda) | 06/10/2026 | 🔁 Request changes | 9 | [Review 2](https://github.com/carolabenvenuto-uces/planit/pull/52#pullrequestreview-5436774359) |
-| 4 | #54 | Especialista en Componentes Bootstrap (segunda ronda) | 06/10/2026 | 🔁 Request changes | 9 | [Review 2](https://github.com/carolabenvenuto-uces/planit/pull/54#pullrequestreview-5436797395) |
-| 5 | #48 | Desarrollador de Componentes HTML Avanzados | *(pendiente)* | — | — | — |
+| 1 | #52 | Frontend/Bootstrap | 06/10 19:03 | 🔁 Request changes | 14 | [Review 1](https://github.com/carolabenvenuto-uces/planit/pull/52#pullrequestreview-5435056491) |
+| 2 | #54 | Componentes Bootstrap | 06/10 19:10 | 🔁 Request changes | 20 | [Review 1](https://github.com/carolabenvenuto-uces/planit/pull/54#pullrequestreview-5435107603) |
+| 3 | #52 | Frontend/Bootstrap | 06/10 23:05 | 🔁 Request changes | 9 | [Review 2](https://github.com/carolabenvenuto-uces/planit/pull/52#pullrequestreview-5436774359) |
+| 4 | #54 | Componentes Bootstrap | 06/10 23:08 | 🔁 Request changes | 9 | [Review 2](https://github.com/carolabenvenuto-uces/planit/pull/54#pullrequestreview-5436797395) |
+| 5 | #52 | Frontend/Bootstrap | 07/10 09:24 | 🔁 Request changes | 6 | [Review 3](https://github.com/carolabenvenuto-uces/planit/pull/52#pullrequestreview-5442209632) |
+| 6 | #54 | Componentes Bootstrap | 07/10 09:33 | 🔁 Request changes | 11 | [Review 3](https://github.com/carolabenvenuto-uces/planit/pull/54#pullrequestreview-5442315723) |
+| 7 | #54 | Componentes Bootstrap | 07/10 12:30 | 🔁 Request changes | 5 | [Review 4](https://github.com/carolabenvenuto-uces/planit/pull/54#pullrequestreview-5444547530) |
+| 8 | #52 | Frontend/Bootstrap | 07/10 12:34 | 🔁 Request changes | 10 | [Review 4](https://github.com/carolabenvenuto-uces/planit/pull/52#pullrequestreview-5444597014) |
+| 9 | #52 | Frontend/Bootstrap | 07/10 13:50 | 🔁 Request changes | 6 | [Review 5](https://github.com/carolabenvenuto-uces/planit/pull/52#pullrequestreview-5445535732) |
+| 10 | #54 | Componentes Bootstrap | 07/10 14:02 | 🔁 Request changes | 4 | [Review 5](https://github.com/carolabenvenuto-uces/planit/pull/54#pullrequestreview-5445598043) |
+| 11 | #54 | Componentes Bootstrap | 07/10 14:02 | 💬 Comentario | 1 | [Review 6](https://github.com/carolabenvenuto-uces/planit/pull/54#pullrequestreview-5445599989) |
+| 12 | #54 | Componentes Bootstrap | 07/10 14:02 | 💬 Comentario | 1 | [Review 7](https://github.com/carolabenvenuto-uces/planit/pull/54#pullrequestreview-5445600426) |
+| 13 | #54 | Componentes Bootstrap | 07/10 15:05 | ✅ Aprobada | 3 | [Review 8](https://github.com/carolabenvenuto-uces/planit/pull/54#pullrequestreview-5446359979) |
+| 14 | #52 | Frontend/Bootstrap | 07/10 15:11 | 🔁 Request changes | 6 | [Review 6](https://github.com/carolabenvenuto-uces/planit/pull/52#pullrequestreview-5446421361) |
+| 15 | #52 | Frontend/Bootstrap | 07/10 17:02 | 🔁 Request changes | 2 | [Review 7](https://github.com/carolabenvenuto-uces/planit/pull/52#pullrequestreview-5447664442) |
+| 16 | #52 | Frontend/Bootstrap | 07/10 19:00 | ✅ Aprobada | 0 | [Review 8](https://github.com/carolabenvenuto-uces/planit/pull/52#pullrequestreview-5448903441) |
+| 17 | #48 | Componentes HTML Avanzados | 07/10 22:18 | 🔁 Request changes | 20 | [Review 1](https://github.com/carolabenvenuto-uces/planit/pull/48#pullrequestreview-5450285276) |
+| 18 | #48 | Componentes HTML Avanzados | 07/10 22:55 | 🔁 Request changes | 17 | [Review 2](https://github.com/carolabenvenuto-uces/planit/pull/48#pullrequestreview-5450510538) |
+
+**Resumen:** 18 reviews (8 en la #52, 8 en la #54 y 2 en la #48), con 144 comentarios en las líneas del diff. Las PRs #52 y #54 se aprobaron y mergearon en `develop`; la #48 sigue en corrección. Ramas reales: `feature/dev-frontend-bootstrap-update-migration` (#52) y `feature/dev-comp-bootstrap-modal-toast` (#54), cuyo naming quedó explicado en el changelog.
 
 Cada review clasifica los hallazgos en 🔴 **Bloqueantes** (impiden aprobar o hacen perder puntos de la rúbrica), 🟡 **A mejorar** y 🔵 **Detalles**, e incluye la evidencia (archivo, línea o commit) y una sugerencia de corrección.
 
-#### Prompts de la primera ronda (reviews 1 y 2)
+#### Prompts de la primera ronda (reviews 1 y 2; el de la #48, reviews 17 y 18, sigue la misma estructura para la sección 3.1.4)
 
 La primera ronda usó un prompt detallado por rol, armado sobre la rúbrica de la consigna (adjunta al chat) y las decisiones de diseño del equipo. Los dos prompts comparten esta estructura:
 
@@ -145,7 +160,7 @@ Actuá como revisor técnico (code reviewer) de una Pull Request de un trabajo p
 ```
 </details>
 
-#### Prompt de la segunda ronda (reviews 3 y 4)
+#### Prompt de las rondas siguientes (reviews 3 a 16)
 
 ```text
 Valeria dice que ya corrigió los request changes que le hice en ambas PR.
