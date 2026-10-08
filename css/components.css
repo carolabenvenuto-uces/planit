@@ -561,9 +561,9 @@
 }
 
 .custom-faq-item[open] {
-  background-color: #ffffff !important;
-  border-color: #0d6efd !important;
-  box-shadow: 0 2px 8px rgba(13, 110, 253, 0.08);
+  background-color: var(--color-bg-surface) !important;
+  border-color: var(--color-primary) !important;
+  box-shadow: 0 2px 8px rgba(79, 70, 229, 0.08);
 }
 
 .custom-faq-item summary {
