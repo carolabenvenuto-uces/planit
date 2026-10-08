@@ -56,10 +56,10 @@ Las imágenes con viewports exactos se encuentran guardadas en docs/04-testing/c
 
 Los siguientes hallazgos de la revisión de la migración fueron registrados como issues bug; #59 a #62 se corrigieron en esta PR y #63 queda pendiente para una rama fix/:
 
-- **[#59](https://github.com/carolabenvenuto-uces/planit/issues/59)** — [CSS/Header] Conflicto de especificidad en .site-header nav a sobreescribe estilos de Bootstrap (Corregido en commit a15ba34). 
+- **[#59](https://github.com/carolabenvenuto-uces/planit/issues/59)** — [CSS/Header] Conflicto de especificidad en .site-header nav a sobreescribe estilos de Bootstrap (Corregido en commit a15ba34).
 - **[#60](https://github.com/carolabenvenuto-uces/planit/issues/60)** — [CSS/Grid] Colapso erróneo 2+1 en el catálogo por interacción con gap legacy (Corregido en commit 9ed63d9).
 - **[#61](https://github.com/carolabenvenuto-uces/planit/issues/61)** — [HTML/Grid] Mezcla de clases .card y .col- en el mismo elemento HTML (Corregido en commit edb4ec5).
-- **[#62](https://github.com/carolabenvenuto-uces/planit/issues/62)** — [CSS/Reboot] Falta de neutralización de paddings y márgenes en .task-list y .resumen-lista (Corregido en commit 3c97df9). 
+- **[#62](https://github.com/carolabenvenuto-uces/planit/issues/62)** — [CSS/Reboot] Falta de neutralización de paddings y márgenes en .task-list y .resumen-lista (Corregido en commit 3c97df9).
 - **[#63](https://github.com/carolabenvenuto-uces/planit/issues/63)** — [CSS/Responsive] Desfase en los breakpoints de media queries en responsive.css (Pendiente — a resolver en rama fix/ posterior al merge).
 
 ## Limitaciones
