@@ -557,13 +557,17 @@
    11. COMPONENTES HTML AVANZADOS (FAQ DETAILS)
    -------------------------------------------------------------------------- */
 .custom-faq-item {
+  padding: var(--spacing-md);
+  background-color: var(--color-bg-muted);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
   transition: background-color 0.2s ease-in-out, border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
 }
 
 .custom-faq-item[open] {
   background-color: var(--color-bg-surface);
   border-color: var(--color-primary);
-  box-shadow: 0 2px 8px var(--color-primary-shadow, rgba(79, 70, 229, 0.08));
+  box-shadow: var(--shadow-sm);
 }
 
 .custom-faq-item summary {
@@ -579,21 +583,19 @@
 .custom-faq-item summary:focus-visible {
   outline: 2px solid var(--color-primary);
   outline-offset: 2px;
-  border-radius: 4px;
+  border-radius: var(--radius-sm);
 }
 
 .custom-faq-item summary::after {
-  content: '';
+  content: '+';
   display: inline-block;
-  width: 8px;
-  height: 8px;
-  border-right: 2px solid var(--color-primary);
-  border-bottom: 2px solid var(--color-primary);
-  transform: rotate(45deg);
-  transition: transform 0.2s ease-in-out;
-  margin-left: 12px;
+  flex-shrink: 0;
+  margin-left: var(--spacing-sm);
+  font-size: var(--font-size-lg);
+  line-height: 1;
+  color: var(--color-primary);
 }
 
 .custom-faq-item[open] summary::after {
-  transform: rotate(-135deg);
+  content: '−';
 }
