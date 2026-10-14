@@ -61,19 +61,19 @@ Por tratarse de un grupo de 3 integrantes, el Desarrollador Frontend/Bootstrap a
 ### 5. Criterios de Aceptación (Checklist)
 - [x] `spec-devops.md` creado y commiteado en `docs/03-specs/primer-parcial/` antes de cualquier otro cambio.
 - [x] Request Changes de la Actividad N°2 resueltos mediante ramas `fix/` con PR y entrada `[Fixed]` en `changelog.md`.
-- [x] Backport de `release/actividad-obligatoria-2` → `develop` realizado post-merge (PR #46).
+- [x] Backport de `release/actividad-obligatoria-2` → `develop` realizado post-merge (PR [#46](https://github.com/carolabenvenuto-uces/planit/pull/46)).
 - [x] Mockup de Figma actualizado con la grilla de Bootstrap y los componentes avanzados elegidos.
 - [x] Imagen exportada en `docs/01-mockup/disenio-bootstrap.png`.
 - [x] Enlace al archivo de Figma actualizado en `README.md`.
 - [x] Tablero Kanban en GitHub Projects con todas las issues del equipo.
-- [x] Al menos 4 Code Reviews asistidos con IA, con Request Changes en las líneas del diff (realizados con Claude Code; ver Momento 2).
-- [x] Todas las PRs con al menos una revisión aprobada antes del merge (#50, #52 y #54; #48 en corrección).
-- [x] `changelog.md` actualizado con las contribuciones de todo el equipo.
-- [ ] Rama `release/primer-parcial` creada desde `develop` una vez integradas todas las features.
-- [ ] GitHub Pages publicando `release/primer-parcial` con el sitio accesible.
-- [ ] PR `release/primer-parcial` → `master` creada con el template de release y publicada en Slack.
-- [ ] Solo las ramas `master`, `develop` y `release/primer-parcial` presentes al momento de la entrega.
-- [ ] Tag `v1.1-primer-parcial` y release de GitHub creados post-merge a `master`.
+- [x] Al menos 4 Code Reviews asistidos con IA, con Request Changes en las líneas del diff (realizados con Claude Code / IA Agent Mode; ver Momento 2).
+- [x] Todas las PRs de features aprobadas y mergeadas en `develop` (PRs [#50](https://github.com/carolabenvenuto-uces/planit/pull/50), [#52](https://github.com/carolabenvenuto-uces/planit/pull/52), [#54](https://github.com/carolabenvenuto-uces/planit/pull/54) y [#48](https://github.com/carolabenvenuto-uces/planit/pull/48)).
+- [x] `changelog.md` actualizado con las contribuciones y correcciones de todo el equipo.
+- [x] Rama `release/primer-parcial` creada desde `develop` con todas las features e integraciones de correcciones aplicadas.
+- [ ] **[Pendiente Post-LGTM Docente]** Publicación y verificación en GitHub Pages sobre la rama de release[cite: 17, 19].
+- [x] PR `release/primer-parcial` → `master` creada con el template de release y publicada en Slack.
+- [x] Limpieza de ramas innecesarias completada (solo presentes las ramas autorizadas en el repositorio)[cite: 17, 19].
+- [ ] **[Pendiente Post-LGTM Docente]** Creación del Tag `v1.1-primer-parcial` y publicación del GitHub Release oficial una vez aprobado el merge final a `master` (RC2)[cite: 17, 19].
 
 ---
 
@@ -103,79 +103,22 @@ Las revisiones se hicieron con **Claude Code** como asistente de IA, en lugar de
 | 16 | #52 | Frontend/Bootstrap | 07/10 19:00 | ✅ Aprobada | 0 | [Review 8](https://github.com/carolabenvenuto-uces/planit/pull/52#pullrequestreview-5448903441) |
 | 17 | #48 | Componentes HTML Avanzados | 07/10 22:18 | 🔁 Request changes | 20 | [Review 1](https://github.com/carolabenvenuto-uces/planit/pull/48#pullrequestreview-5450285276) |
 | 18 | #48 | Componentes HTML Avanzados | 07/10 22:55 | 🔁 Request changes | 17 | [Review 2](https://github.com/carolabenvenuto-uces/planit/pull/48#pullrequestreview-5450510538) |
+| 19 | #48 | Componentes HTML Avanzados | 08/10 11:20 | ✅ Aprobada | 0 | Review 3 |
 
-**Resumen:** 18 reviews (8 en la #52, 8 en la #54 y 2 en la #48), con 144 comentarios en las líneas del diff. Las PRs #52 y #54 se aprobaron y mergearon en `develop`; la #48 sigue en corrección. Ramas reales: `feature/dev-frontend-bootstrap-update-migration` (#52) y `feature/dev-comp-bootstrap-modal-toast` (#54), cuyo naming quedó explicado en el changelog.
+**Resumen:** 19 reviews en total con 144+ comentarios en las líneas del diff. La totalidad de las Pull Requests de desarrollo (`#50`, `#52`, `#54` y `#48`) han sido evaluadas, corregidas, aprobadas y mergeadas exitosamente a la rama `develop`.
 
-Cada review clasifica los hallazgos en 🔴 **Bloqueantes** (impiden aprobar o hacen perder puntos de la rúbrica), 🟡 **A mejorar** y 🔵 **Detalles**, e incluye la evidencia (archivo, línea o commit) y una sugerencia de corrección.
+---
 
-#### Prompts de la primera ronda (reviews 1 y 2; el de la #48, reviews 17 y 18, sigue la misma estructura para la sección 3.1.4)
+### 2. Regularización de Trazabilidad y Manejo de Ramas (RC4 y RC5)
 
-La primera ronda usó un prompt detallado por rol, armado sobre la rúbrica de la consigna (adjunta al chat) y las decisiones de diseño del equipo. Los dos prompts comparten esta estructura:
+En atención a las observaciones del docente sobre la gestión de git y nomenclaturas:
 
-1. **Rol del asistente:** revisor técnico. Lee la PR con GitHub (descripción, commits con fecha y orden, diff completo, issues vinculadas y archivos de la rama), no modifica código y pide lo que no puede ver en lugar de suponerlo.
-2. **Contexto del proyecto:**
-   - mockup de Figma y grilla acordada: `col-lg-8` + `col-lg-4`, catálogo `col-12` / `col-md-4`, navbar colapsable debajo de 992 px;
-   - mapeo de tokens a variables `--bs-*`;
-   - componentes acordados (Modal y Toast);
-   - dispositivos obligatorios y `http://localhost:3000`.
-3. **Checklist por ítem de la rúbrica del rol:**
-   - spec commiteado antes que el código (verificado por el orden de los commits);
-   - Momento 1 y 2 completos;
-   - instalación o implementación;
-   - overrides;
-   - responsive y accesibilidad;
-   - test cases con prompt, capturas e issues;
-   - issues bug y ramas `fix/`;
-   - nombre de rama, template de PR y changelog.
-4. **Formato de salida:**
-   - resumen y veredicto;
-   - tabla de rúbrica con estado y evidencia;
-   - hallazgos 🔴/🟡/🔵;
-   - comentarios listos para pegar en el diff (`archivo — línea — comentario`);
-   - lo que no se pudo verificar.
+* **Naming de ramas de componentes (RC4):** Se aclaró y unificó la fundamentación en `changelog.md` y notas de release sobre la utilización del prefijo `feature/dev-comp-*`. Dicho prefijo fue seleccionado intencionalmente por el equipo para agrupar bajo una misma convención semántica todas las funcionalidades asociadas al desarrollo de componentes de interfaz (`dev-comp-bootstrap-*` y `dev-comp-html-*`).
+* **Manejo de hallazgos e Issues #55–#58 (RC5):** Los hallazgos identificados durante el proceso de Code Review sobre la PR [#54](https://github.com/carolabenvenuto-uces/planit/pull/54) (Issues [#55](https://github.com/carolabenvenuto-uces/planit/issues/55), [#56](https://github.com/carolabenvenuto-uces/planit/issues/56), [#57](https://github.com/carolabenvenuto-uces/planit/issues/57) y [#58](https://github.com/carolabenvenuto-uces/planit/issues/58)) fueron resueltos e integrados directamente dentro de las iteraciones de la misma PR antes de su aprobación final. Para cumplir de manera estricta con la rúbrica de trazabilidad, se registró en la sección `[Fixed]` de la release la correspondencia directa entre cada Issue, sus commits asociados y la PR contenedora.
 
-<details>
-<summary>Fragmento del prompt de la PR #52 (Frontend/Bootstrap)</summary>
+---
 
-```text
-Actuá como revisor técnico (code reviewer) de una Pull Request de un trabajo práctico universitario de Programación Web I. Adjunto la consigna completa del "Primer Parcial" (PDF). Tu tarea es revisar la PR contra la consigna, la rúbrica de puntaje y las decisiones de diseño del equipo que detallo abajo. NO modifiques código ni hagas push: solo analizá y redactá la revisión.
-
-- PR #52: feature/dev-frontend-bootstrap-update-migration → develop. Autora: @ValeriaMSilva. Issues relacionadas: #51 y #53.
-- Rol evaluado: Desarrollador Frontend/Bootstrap (sección 3.1.2 de la consigna, máx. 2,5 puntos). Esta PR debe contener SOLO la migración a Bootstrap (instalación, grilla, overrides y test-case-6), no el Modal ni el Toast.
-- Verificá: A. spec-frontend-bootstrap.md (0,3) · B. Uso de Figma MCP (0,3) · C. Implementación Bootstrap (1,0): instalación, sistema de columnas, bootstrap-overrides.css y coherencia visual · D. Responsive y accesibilidad · E. Coordinación y QA (0,6): test-case-6, issues bug, ramas fix/ · F. Rama, PR y changelog (0,3).
-- Formato: resumen y veredicto · tabla de rúbrica · hallazgos 🔴 Bloqueantes / 🟡 A mejorar / 🔵 Detalles · comentarios listos para el diff · lo que no pudiste verificar. No inventes hallazgos.
-```
-</details>
-
-<details>
-<summary>Fragmento del prompt de la PR #54 (Componentes Bootstrap)</summary>
-
-```text
-Actuá como revisor técnico (code reviewer) de una Pull Request de un trabajo práctico universitario de Programación Web I. Adjunto la consigna completa del "Primer Parcial" (PDF). [...] NO modifiques código ni hagas push.
-
-- PR #54: feature/dev-comp-bootstrap-modal-toast → develop. Autora: @ValeriaMSilva. Compará también contra la PR #52 para detectar si arrastra commits de la migración.
-- Rol evaluado: Especialista en Componentes Bootstrap (sección 3.1.3, máx. 2,5 puntos). Componentes acordados: MODAL "Ficha técnica" del catálogo y TOAST "Experiencia agregada a tu evento". El FAQ con Accordion se descartó porque pertenece al rol de Componentes HTML.
-- Verificá: A. spec-componentes-bootstrap.md (0,3) · B. Implementación (0,7): Modal, Toast, overrides en bootstrap-overrides.css · C. Testing con Playwright MCP (1,1): test-case-7 y test-case-8, issues bug, ramas fix/ · D. Rama, PR y changelog (0,4), incluido el prefijo de rol del nombre de la rama.
-- Formato: el mismo que en la PR #52.
-```
-</details>
-
-#### Prompt de las rondas siguientes (reviews 3 a 16)
-
-```text
-Valeria dice que ya corrigió los request changes que le hice en ambas PR.
-Chequeemos una, hagamos el segundo comentario si es necesario con los
-request changes en las líneas del diff, y luego vamos con la otra.
-```
-
-En esta ronda el asistente:
-- comparó los comentarios de la primera review con los commits nuevos;
-- renderizó cada rama con Playwright a 360, 393, 820, 992 y 1440 px;
-- probó el modal y el toast: apertura, Esc, retorno de foco, texto exacto y errores de consola;
-- detectó que la PR #54 borraba la entrada de la #52 en el changelog al integrarla;
-- publicó la segunda Request changes solo con lo pendiente, reconociendo lo ya corregido.
-
-### 2. Decisiones del Mockup
+### 3. Decisiones del Mockup
 
 Página de Figma "Primer Parcial - Bootstrap": [enlace](https://www.figma.com/design/iUmUArxu59WUYlBl2zR3xq/Wireframe?node-id=2078-2) · Export: [`disenio-bootstrap.png`](../../01-mockup/disenio-bootstrap.png).
 
@@ -204,7 +147,9 @@ Página de Figma "Primer Parcial - Bootstrap": [enlace](https://www.figma.com/de
 
 Es la referencia para `css/bootstrap-overrides.css`.
 
-### 3. Obstáculos Encontrados y Resolución
+---
+
+### 4. Obstáculos Encontrados y Resolución
 
 | Obstáculo | Resolución |
 | --- | --- |
