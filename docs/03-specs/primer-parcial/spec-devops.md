@@ -161,3 +161,4 @@ Es la referencia para `css/bootstrap-overrides.css`.
 | El link del video propuesto para el iframe (`dQw4w9WgXcQ`) era el videoclip "Never Gonna Give You Up" y no un taller de cerámica. | Se avisó al rol de Componentes HTML para reemplazarlo por un video pertinente antes de implementar. |
 | Superposición de roles: Accordion de Bootstrap para el mismo FAQ de `details/summary`. | Se acordó reemplazarlo por un Toast de confirmación, que complementa al Modal. |
 | La PR #54 instalaba Bootstrap de nuevo, igual que la #52, y luego, al integrar la #52, borró su entrada del changelog. | Se pidió integrar la #52 en la rama de la #54 (una sola carga de Bootstrap) y conservar ambas entradas del changelog. Orden de merge: #50 → #52 → #54 → #48. |
+| Gestión de deuda técnica en script de componentes Bootstrap (RC8). | Se decidió conservar el archivo `js/componentes-bootstrap.js` y mantener la Issue #68 abierta para su tratamiento y refactorización JavaScript durante la AO3. |
