@@ -12,6 +12,7 @@
 
 ### Fixed
 - [fix/ao3-rc-cierre-release-primer-parcial] fix(release): resolver observaciones docentes RC1 a RC9 para cierre del Primer Parcial PR: [#69](https://github.com/carolabenvenuto-uces/planit/pull/69) | Issues: [#63](https://github.com/carolabenvenuto-uces/planit/issues/63), [#64](https://github.com/carolabenvenuto-uces/planit/issues/64), [#65](https://github.com/carolabenvenuto-uces/planit/issues/65), [#66](https://github.com/carolabenvenuto-uces/planit/issues/66), [#68](https://github.com/carolabenvenuto-uces/planit/issues/68) - @carolabenvenuto-uces (Coordinadora / DevOps)
+- [fix/pr67-segunda-revision] fix(release): resolver observaciones de la segunda revision docente RC10 a RC16 PR: [#70](https://github.com/carolabenvenuto-uces/planit/pull/70) | Issues: [#63](https://github.com/carolabenvenuto-uces/planit/issues/63), [#64](https://github.com/carolabenvenuto-uces/planit/issues/64), [#65](https://github.com/carolabenvenuto-uces/planit/issues/65), [#66](https://github.com/carolabenvenuto-uces/planit/issues/66) - @carolabenvenuto-uces (Coordinadora / DevOps)
 
 ## [Release Actividad Obligatoria N°2] - 2026-09-28
 
