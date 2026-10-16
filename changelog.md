@@ -2,6 +2,18 @@
 
 ## [Unreleased]
 
+## [Release Primer Parcial] - 2026-10-07
+
+### Added
+- [feature/coord-devops-update-figma-and-readme] feature/coord-devops-update-figma-and-readme: Mockup Bootstrap, README y coordinación del Primer Parcial PR: [#50](https://github.com/carolabenvenuto-uces/planit/pull/50) | Issue: [#49](https://github.com/carolabenvenuto-uces/planit/issues/49) - @FacundoGuiraldes (Coordinador / DevOps)
+- [feature/dev-frontend-bootstrap-update-migration] feat(frontend): migración de index.html a Bootstrap v5.3 PR: [#52](https://github.com/carolabenvenuto-uces/planit/pull/52) | Issue: [#51](https://github.com/carolabenvenuto-uces/planit/issues/51) - @ValeriaMSilva (Desarrollador Frontend / Bootstrap)
+- [feature/dev-comp-bootstrap-modal-toast] feat(components): Modal de ficha técnica y Toast de confirmación (Bootstrap 5.3) PR: [#54](https://github.com/carolabenvenuto-uces/planit/pull/54) | Issue: [#53](https://github.com/carolabenvenuto-uces/planit/issues/53) - @ValeriaMSilva (Especialista en Componentes Bootstrap)(Nota sobre naming: se utilizó la nomenclatura dev-comp- para agrupar los desarrollos específicos de componentes de interfaz).
+- [feature/dev-comp-html-avanzados-add-components] feature/dev-comp-html-avanzados-add-components: Componentes HTML avanzados para Primer Parcial PR: [#48](https://github.com/carolabenvenuto-uces/planit/pull/48) | Issue: [#47](https://github.com/carolabenvenuto-uces/planit/issues/47) | Bugs: [#64](https://github.com/carolabenvenuto-uces/planit/issues/64), [#65](https://github.com/carolabenvenuto-uces/planit/issues/65), [#66](https://github.com/carolabenvenuto-uces/planit/issues/66) - @carolabenvenuto-uces (Desarrollador de Componentes HTML Avanzados)
+
+### Fixed
+- [fix/ao3-rc-cierre-release-primer-parcial] fix(release): resolver observaciones docentes RC1 a RC9 para cierre del Primer Parcial PR: [#69](https://github.com/carolabenvenuto-uces/planit/pull/69) | Issues: [#63](https://github.com/carolabenvenuto-uces/planit/issues/63), [#64](https://github.com/carolabenvenuto-uces/planit/issues/64), [#65](https://github.com/carolabenvenuto-uces/planit/issues/65), [#66](https://github.com/carolabenvenuto-uces/planit/issues/66), [#68](https://github.com/carolabenvenuto-uces/planit/issues/68) - @carolabenvenuto-uces (Coordinadora / DevOps)
+- [fix/pr67-segunda-revision] fix(release): resolver observaciones docentes RC10 a RC17 de la segunda revision PR: [#70](https://github.com/carolabenvenuto-uces/planit/pull/70) | Issues: [#63](https://github.com/carolabenvenuto-uces/planit/issues/63), [#64](https://github.com/carolabenvenuto-uces/planit/issues/64), [#65](https://github.com/carolabenvenuto-uces/planit/issues/65), [#66](https://github.com/carolabenvenuto-uces/planit/issues/66) - @carolabenvenuto-uces (Coordinadora / DevOps)
+
 ## [Release Actividad Obligatoria N°2] - 2026-09-28
 
 ### Added

@@ -91,8 +91,6 @@
   --transition-fast: 0.15s ease-in-out;
 
   /* --- Layout --- */
-  --container-max-width: 1120px;
-  --sidebar-width: 260px;
   --header-height: 64px;
 }
 
@@ -177,18 +175,12 @@ select:focus-visible {
 
 /* --------------------------------------------------------------------------
    5. LAYOUT GENERAL (dashboard de dos columnas del mockup)
-   CSS Grid: columna principal flexible + columna lateral de ancho fijo.
+   Las columnas y el ancho máximo los gestiona Bootstrap.
    -------------------------------------------------------------------------- */
 .app-layout {
   flex: 1 0 auto;
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) var(--sidebar-width);
-  gap: var(--spacing-md);
-  align-items: start;
-  width: 100%;
-  max-width: var(--container-max-width);
-  margin: 0 auto;
-  padding: var(--spacing-md) var(--spacing-lg) var(--spacing-2xl);
+  padding-top: var(--spacing-md);
+  padding-bottom: var(--spacing-2xl);
 }
 
 /* Cada columna apila sus paneles en bloque con separación uniforme */

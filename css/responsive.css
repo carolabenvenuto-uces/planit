@@ -33,9 +33,6 @@
     padding: var(--spacing-xs) var(--spacing-md);
   }
 
-  .site-header nav ul {
-    gap: var(--spacing-md);
-  }
 }
 
 /* ==========================================================================
@@ -46,20 +43,6 @@
   .site-header {
     flex-wrap: wrap;
     row-gap: var(--spacing-xs);
-  }
-
-  /* La navegación ocupa una fila completa debajo del logo y las acciones */
-  .site-header nav {
-    order: 3;
-    width: 100%;
-  }
-
-  .site-header nav ul {
-    justify-content: space-between;
-  }
-
-  .site-header nav a {
-    font-size: var(--font-size-sm);
   }
 
   .btn-nuevo-evento {
@@ -132,10 +115,6 @@
 
   .header-actions {
     gap: var(--spacing-xs);
-  }
-
-  .cards-grid {
-    grid-template-columns: minmax(0, 1fr);
   }
 
   .site-footer p {

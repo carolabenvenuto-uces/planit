@@ -1,0 +1,192 @@
+/* Bootstrap 5.3 mapped to the PlanIT visual system. */
+
+/* --------------------------------------------------------------------------
+   1. VARIABLES & RESET DE BOOTSTRAP
+   -------------------------------------------------------------------------- */
+:root {
+  --bs-primary: var(--color-primary);
+  --bs-primary-rgb: 79, 70, 229;
+  --bs-secondary: var(--color-text-secondary);
+  --bs-secondary-rgb: 75, 85, 99;
+  --bs-success: var(--color-success);
+  --bs-warning: var(--color-warning);
+  --bs-danger: var(--color-danger);
+  --bs-body-bg: var(--color-bg-main);
+  --bs-body-color: var(--color-text-primary);
+  --bs-body-font-size: var(--font-size-base);
+  --bs-secondary-color: var(--color-text-secondary);
+  --bs-secondary-bg: var(--color-bg-muted);
+  --bs-primary-bg-subtle: var(--color-primary-subtle);
+  --bs-primary-text-emphasis: var(--color-primary-active);
+  --bs-secondary-bg-subtle: var(--color-bg-muted);
+  --bs-secondary-text-emphasis: var(--color-text-primary);
+  --bs-success-bg-subtle: var(--color-success-bg);
+  --bs-success-text-emphasis: var(--color-success-text);
+  --bs-warning-bg-subtle: var(--color-warning-bg);
+  --bs-warning-text-emphasis: var(--color-warning-text);
+  --bs-danger-bg-subtle: var(--color-danger-bg);
+  --bs-danger-text-emphasis: var(--color-danger);
+  --bs-border-color: var(--color-border);
+  --bs-link-color: var(--color-primary);
+  --bs-link-color-rgb: 79, 70, 229;
+  --bs-link-hover-color: var(--color-primary-hover);
+  --bs-link-hover-color-rgb: 67, 56, 202;
+  --bs-font-sans-serif: var(--font-base);
+  --bs-border-radius: var(--radius-sm);
+  --bs-border-radius-lg: var(--radius-md);
+  --bs-focus-ring-color: var(--color-primary-ring);
+}
+
+body {
+  color: var(--bs-body-color);
+  font-size: var(--bs-body-font-size);
+}
+
+/* --------------------------------------------------------------------------
+  2. NAVBAR & HEADER
+  -------------------------------------------------------------------------- */
+.site-header .navbar {
+  min-height: var(--header-height);
+  padding: var(--spacing-xs) var(--spacing-lg);
+}
+
+.site-header .navbar-nav {
+  gap: var(--spacing-lg);
+}
+
+.site-header .navbar-nav .nav-link {
+  padding: var(--spacing-2xs) 0;
+  border-bottom: 2px solid transparent;
+  color: var(--color-text-primary);
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-medium);
+}
+
+.site-header .navbar-nav .nav-link:hover,
+.site-header .navbar-nav .nav-link[aria-current="page"] {
+  color: var(--color-primary);
+}
+
+.site-header .navbar-nav .nav-link[aria-current="page"] {
+  border-bottom-color: var(--color-primary);
+}
+
+.navbar-toggler {
+  border-color: var(--color-border-strong);
+}
+
+.navbar-toggler:focus {
+  box-shadow: 0 0 0 0.25rem var(--color-primary-ring);
+}
+
+/* --------------------------------------------------------------------------
+   3. LAYOUT & LISTAS
+   -------------------------------------------------------------------------- */
+.task-list,
+.resumen-lista {
+  padding-left: 0;
+  margin-bottom: 0;
+}
+
+.app-layout {
+  padding: var(--spacing-lg) var(--spacing-lg) var(--spacing-2xl);
+}
+
+.app-layout > .row > main,
+.app-layout > .row > .sidebar {
+  gap: var(--spacing-md);
+}
+
+.cards-grid {
+  display: flex;
+}
+
+.cards-grid .card {
+  min-width: 0;
+}
+
+.site-footer .container {
+  padding-right: var(--spacing-lg);
+  padding-left: var(--spacing-lg);
+}
+
+/* --------------------------------------------------------------------------
+   4. BOTONES & ESTADOS
+   -------------------------------------------------------------------------- */
+.btn-primary {
+  --bs-btn-color: var(--color-text-inverse);
+  --bs-btn-bg: var(--color-primary);
+  --bs-btn-border-color: var(--color-primary);
+  --bs-btn-hover-color: var(--color-text-inverse);
+  --bs-btn-hover-bg: var(--color-primary-hover);
+  --bs-btn-hover-border-color: var(--color-primary-hover);
+  --bs-btn-active-color: var(--color-text-inverse);
+  --bs-btn-active-bg: var(--color-primary-active);
+  --bs-btn-active-border-color: var(--color-primary-active);
+  --bs-btn-focus-shadow-rgb: 79, 70, 229;
+  --bs-btn-disabled-opacity: 0.65;
+}
+
+/* --------------------------------------------------------------------------
+   5. BADGES & COMPONENTES
+   -------------------------------------------------------------------------- */
+.badge {
+  --bs-badge-font-weight: var(--font-weight-semibold);
+  --bs-badge-border-radius: var(--radius-sm);
+}
+
+@media (max-width: 991.98px) {
+  .site-header .navbar {
+    padding-right: var(--spacing-md);
+    padding-left: var(--spacing-md);
+  }
+
+  .site-header .navbar-nav {
+    gap: var(--spacing-xs);
+    padding-top: var(--spacing-sm);
+  }
+
+  .site-header .navbar-nav .nav-link {
+    padding: var(--spacing-xs) 0;
+  }
+
+  .header-actions {
+    margin-top: var(--spacing-sm);
+    margin-left: 0;
+  }
+}
+
+@media (max-width: 575.98px) {
+  .app-layout {
+    padding-right: var(--spacing-sm);
+    padding-left: var(--spacing-sm);
+  }
+
+  .site-footer .container {
+    padding-right: var(--spacing-sm);
+    padding-left: var(--spacing-sm);
+  }
+}
+
+/* --------------------------------------------------------------------------
+   6. MODAL & TOAST CUSTOMIZATION
+   -------------------------------------------------------------------------- */
+.modal {
+  --bs-modal-border-radius: var(--radius-md);
+  --bs-modal-border-color: var(--color-border);
+  --bs-modal-header-border-color: var(--color-border);
+  --bs-modal-footer-border-color: var(--color-border);
+  font-family: var(--font-base);
+}
+
+@media (max-width: 575.98px) {
+  .modal-dialog {
+    margin: 0.5rem;
+  }
+}
+
+.toast {
+  --bs-toast-border-radius: var(--radius-sm);
+  --bs-toast-border-color: var(--color-border);
+  --bs-toast-header-color: var(--color-primary);
+}
