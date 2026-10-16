@@ -40,4 +40,4 @@ Resultado: ✅ PASS. El componente <iframe> carga correctamente desde el dominio
 ## Issues / Hallazgos Relacionados
 
 - **[#47](https://github.com/carolabenvenuto-uces/planit/issues/47)** — Integración y validación de componentes HTML avanzados.
-- **[#64](https://github.com/carolabenvenuto-uces/planit/issues/64)** — Error 153 en el iframe; corrección aplicada, evidencia manual pendiente.
+- **[#64](https://github.com/carolabenvenuto-uces/planit/issues/64)** — Error 153 en el iframe; corrección aplicada y respaldada por evidencia TC9 (PASS).
