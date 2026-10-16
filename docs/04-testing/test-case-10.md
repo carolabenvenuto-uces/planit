@@ -46,4 +46,4 @@ Las capturas con los viewports correspondientes se encuentran en `docs/04-testin
 ## Issues / Hallazgos Relacionados
 
 - **[#47](https://github.com/carolabenvenuto-uces/planit/issues/47)** — Integración y validación de componentes HTML avanzados.
-- **[#66](https://github.com/carolabenvenuto-uces/planit/issues/66)** — Foco visible y estado visual abierto/cerrado del FAQ.
+- **[#66](https://github.com/carolabenvenuto-uces/planit/issues/66)** — Foco visible y estado visual abierto/cerrado del FAQ corregido y respaldado por evidencia en TC10 (PASS).
