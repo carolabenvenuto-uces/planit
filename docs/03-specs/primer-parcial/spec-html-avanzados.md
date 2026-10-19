@@ -43,9 +43,9 @@ Se utilizará `@playwright/mcp` ejecutando tests sobre `http://localhost:3000` p
 - [x] La especificación está commiteada en `docs/03-specs/primer-parcial/spec-html-avanzados.md` antes de escribir código HTML.
 - [x] Los 2 componentes HTML avanzados están integrados semánticamente e integrados con las utilidades/helpers de Bootstrap.
 - [x] Se mantienen las reglas de diseño y coherencia visual con `css/styles.css`, `css/components.css` e `index.html`.
-- [ ] Se ejecutaron y evidenciaron los tests con Playwright MCP en los 3 dispositivos obligatorios. TC9 espera capturas manuales.
-- [ ] Los hallazgos fueron registrados como issues `bug` y la resolución de #64 quedó respaldada por evidencia TC9.
-- [ ] Los archivos `test-case-9.md` y `test-case-10.md` están documentados con evidencia vigente. TC9 aún está pendiente.
+- [x] Se ejecutaron y evidenciaron los tests con Playwright MCP en los 3 dispositivos obligatorios y con capturas de evidencia TC9.
+- [x] Los hallazgos fueron registrados como issues `bug` y la resolución de #64 quedó respaldada por evidencia TC9.
+- [x] Los archivos `test-case-9.md` y `test-case-10.md` están documentados con evidencia vigente.
 
 ---
 

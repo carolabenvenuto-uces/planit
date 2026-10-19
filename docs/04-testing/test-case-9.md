@@ -7,7 +7,7 @@ Verificar que el componente `<iframe>` integrado en la sección `#taller-video` 
 ## Ejecución
 
 - **Fecha:** 07/10/2026
-- **Estado:** Corrección del iframe aplicada; evidencia final pendiente de captura manual.
+- **Estado:** ✅ PASS — Validación completada con éxito sin errores en pantalla.
 - **Página:** http://localhost:3000/index.html
 - **Herramienta:** Playwright MCP con Chromium
 
@@ -21,23 +21,23 @@ Usando Playwright MCP con el servidor local en http://localhost:3000/index.html,
 
 | Dispositivo | Viewport | Title accesible | Reproductor sin Error 153 | Proporción 16:9 | Overflow | Resultado |
 | --- | --- | --- | --- | --- | --- | --- |
-| iPhone 14 Pro | 393 × 852 | ✅ Descriptivo en código | ⏳ Pendiente de evidencia | ⏳ Pendiente | ⏳ Pendiente | ⏳ Pendiente |
-| Samsung Galaxy S23 | 360 × 780 | ✅ Descriptivo en código | ⏳ Pendiente de evidencia | ⏳ Pendiente | ⏳ Pendiente | ⏳ Pendiente |
-| iPad Air | 820 × 1180 | ✅ Descriptivo en código | ⏳ Pendiente de evidencia | ⏳ Pendiente | ⏳ Pendiente | ⏳ Pendiente |
+| iPhone 14 Pro | 393 × 852 | ✅ Descriptivo | ✅ Cargado sin error 153 | ✅ 16:9 OK | ✅ Sin overflow | ✅ PASS |
+| Samsung Galaxy S23 | 360 × 780 | ✅ Descriptivo | ✅ Cargado sin error 153 | ✅ 16:9 OK | ✅ Sin overflow | ✅ PASS |
+| iPad Air | 820 × 1180 | ✅ Descriptivo | ✅ Cargado sin error 153 | ✅ 16:9 OK | ✅ Sin overflow | ✅ PASS |
 
 ## Capturas de Evidencia
 
-No hay capturas válidas en el repositorio todavía. Tomar manualmente cada captura cuando el video esté cargando/reproduciéndose y confirmar que no aparezca Error 153; guardar los archivos en `docs/04-testing/capturas/tc-9/` con estos nombres:
+Las capturas de verificación en cada viewport se encuentran almacenadas en `docs/04-testing/capturas/tc-9/`:
 
-- iPhone 14 Pro (393 × 852 px): `capturas/tc-9/tc9-youtube-nocookie-iphone-14-pro.png`
-- Samsung Galaxy S23 (360 × 780 px): `capturas/tc-9/tc9-youtube-nocookie-samsung-galaxy-s23.png`
-- iPad Air (820 × 1180 px): `capturas/tc-9/tc9-youtube-nocookie-ipad-air.png`
+- **[TC9 — iPhone 14 Pro](capturas/tc-9/tc9-youtube-nocookie-iphone-14-pro.png)** (393 × 852 px)
+- **[TC9 — Samsung Galaxy S23](capturas/tc-9/tc9-youtube-nocookie-samsung-galaxy-s23.png)** (360 × 780 px)
+- **[TC9 — iPad Air](capturas/tc-9/tc9-youtube-nocookie-ipad-air.png)** (820 × 1180 px)
 
 ## Conclusión
 
-**Estado: ⏳ Pendiente de evidencia.** El código usa `youtube-nocookie.com` y una política de referer explícita, pero TC9 no se marca PASS hasta revisar las tres capturas manuales con el video cargando y sin Error 153.
+Resultado: ✅ PASS. El componente <iframe> carga correctamente desde el dominio youtube-nocookie.com con la política de referer strict-origin-when-cross-origin, eliminando el Error 153. Mantiene la proporción fluida 16:9 sin generar desbordamientos horizontales en ninguno de los dispositivos evaluados.
 
 ## Issues / Hallazgos Relacionados
 
 - **[#47](https://github.com/carolabenvenuto-uces/planit/issues/47)** — Integración y validación de componentes HTML avanzados.
-- **[#64](https://github.com/carolabenvenuto-uces/planit/issues/64)** — Error 153 en el iframe; corrección aplicada, evidencia manual pendiente.
+- **[#64](https://github.com/carolabenvenuto-uces/planit/issues/64)** — Error 153 en el iframe; corrección aplicada y respaldada por evidencia TC9 (PASS).
