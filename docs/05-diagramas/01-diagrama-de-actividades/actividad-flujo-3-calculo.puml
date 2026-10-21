@@ -1,0 +1,21 @@
+@startuml actividad-flujo-3-calculo
+title Flujo 3: Procesamiento y Cálculo de la Lógica de Negocio
+
+|Sistema|
+start
+:Recibir datos validados de entrada;
+:Inicializar estructura de datos;
+:Recorrer colección de elementos registrados;
+
+if (¿Aplica regla especial o descuento?) then (sí)
+  :Calcular porcentaje de bonificación;
+  :Aplicar descuento a la base de cálculo;
+else (no)
+  :Mantener tarifa base estándar;
+endif
+
+:Procesar operaciones matemáticas globales;
+:Construir objeto de resultado procesado;
+:Retornar resultado consolidado;
+stop
+@enduml

@@ -1,0 +1,24 @@
+@startuml actividad-flujo-4-resultados
+title Flujo 4: Generación y Presentación de Resultados
+
+|Sistema|
+start
+:Recibir objeto con el resultado procesado;
+:Formatear mensaje final de salida;
+
+if (¿Proceso fue exitoso?) then (sí)
+  :Generar reporte de confirmación;
+  
+  |Usuario|
+  :Presentar resumen completo vía alert();
+  :Registrar detalle técnico en console.log();
+else (no)
+  |Sistema|
+  :Generar notificación de advertencia;
+  
+  |Usuario|
+  :Mostrar mensaje de error al usuario vía alert();
+endif
+
+stop
+@enduml

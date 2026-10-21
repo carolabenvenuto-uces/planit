@@ -1,0 +1,31 @@
+@startuml
+title Flujo 1: Navegación por el Menú Principal y Selección de Opción
+
+|Usuario|
+start
+:Seleccionar opción en la aplicación;
+
+|Sistema|
+repeat
+:Mostrar menú principal interactivo mediante prompt();
+
+|Usuario|
+:Ingresar opción seleccionada;
+
+|Sistema|
+:Evaluar opción ingresada;
+
+if (¿Opción es válida?) then (no)
+  :Mostrar mensaje de opción inválida;
+else (sí)
+  break
+endif
+repeat while (¿Desea reintentar?) is (sí)
+
+if (¿Es opción de Salir?) then (sí)
+  :Mostrar mensaje de despedida;
+else (no)
+  :Redirigir al flujo de trabajo correspondiente;
+endif
+stop
+@enduml
