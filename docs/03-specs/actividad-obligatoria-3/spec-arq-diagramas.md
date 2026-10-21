@@ -3,7 +3,7 @@
 **Rol:** Arquitecto de Diagramas de Actividades  
 **Integrante:** Valeria Silva  
 **Fecha de inicio:** 20/10/2026  
-**Estado:** En Progreso (Fase BEFORE)  
+**Estado:** Finalizado (Fase AT CLOSE)  
 
 ---
 
@@ -41,18 +41,62 @@ De acuerdo con las funcionalidades planificadas en `plan.md` y la estructura vis
 ---
 
 ### 3. Checklist de Criterios de Aceptación
-- [ ] **4 Diagramas completos:** Cada diagrama incluye inicio (`start`), fin (`stop`), actividades (`:Actividad;`), decisiones (`if-then-else`) y ciclos/bucles (`while`/`repeat`).
-- [ ] **Uso de Swimlanes:** Separación explícita de carriles `|Usuario|` y `|Sistema|` en flujos con interacción.
-- [ ] **Sintaxis PlantUML válida:** Todos los archivos `.puml` compilan sin errores de sintaxis.
-- [ ] **Exportación de artefactos:** Generación y presencia de las parejas de archivos `.puml` (fuente editable) y `.png` (imagen exportada) para los 4 flujos en `docs/05-diagramas/01-diagrama-de-actividades/`.
-- [ ] **Documentación general:** Creación de `docs/05-diagramas/01-diagrama-de-actividades/diagramas-doc.md` con el índice, descripciones e imágenes embebidas.
-- [ ] **Coherencia de diseño:** Verificación conjunta con el Desarrollador JavaScript de que la lógica modelada coincida con las funciones de `js/script.js`.
+- [x] **4 Diagramas completos:** Cada diagrama incluye inicio (`start`), fin (`stop`), actividades (`:Actividad;`), decisiones (`if-then-else`) y ciclos/bucles (`while`/`repeat`).
+- [x] **Uso de Swimlanes:** Separación explícita de carriles `|Usuario|` y `|Sistema|` en flujos con interacción.
+- [x] **Sintaxis PlantUML válida:** Todos los archivos `.puml` compilan sin errores de sintaxis.
+- [x] **Exportación de artefactos:** Generación y presencia de las parejas de archivos `.puml` (fuente editable) y `.png` (imagen exportada) para los 4 flujos en `docs/05-diagramas/01-diagrama-de-actividades/`.
+- [x] **Documentación general:** Creación de `docs/05-diagramas/01-diagrama-de-actividades/diagramas-doc.md` con el índice, descripciones e imágenes embebidas.
+- [x] **Coherencia de diseño:** Verificación conjunta con el Desarrollador JavaScript de que la lógica modelada coincida con las funciones de `js/script.js`.
 
 ---
 
 ## 🔴 FASE FINAL (AT CLOSE)
-*(Esta sección se completará al finalizar el modelado con la evidencia de GitHub Copilot Agent)*
 
-- [ ] **Prompts de Copilot Agent Mode:** Prompts exactos utilizados especificando contextos adjuntos (`plan.md`, `index.html`, mockup).
-- [ ] **Extracto `.puml` y Correcciones Manuales:** Fragmentos del código generado y detalle de ajustes manuales aplicados.
-- [ ] **Decisiones de Diseño Finales:** Explicación técnica de la estructura final de los diagramas.
+### 1. Registro de Prompts y Contexto para GitHub Copilot Agent
+- **Contextos adjuntados:** `plan.md`, `index.html`, `mockup/`
+- **Prompt principal enviado:**
+  ```text
+  Como Arquitecto de Diagramas de Actividades para la AO3, genera el código fuente en PlantUML (.puml) para los 4 flujos principales de la aplicación siguiendo la estructura de plan.md e index.html:
+  1. Navegación por el Menú Principal y Selección de Opción
+  2. Ingreso y Validación de Datos de Entrada
+  3. Procesamiento y Cálculo de la Lógica de Negocio
+  4. Generación y Presentación de Resultados
+  Asegúrate de incluir start, stop, swimlanes (|Usuario| y |Sistema|), decisiones condicionales y bucles de repetición.
+  ```
+
+---
+
+### 2. Extracto de Código Generado y Correcciones Manuales
+- **Extracto de código base generado:**
+  ```plantuml
+  @startuml
+  |Usuario|
+  start
+  :Ingresar opción;
+  |Sistema|
+  if (¿Es válida?) then (sí)
+    stop
+  else (no)
+    :Mostrar error;
+  endif
+  @enduml
+  ```
+- **Ajustes y Correcciones Manuales Aplicadas:**
+  - **Resolución de bloqueos en ciclos:** Se corrigió la sintaxis de los bucles `repeat` en PlantUML eliminando nodos `stop` dentro de bifurcaciones condicionales internas y reemplazándolos por la instrucción `break`, garantizando que el diagrama compile sin errores y renderice correctamente la ruta de salida.
+  - **Refinamiento de Swimlanes:** Se añadieron particiones explícitas `|Usuario|` y `|Sistema|` en los flujos 1, 2 y 4 para delimitar las responsabilidades de la interfaz de usuario (`prompt()` / `alert()`) frente a la lógica interna.
+  - **Modularización:** Se dividió la arquitectura en 4 archivos independientes `.puml` acompañados de sus imágenes `.png` exportadas e integradas en `diagramas-doc.md`.
+
+---
+
+### 3. Historial de Decisiones de Diseño Finales
+1. **Modelado Asíncrono e Interactivo:** Se decidió representar explícitamente las llamadas a `prompt()` y `alert()` dentro del carril del `|Sistema|` enviando/recibiendo información desde el carril `|Usuario|`, sirviendo como contrato visual para el Desarrollador JavaScript.
+2. **Estructura Estándar:** Se adoptó el patrón de entrada/proceso/salida para asegurar que la lógica de negocio procese exclusivamente datos validados.
+
+---
+
+### 4. Checklist Final de Verificación (Completado)
+- [x] **4 Diagramas completos:** Diagramas de actividades en PlantUML con `start`, `stop`, decisiones, ciclos y swimlanes.
+- [x] **Sintaxis PlantUML válida:** Archivos `.puml` compilan e imágenes `.png` exportadas correctamente.
+- [x] **Estructura de archivos:** Artefactos organizados en `docs/05-diagramas/01-diagrama-de-actividades/`.
+- [x] **Documentación navegable:** Archivo `diagramas-doc.md` creado con índice, descripciones e imágenes embebidas.
+- [x] **Spec-Driven Development:** Fase BEFORE commiteada previamente y Fase AT CLOSE documentada con trazabilidad de Copilot Agent.
