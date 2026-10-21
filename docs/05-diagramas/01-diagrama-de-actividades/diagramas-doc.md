@@ -13,8 +13,8 @@ Para visualizar o editar el código fuente de estos diagramas en PlantUML, se pu
 
 * **Editor Web Online (Recomendado sin instalación):**
   1. Copiar el contenido del archivo de fuente editable `.puml`.
-  2. Pegar el código en PlantUML Online Editor o en el Servidor Oficial de PlantUML.
-  3. Exportar la imagen actualizada en formato PNG o SVG.
+  2. Pegar el código en PlantUML Editor o en el Servidor Oficial de PlantUML.
+  3. Exportar la imagen actualizada en formato PNG.
 
 * **Extensión local en Visual Studio Code:**
   1. Instalar la extensión **PlantUML** en VS Code (requiere Java instalado en el sistema).
@@ -26,6 +26,10 @@ Para visualizar o editar el código fuente de estos diagramas en PlantUML, se pu
 
 ### Flujo 1: Navegación por el Menú Principal y Selección de Opción
 - **Descripción:** Controla la estructura principal de la aplicación mediante un bucle de menú interactivo. Captura la opción elegida por el usuario vía `prompt()`, valida que sea una alternativa aceptada y redirige la ejecución hacia el flujo de trabajo correspondiente.
+- **Precondición:** La aplicación web ha cargado e inicializado su ciclo de ejecución.
+- **Postcondición:** Se ha seleccionado una opción válida del menú o se ha finalizado la sesión del usuario.
+- **Entrada Principal:** Opción seleccionada por el usuario (`string`/`number`).
+- **Salida Principal:** Redirección al flujo seleccionado o mensaje de despedida.
 - **Archivo ejecutable/editable:** [`actividad-flujo-1-menu.puml`](./actividad-flujo-1-menu.puml)
 - **Diagrama visual:** ![Flujo 1: Menú Principal](./actividad-flujo-1-menu.png)
 
@@ -33,6 +37,10 @@ Para visualizar o editar el código fuente de estos diagramas en PlantUML, se pu
 
 ### Flujo 2: Ingreso y Validación de Datos de Entrada
 - **Descripción:** Modela el proceso iterativo de solicitud de datos al usuario. Garantiza la calidad de las entradas verificando que los campos no estén vacíos y que correspondan a valores numéricos dentro del rango permitido antes de su almacenamiento en memoria.
+- **Precondición:** Se ha invocado la solicitud de un dato requerido por la aplicación.
+- **Postcondición:** El dato ingresado ha sido validado y almacenado correctamente en memoria.
+- **Entrada Principal:** Cadena de texto ingresada por el usuario mediante `prompt()`.
+- **Salida Principal:** Variable/dato numérico validado en memoria.
 - **Archivo ejecutable/editable:** [`actividad-flujo-2-validacion.puml`](./actividad-flujo-2-validacion.puml)
 - **Diagrama visual:** ![Flujo 2: Validación de Datos](./actividad-flujo-2-validacion.png)
 
@@ -40,12 +48,20 @@ Para visualizar o editar el código fuente de estos diagramas en PlantUML, se pu
 
 ### Flujo 3: Procesamiento y Cálculo de la Lógica de Negocio
 - **Descripción:** Detalla el procesamiento interno ejecutado exclusivamente por el Sistema. Toma los datos previamente validados, aplica reglas condicionales de negocio, calcula bonificaciones o importes y construye el objeto de resultados.
+- **Precondición:** Se dispone de datos de entrada previamente validados en memoria.
+- **Postcondición:** Se ha procesado la lógica de negocio y calculado el objeto de resultados.
+- **Entrada Principal:** Datos validados de entrada.
+- **Salida Principal:** Objeto de resultado consolidado con importes o estados procesados.
 - **Archivo ejecutable/editable:** [`actividad-flujo-3-calculo.puml`](./actividad-flujo-3-calculo.puml)
 - **Diagrama visual:** ![Flujo 3: Lógica de Negocio](./actividad-flujo-3-calculo.png)
 
 ---
 
 ### Flujo 4: Generación y Presentación de Resultados
-- **Descripción:** Representa el tramo final del ciclo de vida de la ejecución. Evalúa si el procedimiento concluyó con éxito o error para formatear los mensajes correspondientes y presentarlos visualmente al usuario a través de `alert()` y `console.log()`.
+- **Descripción:** Representa el tramo final del ciclo de vida de la ejecución. Evalúa si el procedimiento concluyó con éxito o error para formatear los mensajes correspondientes y presentarlos visualmente al usuario a través de `alert()`, registrando el detalle técnico en `console.log()`.
+- **Precondición:** Se ha generado un objeto de resultado tras el procesamiento.
+- **Postcondición:** El resultado o notificación ha sido presentado al usuario y registrado en consola.
+- **Entrada Principal:** Objeto de resultado procesado.
+- **Salida Principal:** Mensaje en interfaz (`alert()`) y registro técnico (`console.log()`).
 - **Archivo ejecutable/editable:** [`actividad-flujo-4-resultados.puml`](./actividad-flujo-4-resultados.puml)
 - **Diagrama visual:** ![Flujo 4: Presentación de Resultados](./actividad-flujo-4-resultados.png)

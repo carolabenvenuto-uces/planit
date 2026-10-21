@@ -8,13 +8,14 @@ start
 
 if (¿Proceso fue exitoso?) then (sí)
   :Generar reporte de confirmación;
+  :Registrar detalle técnico en console.log();
   
   |Usuario|
   :Presentar resumen completo vía alert();
-  :Registrar detalle técnico en console.log();
 else (no)
   |Sistema|
   :Generar notificación de advertencia;
+  :Registrar detalle técnico en console.log();
   
   |Usuario|
   :Mostrar mensaje de error al usuario vía alert();

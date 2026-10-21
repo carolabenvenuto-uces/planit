@@ -1,4 +1,4 @@
-@startuml
+@startuml actividad-flujo-1-menu
 title Flujo 1: Navegación por el Menú Principal y Selección de Opción
 
 |Usuario|
@@ -20,7 +20,7 @@ if (¿Opción es válida?) then (no)
 else (sí)
   break
 endif
-repeat while (¿Desea reintentar?) is (sí)
+repeat while (¿Usuario reintenta ingreso?) is (sí)
 
 if (¿Es opción de Salir?) then (sí)
   :Mostrar mensaje de despedida;
