@@ -1,67 +1,59 @@
-# 📊 Documentación de Diagramas de Actividades (AO3)
+# 📊 Documentación de Diagramas de Actividades (PlanIT - AO3)
 
 ## 📌 Índice de Diagramas
-1. [Flujo 1: Navegación por el Menú Principal y Selección de Opción](#flujo-1-navegación-por-el-menú-principal-y-selección-de-opción)
-2. [Flujo 2: Ingreso y Validación de Datos de Entrada](#flujo-2-ingreso-y-validación-de-datos-de-entrada)
-3. [Flujo 3: Procesamiento y Cálculo de la Lógica de Negocio](#flujo-3-procesamiento-y-cálculo-de-la-lógica-de-negocio)
-4. [Flujo 4: Generación y Presentación de Resultados](#flujo-4-generación-y-presentación-de-resultados)
+1. [Flujo 1: Crear Evento en PlanIT](#flujo-1-crear-evento-en-planit)
+2. [Flujo 2: Calcular Presupuesto del Evento](#flujo-2-calcular-presupuesto-del-evento)
+3. [Flujo 3: Buscar en Catálogo de Proveedores](#flujo-3-buscar-en-catálogo-de-proveedores)
+4. [Flujo 4: Gestionar Lista de Invitados](#flujo-4-gestionar-lista-de-invitados)
 
 ---
 
 ## 🛠️ Instrucciones de Edición y Visualización
-Para visualizar o editar el código fuente de estos diagramas en PlantUML, se pueden utilizar las siguientes alternativas:
-
-* **Editor Web Online (Recomendado sin instalación):**
-  1. Copiar el contenido del archivo de fuente editable `.puml`.
-  2. Pegar el código en PlantUML Editor o en el Servidor Oficial de PlantUML.
-  3. Exportar la imagen actualizada en formato PNG.
-
-* **Extensión local en Visual Studio Code:**
-  1. Instalar la extensión **PlantUML** en VS Code (requiere Java instalado en el sistema).
-  2. Abrir el archivo `.puml` deseado y presionar `Alt + D` para previsualizar el diagrama.
+* **Editor Web Online:** Copiar el código del archivo `.puml` y pegarlo en PlantUML Editor.
+* **Exportación:** Exportar las imágenes en formato PNG a la carpeta del proyecto.
 
 ---
 
 ## 📐 Detalle de los Flujos de Negocio
 
-### Flujo 1: Navegación por el Menú Principal y Selección de Opción
-- **Descripción:** Controla la estructura principal de la aplicación mediante un bucle de menú interactivo. Captura la opción elegida por el usuario vía `prompt()`, valida que sea una alternativa aceptada y redirige la ejecución hacia el flujo de trabajo correspondiente.
-- **Precondición:** La aplicación web ha cargado e inicializado su ciclo de ejecución.
-- **Postcondición:** Se ha seleccionado una opción válida del menú o se ha finalizado la sesión del usuario.
-- **Entrada Principal:** Opción seleccionada por el usuario (`string`/`number`).
-- **Salida Principal:** Redirección al flujo seleccionado o mensaje de despedida.
-- **Archivo ejecutable/editable:** [`actividad-flujo-1-menu.puml`](./actividad-flujo-1-menu.puml)
-- **Diagrama visual:** ![Flujo 1: Menú Principal](./actividad-flujo-1-menu.png)
+### Flujo 1: Crear Evento en PlanIT
+- **Descripción:** Captura los datos iniciales de un evento, valida restricciones de entrada mediante bucle interactivo e instancia el objeto en la colección.
+- **Precondición:** Menú principal activo.
+- **Postcondición:** Objeto de evento almacenado en la colección del sistema.
+- **Entrada Principal:** Nombre, tipo y presupuesto (`prompt()`).
+- **Salida Principal:** Mensaje de confirmación (`alert()`) y log (`console.log()`).
+- **Archivo editable:** [`actividad-flujo-1-crear-evento.puml`](./actividad-flujo-1-crear-evento.puml)
+- **Diagrama visual:** ![Flujo 1: Crear Evento](./actividad-flujo-1-crear-evento.png)
 
 ---
 
-### Flujo 2: Ingreso y Validación de Datos de Entrada
-- **Descripción:** Modela el proceso iterativo de solicitud de datos al usuario. Garantiza la calidad de las entradas verificando que los campos no estén vacíos y que correspondan a valores numéricos dentro del rango permitido antes de su almacenamiento en memoria.
-- **Precondición:** Se ha invocado la solicitud de un dato requerido por la aplicación.
-- **Postcondición:** El dato ingresado ha sido validado y almacenado correctamente en memoria.
-- **Entrada Principal:** Cadena de texto ingresada por el usuario mediante `prompt()`.
-- **Salida Principal:** Variable/dato numérico validado en memoria.
-- **Archivo ejecutable/editable:** [`actividad-flujo-2-validacion.puml`](./actividad-flujo-2-validacion.puml)
-- **Diagrama visual:** ![Flujo 2: Validación de Datos](./actividad-flujo-2-validacion.png)
+### Flujo 2: Calcular Presupuesto del Evento
+- **Descripción:** Recorre la colección de servicios contratados, aplica descuentos condicionales y verifica el límite de presupuesto.
+- **Precondición:** Existencia de ítems cargados en el evento.
+- **Postcondición:** Presupuesto recalculado y verificado.
+- **Entrada Principal:** Porcentaje de descuento promocional (`prompt()`).
+- **Salida Principal:** Resumen presupuestario o alerta de sobrepaso (`alert()`).
+- **Archivo editable:** [`actividad-flujo-2-calcular-presupuesto.puml`](./actividad-flujo-2-calcular-presupuesto.puml)
+- **Diagrama visual:** ![Flujo 2: Calcular Presupuesto](./actividad-flujo-2-calcular-presupuesto.png)
 
 ---
 
-### Flujo 3: Procesamiento y Cálculo de la Lógica de Negocio
-- **Descripción:** Detalla el procesamiento interno ejecutado exclusivamente por el Sistema. Toma los datos previamente validados, aplica reglas condicionales de negocio, calcula bonificaciones o importes y construye el objeto de resultados.
-- **Precondición:** Se dispone de datos de entrada previamente validados en memoria.
-- **Postcondición:** Se ha procesado la lógica de negocio y calculado el objeto de resultados.
-- **Entrada Principal:** Datos validados de entrada.
-- **Salida Principal:** Objeto de resultado consolidado con importes o estados procesados.
-- **Archivo ejecutable/editable:** [`actividad-flujo-3-calculo.puml`](./actividad-flujo-3-calculo.puml)
-- **Diagrama visual:** ![Flujo 3: Lógica de Negocio](./actividad-flujo-3-calculo.png)
+### Flujo 3: Buscar en Catálogo de Proveedores
+- **Descripción:** Filtra la colección del catálogo comparando criterios de búsqueda ingresados por el usuario.
+- **Precondición:** Catálogo con proveedores disponibles.
+- **Postcondición:** Colección filtrada según criterio.
+- **Entrada Principal:** Texto o categoría buscada (`prompt()`).
+- **Salida Principal:** Lista de coincidencias o advertencia de búsqueda vacía (`alert()`).
+- **Archivo editable:** [`actividad-flujo-3-buscar-catalogo.puml`](./actividad-flujo-3-buscar-catalogo.puml)
+- **Diagrama visual:** ![Flujo 3: Buscar Catálogo](./actividad-flujo-3-buscar-catalogo.png)
 
 ---
 
-### Flujo 4: Generación y Presentación de Resultados
-- **Descripción:** Representa el tramo final del ciclo de vida de la ejecución. Evalúa si el procedimiento concluyó con éxito o error para formatear los mensajes correspondientes y presentarlos visualmente al usuario a través de `alert()`, registrando el detalle técnico en `console.log()`.
-- **Precondición:** Se ha generado un objeto de resultado tras el procesamiento.
-- **Postcondición:** El resultado o notificación ha sido presentado al usuario y registrado en consola.
-- **Entrada Principal:** Objeto de resultado procesado.
-- **Salida Principal:** Mensaje en interfaz (`alert()`) y registro técnico (`console.log()`).
-- **Archivo ejecutable/editable:** [`actividad-flujo-4-resultados.puml`](./actividad-flujo-4-resultados.puml)
-- **Diagrama visual:** ![Flujo 4: Presentación de Resultados](./actividad-flujo-4-resultados.png)
+### Flujo 4: Gestionar Lista de Invitados
+- **Descripción:** Registra invitados y recorre la colección para contabilizar asistencias confirmadas y pendientes.
+- **Precondición:** Selección de gestión de lista desde la aplicación.
+- **Postcondición:** Colección de invitados actualizada con estadísticas calculadas.
+- **Entrada Principal:** Nombre y estado de confirmación (`prompt()`).
+- **Salida Principal:** Totales de asistencia (`alert()`) y métricas en consola (`console.log()`).
+- **Archivo editable:** [`actividad-flujo-4-gestionar-invitados.puml`](./actividad-flujo-4-gestionar-invitados.puml)
+- **Diagrama visual:** ![Flujo 4: Gestionar Invitados](./actividad-flujo-4-gestionar-invitados.png)
