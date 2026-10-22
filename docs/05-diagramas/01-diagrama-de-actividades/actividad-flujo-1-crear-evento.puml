@@ -1,0 +1,36 @@
+@startuml actividad-flujo-1-crear-evento
+title Flujo 1: Crear Evento en PlanIT
+
+|Usuario|
+start
+:Seleccionar opción 'Crear Evento' en el menú;
+
+|Sistema|
+repeat
+
+|Usuario|
+:Ingresar nombre, tipo y presupuesto base del evento vía prompt();
+
+|Sistema|
+:Validar que el nombre no esté vacío y el presupuesto sea mayor a 0;
+
+if (¿Datos son válidos?) then (no)
+  :Generar mensaje de error de validación;
+  
+  |Usuario|
+  :Visualizar alerta de error vía alert();
+else (sí)
+  break
+endif
+
+repeat while (¿Usuario desea reintentar?) is (sí)
+
+|Sistema|
+:Instanciar objeto Evento con datos validados;
+:Registrar nuevo evento en la colección principal;
+:Registrar log de auditoría en console.log();
+
+|Usuario|
+:Visualizar resumen y confirmación del evento creado vía alert();
+stop
+@enduml

@@ -1,0 +1,34 @@
+@startuml actividad-flujo-2-calcular-presupuesto
+title Flujo 2: Calcular Presupuesto del Evento
+
+|Usuario|
+start
+:Seleccionar opción 'Calcular Presupuesto';
+
+|Sistema|
+:Obtener lista de servicios e ítems contratados;
+:Inicializar acumulador de costo total en 0;
+
+repeat
+  :Obtener siguiente ítem de la colección;
+  :Sumar precio del ítem al acumulador total;
+repeat while (¿Quedan ítems por procesar en la colección?) is (sí)
+
+|Usuario|
+:Ingresar porcentaje de descuento promocional vía prompt();
+
+|Sistema|
+:Validar y aplicar porcentaje de descuento al costo acumulado;
+:Calcular monto final del presupuesto;
+:Registrar desglose técnico en console.log();
+
+if (¿El total supera el límite máximo asignado?) then (sí)
+  |Usuario|
+  :Mostrar alerta de presupuesto excedido vía alert();
+else (no)
+  |Usuario|
+  :Mostrar resumen de presupuesto disponible vía alert();
+endif
+
+stop
+@enduml
