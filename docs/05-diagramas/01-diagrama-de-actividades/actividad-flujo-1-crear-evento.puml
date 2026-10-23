@@ -7,30 +7,36 @@ start
 
 |Sistema|
 repeat
+  |Usuario|
+  :Ingresar nombre, tipo y presupuesto base del evento vía prompt();
+  
+  |Sistema|
+  :Validar que el nombre no esté vacío y el presupuesto sea mayor a 0;
+  
+  if (¿Datos son válidos?) then (no)
+    :Generar mensaje de error de validación;
+    
+    |Usuario|
+    :Visualizar alerta de error vía alert();
+  else (sí)
+  endif
+repeat while (¿Datos son inválidos y usuario reintenta?) is (sí)
 
-|Usuario|
-:Ingresar nombre, tipo y presupuesto base del evento vía prompt();
-
-|Sistema|
-:Validar que el nombre no esté vacío y el presupuesto sea mayor a 0;
-
-if (¿Datos son válidos?) then (no)
-  :Generar mensaje de error de validación;
+if (¿Datos son válidos?) then (sí)
+  |Sistema|
+  :Instanciar objeto Evento con datos validados;
+  :Registrar nuevo evento en la colección principal;
+  :Registrar log de auditoría en console.log();
   
   |Usuario|
-  :Visualizar alerta de error vía alert();
-else (sí)
-  break
+  :Visualizar resumen y confirmación del evento creado vía alert();
+else (no)
+  |Sistema|
+  :Cancelar creación del evento;
+  
+  |Usuario|
+  :Visualizar aviso de operación cancelada vía alert();
 endif
 
-repeat while (¿Usuario desea reintentar?) is (sí)
-
-|Sistema|
-:Instanciar objeto Evento con datos validados;
-:Registrar nuevo evento en la colección principal;
-:Registrar log de auditoría en console.log();
-
-|Usuario|
-:Visualizar resumen y confirmación del evento creado vía alert();
 stop
 @enduml
