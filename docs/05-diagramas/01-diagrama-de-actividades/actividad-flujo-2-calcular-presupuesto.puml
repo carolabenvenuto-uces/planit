@@ -9,25 +9,33 @@ start
 :Obtener lista de servicios e ítems contratados;
 :Inicializar acumulador de costo total en 0;
 
-repeat
+while (¿Quedan ítems por procesar en la colección?) is (sí)
   :Obtener siguiente ítem de la colección;
   :Sumar precio del ítem al acumulador total;
-repeat while (¿Quedan ítems por procesar en la colección?) is (sí)
+endwhile
 
 |Usuario|
-:Ingresar porcentaje de descuento promocional vía prompt();
+:Ingresar porcentaje de descuento promocional (0-100) vía prompt();
 
 |Sistema|
-:Validar y aplicar porcentaje de descuento al costo acumulado;
-:Calcular monto final del presupuesto;
-:Registrar desglose técnico en console.log();
+if (¿Porcentaje es numérico y está entre 0 y 100?) then (sí)
+  :Aplicar porcentaje de descuento al costo acumulado;
+  :Calcular monto final del presupuesto;
+  :Registrar desglose técnico en console.log();
 
-if (¿El total supera el límite máximo asignado?) then (sí)
-  |Usuario|
-  :Mostrar alerta de presupuesto excedido vía alert();
+  if (¿El total supera el límite máximo asignado?) then (sí)
+    |Usuario|
+    :Mostrar alerta de presupuesto excedido vía alert();
+  else (no)
+    |Usuario|
+    :Mostrar resumen de presupuesto disponible vía alert();
+  endif
 else (no)
+  |Sistema|
+  :Notificar error de porcentaje inválido;
+  
   |Usuario|
-  :Mostrar resumen de presupuesto disponible vía alert();
+  :Mostrar alerta de porcentaje de descuento inválido vía alert();
 endif
 
 stop

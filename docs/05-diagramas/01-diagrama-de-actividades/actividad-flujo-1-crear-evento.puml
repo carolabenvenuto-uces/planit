@@ -8,10 +8,10 @@ start
 |Sistema|
 repeat
   |Usuario|
-  :Ingresar nombre, tipo y presupuesto base del evento vía prompt();
+  :Ingresar nombre, tipo (cumpleaños/boda/salida casual) y presupuesto base vía prompt();
   
   |Sistema|
-  :Validar que el nombre no esté vacío y el presupuesto sea mayor a 0;
+  :Validar que el nombre no esté vacío, el tipo sea válido y el presupuesto sea mayor a 0;
   
   if (¿Datos son válidos?) then (no)
     :Generar mensaje de error de validación;

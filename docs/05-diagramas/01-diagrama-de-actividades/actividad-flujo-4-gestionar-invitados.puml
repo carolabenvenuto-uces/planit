@@ -7,21 +7,30 @@ start
 :Ingresar nombre del invitado y estado de asistencia vía prompt();
 
 |Sistema|
-:Registrar o actualizar invitado en la colección de invitados;
-:Inicializar contadores de 'Confirmados' y 'Pendientes' en 0;
+if (¿Nombre no está vacío y estado es válido?) then (sí)
+  :Registrar o actualizar invitado en la colección de invitados;
+  :Inicializar contadores de 'Confirmados' y 'Pendientes' en 0;
 
-repeat
-  :Obtener estado del siguiente invitado de la lista;
-  if (¿Asistencia confirmada?) then (sí)
-    :Incrementar contador de confirmados;
-  else (no)
-    :Incrementar contador de pendientes;
-  endif
-repeat while (¿Quedan invitados por contabilizar en la colección?) is (sí)
+  while (¿Quedan invitados por contabilizar en la colección?) is (sí)
+    :Obtener estado del siguiente invitado de la lista;
+    if (¿Asistencia confirmada?) then (sí)
+      :Incrementar contador de confirmados;
+    else (no)
+      :Incrementar contador de pendientes;
+    endif
+  endwhile
 
-:Registrar estadísticas de asistencia en console.log();
+  :Registrar estadísticas de asistencia en console.log();
 
-|Usuario|
-:Mostrar métricas de confirmados vs. pendientes vía alert();
+  |Usuario|
+  :Mostrar métricas de confirmados vs. pendientes vía alert();
+else (no)
+  |Sistema|
+  :Notificar datos de invitado inválidos;
+  
+  |Usuario|
+  :Mostrar alerta de campos requeridos faltantes vía alert();
+endif
+
 stop
-@enduml
+@endumls
