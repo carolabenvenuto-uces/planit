@@ -2,6 +2,9 @@
 
 ## [Unreleased]
 
+### Added
+- [feature/arq-diagramas-actividades] `feat(diagramas)`: modelado de 4 diagramas de actividades en PlantUML y documentación general | PR: [#78](https://github.com/carolabenvenuto-uces/planit/pull/78) | Issue: [#77](https://github.com/carolabenvenuto-uces/planit/issues/77) - @ValeriaMSilva (Arquitecto de Diagramas de Actividades)
+
 ## [Release Primer Parcial] - 2026-10-07
 
 ### Added

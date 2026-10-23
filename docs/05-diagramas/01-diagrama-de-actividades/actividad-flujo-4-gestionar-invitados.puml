@@ -1,0 +1,36 @@
+@startuml actividad-flujo-4-gestionar-invitados
+title Flujo 4: Gestionar Lista de Invitados
+
+|Usuario|
+start
+:Seleccionar opción 'Gestionar Invitados';
+:Ingresar nombre del invitado y estado de asistencia vía prompt();
+
+|Sistema|
+if (¿Nombre no está vacío y estado es válido?) then (sí)
+  :Registrar o actualizar invitado en la colección de invitados;
+  :Inicializar contadores de 'Confirmados' y 'Pendientes' en 0;
+
+  while (¿Quedan invitados por contabilizar en la colección?) is (sí)
+    :Obtener estado del siguiente invitado de la lista;
+    if (¿Asistencia confirmada?) then (sí)
+      :Incrementar contador de confirmados;
+    else (no)
+      :Incrementar contador de pendientes;
+    endif
+  endwhile
+
+  :Registrar estadísticas de asistencia en console.log();
+
+  |Usuario|
+  :Mostrar métricas de confirmados vs. pendientes vía alert();
+else (no)
+  |Sistema|
+  :Notificar datos de invitado inválidos;
+  
+  |Usuario|
+  :Mostrar alerta de campos requeridos faltantes vía alert();
+endif
+
+stop
+@endumls
