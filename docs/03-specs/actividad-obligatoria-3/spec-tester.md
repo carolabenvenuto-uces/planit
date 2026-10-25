@@ -5,7 +5,7 @@
 - **Rol:** Tester JavaScript / QA Engineer
 - **Responsable:** Carola Benvenuto (@carolabenvenuto-uces)
 - **Rama:** `feature/tester-javascript-jasmine`
-- **Issue principal:** [#75](https://github.com/carolabenvenuto-uces/planit/issues/75)
+- **Issue principal:** [#76](https://github.com/carolabenvenuto-uces/planit/issues/76)
 - **Fecha:** 19 de octubre de 2026
 
 ---
