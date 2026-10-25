@@ -49,7 +49,7 @@ El desarrollo de la AO3 se gestionará mediante el flujo **Gitflow** con la rama
 ### 4. Herramientas a Utilizar: Justificación de Copilot Agent Mode
 Se utilizará **GitHub Copilot Agent Mode** para la auditoría de código y revisiones de Pull Requests.
 
-- **Justificación:** Permite realizar análisis estáticos de código contextualizados en el diff de cada PR. La herramienta evalúa automáticamente el cumplimiento de las guías de estilo, semántica HTML, estructura CSS responsiva, accesibilidad WCAG/ARIA y buenas prácticas de JavaScript, automatizando la detección temprana de desvíos y garantizando que ningún cambio se integre a `develop` sin cumplir los estándares exigidos por la cátedra. Además, la review valida que el JS sea coherente con el mockup y plan.md.
+- **Justificación:** Permite realizar análisis estáticos de código contextualizados en el diff de cada PR. La herramienta evalúa automáticamente el cumplimiento de las guías de estilo, semántica HTML, estructura CSS responsiva, accesibilidad WCAG/ARIA y buenas prácticas de JavaScript, automatizando la detección temprana de desvíos y garantizando que ningún cambio se integre a `develop` sin cumplir los estándares exigidos por la cátedra.
 
 ### 5. Criterios de Aceptación (Checklist)
 - [x] `spec-devops.md` creado y commiteado en `docs/03-specs/actividad-obligatoria-3/` antes de cualquier otra tarea de coordinación de la AO3.
