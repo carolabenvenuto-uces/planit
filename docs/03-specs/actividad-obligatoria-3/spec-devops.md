@@ -5,7 +5,7 @@
 - **Rol:** Coordinador / DevOps
 - **Responsable:** Carola Benvenuto (@carolabenvenuto-uces)
 - **Rama:** `feature/coord-devops-tercera-entrega`
-- **Issue principal:** [#74](https://github.com/carolabenvenuto-uces/planit/issues/7)
+- **Issue principal:** [#74](https://github.com/carolabenvenuto-uces/planit/issues/74)
 - **Fecha:** 19 de octubre de 2026
 
 ---
@@ -94,5 +94,3 @@ Se utilizará **GitHub Copilot Agent Mode** para la auditoría de código y revi
 | Obstáculo | Resolución |
 | --- | --- |
 | *(A completar al cierre)* | *(A completar al cierre)* |
-
-```
