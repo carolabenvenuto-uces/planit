@@ -54,12 +54,9 @@ Se estructurarán **4 suites de tests** principales en `js/test/script.spec.js` 
 ### 1. Prompts Utilizados en Copilot Agent
 ```javascript
 // (A completar al cierre: Bloque de código con el prompt exacto y archivos adjuntos)
-
+```
 ---
 
-### Parte 2 (Desde Resultados hasta el final)
-
-```markdown
 ### 2. Resultados de Ejecución y Métricas
 * **Total de Suites:** 4
 * **Total de Tests (Specs):** 
