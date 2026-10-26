@@ -27,74 +27,83 @@
 
 ## Suites de Tests
 
-Cada suite corresponde a uno de los 4 flujos de negocio modelados en `docs/05-diagramas/01-diagrama-de-actividades/` e implementados en `js/script.js`.
+Cada suite corresponde a uno de los 4 flujos de negocio modelados en `docs/05-diagramas/01-diagrama-de-actividades/` e implementados en `js/script.js`. Las firmas de las funciones se acordaron con el Desarrollador JavaScript en la issue [#72](https://github.com/carolabenvenuto-uces/planit/issues/72) y están documentadas en `docs/03-specs/actividad-obligatoria-3/spec-dev-javascript.md`. Solo se testean las funciones de negocio (puras); las funciones de interacción (`flujo*()` e `iniciarMenuPrincipal()`) quedan fuera porque usan `prompt()` y `alert()`.
 
 ### Suite 1: Crear evento
 
 **Funciones Testeadas:**
-- _(a completar con las funciones de `js/script.js`)_
+- `validarDatosEvento(nombre, tipo, presupuesto)` - Valida nombre no vacío, tipo permitido y presupuesto mayor a 0; devuelve `true` / `false`.
+- `crearEvento(nombre, tipo, presupuesto)` - Crea el objeto evento `{ nombre, tipo, presupuesto }`.
+- `agregarEvento(eventos, evento)` - Devuelve un array nuevo con el evento agregado, sin modificar el original.
 
 **Casos de Prueba:**
 | # | Descripción | Tipo |
 |---|-------------|------|
-| 1 | Nombre, tipo "boda" y presupuesto 50000 son datos válidos y crean el objeto evento con esas propiedades | Happy Path |
-| 2 | Agregar un evento válido a la colección aumenta su largo en 1 y la colección lo contiene | Operaciones Arrays/Objetos |
-| 3 | Nombre vacío o solo con espacios es rechazado | Validación de Errores |
-| 4 | Tipo fuera de la lista permitida (ej. "congreso") es rechazado | Validación de Errores |
-| 5 | Presupuesto 0 es rechazado (debe ser mayor a 0) | Caso Borde |
-| 6 | Presupuesto negativo o no numérico ("abc") es rechazado | Validación de Errores |
+| 1 | `validarDatosEvento` acepta nombre, tipo "boda" y presupuesto "50000" (texto crudo de `prompt()`) | Happy Path |
+| 2 | `crearEvento` devuelve un objeto con las propiedades `nombre`, `tipo` y `presupuesto` | Operaciones Arrays/Objetos |
+| 3 | `agregarEvento` devuelve un array nuevo que contiene el evento y no modifica el array original | Operaciones Arrays/Objetos |
+| 4 | `validarDatosEvento` rechaza un nombre vacío o solo con espacios | Validación de Errores |
+| 5 | `validarDatosEvento` rechaza un tipo fuera de la lista permitida (ej. "congreso") | Validación de Errores |
+| 6 | `validarDatosEvento` rechaza un presupuesto de 0 | Caso Borde |
+| 7 | `validarDatosEvento` rechaza un presupuesto negativo o no numérico ("abc") | Validación de Errores |
 
 ---
 
 ### Suite 2: Calcular presupuesto
 
 **Funciones Testeadas:**
-- _(a completar con las funciones de `js/script.js`)_
+- `calcularTotalItems(items)` - Recorre los ítems contratados y suma sus subtotales.
+- `aplicarDescuento(total, porcentaje)` - Aplica un descuento de 0 a 100; lanza un `Error` con un porcentaje inválido.
+- `superaPresupuesto(total, presupuestoEstimado)` - Indica si el total supera el presupuesto estimado (usa `>`).
 
 **Casos de Prueba:**
 | # | Descripción | Tipo |
 |---|-------------|------|
-| 1 | La suma de varios ítems contratados es igual a la suma de sus subtotales | Happy Path |
-| 2 | Un descuento del 10% sobre 100000 da un total final de 90000 | Happy Path |
-| 3 | Una colección de ítems vacía da un total de 0 | Caso Borde |
-| 4 | Un descuento de 0 deja el total sin cambios y uno de 100 lo lleva a 0 | Caso Borde |
-| 5 | Un descuento negativo, mayor a 100 o no numérico es rechazado | Validación de Errores |
-| 6 | Un total mayor al presupuesto estimado indica que se excede el presupuesto | Happy Path |
-| 7 | Un total exactamente igual al presupuesto estimado no se considera excedido | Caso Borde |
+| 1 | `calcularTotalItems(itemsContratados)` devuelve 580000 | Happy Path |
+| 2 | `calcularTotalItems` con un array vacío devuelve 0 | Caso Borde |
+| 3 | `aplicarDescuento(100000, 10)` devuelve 90000 | Happy Path |
+| 4 | `aplicarDescuento` con 0% deja el total sin cambios y con 100% devuelve 0 | Caso Borde |
+| 5 | `aplicarDescuento` lanza un error con porcentaje negativo, mayor a 100 o no numérico | Validación de Errores |
+| 6 | `superaPresupuesto` devuelve `true` cuando el total es mayor al presupuesto estimado | Happy Path |
+| 7 | `superaPresupuesto` devuelve `false` cuando el total es igual al presupuesto estimado | Caso Borde |
 
 ---
 
 ### Suite 3: Buscar en catálogo
 
 **Funciones Testeadas:**
-- _(a completar con las funciones de `js/script.js`)_
+- `buscarEnCatalogo(catalogo, criterio)` - Filtra los proveedores por nombre o categoría sin distinguir mayúsculas de minúsculas; lanza un `Error` con criterio vacío.
+- `coincideCon(criterio)` - Método de cada proveedor de `catalogoProveedores` utilizado por la búsqueda.
 
 **Casos de Prueba:**
 | # | Descripción | Tipo |
 |---|-------------|------|
-| 1 | Buscar por el nombre de un proveedor existente devuelve un array con ese proveedor | Happy Path |
-| 2 | Buscar por una categoría existente devuelve todos los proveedores de esa categoría | Operaciones Arrays/Objetos |
-| 3 | La búsqueda no distingue mayúsculas de minúsculas | Caso Borde |
+| 1 | Buscar "Flores Pilar" en `catalogoProveedores` devuelve un array con ese proveedor | Happy Path |
+| 2 | Buscar por la categoría "Catering" devuelve los proveedores de esa categoría | Operaciones Arrays/Objetos |
+| 3 | La búsqueda no distingue mayúsculas de minúsculas ("dj lucas" encuentra "DJ Lucas & Sonido") | Caso Borde |
 | 4 | Una búsqueda sin coincidencias devuelve un array vacío | Caso Borde |
-| 5 | Un criterio de búsqueda vacío es rechazado | Validación de Errores |
+| 5 | `buscarEnCatalogo` lanza un error con criterio vacío | Validación de Errores |
 | 6 | El catálogo original no se modifica después de buscar | Operaciones Arrays/Objetos |
+| 7 | Cada proveedor del catálogo tiene el método `coincideCon` y devuelve `true` con su propio nombre | Operaciones Arrays/Objetos |
 
 ---
 
 ### Suite 4: Gestionar invitados
 
 **Funciones Testeadas:**
-- _(a completar con las funciones de `js/script.js`)_
+- `validarInvitado(nombre, estado)` - Valida nombre no vacío y estado "Confirmado" o "Pendiente"; devuelve `true` / `false`.
+- `agregarInvitado(invitados, nombre, estado)` - Devuelve un array nuevo con el invitado agregado; lanza un `Error` con datos inválidos.
+- `contarAsistencia(invitados)` - Recorre la lista y devuelve `{ confirmados, pendientes }`.
 
 **Casos de Prueba:**
 | # | Descripción | Tipo |
 |---|-------------|------|
-| 1 | Agregar un invitado con estado "Confirmado" lo incorpora a la lista con ese estado | Happy Path |
-| 2 | Una lista con 3 confirmados y 2 pendientes da `{ confirmados: 3, pendientes: 2 }` | Operaciones Arrays/Objetos |
-| 3 | Una lista vacía da `{ confirmados: 0, pendientes: 0 }` | Caso Borde |
-| 4 | Un invitado con nombre vacío no se agrega | Validación de Errores |
-| 5 | Un estado distinto de "Confirmado" o "Pendiente" es rechazado | Validación de Errores |
-| 6 | Cada invitado se guarda como objeto con las propiedades `nombre` y `estado` | Operaciones Arrays/Objetos |
+| 1 | `validarInvitado` acepta un nombre válido con estado "Confirmado" o "Pendiente" | Happy Path |
+| 2 | `agregarInvitado` devuelve un array nuevo con el invitado como objeto `{ nombre, estado }` y no modifica el array original | Operaciones Arrays/Objetos |
+| 3 | `contarAsistencia` con 3 confirmados y 2 pendientes devuelve `{ confirmados: 3, pendientes: 2 }` | Happy Path |
+| 4 | `contarAsistencia` con una lista vacía devuelve `{ confirmados: 0, pendientes: 0 }` | Caso Borde |
+| 5 | `validarInvitado` devuelve `false` y `agregarInvitado` lanza un error con nombre vacío | Validación de Errores |
+| 6 | `validarInvitado` devuelve `false` y `agregarInvitado` lanza un error con un estado inválido (ej. "Declinado") | Validación de Errores |
 
 ---
 
