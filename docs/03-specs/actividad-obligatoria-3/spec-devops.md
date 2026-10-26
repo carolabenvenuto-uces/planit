@@ -75,7 +75,7 @@ Se utilizará **GitHub Copilot Agent Mode** para la auditoría de código y revi
 
 #### Prompt 1 — Reviews de la PR #78 con Copilot (21/10, 22/10 y 23/10)
 - **Herramienta:** GitHub Copilot Agent Mode
-- **Utilizado en:** revisión inicial (21/10, resultado: Approve), Review 1 (22/10) y Review 2 (23/10) <!-- confirmar si en alguna se usó otro prompt -->
+- **Utilizado en:** revisión inicial (21/10, resultado: Approve), Review 1 (22/10) y Review 2 (23/10)
 - **Contexto:** la propia PR #78 (descripción, commits y diff), junto con el texto de la consigna del rol Arquitecto de Diagramas de Actividades. No se adjuntaron archivos individuales: se indicó a Copilot revisar dentro de la PR los artefactos del rol mencionados en el prompt y, además, el `changelog.md`.
 
 ```text
@@ -169,3 +169,4 @@ La revisión inicial de la PR #78 (21/10) se realizó con Copilot Agent Mode y e
 | El commit inicial de `spec-devops.md` (`1baf4a8`, 19/10) quedó registrado después del merge del backport ([#73](https://github.com/carolabenvenuto-uces/planit/pull/73)). | Las correcciones del Primer Parcial y el backport correspondían al cierre de esa entrega. La coordinación propia de la AO3 (Kanban, reviews, documentación y release) comenzó a partir del commit del spec. |
 | La deuda técnica de la issue [#68](https://github.com/carolabenvenuto-uces/planit/issues/68) implicó modificar `js/componentes-bootstrap.js` agregando `DOMContentLoaded`, mientras que la consigna de la AO3 indica no utilizar DOM ni eventos. | El archivo proviene de entregas anteriores y la modificación se limitó a guardias de existencia para evitar errores en consola. La lógica nueva de la AO3 se implementa exclusivamente en `js/script.js`, sin DOM ni eventos. |
 | Al generar `spec-devops.md` con IA, quedaron pegados texto del chat y una copia duplicada del spec dentro de MOMENTO 2, además de referencias incorrectas a issues y PRs. | Se corrigieron el texto pegado y las referencias (issue #74; PRs #67, #69, #70 y #73) en los commits `53fa2f8` y `1e40957`. |
+| Al asignar responsables desde el tablero Kanban, la issue [#72](https://github.com/carolabenvenuto-uces/planit/issues/72) quedó asignada por error al agente de GitHub Copilot, que inició una sesión automática y abrió la PR [#80](https://github.com/carolabenvenuto-uces/planit/pull/80) con la rama `copilot/dev-java-script-implement-business-logic`. | Se desasignó a Copilot y se reasignó la issue al Desarrollador JavaScript. La sesión se canceló, la PR #80 se cerró sin mergear y se eliminó la rama, por lo que no afectó el trabajo del equipo ni la rama `develop`. |
