@@ -11,7 +11,6 @@
 
 ## 🛠️ Instrucciones de Edición y Visualización
 Para visualizar o editar los diagramas en PlantUML se pueden emplear las siguientes alternativas:
-
 * **Editor Web Online:** Copiar el contenido del archivo `.puml` editable y pegarlo en PlantUML Editor.
 * **Extensión de VS Code:** Instalar la extensión oficial de PlantUML en Visual Studio Code (requiere Java o servidor activo) y presionar `Alt + D` para previsualizar.
 * **Exportación:** Generar y actualizar las imágenes en formato `.png` en la misma carpeta.
@@ -32,9 +31,9 @@ Para visualizar o editar los diagramas en PlantUML se pueden emplear las siguien
 ---
 
 ### Flujo 2: Calcular Presupuesto del Evento
-- **Descripción:** Recorre secuencialmente la colección de servicios contratados mediante un ciclo `while`, valida el porcentaje de descuento ingresado (entre 0 y 100) y calcula el monto total verificando el límite presupuestario.
-- **Precondición:** Existencia de una colección de servicios cargados para el evento.
-- **Postcondición:** Presupuesto final recalculado con descuento aplicado y advertencia si excede el máximo permitido.
+- **Descripción:** Recorre secuencialmente la colección de servicios contratados mediante un ciclo `while`, valida el porcentaje de descuento ingresado (entre 0 y 100) y calcula el monto total verificando el presupuesto base del evento como límite máximo asignado.
+- **Precondición:** Existencia de una colección de servicios cargados para el evento y un presupuesto base establecido.
+- **Postcondición:** Presupuesto final recalculado con descuento aplicado y advertencia si excede el límite máximo asignado.
 - **Entrada Principal:** Porcentaje de descuento promocional ingresado por el usuario vía `prompt()`.
 - **Salida Principal:** Resumen del presupuesto disponible o notificación de sobrepaso vía `alert()`, más desglose técnico en `console.log()`.
 - **Archivo editable:** [`actividad-flujo-2-calcular-presupuesto.puml`](./actividad-flujo-2-calcular-presupuesto.puml)
@@ -54,11 +53,11 @@ Para visualizar o editar los diagramas en PlantUML se pueden emplear las siguien
 ---
 
 ### Flujo 4: Gestionar Lista de Invitados
-- **Descripción:** Captura los datos de un invitado, valida su nombre y estado de asistencia, actualiza la lista y recorre la colección completa mediante un ciclo `while` para contabilizar confirmados y pendientes.
+- **Descripción:** Captura los datos de un invitado, valida su nombre y estado de asistencia (confirmado, pendiente, rechazado), evalúa si ya existe para actualizar o registrar, y recorre la colección completa mediante un ciclo `while` para contabilizar métricas.
 - **Precondición:** Menú de gestión de invitados seleccionado.
-- **Postcondición:** Colección de invitados actualizada y métricas de asistencia calculadas.
+- **Postcondición:** Colección de invitados actualizada y métricas de asistencia calculadas por estado.
 - **Entrada Principal:** Nombre del invitado y estado de confirmación ingresados vía `prompt()`.
-- **Salida Principal:** Métricas visuales de confirmados vs. pendientes vía `alert()` y estadísticas detalladas en `console.log()`.
+- **Salida Principal:** Métricas visuales de confirmados, pendientes y rechazados vía `alert()` y estadísticas detalladas en `console.log()`.
 - **Archivo editable:** [`actividad-flujo-4-gestionar-invitados.puml`](./actividad-flujo-4-gestionar-invitados.puml)
 - **Diagrama visual:** ![Flujo 4: Gestionar Invitados](./actividad-flujo-4-gestionar-invitados.png)
 
@@ -66,9 +65,9 @@ Para visualizar o editar los diagramas en PlantUML se pueden emplear las siguien
 
 ## 🔗 Mapeo de Trazabilidad: Flujo ↔ Función ↔ Test Unitario (RC-ARQ-10)
 
-| Flujo de Actividad | Archivo Diagrama | Función Principal (`js/script.js`) | Spec de Prueba (`spec/script.spec.js`) |
+| Flujo de Actividad | Archivo Diagrama | Función Principal (`js/script.js`) | Spec de Prueba (`js/test/script.spec.js`) |
 | :--- | :--- | :--- | :--- |
-| **Flujo 1: Crear Evento** | `actividad-flujo-1-crear-evento.puml` | `crearEvento(nombre, tipo, presupuesto)` | `it("debería crear un evento con datos válidos")` |
-| **Flujo 2: Calcular Presupuesto** | `actividad-flujo-2-calcular-presupuesto.puml` | `calcularPresupuesto(descuento)` | `it("debería calcular el presupuesto aplicando el descuento correctamente")` |
-| **Flujo 3: Buscar en Catálogo** | `actividad-flujo-3-buscar-catalogo.puml` | `buscarEnCatalogo(criterio)` | `it("debería retornar proveedores que coincidan con la búsqueda")` |
-| **Flujo 4: Gestionar Invitados** | `actividad-flujo-4-gestionar-invitados.puml` | `gestionarInvitados(nombre, estado)` | `it("debería contabilizar correctamente confirmados y pendientes")` |
+| **Flujo 1: Crear Evento** | `actividad-flujo-1-crear-evento.puml` | `crearEvento(nombre, tipo, presupuestoBase)` | `it("debería crear un evento con datos válidos")` *(provisorio QA)* |
+| **Flujo 2: Calcular Presupuesto** | `actividad-flujo-2-calcular-presupuesto.puml` | `calcularPresupuesto(items, descuento, limiteMaximo)` | `it("debería calcular el presupuesto aplicando el descuento correctamente")` *(provisorio QA)* |
+| **Flujo 3: Buscar en Catálogo** | `actividad-flujo-3-buscar-catalogo.puml` | `buscarEnCatalogo(criterio)` | `it("debería retornar proveedores que coincidan con la búsqueda")` *(provisorio QA)* |
+| **Flujo 4: Gestionar Invitados** | `actividad-flujo-4-gestionar-invitados.puml` | `gestionarInvitados(nombre, estado)` | `it("debería contabilizar correctamente confirmados y pendientes")` *(provisorio QA)* |
