@@ -42,7 +42,7 @@ Cada flujo sigue el patrón **entrada → proceso → salida** y se modela previ
 - **Evento:** el nombre no puede estar vacío; el tipo debe ser cumpleaños, boda o salida casual; el presupuesto estimado debe ser un número mayor a 0.
 - **Presupuesto:** el descuento debe ser numérico y estar entre 0 y 100; el límite de comparación es el presupuesto estimado del evento.
 - **Catálogo:** el criterio de búsqueda no puede estar vacío; la búsqueda no distingue mayúsculas de minúsculas. El catálogo contiene los proveedores del mockup aprobado (Gourmet Finger Food, Flores Pilar y DJ Lucas & Sonido).
-- **Invitados:** el nombre no puede estar vacío; el estado debe ser **Confirmado** o **Pendiente**, en coherencia con la sección 2.4.
+- **Invitados:** el nombre no puede estar vacío; el estado debe ser **Confirmado** o **Pendiente**, en coherencia con la sección 2.4. El mockup incluye un invitado de ejemplo con estado "Declinado"; en la AO3 se excluye de los datos de prueba para mantener los dos estados definidos en la sección 2.4. Su incorporación queda para una entrega posterior.
 
 ### Reglas técnicas de la AO3
 
