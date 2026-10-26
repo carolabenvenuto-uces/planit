@@ -53,11 +53,11 @@ Para visualizar o editar los diagramas en PlantUML se pueden emplear las siguien
 ---
 
 ### Flujo 4: Gestionar Lista de Invitados
-- **Descripción:** Captura los datos de un invitado, valida su nombre y estado de asistencia (confirmado, pendiente, rechazado), evalúa si ya existe para actualizar o registrar, y recorre la colección completa mediante un ciclo `while` para contabilizar métricas.
+- **Descripción:** Captura los datos de un invitado, valida su nombre y estado de asistencia (confirmado o pendiente) mediante `validarInvitado()`, agrega el registro con `agregarInvitado()` y recorre la colección mediante un ciclo `while` para contabilizar métricas con `contarAsistencia()`.
 - **Precondición:** Menú de gestión de invitados seleccionado.
-- **Postcondición:** Colección de invitados actualizada y métricas de asistencia calculadas por estado.
-- **Entrada Principal:** Nombre del invitado y estado de confirmación ingresados vía `prompt()`.
-- **Salida Principal:** Métricas visuales de confirmados, pendientes y rechazados vía `alert()` y estadísticas detalladas en `console.log()`.
+- **Postcondición:** Colección de invitados actualizada y métricas de asistencia calculadas (confirmados vs. pendientes).
+- **Entrada Principal:** Nombre del invitado y estado de confirmación (confirmado/pendiente) ingresados vía `prompt()`.
+- **Salida Principal:** Métricas visuales de confirmados vs. pendientes vía `alert()` y estadísticas detalladas en `console.log()`.
 - **Archivo editable:** [`actividad-flujo-4-gestionar-invitados.puml`](./actividad-flujo-4-gestionar-invitados.puml)
 - **Diagrama visual:** ![Flujo 4: Gestionar Invitados](./actividad-flujo-4-gestionar-invitados.png)
 
@@ -65,9 +65,9 @@ Para visualizar o editar los diagramas en PlantUML se pueden emplear las siguien
 
 ## 🔗 Mapeo de Trazabilidad: Flujo ↔ Función ↔ Test Unitario (RC-ARQ-10)
 
-| Flujo de Actividad | Archivo Diagrama | Función Principal (`js/script.js`) | Spec de Prueba (`js/test/script.spec.js`) |
+| Flujo de Actividad | Archivo Diagrama | Funciones Principales (`js/script.js`) | Spec de Prueba (`js/test/script.spec.js`) |
 | :--- | :--- | :--- | :--- |
-| **Flujo 1: Crear Evento** | `actividad-flujo-1-crear-evento.puml` | `crearEvento(nombre, tipo, presupuestoBase)` | `it("debería crear un evento con datos válidos")` *(provisorio QA)* |
-| **Flujo 2: Calcular Presupuesto** | `actividad-flujo-2-calcular-presupuesto.puml` | `calcularPresupuesto(items, descuento, limiteMaximo)` | `it("debería calcular el presupuesto aplicando el descuento correctamente")` *(provisorio QA)* |
-| **Flujo 3: Buscar en Catálogo** | `actividad-flujo-3-buscar-catalogo.puml` | `buscarEnCatalogo(criterio)` | `it("debería retornar proveedores que coincidan con la búsqueda")` *(provisorio QA)* |
-| **Flujo 4: Gestionar Invitados** | `actividad-flujo-4-gestionar-invitados.puml` | `gestionarInvitados(nombre, estado)` | `it("debería contabilizar correctamente confirmados y pendientes")` *(provisorio QA)* |
+| **Flujo 1: Crear Evento** | `actividad-flujo-1-crear-evento.puml` | `validarDatosEvento(nombre, tipo, presupuesto)`, `crearEvento(nombre, tipo, presupuesto)`, `agregarEvento(eventos, evento)` | `it("debería crear un evento con datos válidos")` *(provisorio QA)* |
+| **Flujo 2: Calcular Presupuesto** | `actividad-flujo-2-calcular-presupuesto.puml` | `calcularTotalItems(items)`, `aplicarDescuento(total, porcentaje)`, `superaPresupuesto(total, presupuestoEstimado)` | `it("debería calcular el presupuesto aplicando el descuento correctamente")` *(provisorio QA)* |
+| **Flujo 3: Buscar en Catálogo** | `actividad-flujo-3-buscar-catalogo.puml` | `buscarEnCatalogo(catalogo, criterio)` | `it("debería retornar proveedores que coincidan con la búsqueda")` *(provisorio QA)* |
+| **Flujo 4: Gestionar Invitados** | `actividad-flujo-4-gestionar-invitados.puml` | `validarInvitado(nombre, estado)`, `agregarInvitado(invitados, nombre, estado)`, `contarAsistencia(invitados)` | `it("debería contabilizar correctamente confirmados y pendientes")` *(provisorio QA)* |
