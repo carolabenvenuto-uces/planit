@@ -18,12 +18,15 @@ repeat
     
     |Usuario|
     :Visualizar alerta de error vía alert();
+    :Confirmar si desea reintentar vía prompt();
   else (sí)
   endif
-repeat while (¿Datos son inválidos y usuario reintenta?) is (sí)
-
-if (¿Datos son válidos?) then (sí)
+  
   |Sistema|
+repeat while (¿Datos inválidos y usuario reintenta?) is (sí)
+
+|Sistema|
+if (¿Datos son válidos?) then (sí)
   :Instanciar objeto Evento con datos validados;
   :Registrar nuevo evento en la colección principal;
   :Registrar log de auditoría en console.log();
