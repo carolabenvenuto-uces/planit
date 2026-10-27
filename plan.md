@@ -17,6 +17,64 @@
  - [x] **Responsive Design:** Diseño adaptativo mediante Media Queries (`responsive.css`).
  - [x] **Testing & QA:** Pruebas e inspección automatizada de interfaz con Playwright MCP y Copilot.
 
+ ## Actividad Obligatoria N.° 3 — Alcance & Objetivos
+
+La tercera entrega incorpora la **lógica de negocio en JavaScript** del simulador mediante algoritmos, funciones, arrays y objetos, sin manipulación del DOM ni eventos. La interacción se resuelve con `prompt()`, `alert()` y `console.log()`, y sienta las bases para la futura integración con la interfaz.
+
+- [ ] **Coordinación / DevOps:** Correcciones del Primer Parcial, backport, Kanban, Code Reviews asistidos con Copilot Agent Mode, release `v1.1-tercera-entrega` y actualización de `plan.md`, `README.md` y `changelog.md`.
+- [ ] **Arquitectura de Diagramas:** 4 diagramas de actividades en PlantUML (`.puml` y `.png`) en `docs/05-diagramas/01-diagrama-de-actividades/`.
+- [ ] **Desarrollo JavaScript:** Implementación de los 4 flujos en `js/script.js` con un menú principal mediante `prompt()`.
+- [ ] **Testing & QA:** Suite de tests con Jasmine en `js/test/`, ejecutada en browser con Playwright MCP.
+
+### Flujos de negocio de la AO3
+
+Cada flujo sigue el patrón **entrada → proceso → salida** y se modela previamente en su diagrama de actividades, que funciona como contrato de implementación.
+
+| Flujo | Entrada (`prompt()`) | Proceso | Salida (`alert()` / `console.log()`) |
+| --- | --- | --- | --- |
+| 1. Crear evento | Nombre, tipo y presupuesto estimado | Valida los datos, crea el objeto evento y lo agrega a la colección de eventos | Confirmación o mensaje de error/cancelación |
+| 2. Calcular presupuesto | Porcentaje de descuento | Recorre los ítems contratados, suma subtotales, aplica el descuento y compara con el presupuesto estimado | Total final y aviso si se excede el presupuesto |
+| 3. Buscar en catálogo | Texto o categoría | Recorre el catálogo de proveedores y filtra por coincidencia de nombre o categoría | Lista de coincidencias o aviso "sin coincidencias" |
+| 4. Gestionar invitados | Nombre y estado de confirmación | Registra al invitado y recorre la lista contando confirmados y pendientes | Métricas de confirmados y pendientes |
+
+### Reglas de negocio y validación
+
+- **Evento:** el nombre no puede estar vacío; el tipo debe ser cumpleaños, boda o salida casual; el presupuesto estimado debe ser un número mayor a 0.
+- **Presupuesto:** el descuento debe ser numérico y estar entre 0 y 100; el límite de comparación es el presupuesto estimado del evento.
+- **Catálogo:** el criterio de búsqueda no puede estar vacío; la búsqueda no distingue mayúsculas de minúsculas. El catálogo contiene los proveedores del mockup aprobado (Gourmet Finger Food, Flores Pilar y DJ Lucas & Sonido).
+- **Invitados:** el nombre no puede estar vacío; el estado debe ser **Confirmado** o **Pendiente**, en coherencia con la sección 2.4. El mockup incluye un invitado de ejemplo con estado "Declinado"; en la AO3 se excluye de los datos de prueba para mantener los dos estados definidos en la sección 2.4. Su incorporación queda para una entrega posterior.
+
+### Reglas técnicas de la AO3
+
+- Todo el código de la AO3 se define en `js/script.js`, referenciado desde `index.html`.
+- **Sin manipulación del DOM ni eventos** en esta entrega.
+- Las funciones de negocio son puras: reciben parámetros y retornan valores, sin llamar a `prompt()` ni `alert()`. La interacción con el usuario queda en funciones separadas.
+- Las funciones se exponen en el ámbito global (no se encapsulan en una IIFE) para poder testearlas con Jasmine.
+- El menú principal no se ejecuta automáticamente al cargar `script.js`, para que `js/test/test-runner.html` pueda correr los tests sin quedar bloqueado por un `prompt()`.
+- Nomenclatura camelCase para variables y funciones, PascalCase para constructores y clases, y comentarios JSDoc en funciones complejas.
+
+### Trazabilidad de la AO3
+
+| Flujo | Diagrama | Suite de tests |
+| --- | --- | --- |
+| 1. Crear evento | `actividad-flujo-1-crear-evento.puml` | Flujo 1 en `js/test/script.spec.js` |
+| 2. Calcular presupuesto | `actividad-flujo-2-calcular-presupuesto.puml` | Flujo 2 en `js/test/script.spec.js` |
+| 3. Buscar en catálogo | `actividad-flujo-3-buscar-catalogo.puml` | Flujo 3 en `js/test/script.spec.js` |
+| 4. Gestionar invitados | `actividad-flujo-4-gestionar-invitados.puml` | Flujo 4 en `js/test/script.spec.js` |
+
+El detalle de funciones de `js/script.js` por flujo se documenta en `docs/05-diagramas/01-diagrama-de-actividades/diagramas-doc.md`.
+
+### Criterios de Code Review para la AO3
+
+Además de los criterios de la sección 4.2, las PRs de la AO3 se auditarán verificando:
+
+1. Coherencia entre los diagramas de actividades, `js/script.js` y este documento.
+2. Validación de todas las entradas de `prompt()` según las reglas de negocio.
+3. Separación entre lógica de negocio e interacción con el usuario.
+4. Uso de condicionales, ciclos, arrays y objetos acordes a cada flujo.
+5. Ausencia de manipulación del DOM y de eventos en el código nuevo.
+6. Tests con happy path, casos borde, errores y operaciones con arrays/objetos.
+
  ## 1. Visión General del Proyecto
 
  ### 1.1 Propuesta de valor
