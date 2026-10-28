@@ -103,13 +103,120 @@ El código se organiza en tres capas dentro de `js/script.js`:
 
 ## MOMENTO 2: Evidencia de Cierre (AL FINALIZAR)
 
-> *Nota: esta sección se completará después de generar y ajustar `js/script.js`.*
+> **Cambio de herramienta respecto del plan inicial:** el BEFORE planificó generar `js/script.js` con GitHub Copilot Agent Mode. Con la conformidad del docente, el código se generó con **Claude Code** (Anthropic), el asistente de IA en modo agente para VS Code que el equipo ya utilizó en el Primer Parcial y en las code reviews de esta entrega. El flujo de trabajo de la consigna se mantuvo: los `.puml` del Arquitecto y este spec se usaron como contexto y contrato de implementación, y el resultado se revisó y ajustó manualmente.
 
-### 1. Prompt utilizado en Copilot Agent
-*(A completar: prompt exacto en bloque de código y archivos adjuntados como contexto.)*
+### 1. Prompt utilizado
+- **Herramienta:** Claude Code (modo agente en VS Code).
+- **Contexto adjuntado:**
+  - `docs/05-diagramas/01-diagrama-de-actividades/actividad-flujo-1-crear-evento.puml`
+  - `docs/05-diagramas/01-diagrama-de-actividades/actividad-flujo-2-calcular-presupuesto.puml`
+  - `docs/05-diagramas/01-diagrama-de-actividades/actividad-flujo-3-buscar-catalogo.puml`
+  - `docs/05-diagramas/01-diagrama-de-actividades/actividad-flujo-4-gestionar-invitados.puml`
+  - `docs/03-specs/actividad-obligatoria-3/spec-dev-javascript.md`
+  - `index.html`, como fuente de los datos del mockup (ítems de presupuesto, proveedores e invitados).
+- **Momento:** después de integrar `develop` en la rama (`237e170`), con los `.puml` aprobados en la PR [#78](https://github.com/carolabenvenuto-uces/planit/pull/78).
 
-### 2. Fragmento generado por Copilot y ajustes manuales
-*(A completar: fragmento de al menos un flujo y los ajustes realizados para mejorar la testabilidad.)*
+```text
+Actuá como Desarrollador JavaScript del proyecto PlanIT (Actividad Obligatoria N.° 3).
+Adjunto los 4 diagramas de actividades (.puml), que son el contrato de implementación, y mi spec-dev-javascript.md.
+
+Generá js/script.js cumpliendo:
+1. Los 4 flujos tal como están modelados en los .puml (actividades, decisiones if/else, ciclos while/repeat), incluido el ciclo de reintento del Flujo 1.
+2. Las firmas, retornos y criterio de errores de la tabla del spec (sección 5), con esos nombres exactos.
+3. Separación en 3 capas: datos, funciones de negocio puras (sin prompt/alert/console.log, sin modificar variables externas, los agregar* retornan un array nuevo) y funciones de interacción flujoCrearEvento, flujoCalcularPresupuesto, flujoBuscarEnCatalogo, flujoGestionarInvitados e iniciarMenuPrincipal.
+4. Los datos del spec (sección 4): TIPOS_EVENTO, ESTADOS_INVITADO, eventos, itemsContratados (total 580000), catalogoProveedores con el método coincideCon(criterio) e invitados de ejemplo.
+5. Menú con while + switch (opciones 1 a 4 y 0 para salir; cancelar el prompt cierra el menú).
+6. Funciones globales, sin IIFE, sin DOM y sin eventos. Al final del archivo: if (typeof jasmine === "undefined") { iniciarMenuPrincipal(); }
+7. Validación del estado de invitado sin distinguir mayúsculas, guardándolo como "Confirmado" o "Pendiente".
+8. camelCase, nombres en español y JSDoc en las funciones de negocio.
+
+Además, agregá en index.html, después del script de componentes-bootstrap.js: <script src="js/script.js" defer></script>
+```
+
+### 2. Fragmento generado y ajustes manuales
+La primera versión generada cumplía las firmas acordadas y la separación en capas. Este es el Flujo 1 y el arranque del menú tal como se generaron:
+
+```javascript
+    do {
+        nombre = prompt("Nombre del evento:");
+        tipo = prompt("Tipo de evento (" + TIPOS_EVENTO.join(", ") + "):");
+        presupuesto = prompt("Presupuesto estimado (número mayor a 0):");
+
+        errores = obtenerErroresEvento(nombre, tipo, presupuesto);
+        if (errores.length > 0) {
+            alert("Datos inválidos:\n" + errores.join("\n"));
+            reintentar = quiereReintentar(prompt("¿Desea reintentar? (s/n)"));
+        }
+    } while (errores.length > 0 && reintentar);
+
+// ...
+
+// El menú no se ejecuta en js/test/test-runner.html: Jasmine se carga antes que este archivo.
+if (typeof jasmine === "undefined") {
+    iniciarMenuPrincipal();
+}
+```
+
+Al probarlo en el navegador surgieron dos problemas, que se corrigieron manualmente:
+
+| Problema detectado | Ajuste manual |
+| --- | --- |
+| Al elegir la opción 1, el navegador cerraba solo el `prompt()` del nombre y el flujo informaba "falta nombre" sin haberlo pedido. Se reprodujo en Chrome y Edge con el protocolo de DevTools: el diálogo se abría y se cerraba a los 20 ms con `result: false`. La causa era que el menú arrancaba mientras la página todavía cargaba recursos (Bootstrap, imágenes, iframe de YouTube), y al avanzar la carga el navegador descartaba el diálogo abierto. | Se agregó `iniciarMenuAlTerminarCarga()`, que consulta `document.readyState` cada 100 ms con `setTimeout` y abre el menú recién cuando vale `"complete"`. Solo lee ese valor: no modifica el DOM ni usa eventos, como pide la consigna. El control de `typeof jasmine` se mantiene para no bloquear `test-runner.html`. |
+| Los mensajes no indicaban qué dato se estaba pidiendo ni qué se había ingresado, y si el usuario cancelaba el nombre, el flujo igual pedía el tipo y el presupuesto. | Cada `prompt()` del Flujo 1 indica el paso y el dato ("paso 1 de 3: NOMBRE"). Cancelar un dato saltea los siguientes y lleva a la pregunta de reintento, y el `alert()` de error muestra lo que llegó de cada dato mediante `describirIngreso()` (`(vacío)`, `(cancelado)` o el valor). |
+
+Versión final del Flujo 1 y del arranque:
+
+```javascript
+    do {
+        // Si el usuario cancela un dato, no se piden los siguientes.
+        nombre = prompt("Crear evento (paso 1 de 3)\nIngrese el NOMBRE del evento (ej.: Cumple de Sofía):");
+        tipo = nombre === null ? null :
+            prompt("Crear evento (paso 2 de 3)\nIngrese el TIPO de evento (" + TIPOS_EVENTO.join(", ") + "):");
+        presupuesto = tipo === null ? null :
+            prompt("Crear evento (paso 3 de 3)\nIngrese el PRESUPUESTO estimado (número mayor a 0):");
+        // ...validación, alert con los datos ingresados y pregunta de reintento
+    } while (errores.length > 0 && reintentar);
+
+// ...
+
+function iniciarMenuAlTerminarCarga() {
+    if (document.readyState === "complete") {
+        iniciarMenuPrincipal();
+    } else {
+        setTimeout(iniciarMenuAlTerminarCarga, 100);
+    }
+}
+
+if (typeof jasmine === "undefined") {
+    iniciarMenuAlTerminarCarga();
+}
+```
+
+**Verificación antes de abrir la PR:**
+- Los casos planificados por el Tester en `js/test/testing-doc.md` se ejecutaron con aserciones en Node.js contra las funciones de negocio (31 verificaciones, todas correctas), incluidos el total de $580.000, el descuento del 10 % sobre $100.000, el rechazo de "Declinado" y la inmutabilidad de los arrays.
+- Se recorrieron el menú y los 4 flujos en Chrome y Edge, incluidos datos inválidos, reintento, cancelación, búsqueda vacía y sin coincidencias.
+- Con Jasmine cargado, el menú no se ejecuta.
 
 ### 3. Decisiones finales
-*(A completar: estructura final del código y cómo facilita el trabajo del Tester.)*
+- **Estructura en 3 capas** dentro de `js/script.js`: datos, funciones de negocio puras e interacción con el usuario. El Tester solo necesita las funciones de negocio, que reciben todo por parámetro y retornan un valor.
+- **Firmas idénticas a las acordadas** en la issue [#72](https://github.com/carolabenvenuto-uces/planit/issues/72) y en la tabla de trazabilidad de `diagramas-doc.md`. Se agregaron funciones auxiliares que no cambian el contrato: `obtenerErroresEvento`, `obtenerTipoEvento`, `obtenerEstadoInvitado`, `quiereReintentar`, `calcularSubtotalItem`, `obtenerPresupuestoEstimado`, `formatearListaProveedores`, `formatearMoneda`, `normalizarTexto`, `convertirANumero`, `esTextoNoVacio` y `describirIngreso`.
+- **Criterio de errores uniforme:** las `validar*` devuelven `true`/`false` y aceptan el texto crudo de `prompt()`. `aplicarDescuento`, `buscarEnCatalogo` y `agregarInvitado` lanzan `Error`, testeable con `toThrow()`.
+- **Objetos con métodos:** los proveedores se crean con el constructor `Proveedor` (PascalCase) y comparten el método `coincideCon(criterio)` por prototipo, que utiliza la búsqueda del Flujo 3.
+- **Ciclos coherentes con los diagramas:** `calcularTotalItems`, `buscarEnCatalogo` y `contarAsistencia` recorren las colecciones con `while`, como los `while … endwhile` de los flujos 2, 3 y 4. El Flujo 1 usa `do … while` para el `repeat` de reintento, y el menú, `while` + `switch`.
+- **Búsqueda y validaciones sin distinguir mayúsculas ni tildes:** "dj lucas" encuentra "DJ Lucas & Sonido", "decoracion" encuentra "Decoración" y "cumpleanos" se acepta como "cumpleaños".
+- **Arranque del menú:** se ejecuta en `index.html` cuando la página terminó de cargar y nunca en `test-runner.html`.
+
+### 4. Criterios de Aceptación al cierre
+- [x] `spec-dev-javascript.md` commiteado antes que `js/script.js` (`9c9ac06`).
+- [x] 4 flujos completos con validación de entrada y patrón entrada → proceso → salida.
+- [x] Menú principal con `prompt()` que permite elegir entre los 4 flujos.
+- [x] Funciones con nombres descriptivos, parámetros y valores de retorno explícitos.
+- [x] Lógica de negocio separada de la UI: las funciones de negocio no llaman a `prompt()` ni `alert()` directamente.
+- [x] Funciones expuestas para testing (no encapsuladas en IIFE).
+- [x] Uso de condicionales, ciclos, arrays y objetos acordes a cada flujo.
+- [x] Sin manipulación del DOM ni eventos.
+- [x] Código que refleja los `.puml` del Arquitecto de Diagramas.
+- [x] JSDoc en las funciones de negocio y convenciones camelCase/PascalCase.
+- [x] `index.html` referencia correctamente `js/script.js`.
+- [x] Prompt exacto, fragmento generado y ajustes manuales documentados en este spec.
+- [x] Registro de la PR en `changelog.md`.
