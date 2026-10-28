@@ -229,8 +229,40 @@ Además, como es una re-revisión, verificá específicamente la resolución de 
 Entregá el resultado separando lo que cumple, los cambios bloqueantes (con archivo y línea) y las mejoras no bloqueantes, con un veredicto final: Aprobado o Requiere cambios.
 ```
 
-#### Prompts 6 y siguientes — Reviews de la PR de Desarrollo JavaScript
-*(A completar al revisar la PR de `feature/dev-javascript-logica-negocio`.)*
+#### Prompt 6 — Review de la PR #81 con Claude (28/10)
+- **Herramienta:** Claude (Anthropic)
+- **Utilizado en:** Review 7 (aprobación de la PR #81)
+- **Contexto:** la misma conversación, con la consigna completa de la AO3 ya adjunta, y acceso de lectura a la PR #81: 4 commits, `js/script.js` completo, diff de `index.html`, `spec-dev-javascript.md` (BEFORE y AT CLOSE), `changelog.md`, descripción de la PR, comparación de datos con el `index.html` del mockup y comparación archivo por archivo con `develop` para verificar que no se modificaron los artefactos del Arquitecto de Diagramas.
+- **Construcción:** parte de la plantilla reformulada y agrega un bloque de verificaciones específicas del rol de Desarrollador JavaScript.
+- **Ajustes manuales:** el reporte marcó como bloqueante la frase "con la conformidad del docente" de la nota de cambio de herramienta del spec, por no tener respaldo en el repositorio. Como el cambio se había consultado en clase, se descartó ese punto, se publicó la review como Approve y el resto del reporte se mantuvo sin cambios.
+
+```text
+Actuá como revisor técnico de la Actividad Obligatoria N.° 3 de Programación Web I (UCES) para el proyecto PlanIT. La consigna completa de la actividad ya está adjunta en esta conversación como contexto.
+
+Desde el rol de Coordinadora/DevOps, realizá una code review completa de la PR #81 de Facundo Guiraldes (rol: Desarrollador JavaScript) contra la rama develop.
+
+Verificá:
+1. Cumplimiento de todas las tareas, entregables y puntos de la rúbrica del rol.
+2. Orden de commits: el spec del rol debe estar commiteado antes que los demás artefactos.
+3. Contenido de cada archivo de la PR (no solo el diff general), incluidas las versiones anteriores del spec si fueron modificadas.
+4. Coherencia con plan.md, el mockup y los entregables de los demás roles.
+5. Reglas del equipo: branch model, nomenclatura de ramas, issue vinculada, template de PR y registro en changelog.md con el título literal de la PR.
+6. Que las observaciones de revisiones anteriores (propias y de otros integrantes) estén resueltas.
+
+Además, para este rol verificá específicamente:
+- Que js/script.js refleje los 4 diagramas de actividades (docs/05-diagramas/01-diagrama-de-actividades/): actividades, decisiones, ciclos y el reintento del Flujo 1.
+- Que las firmas, los retornos y el manejo de errores coincidan con la sección 5 de spec-dev-javascript.md y con lo acordado en la issue #72.
+- Que las funciones de negocio sean puras: sin prompt(), alert() ni modificación de variables externas, y que agregarEvento y agregarInvitado devuelvan un array nuevo.
+- Que las funciones estén expuestas en el ámbito global (sin IIFE) y que el menú no se inicie cuando Jasmine está cargado.
+- Que no haya manipulación del DOM ni eventos en js/script.js.
+- Que se validen todas las entradas de prompt() según las reglas de negocio de plan.md, incluyendo cancelar (null).
+- Que los datos (itemsContratados, catalogoProveedores, invitados) coincidan con el mockup y con la decisión documentada sobre el estado "Declinado".
+- Que index.html referencie correctamente js/script.js.
+- JSDoc en las funciones de negocio, camelCase, indentación y uso de condicionales, ciclos, arrays y objetos acordes a cada flujo.
+- Que el AT CLOSE de spec-dev-javascript.md tenga el prompt exacto de Copilot con los .puml adjuntos, un fragmento generado y los ajustes manuales.
+
+Entregá el resultado separando lo que cumple, los cambios bloqueantes (con archivo y línea) y las mejoras no bloqueantes, con un veredicto final: Aprobado o Requiere cambios.
+```
 
 ---
 
@@ -246,7 +278,7 @@ La revisión inicial de la PR #78 (21/10) se realizó con Copilot Agent Mode y e
 | 4 | [#78](https://github.com/carolabenvenuto-uces/planit/pull/78) | Arquitecto de Diagramas | Claude | 🔁 Request changes | Commit `e9823ab`. Se validaron: BEFORE restaurado, contextos del prompt inicial, texto de `while...endwhile`, reintento y carriles del Flujo 1 con `.png` regenerado, `@enduml`, ruta de tests, límite del Flujo 2 y título literal en `changelog.md`. **Bloqueantes:** en `actividad-flujo-4-gestionar-invitados.puml`, se agregó el estado "rechazado" (L7, L19, L28–29 y L36), contrario a `plan.md` y a lo acordado en la issue #72; la decisión "¿El invitado ya existe?" (L11–17) no tenía función equivalente; la etiqueta `else (sí)` (L28) era incorrecta; y el `.png` no se regeneró. En `diagramas-doc.md`, la tabla RC-ARQ-10 seguía con las firmas anteriores. En `spec-arq-diagramas.md`, el extracto no era textual, los contextos del rediseño incluían un archivo inexistente y el prompt de rediseño estaba como cita. | [Review 4](https://github.com/carolabenvenuto-uces/planit/pull/78#pullrequestreview-5660074851) |
 | 5 | [#78](https://github.com/carolabenvenuto-uces/planit/pull/78) | Arquitecto de Diagramas | Claude | 🔁 Request changes | Commit `fead737`. Se validaron: Flujo 4 con dos estados y `.png` sincronizado, y tabla RC-ARQ-10 con las firmas de `spec-dev-javascript.md`. **Bloqueantes**, todos en `spec-arq-diagramas.md`: bloque ```` ```plantuml ```` sin cerrar; Prompt Original y sus contextos eliminados (regresión de un punto ya aprobado); prompt de rediseño como cita y con un contexto posterior a la fecha del rediseño; y extracto distinto del archivo del commit `9284cad`. Se incluyeron en la review los bloques exactos para corregir. | [Review 5](https://github.com/carolabenvenuto-uces/planit/pull/78#pullrequestreview-5660847071) |
 | 6 | [#78](https://github.com/carolabenvenuto-uces/planit/pull/78) | Arquitecto de Diagramas | Claude | ✅ Approve | Commit `1dcaed7`. Todos los bloqueantes resueltos y sin regresiones en lo aprobado. Quedaron como mejoras no bloqueantes: formato del BEFORE respecto de `0b469a4`, orden de la decisión y de `validarInvitado()` en el Flujo 4 (L10–11), duplicación entre el `while` de conteo y `contarAsistencia()` (L25), y el link a plantumleditor.com. | [Aprobación](https://github.com/carolabenvenuto-uces/planit/pull/78#pullrequestreview-5660977650) |
-| 7 | # | Desarrollador JavaScript | Claude | 🔁 Request changes | *(A completar al cierre)* | [Review 7]() |
+| 7 | [#81](https://github.com/carolabenvenuto-uces/planit/pull/81) | Desarrollador JavaScript | Claude | ✅ Approve | Commit `d65bca7`. Se validaron: spec antes de `js/script.js` (`9c9ac06` → `4aff49a`) con el BEFORE sin modificar; `develop` integrado sin alterar los artefactos del Arquitecto de Diagramas; coherencia de los 4 flujos con los `.puml` (`do...while` de reintento en el Flujo 1, `while` en los flujos 2 a 4, `while` + `switch` en el menú); las 10 firmas y el manejo de errores acordados en la issue #72; funciones de negocio puras y globales; menú inhibido con Jasmine; validación de `null`, vacíos y valores no numéricos; datos coincidentes con el mockup y con la exclusión del estado "Declinado"; `index.html` con `defer`; JSDoc, camelCase y constructor `Proveedor` en PascalCase; AT CLOSE completo. Quedaron como mejoras no bloqueantes: uso de `document.readyState` y `setTimeout` en `iniciarMenuAlTerminarCarga()`, y el manejo de la cancelación en `flujoGestionarInvitados()` y `flujoCrearEvento()`. | [Aprobación](https://github.com/carolabenvenuto-uces/planit/pull/81#pullrequestreview-5682238555) |
 
 ### 2. Obstáculos Encontrados y Resolución
 
@@ -264,6 +296,6 @@ La revisión inicial de la PR #78 (21/10) se realizó con Copilot Agent Mode y e
 | Orden | PR | Rol | Aprobación | Merge a `develop` |
 | --- | --- | --- | --- | --- |
 | 1 | [#78](https://github.com/carolabenvenuto-uces/planit/pull/78) — [ARQ] Modelado de Diagramas de Actividades y Documentación - AO3 | Arquitecto de Diagramas | Coordinadora, 26/10 ([review](https://github.com/carolabenvenuto-uces/planit/pull/78#pullrequestreview-5660977650)) | 26/10/2026 |
-| 2 | *(PR de `feature/dev-javascript-logica-negocio`)* | Desarrollador JavaScript | *(A completar)* | *(A completar)* |
+| 2 | [#81](https://github.com/carolabenvenuto-uces/planit/pull/81) — [DEV JS] Lógica de negocio con 4 flujos en js/script.js - AO3 | Desarrollador JavaScript | Coordinadora, 28/10 ([review](https://github.com/carolabenvenuto-uces/planit/pull/81#pullrequestreview-5682238555)) | 28/10/2026 |
 | 3 | [#79](https://github.com/carolabenvenuto-uces/planit/pull/79) — [QA] Suite de Testing Automatizado con Jasmine y Playwright MCP - AO3 | Tester JavaScript / QA | *(A completar)* | *(A completar)* |
 | 4 | [#75](https://github.com/carolabenvenuto-uces/planit/pull/75) — [DEVOPS] Coordinación, versionado y documentación - AO3 | Coordinadora / DevOps | *(A completar)* | *(A completar)* |
