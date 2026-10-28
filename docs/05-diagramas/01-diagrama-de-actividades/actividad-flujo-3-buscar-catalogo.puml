@@ -1,0 +1,40 @@
+@startuml actividad-flujo-3-buscar-catalogo
+title Flujo 3: Buscar en Catálogo de Proveedores
+
+|Usuario|
+start
+:Seleccionar opción 'Buscar en Catálogo';
+:Ingresar texto o categoría de búsqueda vía prompt();
+
+|Sistema|
+if (¿El texto de búsqueda no está vacío?) then (sí)
+  :Obtener colección completa del catálogo de proveedores;
+  :Inicializar lista de resultados filtrados;
+
+  while (¿Quedan proveedores por recorrer en la colección?) is (sí)
+    :Evaluar proveedor actual de la colección;
+    if (¿Coincide nombre o categoría con la búsqueda?) then (sí)
+      :Agregar proveedor a la lista de resultados;
+    else (no)
+    endif
+  endwhile
+
+  :Registrar cantidad de coincidencias halladas en console.log();
+
+  if (¿La lista de resultados está vacía?) then (sí)
+    |Usuario|
+    :Mostrar mensaje de "Sin coincidencias" vía alert();
+  else (no)
+    |Usuario|
+    :Presentar lista de proveedores encontrados vía alert();
+  endif
+else (no)
+  |Sistema|
+  :Notificar criterio de búsqueda no ingresado;
+  
+  |Usuario|
+  :Mostrar alerta de búsqueda vacía vía alert();
+endif
+
+stop
+@enduml
