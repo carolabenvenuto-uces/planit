@@ -2,12 +2,11 @@ describe("Flujo 1: Crear evento", function () {
     describe("validarDatosEvento", function () {
         it("debería aceptar nombre, tipo 'boda' y presupuesto '50000' como texto crudo de prompt()", function () {
             expect(validarDatosEvento("Boda de Ana", "boda", "50000")).toBe(true);
-            expect(validarDatosEvento("Boda de Ana", "boda", "50000")).toBeTruthy();
         });
 
         it("debería rechazar un nombre vacío o solo con espacios", function () {
             expect(validarDatosEvento("", "boda", "50000")).toBe(false);
-            expect(validarDatosEvento("   ", "boda", "50000")).toBeFalsy();
+            expect(validarDatosEvento(" ", "boda", "50000")).toBeFalsy();
         });
 
         it("debería rechazar un tipo fuera de la lista permitida", function () {
@@ -26,11 +25,25 @@ describe("Flujo 1: Crear evento", function () {
         it("debería rechazar un presupuesto no numérico", function () {
             expect(validarDatosEvento("Evento", "boda", "abc")).toBe(false);
         });
+
+        it("debería rechazar datos null o undefined (prompt() cancelado)", function () {
+            expect(validarDatosEvento(null, null, null)).toBe(false);
+            expect(validarDatosEvento("Evento", "boda", undefined)).toBe(false);
+        });
+
+        it("debería rechazar un nombre que no es texto", function () {
+            expect(validarDatosEvento(123, "boda", "50000")).toBe(false);
+        });
+
+        it("debería rechazar un presupuesto infinito y aceptar uno muy grande pero finito", function () {
+            expect(validarDatosEvento("Evento", "boda", "1e309")).toBe(false);
+            expect(validarDatosEvento("Evento", "boda", Number.MAX_SAFE_INTEGER)).toBe(true);
+        });
     });
 
     describe("crearEvento", function () {
         it("debería devolver un objeto con las propiedades nombre, tipo y presupuesto", function () {
-            const evento = crearEvento("  Cumple de Sofía ", "Cumpleaños", "50000");
+            const evento = crearEvento(" Cumple de Sofía ", "Cumpleaños", "50000");
 
             expect(evento).toEqual({ nombre: "Cumple de Sofía", tipo: "cumpleaños", presupuesto: 50000 });
             expect(Object.keys(evento)).toContain("nombre");
@@ -88,6 +101,11 @@ describe("Flujo 2: Calcular presupuesto", function () {
         it("debería lanzar un error con un porcentaje no numérico", function () {
             expect(function () { aplicarDescuento(100000, "abc"); }).toThrow();
         });
+
+        it("debería lanzar un error con un porcentaje null o undefined", function () {
+            expect(function () { aplicarDescuento(100000, null); }).toThrow();
+            expect(function () { aplicarDescuento(100000, undefined); }).toThrow();
+        });
     });
 
     describe("superaPresupuesto", function () {
@@ -97,7 +115,25 @@ describe("Flujo 2: Calcular presupuesto", function () {
 
         it("debería devolver false cuando el total es igual al presupuesto estimado", function () {
             expect(superaPresupuesto(PRESUPUESTO_EJEMPLO, PRESUPUESTO_EJEMPLO)).toBe(false);
+        });
+
+        it("debería devolver false cuando el total es menor al presupuesto estimado", function () {
             expect(superaPresupuesto(580000, PRESUPUESTO_EJEMPLO)).toBeFalsy();
+        });
+    });
+
+    describe("obtenerPresupuestoEstimado", function () {
+        it("debería devolver PRESUPUESTO_EJEMPLO cuando no hay eventos creados", function () {
+            expect(obtenerPresupuestoEstimado([])).toBe(PRESUPUESTO_EJEMPLO);
+        });
+
+        it("debería devolver el presupuesto del último evento creado", function () {
+            const listaEventos = [
+                { nombre: "Uno", tipo: "boda", presupuesto: 300000 },
+                { nombre: "Dos", tipo: "cumpleaños", presupuesto: 450000 }
+            ];
+
+            expect(obtenerPresupuestoEstimado(listaEventos)).toBe(450000);
         });
     });
 });
@@ -132,17 +168,22 @@ describe("Flujo 3: Buscar en catálogo", function () {
 
         it("debería lanzar un error con un criterio vacío", function () {
             expect(function () { buscarEnCatalogo(catalogoProveedores, ""); }).toThrow();
-            expect(function () { buscarEnCatalogo(catalogoProveedores, "   "); }).toThrow();
+            expect(function () { buscarEnCatalogo(catalogoProveedores, " "); }).toThrow();
         });
 
-        it("debería no modificar el catálogo original después de buscar", function () {
+        it("debería lanzar un error con un criterio null o undefined", function () {
+            expect(function () { buscarEnCatalogo(catalogoProveedores, null); }).toThrow();
+            expect(function () { buscarEnCatalogo(catalogoProveedores, undefined); }).toThrow();
+        });
+
+        it("no debería modificar el catálogo original después de buscar", function () {
             const largoAntes = catalogoProveedores.length;
-            const copiaAntes = catalogoProveedores.slice();
+            const fotoAntes = JSON.stringify(catalogoProveedores);
 
             buscarEnCatalogo(catalogoProveedores, "Sonido");
 
             expect(catalogoProveedores.length).toBe(largoAntes);
-            expect(catalogoProveedores).toEqual(copiaAntes);
+            expect(JSON.stringify(catalogoProveedores)).toBe(fotoAntes);
         });
     });
 
@@ -152,6 +193,10 @@ describe("Flujo 3: Buscar en catálogo", function () {
                 expect(typeof proveedor.coincideCon).toBe("function");
                 expect(proveedor.coincideCon(proveedor.nombre)).toBe(true);
             });
+        });
+
+        it("debería devolver false con un criterio que no es texto", function () {
+            expect(catalogoProveedores[0].coincideCon(null)).toBe(false);
         });
     });
 });
@@ -165,11 +210,16 @@ describe("Flujo 4: Gestionar invitados", function () {
 
         it("debería devolver false con un nombre vacío", function () {
             expect(validarInvitado("", "Confirmado")).toBe(false);
-            expect(validarInvitado("   ", "Pendiente")).toBeFalsy();
+            expect(validarInvitado(" ", "Pendiente")).toBeFalsy();
         });
 
         it("debería devolver false con un estado inválido", function () {
             expect(validarInvitado("Lucía Pérez", "Declinado")).toBe(false);
+        });
+
+        it("debería devolver false con nombre o estado null/undefined", function () {
+            expect(validarInvitado("Lucía Pérez", null)).toBe(false);
+            expect(validarInvitado(undefined, "Confirmado")).toBe(false);
         });
     });
 
@@ -193,6 +243,10 @@ describe("Flujo 4: Gestionar invitados", function () {
 
         it("debería lanzar un error con un estado inválido", function () {
             expect(function () { agregarInvitado([], "Lucía Pérez", "Declinado"); }).toThrow();
+        });
+
+        it("debería lanzar un error con un nombre null", function () {
+            expect(function () { agregarInvitado([], null, "Confirmado"); }).toThrow();
         });
     });
 
