@@ -58,4 +58,29 @@ Reducir la fragmentación al planificar reuniones y festejos. Busca ofrecer un s
 **Actividad Obligatoria N°3**
 - 🔀 [Diagramas de Actividades (índice, PlantUML y PNG)](docs/05-diagramas/01-diagrama-de-actividades/diagramas-doc.md)
 - 💻 [Lógica de negocio (`js/script.js`)](js/script.js)
-- 🧪 [Documentación de Testing JavaScript (Jasmine)](js/test/testing-doc.md) | [Test runner](js/test/test-runner.html) | [Suites
+- 🧪 [Documentación de Testing JavaScript (Jasmine)](js/test/testing-doc.md) | [Test runner](js/test/test-runner.html) | [Suites de tests](js/test/script.spec.js)
+- 📝 Specs por rol: [Coordinación / DevOps](docs/03-specs/actividad-obligatoria-3/spec-devops.md) · [Arquitecto de Diagramas](docs/03-specs/actividad-obligatoria-3/spec-arq-diagramas.md) · [Desarrollador JavaScript](docs/03-specs/actividad-obligatoria-3/spec-dev-javascript.md) · [Tester JavaScript / QA](docs/03-specs/actividad-obligatoria-3/spec-tester.md)
+- 📋 [Tablero Kanban de la Actividad Obligatoria N°3 (GitHub Projects)](https://github.com/users/carolabenvenuto-uces/projects/2)
+
+**Entregas anteriores y documentación general**
+- 🖼️ [Mockup en alta resolución (PNG)](docs/01-mockup/actividad-obligatoria-1/diseño-inicial.png) | [Ver diseño interactivo en Figma](https://www.figma.com/design/iUmUArxu59WUYlBl2zR3xq/Wireframe?node-id=0-1&t=73bOfqtaFMhw7ipm-1) 
+- 🖼️ [Mockup con Estilos (PNG Local)](docs/01-mockup/actividad-obligatoria-2/diseño-con-estilos.png) | [Archivo de Figma](https://www.figma.com/design/iUmUArxu59WUYlBl2zR3xq/Wireframe?node-id=2010-4&amp;t=Ck1r6ZQCICdGpTRy-0)
+- 🖼️ [Mockup con Bootstrap (PNG Local)](docs/01-mockup/disenio-bootstrap.png) | [Archivo de Figma — página "Primer Parcial - Bootstrap"](https://www.figma.com/design/iUmUArxu59WUYlBl2zR3xq/Wireframe?node-id=2078-2) (grilla de 12 columnas en desktop, tablet y mobile, y guía de estilos Bootstrap)
+- 📋 [Tablero Kanban del Primer Parcial (GitHub Projects)](https://github.com/users/carolabenvenuto-uces/projects/1)
+- 📝 [Especificación Técnica de UX (Spec-UX)](docs/03-specs/actividad-obligatoria-1/spec-ux.md)
+- 📂 [Índice de Prompts de IA](docs/02-prompts/prompts.md)
+- 🧪 [Índice de Testing HTML/CSS (test cases y resumen de issues)](docs/04-testing/testing-doc.md)
+- 📜 [Changelog del Proyecto](changelog.md)
+- 📋 [Spec Maestro (Plan de Requerimientos)](plan.md)
+
+---
+
+👥 **Integrantes del Grupo**
+
+| Nombre completo | N° de Matrícula | Usuario GitHub | Rol en esta entrega |
+| --- | --- | --- | --- |
+| Carola Benvenuto | 158686 | @carolabenvenuto-uces | Coordinadora / DevOps y Tester JavaScript / QA Engineer |
+| Valeria Silva | 156612 | @ValeriaMSilva | Arquitecta de Diagramas de Actividades |
+| Facundo Guiraldes | 114797 | @FacundoGuiraldes | Desarrollador JavaScript |
+
+> Grupo de 3 integrantes: según la consigna, la Coordinadora / DevOps asume también las tareas del Tester JavaScript / QA Engineer, con una rama `feature/` independiente por rol (`feature/coord-devops-tercera-entrega` y `feature/tester-javascript-jasmine`).
