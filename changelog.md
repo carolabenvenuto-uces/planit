@@ -1,6 +1,6 @@
 # Changelog
 
-## [Release Tercera Entrega] - 2026-11-02
+## [Unreleased]
 
 ### Added
 - [feature/arq-diagramas-actividades] feature/arq-diagramas-actividades: [ARQ] Modelado de Diagramas de Actividades y Documentación - AO3 PR: [#78](https://github.com/carolabenvenuto-uces/planit/pull/78) | Issue: [#77](https://github.com/carolabenvenuto-uces/planit/issues/77) - @ValeriaMSilva (Arquitecto de Diagramas de Actividades)
