@@ -21,10 +21,10 @@
 
 La tercera entrega incorpora la **lógica de negocio en JavaScript** del simulador mediante algoritmos, funciones, arrays y objetos, sin manipulación del DOM ni eventos. La interacción se resuelve con `prompt()`, `alert()` y `console.log()`, y sienta las bases para la futura integración con la interfaz.
 
-- [ ] **Coordinación / DevOps:** Correcciones del Primer Parcial, backport, Kanban, Code Reviews asistidos con Copilot Agent Mode, release `v1.1-tercera-entrega` y actualización de `plan.md`, `README.md` y `changelog.md`.
-- [ ] **Arquitectura de Diagramas:** 4 diagramas de actividades en PlantUML (`.puml` y `.png`) en `docs/05-diagramas/01-diagrama-de-actividades/`.
-- [ ] **Desarrollo JavaScript:** Implementación de los 4 flujos en `js/script.js` con un menú principal mediante `prompt()`.
-- [ ] **Testing & QA:** Suite de tests con Jasmine en `js/test/`, ejecutada en browser con Playwright MCP.
+- [ ] **Coordinación / DevOps:** Correcciones del Primer Parcial, backport, Kanban, Code Reviews asistidos con IA (Copilot Agent Mode y Claude), release `v1.1-tercera-entrega` y actualización de `plan.md`, `README.md` y `changelog.md`.
+- [x] **Arquitectura de Diagramas:** 4 diagramas de actividades en PlantUML (`.puml` y `.png`) en `docs/05-diagramas/01-diagrama-de-actividades/`.
+- [x] **Desarrollo JavaScript:** Implementación de los 4 flujos en `js/script.js` con un menú principal mediante `prompt()`.
+- [x] **Testing & QA:** Suite de tests con Jasmine en `js/test/`, ejecutada en browser con Playwright MCP.
 
 ### Flujos de negocio de la AO3
 
@@ -50,7 +50,7 @@ Cada flujo sigue el patrón **entrada → proceso → salida** y se modela previ
 - **Sin manipulación del DOM ni eventos** en esta entrega.
 - Las funciones de negocio son puras: reciben parámetros y retornan valores, sin llamar a `prompt()` ni `alert()`. La interacción con el usuario queda en funciones separadas.
 - Las funciones se exponen en el ámbito global (no se encapsulan en una IIFE) para poder testearlas con Jasmine.
-- El menú principal no se ejecuta automáticamente al cargar `script.js`, para que `js/test/test-runner.html` pueda correr los tests sin quedar bloqueado por un `prompt()`.
+- El menú principal se inicia automáticamente cuando `index.html` termina de cargar, salvo que Jasmine esté cargado: así `js/test/test-runner.html` corre los tests sin quedar bloqueado por un `prompt()`.
 - Nomenclatura camelCase para variables y funciones, PascalCase para constructores y clases, y comentarios JSDoc en funciones complejas.
 
 ### Trazabilidad de la AO3
