@@ -25,7 +25,7 @@ Reducir la fragmentación al planificar reuniones y festejos. Busca ofrecer un s
 - Git & GitHub (GitFlow, GitHub Projects y GitHub Pages)
 - Playwright MCP y GitHub MCP (testing automatizado y registro de issues)
 
-🚀 **Sitio publicado (GitHub Pages):** [carolabenvenuto-uces.github.io/planit](https://carolabenvenuto-uces.github.io/planit/) — publicado desde la rama `release/tercera-entrega`.
+🚀 **Sitio publicado (GitHub Pages):** [carolabenvenuto-uces.github.io/planit](https://carolabenvenuto-uces.github.io/planit/) — publicado desde `develop` hasta la creación de `release/tercera-entrega`, rama desde la que se publica la versión entregable de la Actividad Obligatoria N°3.
 
 ✨ **Funcionalidades Previstas**
 - Formulario de alta y personalización de eventos.
