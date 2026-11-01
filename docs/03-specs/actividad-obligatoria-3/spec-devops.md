@@ -297,5 +297,23 @@ La revisión inicial de la PR #78 (21/10) se realizó con Copilot Agent Mode y e
 | --- | --- | --- | --- | --- |
 | 1 | [#78](https://github.com/carolabenvenuto-uces/planit/pull/78) — [ARQ] Modelado de Diagramas de Actividades y Documentación - AO3 | Arquitecto de Diagramas | Coordinadora, 26/10 ([review](https://github.com/carolabenvenuto-uces/planit/pull/78#pullrequestreview-5660977650)) | 26/10/2026 |
 | 2 | [#81](https://github.com/carolabenvenuto-uces/planit/pull/81) — [DEV JS] Lógica de negocio con 4 flujos en js/script.js - AO3 | Desarrollador JavaScript | Coordinadora, 28/10 ([review](https://github.com/carolabenvenuto-uces/planit/pull/81#pullrequestreview-5682238555)) | 28/10/2026 |
-| 3 | [#79](https://github.com/carolabenvenuto-uces/planit/pull/79) — [QA] Suite de Testing Automatizado con Jasmine y Playwright MCP - AO3 | Tester JavaScript / QA | *(A completar)* | *(A completar)* |
-| 4 | [#75](https://github.com/carolabenvenuto-uces/planit/pull/75) — [DEVOPS] Coordinación, versionado y documentación - AO3 | Coordinadora / DevOps | *(A completar)* | *(A completar)* |
+| 3 | [#79](https://github.com/carolabenvenuto-uces/planit/pull/79) — [QA] Suite de Testing Automatizado con Jasmine y Playwright MCP - AO3 | Tester JavaScript / QA | Desarrollador JavaScript, 31/10 ([review](https://github.com/carolabenvenuto-uces/planit/pull/79#pullrequestreview-5725143783)) | 01/11/2026 |
+| 4 | [#75](https://github.com/carolabenvenuto-uces/planit/pull/75) — [DEVOPS] Coordinación, versionado y documentación - AO3 | Coordinadora / DevOps | Otro integrante del grupo (registrada en la propia PR) | Al aprobarse esta PR |
+
+### 4. Checklist Final de Cierre
+
+> El checklist del MOMENTO 1 se conserva sin modificar como registro del plan inicial. Los ítems de la etapa de release se ejecutan después del merge de esta PR, por lo que su evidencia queda en la PR de release, en GitHub Pages y en la sección Releases del repositorio.
+
+- [x] Correcciones del Primer Parcial aplicadas mediante ramas `fix/` sobre `release/primer-parcial` (#69 y #70) y registradas en `changelog.md`.
+- [x] Backport de `release/primer-parcial` hacia `develop` (#73).
+- [x] Code reviews asistidos con IA documentados, con 5 `CHANGES_REQUESTED` sobre la PR #78 y la aprobación de las PRs #78 y #81.
+- [x] Integración de las PRs de los demás roles en `develop` (#78, #81 y #79), con la aprobación de otro integrante.
+- [x] Tablero Kanban en GitHub Projects con las issues de la tercera entrega.
+- [x] `plan.md` actualizado con el alcance, los flujos y las reglas de negocio de la AO3.
+- [x] `README.md` actualizado con la tercera entrega y enlaces a diagramas, testing y specs.
+- [x] `changelog.md` actualizado con las PRs de todos los roles.
+- [ ] Rama `release/tercera-entrega` creada desde `develop` *(después del merge de esta PR)*.
+- [ ] GitHub Pages publicado desde `release/tercera-entrega` *(después del merge de esta PR)*.
+- [ ] PR de release hacia `master`, publicada en Slack y con los enlaces subidos al campus *(después del merge de esta PR)*.
+- [ ] Limpieza de ramas: solo `master`, `develop` y `release/tercera-entrega` *(después del merge de esta PR)*.
+- [ ] Tag y release `v1.1-tercera-entrega` *(tras la aprobación del docente y el merge en `master`)*.
