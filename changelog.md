@@ -5,6 +5,7 @@
 ### Added
 - [feature/arq-diagramas-actividades] feature/arq-diagramas-actividades: [ARQ] Modelado de Diagramas de Actividades y Documentación - AO3 PR: [#78](https://github.com/carolabenvenuto-uces/planit/pull/78) | Issue: [#77](https://github.com/carolabenvenuto-uces/planit/issues/77) - @ValeriaMSilva (Arquitecto de Diagramas de Actividades)
 - [feature/dev-javascript-logica-negocio] feature/dev-javascript-logica-negocio: [DEV JS] Lógica de negocio con 4 flujos en js/script.js - AO3 PR: [#81](https://github.com/carolabenvenuto-uces/planit/pull/81) | Issue: [#72](https://github.com/carolabenvenuto-uces/planit/issues/72) - @FacundoGuiraldes (Desarrollador JavaScript)
+- [feature/tester-javascript-jasmine] feature/tester-javascript-jasmine: [QA] Suite de Testing Automatizado con Jasmine y Playwright MCP - AO3 PR: [#79](https://github.com/carolabenvenuto-uces/planit/pull/79) | Issue: [#76](https://github.com/carolabenvenuto-uces/planit/issues/76) - @carolabenvenuto-uces (Tester JavaScript / QA Engineer)
 
 ## [Release Primer Parcial] - 2026-10-07
 
