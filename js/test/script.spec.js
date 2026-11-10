@@ -69,6 +69,97 @@ describe("Flujo 1: Crear evento", function () {
     });
 });
 
+describe("Flujo 1: Crear evento (interacción con prompt/alert) - RC8", function () {
+    let eventosOriginales;
+
+    beforeEach(function () {
+        eventosOriginales = eventos.slice();
+    });
+
+    afterEach(function () {
+        eventos = eventosOriginales;
+    });
+
+    it("debería crear el evento con una secuencia válida en el primer intento", function () {
+        spyOn(window, "prompt").and.returnValues("Cumple de Lea", "boda", "50000");
+        spyOn(window, "alert");
+
+        const resultado = flujoCrearEvento();
+
+        expect(prompt.calls.count()).toBe(3);
+        expect(alert.calls.count()).toBe(1);
+        expect(alert).toHaveBeenCalledWith(
+            "Evento creado con éxito:\nNombre: Cumple de Lea\nTipo: boda\nPresupuesto estimado: $50.000"
+        );
+        expect(resultado).toEqual({ nombre: "Cumple de Lea", tipo: "boda", presupuesto: 50000 });
+        expect(eventos).toContain(resultado);
+    });
+
+    it("debería reintentar cuando el usuario responde 'si' tras datos inválidos y crear el evento en el segundo intento", function () {
+        spyOn(window, "prompt").and.returnValues(
+            "Cumple de Lea", "mena", "50000",
+            "si",
+            "Cumple de Lea", "boda", "50000"
+        );
+        spyOn(window, "alert");
+
+        const resultado = flujoCrearEvento();
+
+        expect(prompt.calls.count()).toBe(7);
+        expect(alert.calls.count()).toBe(2);
+        expect(alert.calls.argsFor(0)[0]).toContain("Datos inválidos:");
+        expect(alert.calls.argsFor(1)[0]).toBe(
+            "Evento creado con éxito:\nNombre: Cumple de Lea\nTipo: boda\nPresupuesto estimado: $50.000"
+        );
+        expect(resultado).toEqual({ nombre: "Cumple de Lea", tipo: "boda", presupuesto: 50000 });
+    });
+
+    it("debería cancelar la creación cuando el usuario responde 'no' reintentar tras datos inválidos", function () {
+        spyOn(window, "prompt").and.returnValues("", "boda", "50000", "no");
+        spyOn(window, "alert");
+
+        const resultado = flujoCrearEvento();
+
+        expect(prompt.calls.count()).toBe(4);
+        expect(alert.calls.count()).toBe(2);
+        expect(alert.calls.argsFor(1)[0]).toBe("Se canceló la creación del evento.");
+        expect(resultado).toBeNull();
+    });
+
+    it("debería cancelar sin crear el evento cuando se cancela el nombre (prompt devuelve null)", function () {
+        spyOn(window, "prompt").and.returnValues(null, "no");
+        spyOn(window, "alert");
+        const antes = eventos.length;
+
+        const resultado = flujoCrearEvento();
+
+        expect(prompt.calls.count()).toBe(2);
+        expect(alert.calls.argsFor(1)[0]).toBe("Se canceló la creación del evento.");
+        expect(resultado).toBeNull();
+        expect(eventos.length).toBe(antes);
+    });
+
+    it("debería cancelar sin pedir el presupuesto cuando se cancela el tipo (prompt devuelve null)", function () {
+        spyOn(window, "prompt").and.returnValues("Compromiso", null, "no");
+        spyOn(window, "alert");
+
+        const resultado = flujoCrearEvento();
+
+        expect(prompt.calls.count()).toBe(3);
+        expect(resultado).toBeNull();
+    });
+
+    it("debería cancelar cuando se cancela el presupuesto (prompt devuelve null)", function () {
+        spyOn(window, "prompt").and.returnValues("Compromiso", "boda", null, "no");
+        spyOn(window, "alert");
+
+        const resultado = flujoCrearEvento();
+
+        expect(prompt.calls.count()).toBe(4);
+        expect(resultado).toBeNull();
+    });
+});
+
 describe("Flujo 2: Calcular presupuesto", function () {
     describe("calcularTotalItems", function () {
         it("debería devolver 580000 para itemsContratados", function () {
