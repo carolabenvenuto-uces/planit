@@ -21,6 +21,7 @@
 - [fix/rc14-alcance-fecha-ubicacion] fix(rc14): documentar diferimiento de fecha/ubicacion/tipo Corporativo a AO4 PR: [#90](https://github.com/carolabenvenuto-uces/planit/pull/90) - @FacundoGuiraldes (Coordinador / DevOps + Tester QA)
 - [fix/rc15-alcance-contacto-mesa] fix(rc15): documentar diferimiento de email/contacto y mesa a AO4 PR: [#91](https://github.com/carolabenvenuto-uces/planit/pull/91) - @FacundoGuiraldes (Coordinador / DevOps + Tester QA)
 - [fix/rc16-alcance-estado-declinado] fix(rc16): documentar exclusion/diferimiento del estado Declinado a AO4 PR: [#92](https://github.com/carolabenvenuto-uces/planit/pull/92) - @FacundoGuiraldes (Coordinador / DevOps + Tester QA)
+- [fix/rc2-checkbox-coherencia-completado] fix(rc2): marcar checklist de coherencia de diseno como completado PR: [#93](https://github.com/carolabenvenuto-uces/planit/pull/93) - @FacundoGuiraldes (Coordinador / DevOps + Tester QA)
 
 ## [Release Primer Parcial] - 2026-10-07
 
