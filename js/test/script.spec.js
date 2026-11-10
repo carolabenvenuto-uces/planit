@@ -229,6 +229,91 @@ describe("Flujo 2: Calcular presupuesto", function () {
     });
 });
 
+describe("Flujo 2: Calcular presupuesto (interacción con prompt/alert) - RC9", function () {
+    let eventosOriginales;
+
+    beforeEach(function () {
+        eventosOriginales = eventos.slice();
+    });
+
+    afterEach(function () {
+        eventos = eventosOriginales;
+    });
+
+    it("debería aplicar un descuento normal y mostrar el presupuesto disponible cuando no se excede", function () {
+        eventos = [{ nombre: "Evento grande", tipo: "boda", presupuesto: 900000 }];
+        spyOn(window, "prompt").and.returnValue("10");
+        spyOn(window, "alert");
+
+        const resultado = flujoCalcularPresupuesto();
+
+        expect(resultado).toBe(522000);
+        expect(alert).toHaveBeenCalledWith("Total final: $522.000.\nPresupuesto disponible: $378.000.");
+    });
+
+    it("debería aplicar 0% de descuento sin cambiar el total", function () {
+        eventos = [];
+        spyOn(window, "prompt").and.returnValue("0");
+        spyOn(window, "alert");
+
+        expect(flujoCalcularPresupuesto()).toBe(580000);
+    });
+
+    it("debería aplicar 100% de descuento y devolver 0", function () {
+        eventos = [];
+        spyOn(window, "prompt").and.returnValue("100");
+        spyOn(window, "alert");
+
+        expect(flujoCalcularPresupuesto()).toBe(0);
+    });
+
+    it("debería mostrar alerta de presupuesto excedido cuando el total final supera el estimado", function () {
+        eventos = [{ nombre: "Evento chico", tipo: "cumpleaños", presupuesto: 100000 }];
+        spyOn(window, "prompt").and.returnValue("0");
+        spyOn(window, "alert");
+
+        flujoCalcularPresupuesto();
+
+        expect(alert).toHaveBeenCalledWith(
+            "Atención: el total de $580.000 supera el presupuesto estimado de $100.000 por $480.000."
+        );
+    });
+
+    it("debería devolver null y alertar el mensaje de error con un porcentaje negativo", function () {
+        spyOn(window, "prompt").and.returnValue("-5");
+        spyOn(window, "alert");
+
+        const resultado = flujoCalcularPresupuesto();
+
+        expect(resultado).toBeNull();
+        expect(alert).toHaveBeenCalledWith("El porcentaje de descuento debe ser un número entre 0 y 100.");
+    });
+
+    it("debería devolver null con un porcentaje mayor a 100", function () {
+        spyOn(window, "prompt").and.returnValue("101");
+        spyOn(window, "alert");
+
+        expect(flujoCalcularPresupuesto()).toBeNull();
+    });
+
+    it("debería devolver null con un porcentaje no numérico", function () {
+        spyOn(window, "prompt").and.returnValue("abc");
+        spyOn(window, "alert");
+
+        expect(flujoCalcularPresupuesto()).toBeNull();
+    });
+
+    it("debería devolver null cuando se cancela el porcentaje (prompt devuelve null)", function () {
+        spyOn(window, "prompt").and.returnValue(null);
+        spyOn(window, "alert");
+
+        const resultado = flujoCalcularPresupuesto();
+
+        expect(resultado).toBeNull();
+        expect(alert).toHaveBeenCalledWith("El porcentaje de descuento debe ser un número entre 0 y 100.");
+    });
+});
+
 describe("Flujo 3: Buscar en catálogo", function () {
     describe("buscarEnCatalogo", function () {
         it("debería devolver un array con 'Flores Pilar' al buscar ese nombre", function () {
