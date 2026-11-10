@@ -17,6 +17,7 @@
 - [fix/rc4-diagrama-subtotal-item] fix(rc4): alinear diagrama de presupuesto con calcularSubtotalItem (cantidad x precioUnitario) PR: [#86](https://github.com/carolabenvenuto-uces/planit/pull/86) - @FacundoGuiraldes (Coordinador / DevOps + Tester QA)
 - [fix/rc5-documentar-formula-subtotal] fix(rc5): documentar formula y limites evaluados de calcularSubtotalItem PR: [#87](https://github.com/carolabenvenuto-uces/planit/pull/87) - @FacundoGuiraldes (Coordinador / DevOps + Tester QA)
 - [fix/rc6-diagrama-contar-asistencia] fix(rc6): eliminar conteo manual duplicado en diagrama de invitados PR: [#88](https://github.com/carolabenvenuto-uces/planit/pull/88) - @FacundoGuiraldes (Coordinador / DevOps + Tester QA)
+- [fix/rc7-unificar-fuente-verdad-conteo] fix(rc7): documentar contarAsistencia como fuente unica de verdad del conteo PR: [#89](https://github.com/carolabenvenuto-uces/planit/pull/89) - @FacundoGuiraldes (Coordinador / DevOps + Tester QA)
 
 ## [Release Primer Parcial] - 2026-10-07
 
