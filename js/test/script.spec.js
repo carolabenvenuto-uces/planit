@@ -377,6 +377,48 @@ describe("Flujo 3: Buscar en catálogo", function () {
     });
 });
 
+describe("Flujo 3: Buscar en catálogo (interacción con prompt/alert) - RC10", function () {
+    it("debería mostrar los proveedores encontrados cuando hay coincidencias", function () {
+        spyOn(window, "prompt").and.returnValue("Flores Pilar");
+        spyOn(window, "alert");
+
+        const resultado = flujoBuscarEnCatalogo();
+
+        expect(resultado.length).toBe(1);
+        expect(alert).toHaveBeenCalledWith("Proveedores encontrados:\n" + formatearListaProveedores(resultado));
+    });
+
+    it("debería mostrar un aviso de ausencia de resultados cuando no hay coincidencias", function () {
+        spyOn(window, "prompt").and.returnValue("inexistente");
+        spyOn(window, "alert");
+
+        const resultado = flujoBuscarEnCatalogo();
+
+        expect(resultado).toEqual([]);
+        expect(alert).toHaveBeenCalledWith("Sin coincidencias para \"inexistente\".");
+    });
+
+    it("debería alertar el error y devolver null con una búsqueda vacía", function () {
+        spyOn(window, "prompt").and.returnValue("");
+        spyOn(window, "alert");
+
+        const resultado = flujoBuscarEnCatalogo();
+
+        expect(resultado).toBeNull();
+        expect(alert).toHaveBeenCalledWith("El criterio de búsqueda no puede estar vacío.");
+    });
+
+    it("debería alertar el error y devolver null cuando se cancela la búsqueda (prompt devuelve null)", function () {
+        spyOn(window, "prompt").and.returnValue(null);
+        spyOn(window, "alert");
+
+        const resultado = flujoBuscarEnCatalogo();
+
+        expect(resultado).toBeNull();
+        expect(alert).toHaveBeenCalledWith("El criterio de búsqueda no puede estar vacío.");
+    });
+});
+
 describe("Flujo 4: Gestionar invitados", function () {
     describe("validarInvitado", function () {
         it("debería aceptar un nombre válido con estado 'Confirmado' o 'Pendiente'", function () {
