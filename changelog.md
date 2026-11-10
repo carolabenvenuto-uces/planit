@@ -25,6 +25,7 @@
 - [fix/rc8-tests-flujo-crear-evento] fix(rc8): agregar tests de integracion para flujoCrearEvento con spyOn(prompt/alert) PR: [#94](https://github.com/carolabenvenuto-uces/planit/pull/94) - @FacundoGuiraldes (Coordinador / DevOps + Tester QA)
 - [fix/rc9-tests-flujo-presupuesto] fix(rc9): agregar tests de integracion para flujoCalcularPresupuesto con spyOn de prompt y alert PR: [#95](https://github.com/carolabenvenuto-uces/planit/pull/95) - @FacundoGuiraldes (Coordinador / DevOps + Tester QA)
 - [fix/rc10-tests-flujo-buscar-catalogo] fix(rc10): agregar tests de integracion para flujoBuscarEnCatalogo con spyOn de prompt y alert PR: [#96](https://github.com/carolabenvenuto-uces/planit/pull/96) - @FacundoGuiraldes (Coordinador / DevOps + Tester QA)
+- [fix/rc11-tests-flujo-invitados] fix(rc11): agregar tests de integracion para flujoGestionarInvitados con spyOn de prompt y alert PR: [#97](https://github.com/carolabenvenuto-uces/planit/pull/97) - @FacundoGuiraldes (Coordinador / DevOps + Tester QA)
 
 ## [Release Primer Parcial] - 2026-10-07
 
