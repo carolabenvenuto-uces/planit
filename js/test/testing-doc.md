@@ -222,13 +222,14 @@ Metodología idéntica (revisión manual línea por línea), aplicada a las func
 **Cobertura Total Estimada (todas las funciones del plan ampliado):** 100% de las líneas ejecutables identificadas, excluyendo únicamente `iniciarMenuAlTerminarCarga()` por el motivo indicado arriba.
 
 #### Comando y resultado reproducible (RC13)
+Script committeado en `js/test/run-jasmine.js` (requiere `npx playwright install chromium` una vez, ya que usa el Chromium de Playwright declarado en `package.json`):
 ```
-node run-jasmine.js <ruta-del-repo>
-# cierra un Chromium headless (Playwright) contra js/test/test-runner.html
-# y vuelca el resumen de Jasmine leído del DOM
-"82 specs, 0 failures, randomized with seed 27584"
+node js/test/run-jasmine.js
 ```
-Script ejecutado 3 veces con semillas distintas (ver "Resumen General" más arriba) para confirmar que ninguna suite depende del orden de ejecución.
+Resultado real (ver "Resumen General" más arriba para las 3 corridas con semillas distintas):
+```
+82 specs, 0 failures, randomized with seed 46583
+```
 
 #### Líneas NO Cubiertas
 - `iniciarMenuAlTerminarCarga()` (ver justificación arriba).
