@@ -549,3 +549,95 @@ describe("Flujo 4: Gestionar invitados (interacción con prompt/alert) - RC11", 
         expect(invitados.length).toBe(0);
     });
 });
+
+describe("Menú principal (interacción con prompt/alert) - RC12", function () {
+    it("debería despachar flujoCrearEvento con la opción 1 y salir con la opción 0", function () {
+        spyOn(window, "flujoCrearEvento");
+        spyOn(window, "flujoCalcularPresupuesto");
+        spyOn(window, "flujoBuscarEnCatalogo");
+        spyOn(window, "flujoGestionarInvitados");
+        spyOn(window, "prompt").and.returnValues("1", "0");
+        spyOn(window, "alert");
+
+        iniciarMenuPrincipal();
+
+        expect(flujoCrearEvento).toHaveBeenCalledTimes(1);
+        expect(flujoCalcularPresupuesto).not.toHaveBeenCalled();
+        expect(flujoBuscarEnCatalogo).not.toHaveBeenCalled();
+        expect(flujoGestionarInvitados).not.toHaveBeenCalled();
+        expect(alert).toHaveBeenCalledWith("¡Gracias por usar PlanIT!");
+    });
+
+    it("debería despachar flujoCalcularPresupuesto con la opción 2", function () {
+        spyOn(window, "flujoCrearEvento");
+        spyOn(window, "flujoCalcularPresupuesto");
+        spyOn(window, "flujoBuscarEnCatalogo");
+        spyOn(window, "flujoGestionarInvitados");
+        spyOn(window, "prompt").and.returnValues("2", "0");
+        spyOn(window, "alert");
+
+        iniciarMenuPrincipal();
+
+        expect(flujoCalcularPresupuesto).toHaveBeenCalledTimes(1);
+    });
+
+    it("debería despachar flujoBuscarEnCatalogo con la opción 3", function () {
+        spyOn(window, "flujoCrearEvento");
+        spyOn(window, "flujoCalcularPresupuesto");
+        spyOn(window, "flujoBuscarEnCatalogo");
+        spyOn(window, "flujoGestionarInvitados");
+        spyOn(window, "prompt").and.returnValues("3", "0");
+        spyOn(window, "alert");
+
+        iniciarMenuPrincipal();
+
+        expect(flujoBuscarEnCatalogo).toHaveBeenCalledTimes(1);
+    });
+
+    it("debería despachar flujoGestionarInvitados con la opción 4", function () {
+        spyOn(window, "flujoCrearEvento");
+        spyOn(window, "flujoCalcularPresupuesto");
+        spyOn(window, "flujoBuscarEnCatalogo");
+        spyOn(window, "flujoGestionarInvitados");
+        spyOn(window, "prompt").and.returnValues("4", "0");
+        spyOn(window, "alert");
+
+        iniciarMenuPrincipal();
+
+        expect(flujoGestionarInvitados).toHaveBeenCalledTimes(1);
+    });
+
+    it("debería alertar opción inválida y seguir mostrando el menú hasta elegir una opción correcta", function () {
+        spyOn(window, "flujoCrearEvento");
+        spyOn(window, "prompt").and.returnValues("9", "1", "0");
+        spyOn(window, "alert");
+
+        iniciarMenuPrincipal();
+
+        expect(alert).toHaveBeenCalledWith("Opción inválida. Ingrese un número del 0 al 4.");
+        expect(flujoCrearEvento).toHaveBeenCalledTimes(1);
+    });
+
+    it("debería salir inmediatamente y mostrar el mensaje final cuando se cancela el menú (prompt devuelve null)", function () {
+        spyOn(window, "flujoCrearEvento");
+        spyOn(window, "prompt").and.returnValue(null);
+        spyOn(window, "alert");
+
+        iniciarMenuPrincipal();
+
+        expect(prompt.calls.count()).toBe(1);
+        expect(flujoCrearEvento).not.toHaveBeenCalled();
+        expect(alert).toHaveBeenCalledWith("¡Gracias por usar PlanIT!");
+    });
+
+    it("debería salir con la opción 0 sin despachar ningún flujo", function () {
+        spyOn(window, "flujoCrearEvento");
+        spyOn(window, "prompt").and.returnValue("0");
+        spyOn(window, "alert");
+
+        iniciarMenuPrincipal();
+
+        expect(flujoCrearEvento).not.toHaveBeenCalled();
+        expect(alert).toHaveBeenCalledWith("¡Gracias por usar PlanIT!");
+    });
+});
