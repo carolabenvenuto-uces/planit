@@ -5,6 +5,13 @@ title Flujo 4: Gestionar Lista de Invitados
 start
 :Seleccionar opción 'Gestionar Invitados';
 :Ingresar nombre del invitado y estado de asistencia (confirmado/pendiente) vía prompt();
+note right
+  RC15 (PR #82): index.html ya contempla email/contacto y mesa en la
+  tabla de invitados (mockup de AO2). Quedan diferidos a AO4: se
+  capturarán y validarán con inputs de formulario (Desarrollador JS
+  Eventos + DOM) y se incorporarán como propiedades del invitado en el
+  modelo del dominio (Desarrollador JS POO).
+end note
 
 |Sistema|
 if (¿Nombre no está vacío y estado es válido?) then (sí)
