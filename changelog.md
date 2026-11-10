@@ -10,6 +10,9 @@
 - [feature/tester-javascript-jasmine] feature/tester-javascript-jasmine: [QA] Suite de Testing Automatizado con Jasmine y Playwright MCP - AO3 PR: [#79](https://github.com/carolabenvenuto-uces/planit/pull/79) | Issue: [#76](https://github.com/carolabenvenuto-uces/planit/issues/76) - @carolabenvenuto-uces (Tester JavaScript / QA Engineer)
 - [feature/coord-devops-tercera-entrega] feature/coord-devops-tercera-entrega: [DEVOPS] Coordinación, versionado y documentación - AO3 PR: [#75](https://github.com/carolabenvenuto-uces/planit/pull/75) | Issue: [#74](https://github.com/carolabenvenuto-uces/planit/issues/74) - @carolabenvenuto-uces (Coordinadora / DevOps)
 
+### Fixed
+- [fix/rc1-issue-68-reapertura] fix(rc1): documentar plan de eliminación de componentes-bootstrap.js en AO4 PR: [#83](https://github.com/carolabenvenuto-uces/planit/pull/83) | Issue: [#68](https://github.com/carolabenvenuto-uces/planit/issues/68) - @FacundoGuiraldes (Coordinador / DevOps + Tester QA)
+
 ## [Release Primer Parcial] - 2026-10-07
 
 ### Added

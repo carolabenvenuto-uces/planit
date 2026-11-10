@@ -1,6 +1,12 @@
 /**
  * Lógica de componentes interactivos de Bootstrap (Modal y Toast)
  * Deuda Técnica #68 - AO3
+ *
+ * RC1 (corrección AO3, PR #82): este archivo es temporal y se elimina en la
+ * Actividad Obligatoria N°4. La inicialización del Modal de detalle de
+ * servicio y del Toast de confirmación se migra a js/script.js, que en AO4
+ * pasa a actuar como controlador único de eventos y manipulación del DOM
+ * (rol Desarrollador JS Eventos + DOM). Seguimiento: Issue #68 (reabierta).
  */
 document.addEventListener('DOMContentLoaded', () => {
     const modalDetalle = document.getElementById('modalDetalleServicio');
