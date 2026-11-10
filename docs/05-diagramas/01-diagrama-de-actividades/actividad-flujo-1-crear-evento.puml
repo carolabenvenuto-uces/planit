@@ -9,7 +9,14 @@ start
 repeat
   |Usuario|
   :Ingresar nombre, tipo (cumpleaños/boda/salida casual) y presupuesto base vía prompt();
-  
+  note right
+    RC14 (PR #82): index.html ya contempla fecha, ubicación y el tipo
+    "Corporativo" (mockup de AO2). Quedan diferidos a AO4: se capturarán
+    con inputs de formulario (fecha, ubicación) y la opción existente del
+    <select> (Desarrollador JS Eventos + DOM) y se incorporarán como
+    propiedades del modelo Evento (Desarrollador JS POO).
+  end note
+
   |Sistema|
   :Validar que el nombre no esté vacío, el tipo sea válido y el presupuesto sea mayor a 0;
   
