@@ -24,6 +24,7 @@
 - [fix/rc2-checkbox-coherencia-completado] fix(rc2): marcar checklist de coherencia de diseno como completado PR: [#93](https://github.com/carolabenvenuto-uces/planit/pull/93) - @FacundoGuiraldes (Coordinador / DevOps + Tester QA)
 - [fix/rc8-tests-flujo-crear-evento] fix(rc8): agregar tests de integracion para flujoCrearEvento con spyOn(prompt/alert) PR: [#94](https://github.com/carolabenvenuto-uces/planit/pull/94) - @FacundoGuiraldes (Coordinador / DevOps + Tester QA)
 - [fix/rc9-tests-flujo-presupuesto] fix(rc9): agregar tests de integracion para flujoCalcularPresupuesto con spyOn de prompt y alert PR: [#95](https://github.com/carolabenvenuto-uces/planit/pull/95) - @FacundoGuiraldes (Coordinador / DevOps + Tester QA)
+- [fix/rc10-tests-flujo-buscar-catalogo] fix(rc10): agregar tests de integracion para flujoBuscarEnCatalogo con spyOn de prompt y alert PR: [#96](https://github.com/carolabenvenuto-uces/planit/pull/96) - @FacundoGuiraldes (Coordinador / DevOps + Tester QA)
 
 ## [Release Primer Parcial] - 2026-10-07
 
