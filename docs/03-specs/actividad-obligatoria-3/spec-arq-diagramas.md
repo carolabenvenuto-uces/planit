@@ -215,4 +215,10 @@ Se sincronizaron:
 - [x] **Estructura de archivos:** Artefactos organizados en `docs/05-diagramas/01-diagrama-de-actividades/`.
 - [x] **Documentación navegable:** Archivo `diagramas-doc.md` creado con índice, descripciones, precondiciones, postcondiciones e imágenes embebidas.
 - [x] **Spec-Driven Development:** Fase BEFORE preservada como evidencia histórica y Fase AT CLOSE completada con la trazabilidad del rediseño y uso de GitHub Copilot Agent.
-- [ ] **Coherencia de diseño:** Verificación conjunta con el Desarrollador JavaScript de que la lógica modelada coincida con las funciones de `js/script.js`.(Pendiente de realización al implementarse `script.js`)
+- [ ] **Coherencia de diseño:** Verificación conjunta con el Desarrollador JavaScript de que la lógica modelada coincida con las funciones de `js/script.js`. *(RC2, PR #82 — ver corrección de AO3)* Verificación explícita flujo por flujo contra la implementación actual:
+  - **Flujo 1 (Crear Evento):** coincide en la validación y alta del evento. Discrepancia pendiente: el mockup incluye fecha, ubicación y tipo "Corporativo", que el diagrama no representa (RC14 — en resolución).
+  - **Flujo 2 (Calcular Presupuesto):** el diagrama describe "sumar precio del ítem" como una suma simple, mientras `calcularSubtotalItem` calcula `cantidad × precioUnitario` (RC4/RC5 — en resolución).
+  - **Flujo 3 (Buscar en Catálogo):** sin discrepancias detectadas entre el diagrama y `buscarEnCatalogo`.
+  - **Flujo 4 (Gestionar Invitados):** el diagrama modela manualmente la inicialización/recorrido de contadores antes de llamar a `contarAsistencia`, que ya encapsula ese recorrido (RC6/RC7 — en resolución); además el mockup contempla email/contacto, mesa y el estado "Declinado" que el diagrama no representa (RC15/RC16 — en resolución).
+
+  Este control se marcará como completado (`[x]`) una vez mergeadas las correcciones de RC4, RC5, RC6, RC7, RC14, RC15 y RC16 sobre `release/tercera-entrega`.
