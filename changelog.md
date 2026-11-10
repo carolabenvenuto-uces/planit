@@ -19,6 +19,7 @@
 - [fix/rc6-diagrama-contar-asistencia] fix(rc6): eliminar conteo manual duplicado en diagrama de invitados PR: [#88](https://github.com/carolabenvenuto-uces/planit/pull/88) - @FacundoGuiraldes (Coordinador / DevOps + Tester QA)
 - [fix/rc7-unificar-fuente-verdad-conteo] fix(rc7): documentar contarAsistencia como fuente unica de verdad del conteo PR: [#89](https://github.com/carolabenvenuto-uces/planit/pull/89) - @FacundoGuiraldes (Coordinador / DevOps + Tester QA)
 - [fix/rc14-alcance-fecha-ubicacion] fix(rc14): documentar diferimiento de fecha/ubicacion/tipo Corporativo a AO4 PR: [#90](https://github.com/carolabenvenuto-uces/planit/pull/90) - @FacundoGuiraldes (Coordinador / DevOps + Tester QA)
+- [fix/rc15-alcance-contacto-mesa] fix(rc15): documentar diferimiento de email/contacto y mesa a AO4 PR: [#91](https://github.com/carolabenvenuto-uces/planit/pull/91) - @FacundoGuiraldes (Coordinador / DevOps + Tester QA)
 
 ## [Release Primer Parcial] - 2026-10-07
 
