@@ -16,6 +16,14 @@ end note
 |Sistema|
 if (¿Nombre no está vacío y estado es válido?) then (sí)
   :Validar datos del invitado con validarInvitado();
+  note right
+    RC16 (PR #82): index.html ya muestra el estado "Declinado" en la
+    tabla de invitados (mockup de AO2), pero plan.md (sección 2.4)
+    excluye ese estado de los datos de prueba hasta una entrega
+    posterior. Queda diferido a AO4: se sumará a ESTADOS_INVITADO y a
+    la validación de validarInvitado(), con su control correspondiente
+    en el DOM (Desarrollador JS Eventos + DOM).
+  end note
   :Agregar invitado a la colección con agregarInvitado();
   :Calcular totales de asistencia con contarAsistencia();
   note right
