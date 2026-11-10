@@ -641,3 +641,58 @@ describe("Menú principal (interacción con prompt/alert) - RC12", function () {
         expect(alert).toHaveBeenCalledWith("¡Gracias por usar PlanIT!");
     });
 });
+
+describe("Helpers de formato e interacción - RC13", function () {
+    describe("quiereReintentar", function () {
+        it("debería devolver true con 's' o 'si', sin distinguir mayúsculas de minúsculas", function () {
+            expect(quiereReintentar("s")).toBe(true);
+            expect(quiereReintentar("SI")).toBe(true);
+            expect(quiereReintentar("Si")).toBe(true);
+        });
+
+        it("debería devolver false con 'no', vacío, null o undefined", function () {
+            expect(quiereReintentar("no")).toBe(false);
+            expect(quiereReintentar("")).toBe(false);
+            expect(quiereReintentar(null)).toBe(false);
+            expect(quiereReintentar(undefined)).toBe(false);
+        });
+    });
+
+    describe("describirIngreso", function () {
+        it("debería devolver '(cancelado)' con null", function () {
+            expect(describirIngreso(null)).toBe("(cancelado)");
+        });
+
+        it("debería devolver '(vacío)' con una cadena vacía o solo espacios", function () {
+            expect(describirIngreso("")).toBe("(vacío)");
+            expect(describirIngreso("   ")).toBe("(vacío)");
+        });
+
+        it("debería devolver el valor entre comillas cuando tiene contenido", function () {
+            expect(describirIngreso("boda")).toBe("\"boda\"");
+        });
+    });
+
+    describe("formatearMoneda", function () {
+        it("debería formatear un monto con separador de miles al estilo es-AR", function () {
+            expect(formatearMoneda(580000)).toBe("$580.000");
+        });
+
+        it("debería formatear 0 como '$0'", function () {
+            expect(formatearMoneda(0)).toBe("$0");
+        });
+    });
+
+    describe("formatearListaProveedores", function () {
+        it("debería devolver una línea por proveedor con nombre, categoría y precio", function () {
+            const resultado = formatearListaProveedores(catalogoProveedores);
+
+            expect(resultado.split("\n").length).toBe(catalogoProveedores.length);
+            expect(resultado).toContain("Flores Pilar (Decoración): $70.000 / base");
+        });
+
+        it("debería devolver una cadena vacía con un array vacío", function () {
+            expect(formatearListaProveedores([])).toBe("");
+        });
+    });
+});

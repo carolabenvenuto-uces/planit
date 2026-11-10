@@ -27,9 +27,11 @@
 
 ## Suites de Tests
 
-Cada suite corresponde a uno de los 4 flujos de negocio modelados en `docs/05-diagramas/01-diagrama-de-actividades/` e implementados en `js/script.js`. Las firmas de las funciones se acordaron con el Desarrollador JavaScript en la issue [#72](https://github.com/carolabenvenuto-uces/planit/issues/72) y están documentadas en `docs/03-specs/actividad-obligatoria-3/spec-dev-javascript.md`. Solo se testean las funciones de negocio (puras); las funciones de interacción (`flujo*()` e `iniciarMenuPrincipal()`) quedan fuera porque usan `prompt()` y `alert()`.
+Cada suite corresponde a uno de los 4 flujos de negocio modelados en `docs/05-diagramas/01-diagrama-de-actividades/` e implementados en `js/script.js`. Las firmas de las funciones se acordaron con el Desarrollador JavaScript en la issue [#72](https://github.com/carolabenvenuto-uces/planit/issues/72) y están documentadas en `docs/03-specs/actividad-obligatoria-3/spec-dev-javascript.md`.
 
 Los 27 casos planificados inicialmente se implementaron en 32 `it()`. A partir de la review de la PR [#79](https://github.com/carolabenvenuto-uces/planit/pull/79) se agregaron casos con `null`/`undefined`, tipos incorrectos y valores muy grandes, y tests para `obtenerPresupuestoEstimado()`, hasta llegar a **43 `it()`**. Los casos agregados en la review se marcan con *(review)*.
+
+**Corrección RC8–RC13 (PR #82, docente MVelasquez98):** la revisión de AO3 marcó que las funciones de interacción (`flujo*()`, `iniciarMenuPrincipal()`) y algunos helpers puros (`quiereReintentar()`, `describirIngreso()`, `formatearMoneda()`, `formatearListaProveedores()`) quedaban fuera del plan sin evidencia directa. Se agregaron 5 suites nuevas mockeando `window.prompt` y `window.alert` con `spyOn()`, hasta llegar a **82 `it()`**. Ver sección "Suite 5" más abajo.
 
 ### Suite 1: Crear evento
 
@@ -126,25 +128,54 @@ Los 27 casos planificados inicialmente se implementaron en 32 `it()`. A partir d
 
 ---
 
+### Suite 5: Interacción con el usuario y helpers (RC8–RC13)
+
+Agregada en la corrección de AO3 (PR #82) para cubrir la capa de interacción, que usa `prompt()`/`alert()` y por eso había quedado fuera del plan original. Cada `describe` mockea `window.prompt` y `window.alert` con `spyOn()`; las suites de Flujo 1 y Flujo 4 controlan las colecciones globales `eventos`/`invitados` en `beforeEach`/`afterEach` para no afectar otras suites.
+
+| Describe real en `script.spec.js` | RC | Specs | Qué cubre |
+|---|---|---|---|
+| `describe("Flujo 1: Crear evento (interacción con prompt/alert) - RC8")` | RC8 | 6 | `flujoCrearEvento()`: secuencia válida, reintento "sí"/"no", cancelación en nombre/tipo/presupuesto, alerts exactos de error/cancelación/éxito |
+| `describe("Flujo 2: Calcular presupuesto (interacción con prompt/alert) - RC9")` | RC9 | 8 | `flujoCalcularPresupuesto()`: descuento 0/100/normal, presupuesto excedido, porcentaje negativo/mayor a 100/no numérico/cancelado |
+| `describe("Flujo 3: Buscar en catálogo (interacción con prompt/alert) - RC10")` | RC10 | 4 | `flujoBuscarEnCatalogo()`: con/sin resultados, criterio vacío y cancelado |
+| `describe("Flujo 4: Gestionar invitados (interacción con prompt/alert) - RC11")` | RC11 | 5 | `flujoGestionarInvitados()`: alta válida, nombre vacío, estado inválido, cancelación de nombre y de estado |
+| `describe("Menú principal (interacción con prompt/alert) - RC12")` | RC12 | 7 | `iniciarMenuPrincipal()`: despacho de las opciones 1–4 (con los 4 flujos espiados), opción inválida, cancelación, opción 0 |
+| `describe("Helpers de formato e interacción - RC13")` | RC13 | 9 | `quiereReintentar()`, `describirIngreso()`, `formatearMoneda()`, `formatearListaProveedores()` |
+
+**Total de la Suite 5: 39 specs.**
+
+---
+
 ## Métricas de Cobertura
 
 ### Resumen General
 | Métrica | Valor |
 |---------|-------|
-| Total de Tests | 43 |
-| Tests Pasando | 43 ✅ |
+| Total de Tests | 82 |
+| Tests Pasando | 82 ✅ |
 | Tests Fallando | 0 ❌ |
 | Porcentaje de Éxito | 100% |
 
-Ejecución final del 30/10/2026 con Playwright MCP sobre `http://localhost:8080/js/test/test-runner.html`: 43 specs, 0 fallas, orden aleatorio con seed 91363, duración de 0,418 s y 0 errores o advertencias en la consola. Por flujo: 11, 13, 9 y 10 specs.
+Ejecución del 30/10/2026 con Playwright MCP sobre `http://localhost:8080/js/test/test-runner.html`: 43 specs, 0 fallas, orden aleatorio con seed 91363, duración de 0,418 s y 0 errores o advertencias en la consola. Por flujo: 11, 13, 9 y 10 specs.
+
+**Corrección RC8–RC13 (PR #82):** tras agregar la Suite 5, se verificó la suite completa con un script de Playwright (Chromium headless) que carga `js/test/test-runner.html` directamente desde el sistema de archivos y lee el resumen de Jasmine del DOM. Se ejecutó 3 veces con semillas aleatorias distintas para descartar dependencia de orden entre specs (los `beforeEach`/`afterEach` de las suites de interacción restauran `eventos`/`invitados`):
+
+```
+82 specs, 0 failures, randomized with seed 27584
+82 specs, 0 failures, randomized with seed 00765
+82 specs, 0 failures, randomized with seed 05606
+```
+
+0 errores o advertencias de consola (`pageerror`/`console.error`) en las 3 corridas.
 
 ### Cobertura por Tipo de Test
 | Tipo | Cantidad | Porcentaje |
 |------|----------|------------|
-| Happy Path | 9 | 20,9% |
-| Casos Borde | 9 | 20,9% |
-| Validación de Errores | 19 | 44,2% |
-| Operaciones Arrays/Objetos | 6 | 14,0% |
+| Happy Path | 9 | 11,0% |
+| Casos Borde | 9 | 11,0% |
+| Validación de Errores | 19 | 23,2% |
+| Operaciones Arrays/Objetos | 6 | 7,3% |
+| Interacción (prompt/alert, RC8–RC12) | 30 | 36,6% |
+| Helpers de formato e interacción (RC13) | 9 | 11,0% |
 
 ### Análisis de Cobertura de Código
 **Metodología:** Se revisó manualmente cada función del código fuente y se verificó qué líneas son ejecutadas por los tests implementados. Se consideran líneas ejecutables las sentencias del cuerpo de cada función (sin contar llaves de cierre). Las funciones auxiliares se cubren de forma indirecta, a través de las funciones testeadas.
@@ -169,12 +200,39 @@ Ejecución final del 30/10/2026 con Playwright MCP sobre `http://localhost:8080/
 | `obtenerEstadoInvitado()` *(indirecta)* | 6 | 8 | 6 | 100% |
 | `esTextoNoVacio()`, `normalizarTexto()`, `calcularSubtotalItem()` *(indirectas)* | 3 | Indirectos | 3 | 100% |
 
-**Cobertura Total Estimada:** 100% (75/75 líneas ejecutables) de las funciones incluidas en el plan de testing. Antes de la review era del 94% (68/72); los tests agregados cubrieron las 4 líneas pendientes e incorporaron `obtenerPresupuestoEstimado()`.
+**Cobertura Total Estimada (funciones de negocio puras, hasta la PR #79):** 100% (75/75 líneas ejecutables).
+
+#### Ampliación RC8–RC13 (PR #82): capa de interacción y helpers restantes
+Metodología idéntica (revisión manual línea por línea), aplicada a las funciones que antes quedaban fuera del plan:
+
+| Función | Líneas Totales (aprox.) | Tests Directos | Cobertura |
+|---------|--------------------------|-----------------|-----------|
+| `quiereReintentar()` | 3 | 2 (RC13) | 100% |
+| `describirIngreso()` | 5 | 3 (RC13) | 100% |
+| `formatearMoneda()` | 1 | 2 (RC13) | 100% |
+| `formatearListaProveedores()` | 6 | 2 (RC13) | 100% |
+| `flujoCrearEvento()` | 22 | 6 (RC8) | 100% (las 6 ramas de cancelación/reintento/éxito quedan ejercitadas) |
+| `flujoCalcularPresupuesto()` | 19 | 8 (RC9) | 100% |
+| `flujoBuscarEnCatalogo()` | 13 | 4 (RC10) | 100% |
+| `flujoGestionarInvitados()` | 10 | 5 (RC11) | 100% |
+| `iniciarMenuPrincipal()` | 25 | 7 (RC12) | 100% (las 4 opciones, la opción inválida, la cancelación y la salida con "0") |
+
+`iniciarMenuAlTerminarCarga()` sigue fuera del plan: es glue code que sondea `document.readyState` con `setTimeout` para decidir cuándo arrancar el menú, sin lógica de negocio propia; testearlo requeriría simular el ciclo de carga del documento con temporizadores falsos (`jasmine.clock()`), que no estaba en el alcance pedido por RC8–RC13.
+
+**Cobertura Total Estimada (todas las funciones del plan ampliado):** 100% de las líneas ejecutables identificadas, excluyendo únicamente `iniciarMenuAlTerminarCarga()` por el motivo indicado arriba.
+
+#### Comando y resultado reproducible (RC13)
+```
+node run-jasmine.js <ruta-del-repo>
+# cierra un Chromium headless (Playwright) contra js/test/test-runner.html
+# y vuelca el resumen de Jasmine leído del DOM
+"82 specs, 0 failures, randomized with seed 27584"
+```
+Script ejecutado 3 veces con semillas distintas (ver "Resumen General" más arriba) para confirmar que ninguna suite depende del orden de ejecución.
 
 #### Líneas NO Cubiertas
-Dentro de las funciones incluidas en el plan de testing no quedan líneas sin cubrir. Quedan fuera del plan:
-- Las funciones puras de formato y apoyo a la interacción: `quiereReintentar()`, `describirIngreso()`, `formatearMoneda()` y `formatearListaProveedores()`.
-- La capa de interacción con el usuario (`flujo*()`, `iniciarMenuPrincipal()` e `iniciarMenuAlTerminarCarga()`), porque usa `prompt()` y `alert()`.
+- `iniciarMenuAlTerminarCarga()` (ver justificación arriba).
+- Las líneas de `console.log()` dentro de los flujos se ejecutan durante los tests (no fallan ni se mockean) pero no tienen aserciones propias, ya que RC8–RC13 piden verificar `prompt()`/`alert()`, no la salida de consola.
 
 ---
 
@@ -209,13 +267,14 @@ No se detectaron bugs en las ejecuciones del 28/10/2026 y del 30/10/2026: todas 
 
 ## Limitaciones del Testing
 - Tests síncronos únicamente (sin Promises/async-await).
-- Sin cobertura automatizada de código: la cobertura se estima de forma manual.
+- Sin cobertura automatizada de código (herramienta tipo Istanbul/nyc): la cobertura se estima de forma manual, revisando línea por línea contra los tests existentes.
 - Requiere conexión a internet para cargar Jasmine desde el CDN.
 - No incluye tests de integración con DOM, ya que la AO3 no utiliza manipulación del DOM ni eventos.
-- Las funciones que interactúan con el usuario mediante `prompt()` y `alert()` no se testean: los tests cubren solo la lógica de negocio pura.
+- `iniciarMenuAlTerminarCarga()` no se testea (ver "Ampliación RC8–RC13" en Métricas de Cobertura).
 
 ---
 
-**Última Actualización:** 28/10/2026
-**Tester/QA Engineer:** Carola Benvenuto (@carolabenvenuto-uces)  
+**Última Actualización:** 10/11/2026 (corrección RC8–RC13, PR #82)
+**Tester/QA Engineer (AO3, versión original):** Carola Benvenuto (@carolabenvenuto-uces)
+**Coordinador / DevOps + Tester QA (corrección RC8–RC13, AO4):** Facundo Guiraldes (@FacundoGuiraldes)
 **Colaboración con:** Desarrollador JavaScript - Facundo Guiraldes (@FacundoGuiraldes)
