@@ -10,19 +10,12 @@ start
 if (¿Nombre no está vacío y estado es válido?) then (sí)
   :Validar datos del invitado con validarInvitado();
   :Agregar invitado a la colección con agregarInvitado();
-  :Inicializar contadores de 'Confirmados' y 'Pendientes' en 0;
-
-  while (¿Quedan invitados por contabilizar en la colección?) is (sí)
-    :Obtener estado del siguiente invitado de la lista;
-    
-    if (¿Asistencia es 'confirmado'?) then (sí)
-      :Incrementar contador de confirmados;
-    else (no)
-      :Incrementar contador de pendientes;
-    endif
-  endwhile
-
   :Calcular totales de asistencia con contarAsistencia();
+  note right
+    RC6/RC7 (PR #82): contarAsistencia() encapsula el recorrido completo
+    de la colección y el cálculo de confirmados/pendientes. No se modela
+    un ciclo manual aparte para evitar una fuente de verdad duplicada.
+  end note
   :Registrar estadísticas de asistencia en console.log();
 
   |Usuario|
