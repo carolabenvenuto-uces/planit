@@ -478,3 +478,74 @@ describe("Flujo 4: Gestionar invitados", function () {
         });
     });
 });
+
+describe("Flujo 4: Gestionar invitados (interacción con prompt/alert) - RC11", function () {
+    let invitadosOriginales;
+
+    beforeEach(function () {
+        invitadosOriginales = invitados.slice();
+    });
+
+    afterEach(function () {
+        invitados = invitadosOriginales;
+    });
+
+    it("debería agregar el invitado y mostrar las métricas actualizadas con datos válidos", function () {
+        invitados = [{ nombre: "Ana", estado: "Confirmado" }];
+        spyOn(window, "prompt").and.returnValues("Lucía Pérez", "Pendiente");
+        spyOn(window, "alert");
+
+        const resultado = flujoGestionarInvitados();
+
+        expect(resultado).toEqual({ confirmados: 1, pendientes: 1 });
+        expect(alert).toHaveBeenCalledWith("Invitado agregado.\nConfirmados: 1\nPendientes: 1");
+        expect(invitados.length).toBe(2);
+    });
+
+    it("debería alertar el error y no agregar el invitado con un nombre vacío", function () {
+        invitados = [];
+        spyOn(window, "prompt").and.returnValues("", "Confirmado");
+        spyOn(window, "alert");
+
+        const resultado = flujoGestionarInvitados();
+
+        expect(resultado).toBeNull();
+        expect(invitados.length).toBe(0);
+        expect(alert).toHaveBeenCalledWith(
+            "Faltan datos: ingrese un nombre y un estado válido (Confirmado o Pendiente)."
+        );
+    });
+
+    it("debería alertar el error y no agregar el invitado con un estado inválido", function () {
+        invitados = [];
+        spyOn(window, "prompt").and.returnValues("Lucía Pérez", "Declinado");
+        spyOn(window, "alert");
+
+        const resultado = flujoGestionarInvitados();
+
+        expect(resultado).toBeNull();
+        expect(invitados.length).toBe(0);
+    });
+
+    it("debería alertar el error y no agregar el invitado cuando se cancela el nombre (prompt devuelve null)", function () {
+        invitados = [];
+        spyOn(window, "prompt").and.returnValues(null, "Confirmado");
+        spyOn(window, "alert");
+
+        const resultado = flujoGestionarInvitados();
+
+        expect(resultado).toBeNull();
+        expect(invitados.length).toBe(0);
+    });
+
+    it("debería alertar el error y no agregar el invitado cuando se cancela el estado (prompt devuelve null)", function () {
+        invitados = [];
+        spyOn(window, "prompt").and.returnValues("Lucía Pérez", null);
+        spyOn(window, "alert");
+
+        const resultado = flujoGestionarInvitados();
+
+        expect(resultado).toBeNull();
+        expect(invitados.length).toBe(0);
+    });
+});
