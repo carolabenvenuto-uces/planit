@@ -12,6 +12,8 @@
 
 ### Fixed
 - [fix/rc1-issue-68-reapertura] fix(rc1): documentar plan de eliminación de componentes-bootstrap.js en AO4 PR: [#83](https://github.com/carolabenvenuto-uces/planit/pull/83) | Issue: [#68](https://github.com/carolabenvenuto-uces/planit/issues/68) - @FacundoGuiraldes (Coordinador / DevOps + Tester QA)
+- [fix/rc2-checklist-coherencia-diagramas] fix(rc2): documentar discrepancias de coherencia diagrama-JS por flujo PR: [#84](https://github.com/carolabenvenuto-uces/planit/pull/84) - @FacundoGuiraldes (Coordinador / DevOps + Tester QA)
+- [fix/rc3-trazabilidad-nombres-tests] fix(rc3): actualizar tabla de trazabilidad con nombres reales de suites/specs PR: [#85](https://github.com/carolabenvenuto-uces/planit/pull/85) - @FacundoGuiraldes (Coordinador / DevOps + Tester QA)
 
 ## [Release Primer Parcial] - 2026-10-07
 
