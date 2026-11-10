@@ -27,6 +27,7 @@
 - [fix/rc10-tests-flujo-buscar-catalogo] fix(rc10): agregar tests de integracion para flujoBuscarEnCatalogo con spyOn de prompt y alert PR: [#96](https://github.com/carolabenvenuto-uces/planit/pull/96) - @FacundoGuiraldes (Coordinador / DevOps + Tester QA)
 - [fix/rc11-tests-flujo-invitados] fix(rc11): agregar tests de integracion para flujoGestionarInvitados con spyOn de prompt y alert PR: [#97](https://github.com/carolabenvenuto-uces/planit/pull/97) - @FacundoGuiraldes (Coordinador / DevOps + Tester QA)
 - [fix/rc12-tests-menu-principal] fix(rc12): agregar tests de iniciarMenuPrincipal despachando los 4 flujos con spyOn PR: [#98](https://github.com/carolabenvenuto-uces/planit/pull/98) - @FacundoGuiraldes (Coordinador / DevOps + Tester QA)
+- [fix/rc13-tests-helpers-cobertura] fix(rc13): agregar tests de helpers y actualizar cobertura documentada con comando y resultado reproducible PR: [#99](https://github.com/carolabenvenuto-uces/planit/pull/99) - @FacundoGuiraldes (Coordinador / DevOps + Tester QA)
 
 ## [Release Primer Parcial] - 2026-10-07
 
