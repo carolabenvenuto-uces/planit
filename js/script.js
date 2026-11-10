@@ -399,6 +399,10 @@ function agregarInvitado(listaInvitados, nombre, estado) {
 
 /**
  * Recorre la lista de invitados y cuenta confirmados y pendientes.
+ * Única fuente de verdad (RC6/RC7, PR #82) para esta lógica: encapsula el
+ * recorrido completo de la colección y el cálculo de ambas métricas, por lo
+ * que el diagrama actividad-flujo-4-gestionar-invitados.puml no modela un
+ * ciclo manual aparte y se limita a invocar esta función.
  * @param {{estado: string}[]} listaInvitados - Lista de invitados.
  * @returns {{confirmados: number, pendientes: number}} Métricas de asistencia.
  */
