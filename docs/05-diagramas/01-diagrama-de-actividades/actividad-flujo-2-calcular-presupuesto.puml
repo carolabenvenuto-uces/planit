@@ -10,9 +10,14 @@ start
 :Inicializar acumulador de costo total en 0;
 
 while (¿Quedan ítems por procesar en la colección?) is (sí)
-  :Obtener siguiente ítem de la colección;
-  :Sumar precio del ítem al acumulador total;
+  :Obtener siguiente ítem de la colección (cantidad, precioUnitario);
+  :Calcular subtotal del ítem = cantidad × precioUnitario;
+  :Sumar el subtotal del ítem al acumulador total;
 endwhile
+note right
+  RC4/RC5 (PR #82): operación real de calcularSubtotalItem().
+  Con colección vacía el ciclo no itera y el acumulador queda en 0.
+end note
 
 |Usuario|
 :Ingresar porcentaje de descuento promocional (0-100) vía prompt();
