@@ -215,4 +215,10 @@ Se sincronizaron:
 - [x] **Estructura de archivos:** Artefactos organizados en `docs/05-diagramas/01-diagrama-de-actividades/`.
 - [x] **Documentación navegable:** Archivo `diagramas-doc.md` creado con índice, descripciones, precondiciones, postcondiciones e imágenes embebidas.
 - [x] **Spec-Driven Development:** Fase BEFORE preservada como evidencia histórica y Fase AT CLOSE completada con la trazabilidad del rediseño y uso de GitHub Copilot Agent.
-- [ ] **Coherencia de diseño:** Verificación conjunta con el Desarrollador JavaScript de que la lógica modelada coincida con las funciones de `js/script.js`.(Pendiente de realización al implementarse `script.js`)
+- [x] **Coherencia de diseño:** Verificación conjunta con el Desarrollador JavaScript de que la lógica modelada coincida con las funciones de `js/script.js`. *(RC2, PR #82 — ver corrección de AO3)* Verificación explícita flujo por flujo contra la implementación actual:
+  - **Flujo 1 (Crear Evento):** coincide en la validación y alta del evento. El mockup incluye fecha, ubicación y tipo "Corporativo"; el diagrama documenta explícitamente su diferimiento a AO4 (RC14, PR [#90](https://github.com/carolabenvenuto-uces/planit/pull/90)).
+  - **Flujo 2 (Calcular Presupuesto):** el diagrama refleja la operación real de `calcularSubtotalItem` (`cantidad × precioUnitario`) en lugar de la suma simple original (RC4, PR [#86](https://github.com/carolabenvenuto-uces/planit/pull/86); fórmula y límites documentados en el JSDoc por RC5, PR [#87](https://github.com/carolabenvenuto-uces/planit/pull/87)).
+  - **Flujo 3 (Buscar en Catálogo):** sin discrepancias detectadas entre el diagrama y `buscarEnCatalogo`.
+  - **Flujo 4 (Gestionar Invitados):** se eliminó la inicialización/recorrido manual de contadores que duplicaba `contarAsistencia` (RC6, PR [#88](https://github.com/carolabenvenuto-uces/planit/pull/88); documentado como fuente única de verdad por RC7, PR [#89](https://github.com/carolabenvenuto-uces/planit/pull/89)); el diagrama documenta explícitamente el diferimiento a AO4 de email/contacto/mesa (RC15, PR [#91](https://github.com/carolabenvenuto-uces/planit/pull/91)) y del estado "Declinado" (RC16, PR [#92](https://github.com/carolabenvenuto-uces/planit/pull/92)).
+
+  Control completado: RC4, RC5, RC6, RC7, RC14, RC15 y RC16 mergeados sobre `release/tercera-entrega`.

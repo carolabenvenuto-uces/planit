@@ -5,24 +5,32 @@ title Flujo 4: Gestionar Lista de Invitados
 start
 :Seleccionar opción 'Gestionar Invitados';
 :Ingresar nombre del invitado y estado de asistencia (confirmado/pendiente) vía prompt();
+note right
+  RC15 (PR #82): index.html ya contempla email/contacto y mesa en la
+  tabla de invitados (mockup de AO2). Quedan diferidos a AO4: se
+  capturarán y validarán con inputs de formulario (Desarrollador JS
+  Eventos + DOM) y se incorporarán como propiedades del invitado en el
+  modelo del dominio (Desarrollador JS POO).
+end note
 
 |Sistema|
 if (¿Nombre no está vacío y estado es válido?) then (sí)
   :Validar datos del invitado con validarInvitado();
+  note right
+    RC16 (PR #82): index.html ya muestra el estado "Declinado" en la
+    tabla de invitados (mockup de AO2), pero plan.md (sección 2.4)
+    excluye ese estado de los datos de prueba hasta una entrega
+    posterior. Queda diferido a AO4: se sumará a ESTADOS_INVITADO y a
+    la validación de validarInvitado(), con su control correspondiente
+    en el DOM (Desarrollador JS Eventos + DOM).
+  end note
   :Agregar invitado a la colección con agregarInvitado();
-  :Inicializar contadores de 'Confirmados' y 'Pendientes' en 0;
-
-  while (¿Quedan invitados por contabilizar en la colección?) is (sí)
-    :Obtener estado del siguiente invitado de la lista;
-    
-    if (¿Asistencia es 'confirmado'?) then (sí)
-      :Incrementar contador de confirmados;
-    else (no)
-      :Incrementar contador de pendientes;
-    endif
-  endwhile
-
   :Calcular totales de asistencia con contarAsistencia();
+  note right
+    RC6/RC7 (PR #82): contarAsistencia() encapsula el recorrido completo
+    de la colección y el cálculo de confirmados/pendientes. No se modela
+    un ciclo manual aparte para evitar una fuente de verdad duplicada.
+  end note
   :Registrar estadísticas de asistencia en console.log();
 
   |Usuario|

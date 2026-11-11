@@ -246,8 +246,14 @@ function describirIngreso(valor) {
 
 /**
  * Calcula el subtotal de un ítem contratado.
+ * Fórmula (RC5, PR #82): subtotal = cantidad × precioUnitario. Alineada con el
+ * diagrama actividad-flujo-2-calcular-presupuesto.puml (RC4, PR #82).
+ * Límites evaluados: no valida signos ni tipos aquí, ya que `cantidad` y
+ * `precioUnitario` llegan numéricos y no negativos desde `itemsContratados`;
+ * con `cantidad` 0 el subtotal es 0 y no afecta el acumulador de
+ * `calcularTotalItems`, que además devuelve 0 con una colección vacía.
  * @param {{cantidad: number, precioUnitario: number}} item - Ítem contratado.
- * @returns {number} Cantidad por precio unitario.
+ * @returns {number} Subtotal del ítem (cantidad × precioUnitario).
  */
 function calcularSubtotalItem(item) {
     return item.cantidad * item.precioUnitario;
@@ -393,6 +399,10 @@ function agregarInvitado(listaInvitados, nombre, estado) {
 
 /**
  * Recorre la lista de invitados y cuenta confirmados y pendientes.
+ * Única fuente de verdad (RC6/RC7, PR #82) para esta lógica: encapsula el
+ * recorrido completo de la colección y el cálculo de ambas métricas, por lo
+ * que el diagrama actividad-flujo-4-gestionar-invitados.puml no modela un
+ * ciclo manual aparte y se limita a invocar esta función.
  * @param {{estado: string}[]} listaInvitados - Lista de invitados.
  * @returns {{confirmados: number, pendientes: number}} Métricas de asistencia.
  */
