@@ -2,6 +2,33 @@
 
 ## [Unreleased]
 
+## [Release Tercera Entrega] - 2026-11-01
+
+### Added
+- [feature/arq-diagramas-actividades] feature/arq-diagramas-actividades: [ARQ] Modelado de Diagramas de Actividades y Documentación - AO3 PR: [#78](https://github.com/carolabenvenuto-uces/planit/pull/78) | Issue: [#77](https://github.com/carolabenvenuto-uces/planit/issues/77) - @ValeriaMSilva (Arquitecto de Diagramas de Actividades)
+- [feature/dev-javascript-logica-negocio] feature/dev-javascript-logica-negocio: [DEV JS] Lógica de negocio con 4 flujos en js/script.js - AO3 PR: [#81](https://github.com/carolabenvenuto-uces/planit/pull/81) | Issue: [#72](https://github.com/carolabenvenuto-uces/planit/issues/72) - @FacundoGuiraldes (Desarrollador JavaScript)
+- [feature/tester-javascript-jasmine] feature/tester-javascript-jasmine: [QA] Suite de Testing Automatizado con Jasmine y Playwright MCP - AO3 PR: [#79](https://github.com/carolabenvenuto-uces/planit/pull/79) | Issue: [#76](https://github.com/carolabenvenuto-uces/planit/issues/76) - @carolabenvenuto-uces (Tester JavaScript / QA Engineer)
+- [feature/coord-devops-tercera-entrega] feature/coord-devops-tercera-entrega: [DEVOPS] Coordinación, versionado y documentación - AO3 PR: [#75](https://github.com/carolabenvenuto-uces/planit/pull/75) | Issue: [#74](https://github.com/carolabenvenuto-uces/planit/issues/74) - @carolabenvenuto-uces (Coordinadora / DevOps)
+
+### Fixed
+- [fix/rc1-issue-68-reapertura] fix(rc1): documentar plan de eliminación de componentes-bootstrap.js en AO4 PR: [#83](https://github.com/carolabenvenuto-uces/planit/pull/83) | Issue: [#68](https://github.com/carolabenvenuto-uces/planit/issues/68) - @FacundoGuiraldes (Coordinador / DevOps + Tester QA)
+- [fix/rc2-checklist-coherencia-diagramas] fix(rc2): documentar discrepancias de coherencia diagrama-JS por flujo PR: [#84](https://github.com/carolabenvenuto-uces/planit/pull/84) - @FacundoGuiraldes (Coordinador / DevOps + Tester QA)
+- [fix/rc3-trazabilidad-nombres-tests] fix(rc3): actualizar tabla de trazabilidad con nombres reales de suites/specs PR: [#85](https://github.com/carolabenvenuto-uces/planit/pull/85) - @FacundoGuiraldes (Coordinador / DevOps + Tester QA)
+- [fix/rc4-diagrama-subtotal-item] fix(rc4): alinear diagrama de presupuesto con calcularSubtotalItem (cantidad x precioUnitario) PR: [#86](https://github.com/carolabenvenuto-uces/planit/pull/86) - @FacundoGuiraldes (Coordinador / DevOps + Tester QA)
+- [fix/rc5-documentar-formula-subtotal] fix(rc5): documentar formula y limites evaluados de calcularSubtotalItem PR: [#87](https://github.com/carolabenvenuto-uces/planit/pull/87) - @FacundoGuiraldes (Coordinador / DevOps + Tester QA)
+- [fix/rc6-diagrama-contar-asistencia] fix(rc6): eliminar conteo manual duplicado en diagrama de invitados PR: [#88](https://github.com/carolabenvenuto-uces/planit/pull/88) - @FacundoGuiraldes (Coordinador / DevOps + Tester QA)
+- [fix/rc7-unificar-fuente-verdad-conteo] fix(rc7): documentar contarAsistencia como fuente unica de verdad del conteo PR: [#89](https://github.com/carolabenvenuto-uces/planit/pull/89) - @FacundoGuiraldes (Coordinador / DevOps + Tester QA)
+- [fix/rc14-alcance-fecha-ubicacion] fix(rc14): documentar diferimiento de fecha/ubicacion/tipo Corporativo a AO4 PR: [#90](https://github.com/carolabenvenuto-uces/planit/pull/90) - @FacundoGuiraldes (Coordinador / DevOps + Tester QA)
+- [fix/rc15-alcance-contacto-mesa] fix(rc15): documentar diferimiento de email/contacto y mesa a AO4 PR: [#91](https://github.com/carolabenvenuto-uces/planit/pull/91) - @FacundoGuiraldes (Coordinador / DevOps + Tester QA)
+- [fix/rc16-alcance-estado-declinado] fix(rc16): documentar exclusion/diferimiento del estado Declinado a AO4 PR: [#92](https://github.com/carolabenvenuto-uces/planit/pull/92) - @FacundoGuiraldes (Coordinador / DevOps + Tester QA)
+- [fix/rc2-checkbox-coherencia-completado] fix(rc2): marcar checklist de coherencia de diseno como completado PR: [#93](https://github.com/carolabenvenuto-uces/planit/pull/93) - @FacundoGuiraldes (Coordinador / DevOps + Tester QA)
+- [fix/rc8-tests-flujo-crear-evento] fix(rc8): agregar tests de integracion para flujoCrearEvento con spyOn(prompt/alert) PR: [#94](https://github.com/carolabenvenuto-uces/planit/pull/94) - @FacundoGuiraldes (Coordinador / DevOps + Tester QA)
+- [fix/rc9-tests-flujo-presupuesto] fix(rc9): agregar tests de integracion para flujoCalcularPresupuesto con spyOn de prompt y alert PR: [#95](https://github.com/carolabenvenuto-uces/planit/pull/95) - @FacundoGuiraldes (Coordinador / DevOps + Tester QA)
+- [fix/rc10-tests-flujo-buscar-catalogo] fix(rc10): agregar tests de integracion para flujoBuscarEnCatalogo con spyOn de prompt y alert PR: [#96](https://github.com/carolabenvenuto-uces/planit/pull/96) - @FacundoGuiraldes (Coordinador / DevOps + Tester QA)
+- [fix/rc11-tests-flujo-invitados] fix(rc11): agregar tests de integracion para flujoGestionarInvitados con spyOn de prompt y alert PR: [#97](https://github.com/carolabenvenuto-uces/planit/pull/97) - @FacundoGuiraldes (Coordinador / DevOps + Tester QA)
+- [fix/rc12-tests-menu-principal] fix(rc12): agregar tests de iniciarMenuPrincipal despachando los 4 flujos con spyOn PR: [#98](https://github.com/carolabenvenuto-uces/planit/pull/98) - @FacundoGuiraldes (Coordinador / DevOps + Tester QA)
+- [fix/rc13-tests-helpers-cobertura] fix(rc13): agregar tests de helpers y actualizar cobertura documentada con comando y resultado reproducible PR: [#99](https://github.com/carolabenvenuto-uces/planit/pull/99) - @FacundoGuiraldes (Coordinador / DevOps + Tester QA)
+
 ## [Release Primer Parcial] - 2026-10-07
 
 ### Added
