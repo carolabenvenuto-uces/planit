@@ -98,10 +98,60 @@ Las funciones de interacción (`flujo*()`, `iniciarMenuPrincipal()`, `quiereRein
 ## MOMENTO 2: Evidencia de Cierre (AL FINALIZAR)
 
 ### 1. Prompt utilizado
-*(A completar al cierre.)*
+- **Herramienta:** GitHub Copilot en modo Agente (sesión Local de VS Code).
+- **Archivos adjuntos como contexto:** los 4 diagramas de actividades (`actividad-flujo-1-crear-evento.puml`, `actividad-flujo-2-calcular-presupuesto.puml`, `actividad-flujo-3-buscar-catalogo.puml` y `actividad-flujo-4-gestionar-invitados.puml`), `index.html`, este `spec-dev-poo.md` y `js/script.js`. Se agregó `js/script.js` al contexto previsto en el MOMENTO 1 para que la lógica migrada respetara exactamente los resultados de la AO3.
+
+```text
+Actuá como Desarrollador JS POO (Lógica de Negocio) para la Actividad Obligatoria N.° 4 del proyecto PlanIT.
+
+Con los diagramas de actividades adjuntos (#file:docs/05-diagramas/01-diagrama-de-actividades/actividad-flujo-1-crear-evento.puml, #file:docs/05-diagramas/01-diagrama-de-actividades/actividad-flujo-2-calcular-presupuesto.puml, #file:docs/05-diagramas/01-diagrama-de-actividades/actividad-flujo-3-buscar-catalogo.puml, #file:docs/05-diagramas/01-diagrama-de-actividades/actividad-flujo-4-gestionar-invitados.puml), #file:index.html, #file:docs/03-specs/actividad-obligatoria-4/spec-dev-poo.md y #file:js/script.js como contexto, generá las clases del dominio en la carpeta js/models/, un archivo por clase, siguiendo exactamente las secciones 3, 4, 5 y 6 del spec.
+
+Requisitos:
+1. Crear estas 8 clases, cada una en su archivo con nombre en PascalCase: Validador, ItemContratado, Presupuesto, Invitado, ListaInvitados, Evento, Proveedor y CatalogoProveedores, con las propiedades y métodos definidos en la sección 3 del spec.
+2. Implementar las relaciones de la sección 4: Evento compone un Presupuesto y una ListaInvitados; Presupuesto compone ItemContratado; ListaInvitados compone Invitado; CatalogoProveedores agrega Proveedor.
+3. Migrar la lógica de negocio de js/script.js según la tabla de la sección 5, respetando los mismos resultados: por ejemplo, el total de los ítems del mockup debe dar 580000, aplicarDescuento debe aceptar porcentajes de 0 a 100 y superaLimite debe usar mayor estricto.
+4. Encapsular las propiedades con campos privados (#) y exponerlas con getters. Los getters de colecciones deben devolver copias de los arrays.
+5. Validar los datos en los constructores y en los métodos, lanzando Error con mensajes descriptivos en español. Los métodos estáticos validar*() deben devolver un array de errores sin lanzar excepciones.
+6. Implementar toJSON() y static fromJSON(json) en las clases persistibles, incluyendo la reconstrucción de los objetos anidados (por ejemplo, Evento.fromJSON reconstruye su Presupuesto y su ListaInvitados).
+7. Documentar cada clase, constructor y método con JSDoc. Usar camelCase para métodos y propiedades, y PascalCase para clases.
+8. Las clases no deben manipular el DOM, registrar eventos ni usar prompt(), alert() ni console.log(). Tampoco deben incluir los datos de ejemplo del mockup.
+9. Usar scripts clásicos (sin import/export), para que las clases queden disponibles globalmente al cargarlas en orden en index.html y en js/test/test-runner.html.
+10. No modificar js/script.js, index.html ni ningún archivo fuera de js/models/.
+
+Al terminar, listá los archivos creados y explicá brevemente cualquier decisión que no esté definida en el spec.
+```
+
+**Output generado por Copilot (resumen):** creó los 8 archivos de `js/models/` (commit `b41d685`) sin modificar otros archivos. Como Node no estaba disponible en el entorno, verificó las clases en el navegador con Playwright: total de los ítems del mockup (580000), descuentos de 0, 10 y 100 %, rechazo de descuentos inválidos, comparación estricta con el límite, copias de las colecciones, reconstrucción anidada con `fromJSON()` y búsqueda en el catálogo, con todas las comprobaciones correctas. Además, informó que `js/script.js` ya declara una función constructora `Proveedor`, por lo que cargar ambos archivos produce un error de redeclaración, y no lo resolvió porque el prompt indicaba no modificar otros archivos.
 
 ### 2. Fragmento generado y ajustes manuales
-*(A completar al cierre.)*
+
+**Fragmento generado por Copilot** (`js/models/Evento.js`, commit `b41d685`):
+
+```javascript
+    superaPresupuesto(porcentajeDescuento) {
+        return this.#presupuesto.aplicarDescuento(porcentajeDescuento) > this.#presupuestoEstimado;
+    }
+
+    static fromJSON(json) {
+        if (!json || typeof json !== "object" || Array.isArray(json)) throw new Error("Los datos del evento son inválidos.");
+        const evento = new Evento(json.nombre, json.tipo, json.presupuestoEstimado);
+        evento.#presupuesto = Presupuesto.fromJSON(json.presupuesto);
+        evento.#invitados = ListaInvitados.fromJSON(json.invitados);
+        return evento;
+    }
+```
+
+**Ajustes manuales** (commits `47a592e` y `85c07b1`):
+
+| Archivo | Ajuste | Justificación |
+| --- | --- | --- |
+| `Validador.js` | Se agregó `static buscarOpcion(opciones, valor)` y se quitó el constructor vacío. | `Evento` e `Invitado` repetían cuatro veces la misma búsqueda de opciones normalizadas; centralizarla evita duplicar código. La clase solo tiene métodos estáticos y no se instancia. |
+| `Evento.js` | `superaPresupuesto(porcentajeDescuento = 0)` toma 0 como descuento por defecto. | Sin parámetro, el método lanzaba un error; ahora puede usarse para comparar el total sin descuento, como en la AO3. |
+| `Evento.js` | `fromJSON()` crea vacíos el presupuesto y la lista de invitados si no vienen en los datos. | Hace más robusta la reconstrucción de eventos guardados en Storage con datos parciales. |
+| `Invitado.js` | `cambiarEstado()` valida solo el estado nuevo con `buscarOpcion()`. | La versión generada volvía a validar el nombre, que no cambia. |
+| Las 8 clases | JSDoc de cada clase con su responsabilidad y sus relaciones, descripción en los constructores de `ItemContratado` y `Proveedor`, y líneas largas divididas en `Evento.js`. | Mejora la documentación que pide la consigna y la legibilidad del código. |
+
+Después de los ajustes, se volvieron a ejecutar las 8 clases en el navegador con las comprobaciones de los 4 flujos, y además se verificaron `superaPresupuesto()` sin parámetro, `fromJSON()` sin componentes, `cambiarEstado()` y `buscarOpcion()`: todas las comprobaciones fueron correctas.
 
 ### 3. Decisiones finales
 *(A completar al cierre.)*
