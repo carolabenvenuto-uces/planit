@@ -1,4 +1,7 @@
-/** Lista de invitados de un evento. */
+/**
+ * Representa la lista de invitados de un evento. Compone 0..* Invitado
+ * y calcula la asistencia confirmada y pendiente.
+ */
 class ListaInvitados {
     #invitados;
 

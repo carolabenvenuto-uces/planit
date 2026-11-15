@@ -1,4 +1,7 @@
-/** Catálogo que agrupa proveedores independientes. */
+/**
+ * Representa el catálogo de proveedores de PlanIT. Agrega 0..* Proveedor, que existen
+ * por fuera del catálogo, y permite buscarlos por nombre o categoría.
+ */
 class CatalogoProveedores {
     #proveedores;
 

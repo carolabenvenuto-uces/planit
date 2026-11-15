@@ -1,4 +1,7 @@
-/** Ítem de un presupuesto. */
+/**
+ * Representa un servicio contratado para un evento (por ejemplo, catering o sonido),
+ * con su cantidad y su precio unitario. Forma parte de un Presupuesto (composición).
+ */
 class ItemContratado {
     #categoria;
     #descripcion;
@@ -6,6 +9,7 @@ class ItemContratado {
     #precioUnitario;
 
     /**
+     * Crea un ítem contratado con su categoría, descripción, cantidad y precio unitario.
      * @param {string} categoria Categoría del ítem.
      * @param {string} descripcion Descripción del ítem.
      * @param {number|string} cantidad Cantidad no negativa.

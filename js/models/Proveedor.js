@@ -1,4 +1,7 @@
-/** Proveedor independiente del catálogo. */
+/**
+ * Representa un proveedor de servicios del catálogo (catering, decoración, sonido, etc.).
+ * Existe de forma independiente al catálogo que lo agrupa (agregación).
+ */
 class Proveedor {
     #nombre;
     #categoria;
@@ -6,6 +9,7 @@ class Proveedor {
     #unidad;
 
     /**
+     * Crea un proveedor con su nombre, categoría, precio y unidad de cobro.
      * @param {string} nombre Nombre comercial.
      * @param {string} categoria Categoría del servicio.
      * @param {number|string} precio Precio no negativo.

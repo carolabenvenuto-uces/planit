@@ -1,4 +1,7 @@
-/** Presupuesto compuesto por ítems contratados. */
+/**
+ * Representa el presupuesto de un evento. Compone 0..* ItemContratado y calcula
+ * el total, el total con descuento y la comparación con un límite.
+ */
 class Presupuesto {
     #items;
 
