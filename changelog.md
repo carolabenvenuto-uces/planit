@@ -2,6 +2,9 @@
 
 ## [Unreleased]
 
+### Added
+- [feature/dev-poo-logica-negocio] feature/dev-poo-logica-negocio: [DEV POO] Clases del dominio en js/models/ y diagrama de clases - AO4 PR: [#102](https://github.com/carolabenvenuto-uces/planit/pull/102) | Issue: [#101](https://github.com/carolabenvenuto-uces/planit/issues/101) - @carolabenvenuto-uces (Desarrolladora JS POO - Lógica de Negocio)
+
 ## [Release Tercera Entrega] - 2026-11-01
 
 ### Added
