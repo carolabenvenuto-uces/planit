@@ -154,7 +154,24 @@ Al terminar, listá los archivos creados y explicá brevemente cualquier decisi�
 Después de los ajustes, se volvieron a ejecutar las 8 clases en el navegador con las comprobaciones de los 4 flujos, y además se verificaron `superaPresupuesto()` sin parámetro, `fromJSON()` sin componentes, `cambiarEstado()` y `buscarOpcion()`: todas las comprobaciones fueron correctas.
 
 ### 3. Decisiones finales
-*(A completar al cierre.)*
+- **Arquitectura final:** se mantuvieron las 8 clases y las relaciones planificadas en el MOMENTO 1, sin cambios de diseño. La única incorporación fue el método `Validador.buscarOpcion()`, agregado en los ajustes manuales para no repetir la búsqueda de opciones normalizadas en `Evento` e `Invitado`. El diagrama de clases y su documentación están en [`docs/05-diagramas/02-diagrama-de-clases/`](../../05-diagramas/02-diagrama-de-clases/diagrama-clases-doc.md).
+- **Carga de los archivos:** se confirmaron los scripts clásicos (sin `import`/`export`), cargados en orden de dependencia antes de `js/script.js`, con `defer` en `index.html` y sin `defer` en `js/test/test-runner.html`. Así, el test runner existente sigue funcionando sin cambios en su estructura.
+- **Integración con el controlador existente:** Copilot detectó que `js/script.js` (AO3) declaraba una función constructora `Proveedor`, que colisionaba con la clase nueva. La solución se coordinó en la issue [#101](https://github.com/carolabenvenuto-uces/planit/issues/101): el Coordinador / Tester QA la validó ejecutando los 82 tests existentes con las clases nuevas (82 specs, 0 fallas) y sugirió agregar `<meta charset="UTF-8">` en el test runner, para que los acentos de `normalizarTexto()` no dependan del navegador. En el commit `2e889d1` se quitó de `js/script.js` solo esa función y su método `coincideCon`, ya que la clase nueva tiene el mismo constructor y el mismo método, y se agregaron las referencias a `js/models/` en `index.html` y en el test runner. Se avisó a la Desarrolladora JS Eventos + DOM, responsable de `js/script.js`, que el resto de las funciones del archivo quedan para su refactor como controlador.
+- **Interfaz pública para el controlador (Eventos + DOM):** `Evento.validarDatos()` e `Invitado.validar()` devuelven la lista de errores sin lanzar excepciones, por lo que pueden usarse para la validación en tiempo real de los formularios. Los resultados de los flujos se obtienen con `Presupuesto.calcularTotal()`, `Presupuesto.aplicarDescuento()`, `Evento.superaPresupuesto()`, `CatalogoProveedores.buscar()` y `ListaInvitados.contarAsistencia()`.
+- **Facilidades para Storage:** cada clase persistible expone `toJSON()` y `static fromJSON(json)`. `Evento` funciona como raíz: `JSON.stringify(evento)` serializa también su presupuesto y su lista de invitados, y `Evento.fromJSON()` reconstruye todo el árbol de objetos, tolerando datos guardados sin esos componentes. `CatalogoProveedores` se serializa de la misma forma.
+- **Facilidades para el Tester QA:** las clases no dependen del DOM ni de datos globales, por lo que pueden instanciarse de forma aislada en `js/test/models.spec.js`. Las validaciones lanzan `Error` con mensajes descriptivos, testeables con `toThrow()`, y los getters de colecciones devuelven copias, lo que permite verificar el encapsulamiento.
 
 ### 4. Criterios de Aceptación al cierre
-*(A completar al cierre.)*
+- [x] `spec-dev-poo.md` commiteado antes que cualquier archivo en `js/models/` (`14f8239` antes de `b41d685`).
+- [x] 8 clases implementadas en `js/models/`, un archivo por clase con nombre en PascalCase.
+- [x] Constructores con parámetros relevantes y validaciones internas que lanzan `Error` ante datos inválidos.
+- [x] Propiedades encapsuladas con campos privados y getters.
+- [x] Métodos de negocio que migran la lógica de los 4 flujos de la AO3.
+- [x] Relaciones de composición y agregación implementadas según la sección 4.
+- [x] Métodos `toJSON()` y `fromJSON()` implementados en las clases persistibles.
+- [x] Sin manipulación del DOM, eventos, `prompt()`, `alert()` ni `console.log()` en las clases.
+- [x] Constructores y métodos documentados con JSDoc.
+- [x] Diagrama de clases en PlantUML exportado en `.puml` y `.png`, con relaciones y multiplicidades.
+- [x] `diagrama-clases-doc.md` con la descripción de cada clase, sus relaciones y las decisiones de diseño.
+- [x] `index.html` referencia los archivos de `js/models/` en orden de dependencia.
+- [x] Prompt de Copilot Agent documentado en el MOMENTO 2.
