@@ -38,36 +38,6 @@ const itemsContratados = [
     { categoria: "Transporte", descripcion: "Traslado de materiales y coordinación", cantidad: 2, precioUnitario: 5000 }
 ];
 
-/**
- * Crea un proveedor del catálogo.
- * @constructor
- * @param {string} nombre - Nombre comercial del proveedor.
- * @param {string} categoria - Categoría del servicio (Catering, Decoración, Sonido...).
- * @param {number} precio - Precio del servicio.
- * @param {string} unidad - Unidad del precio (pax, base, hora).
- */
-function Proveedor(nombre, categoria, precio, unidad) {
-    this.nombre = nombre;
-    this.categoria = categoria;
-    this.precio = precio;
-    this.unidad = unidad;
-}
-
-/**
- * Indica si el proveedor coincide con un criterio de búsqueda por nombre o categoría,
- * sin distinguir mayúsculas, minúsculas ni tildes.
- * @param {string} criterio - Texto buscado.
- * @returns {boolean} true si el nombre o la categoría contienen el criterio.
- */
-Proveedor.prototype.coincideCon = function (criterio) {
-    if (typeof criterio !== "string" || criterio.trim() === "") {
-        return false;
-    }
-    const busqueda = normalizarTexto(criterio);
-    return normalizarTexto(this.nombre).includes(busqueda) ||
-        normalizarTexto(this.categoria).includes(busqueda);
-};
-
 /** Catálogo de proveedores del mockup aprobado. */
 const catalogoProveedores = [
     new Proveedor("Gourmet Finger Food", "Catering", 3500, "pax"),
