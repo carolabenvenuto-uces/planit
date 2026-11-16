@@ -313,3 +313,166 @@ function configurarEventos() {
 
 #### Documentación
 - [ ] Me comprometo a completar la sección **AL CERRAR** de esta spec al finalizar la implementación, registrando: cambios realizados, desvíos respecto de este plan, evidencia de verificación (capturas, resultado del `grep` de pop-ups y de los tests) y enlace a la PR hacia `develop`.
+
+---
+
+## AL CERRAR LA IMPLEMENTACIÓN
+
+### 1. Prompt utilizado en modo Agente
+
+**Contexto adjuntado al agente:**
+- `docs/03-specs/actividad-obligatoria-4/spec-dev-eventos-dom.md` (sección *ANTES DE LA IMPLEMENTACIÓN*).
+- Las clases del dominio de `js/models/` (`Validador.js`, `ItemContratado.js`, `Presupuesto.js`, `Invitado.js`, `ListaInvitados.js`, `Evento.js`, `Proveedor.js`, `CatalogoProveedores.js`), tomadas de la rama `feature/dev-poo-logica-negocio` (PR #102).
+- `index.html` y el `js/script.js` de la AO3 como punto de partida del refactor.
+
+```text
+Escribe el código completo de js/script.js y los ajustes necesarios para index.html para la aplicación PlanIT (Actividad Obligatoria N°4 - Programación Web I). Rol: Desarrollador JS Eventos + DOM. Restricciones estrictas: 1. Cero uso de prompt() y alert(). 2. Cero lógica de negocio o cálculos matemáticos en script.js. Script.js es estrictamente un controlador/orquestador. 3. Asume que existen las clases del dominio en js/models/ (Evento, Invitado, etc.) y las utilidades en js/utils/storage.js. 4. Código limpio, modular, con comentarios explicativos y manejo de errores. Requerimientos técnicos a implementar en js/script.js: - Escucha centralizada de DOMContentLoaded. - Función orquestadora configurarEventos(). - Implementación de los 4 flujos: 1. Crear evento: submit con preventDefault(), validación de campos, instanciación del modelo, guardado en storage y renderizado de feedback visual. 2. Calcular presupuesto: captura de entradas, llamada al método de cálculo de la clase correspondiente y renderizado del desglose en el DOM. 3. Buscar en catálogo: filtrado en tiempo real con evento 'input' y actualización reactiva de las tarjetas en el DOM. 4. Gestionar invitados: alta mediante formulario, renderizado dinámico de la lista/tabla y delegación de eventos para botones de eliminación/confirmación de asistencia. - Validación en tiempo real (eventos 'input'/'blur') agregando/removiendo clases 'is-valid' / 'is-invalid' y mensajes de error. - Delegación de eventos para elementos dinámicos. Entrega el código de js/script.js y luego el fragmento de index.html con los IDs y clases correspondientes.
+```
+
+### 2. Fragmento representativo del código generado
+
+Alta de invitados (Flujo 4). El listener `submit` valida con el modelo, actualiza el modelo, persiste y vuelve a renderizar la tabla. Se registra en `configurarFlujoInvitados()` junto con el listener delegado de la tabla:
+
+```js
+// configurarFlujoInvitados(ui)
+registrarValidacionEnVivo(campos, () => validarFormularioInvitado(ui));
+ui.formInvitado.addEventListener("submit", (evento) => manejarSubmitInvitado(evento, ui));
+// Delegación: un único listener atiende los botones de todas las filas,
+// incluidas las que se agregan después de la carga.
+ui.listaInvitados.addEventListener("click", (evento) => manejarAccionInvitado(evento, ui));
+
+/** Alta de invitado: valida, agrega al modelo, persiste y re-renderiza. */
+function manejarSubmitInvitado(evento, ui) {
+    evento.preventDefault();
+
+    const errores = validarFormularioInvitado(ui, true);
+    if (hayErrores(errores)) {
+        const primerCampoInvalido = [ui.nombreInvitado, ui.estadoInvitado].find((campo) => campo && errores[campo.id]);
+        if (primerCampoInvalido) primerCampoInvalido.focus();
+        return;
+    }
+
+    const datos = leerDatosInvitado(ui);
+    let invitado;
+    try {
+        invitado = estadoApp.evento.invitados.agregar(datos.nombre, datos.estado);
+    } catch (error) {
+        renderMensaje(ui.feedbackInvitados, "error", error.message);
+        return;
+    }
+
+    persistirEvento(ui);
+    renderInvitados(ui);
+    renderMensaje(ui.feedbackInvitados, "exito", "Se agregó a " + invitado.nombre + " como " + invitado.estado + ".");
+
+    ui.formInvitado.reset();
+    [ui.nombreInvitado, ui.estadoInvitado].filter(Boolean).forEach(limpiarCampo);
+    validarFormularioInvitado(ui);
+    ui.nombreInvitado.focus();
+}
+```
+
+`validarFormularioInvitado()` obtiene los errores de `Invitado.validar(nombre, estado)`, alterna `is-valid` / `is-invalid` en los campos tocados y deshabilita `#btn-agregar-invitado` mientras haya errores. `renderInvitados()` arma las filas con `createElement` y `textContent` dentro de un `DocumentFragment` y las vuelca en `#lista-invitados` con `replaceChildren()`.
+
+### 3. Ajustes manuales y justificación técnica
+
+La sección *ANTES* se escribió sin conocer la API final de las clases de POO. Al integrar el código con las clases reales del PR #102 se hicieron estos ajustes:
+
+| # | Planificado en *ANTES* | Implementado | Justificación |
+| --- | --- | --- | --- |
+| 1 | `presupuesto.calcularPresupuestoTotal({ items, descuento, presupuestoEstimado })`, que devuelve un objeto de desglose | `item.calcularSubtotal()`, `presupuesto.calcularTotal()`, `presupuesto.aplicarDescuento(descuento)` y `evento.superaPresupuesto(descuento)` | `calcularPresupuestoTotal()` no existe en `Presupuesto`. Con los métodos reales, todos los montos y la comparación con el límite siguen en el modelo; el controlador solo arma el objeto `resultado` para renderizarlo. Los ítems de la tabla reemplazan a los del `Presupuesto` del evento mediante `eliminarItem()` / `agregarItem()`. Una cantidad inválida se detecta por el `Error` que lanza el constructor de `ItemContratado`. |
+| 2 | Tabla de invitados con email y mesa, y el estado "Declinado" del mockup | Columnas **Nombre / Estado / Acciones**; solo los estados `Confirmado` y `Pendiente` | `Invitado` solo tiene `nombre` y `estado`, e `Invitado.ESTADOS` es `["Confirmado", "Pendiente"]`. Un invitado nuevo no tendría email ni mesa, y "Declinado" haría fallar la carga. Se quitó a Camila Herrera (Declinado) de los datos de ejemplo. El cambio de estado usa `Invitado.cambiarEstado()` y la baja usa `ListaInvitados.eliminar(nombre)`. |
+| 3 | `select#tipo-evento` con los valores `cumpleanos`, `boda`, `salida-casual` y `corporativo` | `value` = `cumpleaños`, `boda` y `salida casual`; se quitó **Corporativo** | `Evento.TIPOS` es `["cumpleaños", "boda", "salida casual"]`. `Validador.buscarOpcion()` no considera iguales `salida-casual` y `salida casual`, y `corporativo` no existe en el modelo, así que esas dos opciones nunca pasarían la validación. |
+| 4 | Volver a crear las tarjetas de `#contenedor-catalogo` con `createElement` y delegar el `click` | Cada tarjeta del HTML se convierte en un `Proveedor` (a partir de sus `data-*`) y se muestra u oculta con el atributo `hidden` | Volver a crear las tarjetas haría perder los listeners de `.btn-sumar-evento` que registra `js/componentes-bootstrap.js` y los disparadores `data-bs-toggle="modal"`, y obligaría a descargar de nuevo las imágenes. Al ocultarlas, el modal `#modalDetalleServicio` y el toast `#toastConfirmacion` siguen funcionando. El filtrado lo resuelven `CatalogoProveedores.buscar()` y `Proveedor.coincideCon()`. Con el texto vacío se usa `catalogo.proveedores`, porque `buscar()` lanza un error si el criterio está vacío. Se agregaron el contador `#contador-catalogo` y el mensaje sin resultados `#catalogo-vacio`. |
+| 5 | — | Guarda defensiva `obtenerModelosFaltantes()` en `configurarEventos()` | Las clases todavía no están en `develop`. Si falta alguna, se muestra un aviso en `#aviso-app` y no se registran los flujos, en lugar de fallar con un `ReferenceError`. Se comprueba con `typeof` porque las clases declaradas en scripts clásicos no se agregan a `window`. |
+| 6 | Persistencia en `js/models/storage.js` | Contrato asumido para **`js/utils/storage.js`**: un objeto global `Almacenamiento` con `guardar(clave, valor)` y `cargar(clave)` (devuelve `null` si no hay dato) | El archivo todavía no existe. Si `Almacenamiento` no está cargado, la app funciona en memoria y lo avisa en `#aviso-app`. Los errores de lectura y escritura se capturan con `try/catch`. Claves: `planit:evento` (`Evento.toJSON()`, que incluye presupuesto e invitados) y `planit:detalles-evento`. |
+| 7 | — | La adaptación de `js/test/script.spec.js` le corresponde al rol **Tester QA** | La suite prueba funciones de la AO3 que ya no están en `script.js` (`validarDatosEvento`, `calcularTotalItems`, etc.). Los tests tienen que pasar a probar las clases de `js/models/`. |
+
+**Otros ajustes respecto del plan:**
+- **Errores por campo:** `Evento.validarDatos()` e `Invitado.validar()` devuelven una lista de mensajes sin indicar a qué campo corresponde cada uno. El controlador los asigna según el comienzo del mensaje (`"El nombre"`, `"El tipo"`, `"El presupuesto"`, `"El estado"`). Si cambia el texto del mensaje, la asignación se rompe. Se propone que el rol POO devuelva los errores agrupados por campo.
+- **Fecha y ubicación:** `Evento` no tiene estas propiedades. Se validan como obligatorias con `Validador.esTextoNoVacio()` y se guardan aparte en `planit:detalles-evento`.
+- **Formulario `#form-evento`:** no se vacía al guardar, porque es el formulario de edición del evento actual y tiene que seguir mostrando sus datos. Al guardar se conservan el presupuesto y los invitados con `Evento.fromJSON({ ...anterior.toJSON(), nombre, tipo, presupuestoEstimado })`.
+- **Confirmación del Flujo 1:** se muestra dentro de la página, en `#confirmacion-evento`, y no en el toast.
+- **Eliminar invitado:** no pide confirmación (no se usa `confirm()`); el resultado se informa en `#feedback-invitados`.
+- **Resumen Financiero (barra lateral):** queda estático. Mostrar el saldo requiere una resta, que por la Regla 1 tiene que hacerse en el modelo. Se propone un método como `Presupuesto.calcularSaldo(limite)`.
+- **CSS:** en `css/components.css` se agregaron los bordes de `is-valid` / `is-invalid` para los campos de `.form-group` (Bootstrap solo estiliza `.form-control`) y el ancho de los inputs de cantidad.
+
+### 4. Verificación
+
+Se abrió `index.html` en Chrome headless con los modelos del PR #102 y un `storage.js` provisorio sobre `localStorage` que cumple el contrato del ajuste 6:
+
+| Prueba | Resultado |
+| --- | --- |
+| Carga inicial | 5 invitados (3 confirmados y 2 pendientes); total de $580.000, dentro del presupuesto de $700.000; 3 proveedores |
+| Búsqueda "flores" / búsqueda "zzz" / categoría Sonido | 1 tarjeta / mensaje "Sin coincidencias para “zzz”." / 1 tarjeta |
+| Descuento de 10 % / de 150 % | Total de $522.000 / campo inválido con el mensaje del modelo y botón deshabilitado |
+| Cantidad de catering -1 / 200 | Campo inválido y total "—" / subtotal de $700.000, total de $860.000 y alerta de presupuesto superado |
+| Nombre de evento vacío + submit | `is-invalid`, mensaje del modelo, botón deshabilitado y foco en `#nombre-evento` |
+| Evento válido con presupuesto de $1.000.000 | Confirmación y alerta recalculada con el nuevo límite |
+| Alta de un invitado con `<b>` en el nombre | Se muestra como texto (0 etiquetas `<b>` en el DOM) |
+| Confirmar / eliminar desde la tabla | Métricas actualizadas y foco devuelto a la fila |
+| Recarga de la página | Se restauran el nombre, el tipo, el presupuesto, las cantidades y los invitados |
+| `grep -nE "prompt\(\|alert\(\|confirm\(" js/script.js` | 0 coincidencias |
+
+### 5. Criterios de Aceptación (cierre)
+
+#### Eliminación de pop-ups
+- [x] `js/script.js` no contiene `prompt()`, `alert()` ni `confirm()`.
+- [x] Se eliminaron `iniciarMenuPrincipal()`, `iniciarMenuAlTerminarCarga()`, `quiereReintentar()` y `describirIngreso()`.
+- [x] Todos los mensajes al usuario se muestran en el DOM (`#aviso-app`, `#confirmacion-evento`, `#alerta-presupuesto`, `#catalogo-vacio`, `#feedback-invitados`).
+
+#### Flujo 1: Crear evento
+- [x] `#form-evento` usa `submit` con `preventDefault()` y la página no se recarga.
+- [x] Los campos con datos inválidos se marcan con `is-invalid`, muestran el mensaje en `.invalid-feedback` y el foco va al primer error.
+- [x] Con datos válidos se crea un `Evento`, se persiste con `Almacenamiento` y se confirma en `#confirmacion-evento`.
+- [x] El Flujo 2 usa el nuevo presupuesto estimado.
+
+#### Flujo 2: Calcular presupuesto
+- [x] Los cambios de cantidad y de descuento recalculan en vivo mediante un listener `input` delegado en `#form-presupuesto`.
+- [x] Todos los montos salen de `ItemContratado` y `Presupuesto`, y el exceso sale de `Evento.superaPresupuesto()`.
+- [x] Se muestran el subtotal de cada fila, el subtotal general y el total con descuento.
+- [x] `#alerta-presupuesto` indica si se supera o no el presupuesto estimado.
+- [x] Un descuento fuera de 0–100 o una cantidad inválida marcan el campo y deshabilitan `#btn-calcular-presupuesto`.
+
+#### Flujo 3: Buscar en catálogo
+- [x] `#buscar-catalogo` filtra en tiempo real con el evento `input`.
+- [x] `#categoria-catalogo` filtra por categoría y se combina con el texto.
+- [x] Las tarjetas se muestran u ocultan, se actualiza `#contador-catalogo` y, si no hay coincidencias, aparece `#catalogo-vacio`.
+- [x] La búsqueda no distingue mayúsculas ni tildes (lo resuelve `Validador.normalizarTexto()`).
+
+#### Flujo 4: Gestionar invitados
+- [x] `#form-invitado` agrega un invitado, lo persiste y lo muestra en `#lista-invitados` sin recargar.
+- [x] Los botones Confirmar, Marcar pendiente y Eliminar funcionan también en las filas agregadas después de la carga.
+- [x] Las métricas de `ListaInvitados.contarAsistencia()` se actualizan después de cada cambio.
+- [x] Al recargar, los invitados se restauran desde el almacenamiento.
+
+#### Validación en tiempo real
+- [x] Los campos se validan en `input` / `change` / `blur` y alternan `is-valid` / `is-invalid`.
+- [x] Los campos no tocados no muestran errores.
+- [x] Los botones de envío se deshabilitan mientras haya errores.
+- [x] Los campos inválidos tienen `aria-invalid="true"` y su mensaje está vinculado con `aria-describedby`.
+
+#### Manipulación dinámica del DOM
+- [x] Las filas de invitados y los mensajes se crean con `createElement` y `textContent`.
+- [x] No se usa `innerHTML`.
+- [x] `#lista-invitados` se vacía y se reconstruye con `replaceChildren()` y un `DocumentFragment`.
+
+#### Delegación de eventos
+- [x] `#lista-invitados` tiene un único listener `click`, que identifica la acción con `closest("button[data-accion]")`.
+- [x] `#form-presupuesto` tiene un único listener `input` para todas las cantidades y el descuento.
+- [x] No hay atributos `on*` inline ni asignaciones `elemento.onX =`.
+
+#### Patrón y desacoplamiento de reglas de negocio
+- [x] A nivel global solo se ejecuta `document.addEventListener("DOMContentLoaded", configurarEventos)`; el resto son declaraciones de constantes y funciones.
+- [x] `js/script.js` no tiene reglas de validación propias, cálculos de montos ni accesos directos a `localStorage`.
+- [x] `configurarEventos()` avisa en la interfaz si faltan las clases del dominio o el almacenamiento.
+- [x] Los IDs de `index.html` coinciden con los que usa `js/script.js`.
+
+#### Documentación
+- [x] Esta sección AL CERRAR registra el prompt, el fragmento de código, los ajustes y la verificación.
+
+#### Pendientes de otros roles (bloquean la integración en `develop`)
+- [ ] Mergear el PR #102 (`js/models/`) en `develop`.
+- [ ] Crear `js/utils/storage.js` con el contrato `Almacenamiento.guardar` / `Almacenamiento.cargar`.
+- [ ] Adaptar `js/test/script.spec.js` y `js/test/test-runner.html` a las clases de `js/models/` (rol Tester QA).
+- [ ] Agregar al modelo un método para el saldo disponible y conectar el Resumen Financiero.
