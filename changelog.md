@@ -2,6 +2,9 @@
 
 ## [Unreleased]
 
+### Added
+- [feature/dev-eventos-dom] feature/dev-eventos-dom: [Dev Eventos + DOM] Refactorización de script.js como controlador, eventos y DOM para PlanIT - AO4 PR: [#104](https://github.com/carolabenvenuto-uces/planit/pull/104) | Issue: [#103](https://github.com/carolabenvenuto-uces/planit/issues/103) - @ValeriaMSilva (Desarrollador JS Eventos + DOM)
+
 ## [Release Tercera Entrega] - 2026-11-01
 
 ### Added
