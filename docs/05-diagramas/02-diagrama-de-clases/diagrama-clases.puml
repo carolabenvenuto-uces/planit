@@ -1,0 +1,110 @@
+@startuml diagrama-clases
+title Diagrama de Clases - PlanIT (Actividad Obligatoria N° 4)
+
+skinparam classAttributeIconSize 0
+skinparam linetype ortho
+hide empty members
+
+class Validador <<utilidad>> {
+  {static} + esTextoNoVacio(valor : any) : boolean
+  {static} + convertirANumero(valor : any) : number
+  {static} + normalizarTexto(texto : any) : string
+  {static} + buscarOpcion(opciones : string[], valor : any) : string
+}
+
+class Evento {
+  - nombre : string
+  - tipo : string
+  - presupuestoEstimado : number
+  - presupuesto : Presupuesto
+  - invitados : ListaInvitados
+  {static} + TIPOS : string[]
+  + Evento(nombre : string, tipo : string, presupuestoEstimado : number)
+  {static} + validarDatos(nombre : any, tipo : any, presupuesto : any) : string[]
+  + superaPresupuesto(porcentajeDescuento : number = 0) : boolean
+  + toJSON() : Object
+  {static} + fromJSON(json : Object) : Evento
+}
+
+class Presupuesto {
+  - items : ItemContratado[]
+  + Presupuesto()
+  + agregarItem(item : ItemContratado) : ItemContratado
+  + eliminarItem(indice : number) : ItemContratado
+  + calcularTotal() : number
+  + aplicarDescuento(porcentaje : number) : number
+  + superaLimite(limite : number) : boolean
+  + toJSON() : Object
+  {static} + fromJSON(json : Object) : Presupuesto
+}
+
+class ItemContratado {
+  - categoria : string
+  - descripcion : string
+  - cantidad : number
+  - precioUnitario : number
+  + ItemContratado(categoria : string, descripcion : string, cantidad : number, precioUnitario : number)
+  + calcularSubtotal() : number
+  + toJSON() : Object
+  {static} + fromJSON(json : Object) : ItemContratado
+}
+
+class ListaInvitados {
+  - invitados : Invitado[]
+  + ListaInvitados()
+  + agregar(nombre : string, estado : string) : Invitado
+  + eliminar(nombre : string) : boolean
+  + contarAsistencia() : Object
+  + toJSON() : Object
+  {static} + fromJSON(json : Object) : ListaInvitados
+}
+
+class Invitado {
+  - nombre : string
+  - estado : string
+  {static} + ESTADOS : string[]
+  + Invitado(nombre : string, estado : string)
+  {static} + validar(nombre : any, estado : any) : string[]
+  + esConfirmado() : boolean
+  + cambiarEstado(estado : string) : void
+  + toJSON() : Object
+  {static} + fromJSON(json : Object) : Invitado
+}
+
+class CatalogoProveedores {
+  - proveedores : Proveedor[]
+  + CatalogoProveedores()
+  + agregarProveedor(proveedor : Proveedor) : Proveedor
+  + buscar(criterio : string) : Proveedor[]
+  + toJSON() : Object
+  {static} + fromJSON(json : Object) : CatalogoProveedores
+}
+
+class Proveedor {
+  - nombre : string
+  - categoria : string
+  - precio : number
+  - unidad : string
+  + Proveedor(nombre : string, categoria : string, precio : number, unidad : string)
+  + coincideCon(criterio : string) : boolean
+  + toJSON() : Object
+  {static} + fromJSON(json : Object) : Proveedor
+}
+
+Evento "1" *-- "1" Presupuesto : compone
+Evento "1" *-- "1" ListaInvitados : compone
+Presupuesto "1" *-- "0..*" ItemContratado : contiene
+ListaInvitados "1" *-- "0..*" Invitado : contiene
+CatalogoProveedores "1" o-- "0..*" Proveedor : agrupa
+
+Evento ..> Validador : usa
+Invitado ..> Validador : usa
+ItemContratado ..> Validador : usa
+Presupuesto ..> Validador : usa
+ListaInvitados ..> Validador : usa
+Proveedor ..> Validador : usa
+CatalogoProveedores ..> Validador : usa
+
+note "Los atributos privados (#) se exponen\ncon getters de solo lectura. Los getters\nde colecciones devuelven copias." as N1
+
+@enduml
