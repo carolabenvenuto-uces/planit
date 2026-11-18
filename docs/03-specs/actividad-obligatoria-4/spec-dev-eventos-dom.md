@@ -6,6 +6,8 @@
 - **Rol:** Desarrollador JS Eventos + DOM
 - **Responsable:** Valeria Silva (@ValeriaMSilva)
 - **Rama:** `feature/dev-eventos-dom`
+- **Issue principal:** [#103](https://github.com/carolabenvenuto-uces/planit/issues/103)
+- **Pull Request:** [#104](https://github.com/carolabenvenuto-uces/planit/pull/104) hacia `develop`
 - **Archivo a refactorizar:** `js/script.js`
 - **Fecha:** 16 de noviembre de 2026
 
@@ -472,7 +474,7 @@ Se abrió `index.html` en Chrome headless con los modelos del PR #102 y un `stor
 - [x] Esta sección AL CERRAR registra el prompt, el fragmento de código, los ajustes y la verificación.
 
 #### Pendientes de otros roles (bloquean la integración en `develop`)
-- [ ] Mergear el PR #102 (`js/models/`) en `develop`.
+- [x] Mergear el PR #102 (`js/models/`) en `develop` (integrado en esta rama con el merge `c3fa07e`).
 - [ ] Crear `js/utils/storage.js` con el contrato `Almacenamiento.guardar` / `Almacenamiento.cargar`.
 - [ ] Adaptar `js/test/script.spec.js` y `js/test/test-runner.html` a las clases de `js/models/` (rol Tester QA).
 - [ ] Agregar al modelo un método para el saldo disponible y conectar el Resumen Financiero.
