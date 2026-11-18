@@ -209,13 +209,9 @@ function leerDelAlmacenamiento(clave) {
  */
 function escribirEnAlmacenamiento(ui, clave, valor) {
     if (!almacenamientoDisponible()) return false;
-    try {
-        Almacenamiento.guardar(clave, valor);
-        return true;
-    } catch (error) {
-        renderAvisoGlobal(ui, "No se pudieron guardar los cambios: " + error.message);
-        return false;
-    }
+    const guardado = Almacenamiento.guardar(clave, valor);
+    if (!guardado) renderAvisoGlobal(ui, "No se pudieron guardar los cambios.");
+    return guardado;
 }
 
 /** Persiste el evento actual (con su presupuesto e invitados). */
