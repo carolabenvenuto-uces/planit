@@ -4,6 +4,7 @@
 
 ### Added
 - [feature/dev-poo-logica-negocio] feature/dev-poo-logica-negocio: [DEV POO] Clases del dominio en js/models/ y diagrama de clases - AO4 PR: [#102](https://github.com/carolabenvenuto-uces/planit/pull/102) | Issue: [#101](https://github.com/carolabenvenuto-uces/planit/issues/101) - @carolabenvenuto-uces (Desarrolladora JS POO - Lógica de Negocio)
+- [feature/dev-storage] feature/dev-storage: [DEV STORAGE] Capa de abstracción Local/Session Storage (js/utils/storage.js) - AO4 PR: [#108](https://github.com/carolabenvenuto-uces/planit/pull/108) | Issue: [#107](https://github.com/carolabenvenuto-uces/planit/issues/107) - @FacundoGuiraldes (Coordinador/DevOps + Tester QA + Desarrollador JS Storage)
 
 ## [Release Tercera Entrega] - 2026-11-01
 
