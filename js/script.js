@@ -64,24 +64,6 @@ const estadoApp = {
     catalogo: null,          // Instancia de CatalogoProveedores
     tarjetasCatalogo: new Map() // Proveedor -> nodo de la tarjeta en el DOM
 };
-/** Catálogo de proveedores del mockup aprobado. */
-const catalogoProveedores = [
-    new Proveedor("Gourmet Finger Food", "Catering", 3500, "pax"),
-    new Proveedor("Flores Pilar", "Decoración", 70000, "base"),
-    new Proveedor("DJ Lucas & Sonido", "Sonido", 8000, "hora")
-];
-
-/** Invitados de ejemplo de la sección Invitados del mockup. */
-let invitados = [
-    { nombre: "Sofía Rodríguez", estado: "Confirmado" },
-    { nombre: "Mateo González", estado: "Confirmado" },
-    { nombre: "Valentina Benítez", estado: "Pendiente" },
-    { nombre: "Bautista Martínez", estado: "Confirmado" },
-    { nombre: "Santiago Díaz", estado: "Pendiente" }
-];
-
-/** Eventos creados en el Flujo 1 (inicia vacía). */
-let eventos = [];
 
 /* ==========================================================================
    2. PUNTO DE ENTRADA
