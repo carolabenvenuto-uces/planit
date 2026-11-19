@@ -60,4 +60,32 @@ Se utilizará **Claude (Anthropic)** para los code reviews, con acceso de lectur
 
 ## MOMENTO 2: Evidencia de Cierre (AL FINALIZAR)
 
-*(Pendiente — se completa al cerrar la coordinación de la AO4, con los prompts exactos de cada code review, qué se validó en cada uno, y los obstáculos encontrados.)*
+*(Sección en construcción: se completa íntegramente al cerrar la coordinación de la AO4. Los code reviews se documentan a medida que se publican, con el prompt utilizado cuando corresponde, qué se validó y los hallazgos. El resto — Kanban, limpieza de ramas, GitHub Pages, tag/release, obstáculos generales — se completa al final.)*
+
+### Code reviews realizados
+
+#### Review — PR #102 (Dev POO)
+- **Veredicto:** `APPROVE`.
+- **Qué se validó:** las 8 clases de `js/models/` contra el diagrama de clases aprobado, presencia de `toJSON()`/`static fromJSON()` en cada una (requisito para la serialización de `feature/dev-storage`), y corrida de los tests existentes antes de aprobar.
+
+#### Review 1/3 — PR #104 (Eventos + DOM), ronda 1
+- **Veredicto:** `CHANGES_REQUESTED`.
+- **Hallazgo:** desacople de contrato entre `escribirEnAlmacenamiento()` (asumía que `Almacenamiento.guardar()` lanza una excepción en caso de fallo) y la implementación real de `Almacenamiento.guardar()` en `feature/dev-storage` (nunca lanza; devuelve `boolean`). Un fallo de guardado real pasaría inadvertido para la usuaria.
+- **Nota:** esta ronda se ejecutó de forma conversacional con el asistente, sin un prompt único redactado por escrito de antemano; a partir de la ronda 2 se documenta el prompt exacto antes de ejecutar la revisión.
+
+#### Review 2/3 — PR #104 (Eventos + DOM), ronda 2
+- **Prompt utilizado:**
+  > Actuás como Coordinador/DevOps de PlanIT haciendo code review de la PR #104 (`feature/dev-eventos-dom` → `develop`, autora: Valeria Silva). En la ronda anterior se publicó `CHANGES_REQUESTED` por un desacople de contrato entre `escribirEnAlmacenamiento()` y `Almacenamiento.guardar()` (ronda 1). Valeria pusheó el commit `fb04e75` como corrección.
+  >
+  > Tareas:
+  > 1. Leer el diff exacto de `fb04e75` sobre `js/script.js` y confirmar que `escribirEnAlmacenamiento()` ahora respeta el contrato real de `Almacenamiento.guardar()` (devuelve `boolean`, nunca lanza), en lugar de asumir que lanza una excepción.
+  > 2. Verificar el fix empíricamente, no solo por lectura de código: integrar `feature/dev-storage` sobre `feature/dev-eventos-dom` actualizado, cargar el `index.html` real en un navegador headless, y forzar el caso de fallo (`Almacenamiento.guardar` devolviendo `false`) para confirmar que el aviso global se muestra correctamente, y el caso normal para confirmar que no aparecen avisos espurios.
+  > 3. Dado que ya están integradas las clases de `js/models/` (PR #102, mergeada), revisar si el controlador de la PR #104 tiene algún otro defecto de integración con esas clases, más allá del ya corregido. Priorizar flujos de uso real (alta/baja/edición de invitados, búsqueda de catálogo) sobre lectura superficial del diff.
+  > 4. Si se encuentra un defecto nuevo, reproducirlo de punta a punta contra el `index.html` real (no mockear `ListaInvitados` ni el DOM) antes de reportarlo, y proponer una corrección concreta.
+  > 5. Redactar el resultado como un GitHub Pull Request Review: si el fix de la ronda 1 es correcto pero aparece un defecto nuevo igual de concreto, el veredicto es `REQUEST_CHANGES` (no `APPROVE` todavía), documentando ambas cosas: qué se validó del fix anterior y el detalle completo del nuevo hallazgo (ubicación, causa raíz, reproducción, impacto, sugerencia de fix).
+- **Veredicto:** `CHANGES_REQUESTED` ([review publicada](https://github.com/carolabenvenuto-uces/planit/pull/104#pullrequestreview-5967498077)).
+- **Qué se validó:** el fix del commit `fb04e75` es correcto — se comprobó con Playwright sobre el `index.html` real (integrado con `feature/dev-storage`), forzando `Almacenamiento.guardar` a devolver `false` y confirmando que el aviso global se muestra, y que el caso normal no genera avisos espurios.
+- **Hallazgo nuevo:** mezcla de invitados con nombre duplicado. `manejarAccionInvitado()`/`buscarInvitado()` resuelven el invitado por nombre en lugar de por un identificador estable, y `ListaInvitados.eliminar()` (PR #102) siempre afecta a la primera coincidencia por nombre. Reproducido con Playwright: al agregar dos invitados "Juan Perez" (uno Pendiente, otro Confirmado) y eliminar la fila "Confirmado", se elimina el invitado equivocado.
+- **Progreso hacia el mínimo de la consigna:** 2/4 code reviews con `CHANGES_REQUESTED` documentados.
+
+*(Rondas siguientes de PR #104, reviews de `feature/dev-storage` y de `feature/tester-qa-specs`, y el resto de los ítems del checklist de MOMENTO 1: pendientes de documentar al cerrar.)*
