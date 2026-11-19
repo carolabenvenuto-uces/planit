@@ -261,6 +261,25 @@
   cursor: not-allowed;
 }
 
+/* Validación en tiempo real (AO4): js/script.js agrega .is-valid / .is-invalid.
+   Bootstrap solo estiliza .form-control, por eso se extiende a los campos propios. */
+.form-group input.is-invalid,
+.form-group select.is-invalid {
+  border-color: var(--bs-form-invalid-border-color);
+}
+
+.form-group input.is-valid,
+.form-group select.is-valid {
+  border-color: var(--bs-form-valid-border-color);
+}
+
+.data-table .input-cantidad,
+.data-table #descuento-presupuesto {
+  display: inline-block;
+  width: 6rem;
+  text-align: right;
+}
+
 /* --------------------------------------------------------------------------
    5. TABLAS DE DATOS (Presupuesto e Invitados)
    Encapsuladas en .data-table para no afectar tablas futuras.
