@@ -857,31 +857,34 @@ function manejarSubmitInvitado(evento, ui) {
 
 /**
  * Handler delegado de la tabla de invitados. Identifica la acción por
- * data-accion y al invitado por el data-nombre de la fila.
+ * data-accion y al invitado por el data-indice de la fila, de modo que
+ * dos invitados con el mismo nombre se distinguen sin ambigüedad.
  */
 function manejarAccionInvitado(evento, ui) {
     const boton = evento.target.closest("button[data-accion]");
     if (!boton || !ui.listaInvitados.contains(boton)) return;
 
-    const fila = boton.closest("tr[data-nombre]");
+    const fila = boton.closest("tr[data-indice]");
     if (!fila) return;
-    const nombre = fila.dataset.nombre;
+    const indice = parseInt(fila.dataset.indice, 10);
     const lista = estadoApp.evento.invitados;
+    const accion = boton.dataset.accion;
+    let nombre;
 
     try {
-        switch (boton.dataset.accion) {
+        const invitado = buscarInvitado(lista, indice);
+        nombre = invitado.nombre;
+        switch (accion) {
             case "confirmar":
-                buscarInvitado(lista, nombre).cambiarEstado("Confirmado");
+                invitado.cambiarEstado("Confirmado");
                 renderMensaje(ui.feedbackInvitados, "exito", nombre + " confirmó su asistencia.");
                 break;
             case "pendiente":
-                buscarInvitado(lista, nombre).cambiarEstado("Pendiente");
+                invitado.cambiarEstado("Pendiente");
                 renderMensaje(ui.feedbackInvitados, "exito", nombre + " volvió a estado pendiente.");
                 break;
             case "eliminar":
-                if (!lista.eliminar(nombre)) {
-                    throw new Error("No se encontró a " + nombre + " en la lista.");
-                }
+                eliminarInvitadoPorIndice(lista, indice);
                 renderMensaje(ui.feedbackInvitados, "exito", "Se eliminó a " + nombre + " de la lista.");
                 break;
             default:
@@ -894,20 +897,33 @@ function manejarAccionInvitado(evento, ui) {
 
     persistirEvento(ui);
     renderInvitados(ui);
-    enfocarFilaInvitado(ui, nombre);
+    enfocarFilaInvitado(ui, accion === "eliminar" ? null : indice);
 }
 
 /**
- * Devuelve la instancia del invitado mostrada en la fila. El nombre del
- * data-nombre sale del propio modelo, por eso la comparación es exacta.
+ * Devuelve la instancia del invitado mostrada en la fila según su posición
+ * en la lista (el data-indice sale del propio render del modelo).
  * @returns {Invitado}
  */
-function buscarInvitado(lista, nombre) {
-    const invitado = lista.invitados.find((item) => item.nombre === nombre);
+function buscarInvitado(lista, indice) {
+    const invitado = Number.isInteger(indice) ? lista.invitados[indice] : undefined;
     if (!invitado) {
-        throw new Error("No se encontró a " + nombre + " en la lista.");
+        throw new Error("No se encontró al invitado seleccionado en la lista.");
     }
     return invitado;
+}
+
+/**
+ * Elimina exactamente al invitado de la posición indicada. ListaInvitados solo
+ * expone eliminar(nombre), que borra la primera coincidencia; por eso se vacía
+ * la lista y se reconstruye en el mismo orden omitiendo esa posición.
+ */
+function eliminarInvitadoPorIndice(lista, indice) {
+    const actuales = lista.invitados;
+    actuales.forEach((invitado) => lista.eliminar(invitado.nombre));
+    actuales.forEach((invitado, posicion) => {
+        if (posicion !== indice) lista.agregar(invitado.nombre, invitado.estado);
+    });
 }
 
 /** Re-renderiza la tabla de invitados y las métricas de asistencia. */
@@ -915,7 +931,7 @@ function renderInvitados(ui) {
     const lista = estadoApp.evento.invitados;
     const fragmento = document.createDocumentFragment();
 
-    lista.invitados.forEach((invitado) => fragmento.append(crearFilaInvitado(invitado)));
+    lista.invitados.forEach((invitado, indice) => fragmento.append(crearFilaInvitado(invitado, indice)));
 
     if (lista.invitados.length === 0) {
         const filaVacia = crearElemento("tr");
@@ -936,9 +952,10 @@ function renderInvitados(ui) {
  * Se usa textContent para que ningún dato ingresado se interprete como HTML.
  * @returns {HTMLTableRowElement}
  */
-function crearFilaInvitado(invitado) {
+function crearFilaInvitado(invitado, indice) {
     const fila = crearElemento("tr");
     fila.dataset.nombre = invitado.nombre;
+    fila.dataset.indice = String(indice);
 
     const celdaNombre = crearElemento("th", { texto: invitado.nombre, atributos: { scope: "row" } });
 
@@ -988,9 +1005,8 @@ function renderMetricasInvitados(ui, lista) {
 }
 
 /** Devuelve el foco a la fila modificada (o al formulario si se eliminó). */
-function enfocarFilaInvitado(ui, nombre) {
-    const fila = Array.from(ui.listaInvitados.querySelectorAll("tr[data-nombre]"))
-        .find((item) => item.dataset.nombre === nombre);
+function enfocarFilaInvitado(ui, indice) {
+    const fila = indice === null ? null : ui.listaInvitados.querySelector('tr[data-indice="' + indice + '"]');
     const destino = fila ? fila.querySelector("button[data-accion]") : ui.nombreInvitado;
     if (destino) destino.focus();
 }
