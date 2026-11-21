@@ -88,4 +88,19 @@ Se utilizará **Claude (Anthropic)** para los code reviews, con acceso de lectur
 - **Hallazgo nuevo:** mezcla de invitados con nombre duplicado. `manejarAccionInvitado()`/`buscarInvitado()` resuelven el invitado por nombre en lugar de por un identificador estable, y `ListaInvitados.eliminar()` (PR #102) siempre afecta a la primera coincidencia por nombre. Reproducido con Playwright: al agregar dos invitados "Juan Perez" (uno Pendiente, otro Confirmado) y eliminar la fila "Confirmado", se elimina el invitado equivocado.
 - **Progreso hacia el mínimo de la consigna:** 2/4 code reviews con `CHANGES_REQUESTED` documentados.
 
-*(Rondas siguientes de PR #104, reviews de `feature/dev-storage` y de `feature/tester-qa-specs`, y el resto de los ítems del checklist de MOMENTO 1: pendientes de documentar al cerrar.)*
+#### Review 3/4 — PR #104 (Eventos + DOM), ronda 3
+- **Prompt utilizado:**
+  > Actuás como Coordinador/DevOps de PlanIT haciendo code review de la PR #104. En la ronda anterior se publicó `CHANGES_REQUESTED` por una mezcla de invitados con nombre duplicado (resolución por nombre en lugar de por posición/id). Valeria pusheó el commit `5479820` como corrección.
+  >
+  > Tareas:
+  > 1. Leer el diff exacto de `5479820` y confirmar que las acciones de la tabla de invitados (confirmar, marcar pendiente, eliminar) ahora se resuelven por `data-indice` (posición en `lista.invitados`) en vez de por nombre, y que `eliminarInvitadoPorIndice()` reconstruye la lista correctamente dado que `ListaInvitados.eliminar(nombre)` solo borra la primera coincidencia.
+  > 2. Verificar el fix empíricamente con Playwright sobre el `index.html` real: agregar varios invitados con nombres duplicados en distintas posiciones, aplicar una acción sobre una posición específica y confirmar que las demás posiciones (incluida la del mismo nombre) no se ven afectadas, y que tras eliminar una posición el resto se reindexa preservando orden y estado.
+  > 3. Correr la suite existente (`js/test/run-jasmine.js`) sobre la integración y confirmar que no hay regresiones nuevas más allá de las specs legacy ya conocidas (pendientes del refactor de `script.spec.js` de Tester QA).
+  > 4. Revisar si queda algún otro defecto de integración entre el controlador de la PR #104 y las clases de `js/models/` (PR #102, ya mergeada), más allá de los dos ya corregidos, priorizando flujos de uso real sobre lectura superficial del diff.
+  > 5. Si se encuentra un defecto nuevo, reproducirlo de punta a punta contra el `index.html` real antes de reportarlo, y proponer una corrección concreta. Redactar el resultado como GitHub Pull Request Review: `REQUEST_CHANGES` si aparece un hallazgo igual de concreto que el de las rondas anteriores (documentando también la validación del fix previo), o `APPROVE` si no se encuentra ninguno.
+- **Veredicto:** `CHANGES_REQUESTED` ([review publicada](https://github.com/carolabenvenuto-uces/planit/pull/104#pullrequestreview-6007620609)).
+- **Qué se validó:** el fix del commit `5479820` es correcto — verificado con Playwright con tres invitados incluyendo dos "Juan Perez" en distintas posiciones: marcar pendiente una posición específica no afecta a la otra con el mismo nombre, y eliminar una posición reindexa correctamente al resto. Sin regresiones nuevas en la suite existente.
+- **Hallazgo nuevo:** el filtro por categoría del catálogo (`obtenerResultadosCatalogo()`) reutiliza `Proveedor.coincideCon()` (pensado para búsqueda libre por nombre o categoría) en lugar de comparar `categoria` por igualdad exacta. No se manifiesta con los 3 proveedores fijos del mockup, pero es un defecto real y reproducible en un catálogo extensible (requisito explícito de la consigna): se probó agregando un 4° proveedor hipotético ("Catering Beats Sonido Movil", categoría real "Sonido"), que aparece incorrectamente al filtrar por categoría "Catering".
+- **Progreso hacia el mínimo de la consigna:** 3/4 code reviews con `CHANGES_REQUESTED` documentados.
+
+*(Ronda 4 de PR #104 (si corresponde), reviews de `feature/dev-storage` y de `feature/tester-qa-specs`, y el resto de los ítems del checklist de MOMENTO 1: pendientes de documentar al cerrar.)*
