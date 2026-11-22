@@ -6,6 +6,9 @@
 - [feature/dev-eventos-dom] feature/dev-eventos-dom: [Dev Eventos + DOM] Refactorización de script.js como controlador, eventos y DOM para PlanIT - AO4 PR: [#104](https://github.com/carolabenvenuto-uces/planit/pull/104) | Issue: [#103](https://github.com/carolabenvenuto-uces/planit/issues/103) - @ValeriaMSilva (Desarrollador JS Eventos + DOM)
 - [feature/dev-poo-logica-negocio] feature/dev-poo-logica-negocio: [DEV POO] Clases del dominio en js/models/ y diagrama de clases - AO4 PR: [#102](https://github.com/carolabenvenuto-uces/planit/pull/102) | Issue: [#101](https://github.com/carolabenvenuto-uces/planit/issues/101) - @carolabenvenuto-uces (Desarrolladora JS POO - Lógica de Negocio)
 
+### Fixed
+- [fix/rc-issue68-migrar-modal-toast] fix(rc-issue68): migrar Modal de detalle y Toast a js/script.js PR: [#109](https://github.com/carolabenvenuto-uces/planit/pull/109) | Issue: [#68](https://github.com/carolabenvenuto-uces/planit/issues/68) - @FacundoGuiraldes (Coordinador / DevOps + Tester QA + Desarrollador JS Storage)
+
 ## [Release Tercera Entrega] - 2026-11-01
 
 ### Added
