@@ -19,41 +19,50 @@ Reducir la fragmentación al planificar reuniones y festejos. Busca ofrecer un s
 - HTML5 Semántico
 - CSS3 (variables, Flexbox, Grid y Media Queries: `styles.css`, `components.css`, `responsive.css`)
 - Bootstrap 5 (CDN jsDelivr) con identidad visual centralizada en `bootstrap-overrides.css`
-- JavaScript (lógica de negocio con `prompt()`, `alert()` y `console.log()`, sin manipulación del DOM en esta etapa)
+- JavaScript orientado a objetos (clases del dominio en `js/models/`: `Evento`, `Presupuesto`, `ItemContratado`, `Invitado`, `ListaInvitados`, `Proveedor`, `CatalogoProveedores`, `Validador`) con un controlador de UI y eventos en `js/script.js` (sin `prompt()`/`alert()`: toda la entrada es por formularios y toda la salida se muestra en el DOM)
+- Persistencia con `localStorage`/`sessionStorage` encapsulada en `js/utils/storage.js` (objeto global `Almacenamiento`)
 - Jasmine 5.10 (testing unitario en navegador vía CDN)
-- PlantUML (diagramas de actividades)
+- PlantUML (diagramas de actividades y de clases)
 - Git & GitHub (GitFlow, GitHub Projects y GitHub Pages)
 - Playwright MCP y GitHub MCP (testing automatizado y registro de issues)
 
-🚀 **Sitio publicado (GitHub Pages):** [carolabenvenuto-uces.github.io/planit](https://carolabenvenuto-uces.github.io/planit/) — publicado desde `develop` hasta la creación de `release/tercera-entrega`, rama desde la que se publica la versión entregable de la Actividad Obligatoria N°3.
+🚀 **Sitio publicado (GitHub Pages):** [carolabenvenuto-uces.github.io/planit](https://carolabenvenuto-uces.github.io/planit/) — publicado desde `develop` hasta la creación de `release/cuarta-entrega`, rama desde la que se publica la versión entregable de la Actividad Obligatoria N°4.
 
-✨ **Funcionalidades Previstas**
-- Formulario de alta y personalización de eventos.
-- Calculadora y tabla dinámica de presupuesto integrado.
-- Gestor de invitados con control de estados de confirmación.
-- Catálogo interactivo y buscador con filtros de proveedores y plancitos.
+✨ **Funcionalidades**
+- Formulario de alta y personalización de eventos, con validación en vivo y persistencia.
+- Calculadora y tabla dinámica de presupuesto integrado, con alerta de presupuesto excedido.
+- Gestor de invitados con control de estados de confirmación y persistencia entre sesiones.
+- Catálogo interactivo y buscador con filtros de proveedores y plancitos por texto y por categoría.
 
-> En la Actividad Obligatoria N°3, estas funcionalidades se implementan como lógica de negocio en `js/script.js` (crear evento, calcular presupuesto, buscar en catálogo y gestionar invitados). Su integración con la interfaz mediante DOM y eventos queda para las próximas entregas.
+> En la Actividad Obligatoria N°4, los 4 flujos de la AO3 se reimplementan sobre un modelo de dominio orientado a objetos (`js/models/`) e interactividad real por DOM y eventos en `js/script.js`, con persistencia entre sesiones delegada en `js/utils/storage.js`. Se eliminan `prompt()`/`alert()`/`console.log()` como mecanismo de entrada/salida.
 
 ---
 
 🎯 **Objetivo del entregable**
 
-- **Actividad Obligatoria N°3 (actual):** Integrar la lógica de negocio del simulador en JavaScript mediante algoritmos, funciones, arrays y objetos. Se implementan 4 flujos de trabajo (crear evento, calcular presupuesto, buscar en catálogo y gestionar invitados) con el patrón entrada → proceso → salida, navegables desde un menú con `prompt()`, modelados previamente en diagramas de actividades con PlantUML y validados con tests automatizados en Jasmine, ejecutados en navegador con Playwright MCP.
+- **Actividad Obligatoria N°4 (actual):** Reemplazar la lógica de negocio procedural de la AO3 por un modelo de dominio orientado a objetos (8 clases en `js/models/`, con `toJSON()`/`fromJSON()` para serialización) y por un controlador de UI y eventos real en `js/script.js` que manipula el DOM a partir de formularios, sin ventanas emergentes (`prompt()`/`alert()`/`confirm()`). Se agrega persistencia entre sesiones con `localStorage`/`sessionStorage` (`js/utils/storage.js`). Por ser un grupo de 3 integrantes, el rol Coordinador/DevOps absorbe también las tareas de Tester QA y de Desarrollador JS Storage.
+- **Actividad Obligatoria N°3:** Integrar la lógica de negocio del simulador en JavaScript mediante algoritmos, funciones, arrays y objetos. Se implementan 4 flujos de trabajo (crear evento, calcular presupuesto, buscar en catálogo y gestionar invitados) con el patrón entrada → proceso → salida, navegables desde un menú con `prompt()`, modelados previamente en diagramas de actividades con PlantUML y validados con tests automatizados en Jasmine, ejecutados en navegador con Playwright MCP.
 - **Primer Parcial:** Migrar el sitio a Bootstrap 5 (CDN jsDelivr) usando el sistema de columnas para mejorar la responsividad móvil, centralizar la identidad visual en `css/bootstrap-overrides.css`, incorporar al menos dos componentes avanzados de Bootstrap y dos componentes avanzados de HTML (`<iframe>` con helper `ratio` y `<details>/<summary>`), y validarlos con test cases automatizados (6 a 10) mediante Playwright MCP, registrando los hallazgos como issues con GitHub MCP.
 - **Actividad Obligatoria N°2:** Incorporar estilos visuales con CSS organizados por responsabilidad (`styles.css`, `components.css` y `responsive.css`) a partir del mockup actualizado en Figma, implementar un diseño responsive mobile-first con Flexbox/Grid y Media Queries sin overflow horizontal, y validar el sitio mediante 5 test cases automatizados con Playwright MCP, registrando los hallazgos como issues con GitHub MCP.
 - **Actividad Obligatoria N°1:** Establecer la estructura base y el maquetado inicial en HTML5 semántico de la plataforma. Este entregable sienta las bases organizativas del repositorio bajo la metodología Spec-Driven Development (SDD), incluyendo la especificación maestra (`plan.md`), la documentación de prompts de IA, el diseño del mockup y las reglas de integración del equipo.
 
 ---
 
-🧪 **Cómo probar la Actividad Obligatoria N°3**
+🧪 **Cómo probar la Actividad Obligatoria N°4**
 
-- **Simulador:** abrir `index.html` (o el sitio publicado). Al cargar la página se muestra el menú principal con `prompt()` para elegir uno de los 4 flujos; los resultados se muestran con `alert()` y en la consola del navegador (F12 → Consola).
-- **Tests:** abrir [`js/test/test-runner.html`](js/test/test-runner.html) en el navegador. Las suites de Jasmine se ejecutan automáticamente y el menú no se inicia en el runner. Las instrucciones completas están en la [documentación de testing JavaScript](js/test/testing-doc.md).
+- **Simulador:** abrir `index.html` (o el sitio publicado). Los 4 flujos (Mi Evento, Presupuesto, Catálogo e Invitados) se usan directamente desde los formularios de cada sección; los resultados se muestran en el propio DOM (avisos, badges, tablas), sin ventanas emergentes. Los cambios persisten entre sesiones vía `localStorage`/`sessionStorage`.
+- **Tests:** abrir [`js/test/test-runner.html`](js/test/test-runner.html) en el navegador, o ejecutar `node js/test/run-jasmine.js` desde la raíz del proyecto. Las instrucciones completas están en la [documentación de testing JavaScript](js/test/testing-doc.md).
 
 ---
 
 📁 **Documentación**
+
+**Actividad Obligatoria N°4**
+- 🧩 [Diagrama de Clases (índice, PlantUML y PNG)](docs/05-diagramas/02-diagrama-de-clases/diagrama-clases-doc.md)
+- 💻 [Clases del dominio (`js/models/`)](js/models/) | [Controlador de UI y eventos (`js/script.js`)](js/script.js)
+- 📝 Specs por rol: [Coordinación / DevOps](docs/03-specs/actividad-obligatoria-4/spec-devops.md) · [Desarrolladora JS POO](docs/03-specs/actividad-obligatoria-4/spec-dev-poo.md) · [Desarrolladora JS Eventos + DOM](docs/03-specs/actividad-obligatoria-4/spec-dev-eventos-dom.md)
+- 📦 Spec de Desarrollador JS Storage y documentación de `js/utils/storage.js`: en curso (PR [#108](https://github.com/carolabenvenuto-uces/planit/pull/108), pendiente de aprobación por otro integrante antes del merge a `develop`).
+- 🧪 Spec de Tester QA y refactor de `js/test/testing-doc.md`/`script.spec.js`: en curso (Issue [#106](https://github.com/carolabenvenuto-uces/planit/issues/106)).
 
 **Actividad Obligatoria N°3**
 - 🔀 [Diagramas de Actividades (índice, PlantUML y PNG)](docs/05-diagramas/01-diagrama-de-actividades/diagramas-doc.md)
@@ -79,8 +88,8 @@ Reducir la fragmentación al planificar reuniones y festejos. Busca ofrecer un s
 
 | Nombre completo | N° de Matrícula | Usuario GitHub | Rol en esta entrega |
 | --- | --- | --- | --- |
-| Carola Benvenuto | 158686 | @carolabenvenuto-uces | Coordinadora / DevOps y Tester JavaScript / QA Engineer |
-| Valeria Silva | 156612 | @ValeriaMSilva | Arquitecta de Diagramas de Actividades |
-| Facundo Guiraldes | 114797 | @FacundoGuiraldes | Desarrollador JavaScript |
+| Carola Benvenuto | 158686 | @carolabenvenuto-uces | Desarrolladora JS POO - Lógica de Negocio |
+| Valeria Silva | 156612 | @ValeriaMSilva | Desarrolladora JS Eventos + DOM |
+| Facundo Guiraldes | 114797 | @FacundoGuiraldes | Coordinador / DevOps, Tester QA y Desarrollador JS Storage |
 
-> Grupo de 3 integrantes: según la consigna, la Coordinadora / DevOps asume también las tareas del Tester JavaScript / QA Engineer, con una rama `feature/` independiente por rol (`feature/coord-devops-tercera-entrega` y `feature/tester-javascript-jasmine`).
+> Grupo de 3 integrantes: según la consigna, el Coordinador / DevOps asume también las tareas de Tester QA y de Desarrollador JS Storage, con una rama `feature/` independiente por rol (`feature/coord-devops-cuarta-entrega`, `feature/tester-qa-specs` y `feature/dev-storage`).
