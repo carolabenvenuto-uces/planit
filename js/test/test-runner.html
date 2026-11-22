@@ -14,6 +14,104 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jasmine/5.10.0/boot1.min.js"></script>
 </head>
 <body>
+    <!--
+        Fixture de DOM para script.spec.js: subconjunto de index.html con los mismos
+        id/data-* que lee js/script.js (obtenerReferenciasUI, crearEventoDesdeMarcado,
+        construirCatalogoDesdeMarcado). No incluye el Modal de detalle ni el Toast de
+        confirmación (migrados en PR #109): configurarComponentesBootstrap() los omite
+        sin error si no existen (ver spec-tester-qa.md, MOMENTO 2, alcance de la suite).
+    -->
+    <div id="aviso-app" hidden></div>
+
+    <form id="form-evento">
+        <input id="nombre-evento" value="Casamiento de Sofi &amp; Mateo">
+        <p id="nombre-evento-error"></p>
+        <input id="fecha-evento" type="date" value="2026-11-14">
+        <p id="fecha-evento-error"></p>
+        <select id="tipo-evento">
+            <option value="">Seleccionar tipo de evento</option>
+            <option value="cumpleaños">Cumpleaños</option>
+            <option value="boda" selected>Casamiento / Boda</option>
+            <option value="salida casual">Salida casual</option>
+        </select>
+        <p id="tipo-evento-error"></p>
+        <input id="presupuesto-estimado" type="number" value="700000">
+        <p id="presupuesto-estimado-error"></p>
+        <input id="ubicacion" value="Quinta El Ombú, Pilar, Buenos Aires">
+        <p id="ubicacion-error"></p>
+        <button type="submit" id="btn-guardar-evento">Guardar Cambios</button>
+        <div id="confirmacion-evento" hidden></div>
+    </form>
+
+    <form id="form-presupuesto">
+        <table>
+            <tbody id="desglose-presupuesto">
+                <tr data-item data-categoria="Catering" data-descripcion="Finger food premium y barra libre" data-precio-unitario="3500">
+                    <td><input id="cantidad-catering" class="input-cantidad" type="number" value="120"><span id="cantidad-catering-error"></span></td>
+                    <td data-subtotal></td>
+                </tr>
+                <tr data-item data-categoria="Decoración" data-descripcion="Arreglos florales y ambientación luces" data-precio-unitario="70000">
+                    <td><input id="cantidad-decoracion" class="input-cantidad" type="number" value="1"><span id="cantidad-decoracion-error"></span></td>
+                    <td data-subtotal></td>
+                </tr>
+                <tr data-item data-categoria="Sonido" data-descripcion="DJ set completo y sonido de pista" data-precio-unitario="8000">
+                    <td><input id="cantidad-sonido" class="input-cantidad" type="number" value="6"><span id="cantidad-sonido-error"></span></td>
+                    <td data-subtotal></td>
+                </tr>
+                <tr data-item data-categoria="Fotografía" data-descripcion="Cobertura de evento y álbum digital" data-precio-unitario="32000">
+                    <td><input id="cantidad-fotografia" class="input-cantidad" type="number" value="1"><span id="cantidad-fotografia-error"></span></td>
+                    <td data-subtotal></td>
+                </tr>
+                <tr data-item data-categoria="Transporte" data-descripcion="Traslado de materiales y coordinación" data-precio-unitario="5000">
+                    <td><input id="cantidad-transporte" class="input-cantidad" type="number" value="2"><span id="cantidad-transporte-error"></span></td>
+                    <td data-subtotal></td>
+                </tr>
+            </tbody>
+        </table>
+        <span id="subtotal-presupuesto"></span>
+        <input id="descuento-presupuesto" type="number" value="0"><span id="descuento-presupuesto-error"></span>
+        <output id="total-presupuesto"></output>
+        <button type="submit" id="btn-calcular-presupuesto">Calcular presupuesto</button>
+        <div id="alerta-presupuesto" hidden></div>
+    </form>
+
+    <form id="form-catalogo" action="#">
+        <input id="buscar-catalogo" type="search">
+        <select id="categoria-catalogo">
+            <option value="" selected>Todas</option>
+            <option value="Catering">Catering</option>
+            <option value="Decoración">Decoración</option>
+            <option value="Sonido">Sonido</option>
+        </select>
+    </form>
+    <p id="contador-catalogo"></p>
+    <p id="catalogo-vacio" hidden></p>
+    <div id="contenedor-catalogo">
+        <div data-proveedor data-nombre="Gourmet Finger Food" data-categoria="Catering" data-precio="3500" data-unidad="pax"></div>
+        <div data-proveedor data-nombre="Flores Pilar" data-categoria="Decoración" data-precio="70000" data-unidad="base"></div>
+        <div data-proveedor data-nombre="DJ Lucas &amp; Sonido" data-categoria="Sonido" data-precio="8000" data-unidad="hora"></div>
+    </div>
+
+    <form id="form-invitado">
+        <input id="nombre-invitado">
+        <p id="nombre-invitado-error"></p>
+        <select id="estado-invitado">
+            <option value="Pendiente" selected>Pendiente</option>
+            <option value="Confirmado">Confirmado</option>
+        </select>
+        <p id="estado-invitado-error"></p>
+        <button type="submit" id="btn-agregar-invitado">Agregar invitado</button>
+    </form>
+    <div id="feedback-invitados" hidden></div>
+    <p id="metricas-invitados"></p>
+    <table>
+        <tbody id="lista-invitados">
+            <tr data-nombre="Sofía Rodríguez" data-estado="Confirmado"></tr>
+            <tr data-nombre="Mateo González" data-estado="Confirmado"></tr>
+            <tr data-nombre="Valentina Benítez" data-estado="Pendiente"></tr>
+        </tbody>
+    </table>
+
     <!-- Tu código fuente -->
     <script src="../models/Validador.js"></script>
     <script src="../models/ItemContratado.js"></script>
@@ -27,6 +125,8 @@
     <script src="../script.js"></script>
 
     <!-- Tus tests -->
+    <script src="models.spec.js"></script>
+    <script src="storage.spec.js"></script>
     <script src="script.spec.js"></script>
 </body>
 </html>
