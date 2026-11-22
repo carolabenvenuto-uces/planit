@@ -46,15 +46,15 @@ Se utilizará **Claude (Anthropic)** para los code reviews, con acceso de lectur
 - [x] PR #102 (Dev POO) revisada y mergeada.
 - [x] PR #104 (Eventos + DOM) revisada y mergeada, tras actualizarse con `develop`.
 - [x] PR #108 (`feature/dev-storage`) integrada.
-- [ ] PR de `feature/tester-qa-specs` integrada.
+- [x] PR #110 (`feature/tester-qa-specs`) integrada.
 - [x] Al menos 4 code reviews con `CHANGES_REQUESTED` documentados (si corresponde) — 3/4 sobre PRs de otros integrantes (ver MOMENTO 2), más la review recíproca de @ValeriaMSilva sobre la PR #108 de este responsable.
-- [ ] Tablero Kanban en GitHub Projects administrado con las issues de la AO4 (#101, #103, #105, #106, #107 y las que se abran).
+- [ ] Tablero Kanban en GitHub Projects administrado con las issues de la AO4 (#101, #103, #105, #106, #107, #111, #112, #113 y las que se abran).
 - [x] Seguimiento del Issue [#68](https://github.com/carolabenvenuto-uces/planit/issues/68) (deuda técnica de `js/componentes-bootstrap.js`) — resuelto en PR #109, issue cerrada.
 - [x] `README.md` actualizado con información de la cuarta entrega.
 - [ ] GitHub Pages activo y verificado en `release/cuarta-entrega`.
 - [ ] Limpieza de ramas al cierre (solo `master`, `develop`, `release/cuarta-entrega`).
 - [ ] Tag `v1.2-cuarta-entrega` y GitHub Release publicados tras la aprobación del docente.
-- [x] `changelog.md` actualizado con la contribución de cada integrante (pendiente solo la contribución final de Tester QA).
+- [x] `changelog.md` actualizado con la contribución de cada integrante.
 
 ---
 
@@ -122,6 +122,12 @@ GitHub no permite aprobar/solicitar cambios sobre la propia PR, así que las PRs
 #### PR #108 (`feature/dev-storage`)
 - **Revisora:** @ValeriaMSilva. **Primera ronda:** `CHANGES_REQUESTED` — pidió completar el MOMENTO 2 del spec, alinear la tabla de estrategia de storage con la implementación real, documentar el uso (hoy nulo) de `sessionStorage`, y sugirió 4 mejoras no bloqueantes de robustez en `storage.js` (`guardar(undefined)`, `eliminar` en ambos storages, `listar`/`limpiar`). Se aplicaron las 3 bloqueantes y las 4 no bloqueantes (detalle en `spec-dev-storage.md`, MOMENTO 2, y en `storage-doc.md`). **Segunda ronda:** `APPROVE`. Mergeada a `develop`; Issue #107 cerrada.
 
-Con esto, las 3 PRs de dominio de la AO4 (POO, Eventos+DOM, Storage) y el fix de Issue #68 están mergeadas a `develop` con revisión cruzada completa entre los 3 integrantes.
+#### PR #110 (`feature/tester-qa-specs`)
+- **Revisora:** @carolabenvenuto-uces. **Primera ronda:** `CHANGES_REQUESTED` — 5 bloqueantes: faltaban capturas de pantalla de la AO4 (las commiteadas eran de la AO3), el prompt estaba citado en vez de en bloque de código, los 3 bugs reales de PR #104 no estaban reportados como issues de GitHub (solo documentados en el code review), la descripción de la PR no usaba `Closes #106`, y la entrada del changelog no coincidía con el título de la PR. Más 4 mejoras no bloqueantes: justificación de la herramienta de IA remitía a este mismo spec (todavía no mergeado en ese momento), el fragmento generado tenía un `// ...` en vez de código textual, la tabla de cobertura por tipo tenía números aproximados que no sumaban el total real, y faltaba un test de storage lleno (`QuotaExceededError`), que la propia revisora redactó como sugerencia.
+  - Se resolvieron los 5 bloqueantes: capturas reales generadas con la librería Playwright (`js/test/take-screenshots.js`, sin servidor MCP interactivo — no estaba conectado en esta sesión, salvedad documentada en `testing-doc.md`); prompt a bloque de código; los 3 bugs de PR #104 reportados como issues cerradas ([#111](https://github.com/carolabenvenuto-uces/planit/issues/111), [#112](https://github.com/carolabenvenuto-uces/planit/issues/112), [#113](https://github.com/carolabenvenuto-uces/planit/issues/113), asignadas a @ValeriaMSilva, referenciando su commit de fix); título de la PR y entrada de changelog unificados, con `Closes #106`.
+  - Se aplicaron las 4 mejoras no bloqueantes, incluyendo una regresión nueva para el bug de `escribirEnAlmacenamiento` (issue #111, no tenía test de regresión todavía) y el test de storage lleno sugerido. La suite quedó en 111 specs (71 + 19 + 21).
+  - **Segunda ronda:** `APPROVE`, con una observación no bloqueante (capturas con la librería Playwright en vez del servidor MCP; la revisora sugirió retomarlo antes de la release si se quiere cubrir ese punto de la consigna al 100%). Mergeada a `develop`; Issue #106 cerrada.
 
-*(Review de `feature/tester-qa-specs`, y el resto de los ítems del checklist de MOMENTO 1 — Kanban, GitHub Pages, tag/release, limpieza de ramas: pendientes de documentar al cerrar.)*
+Con esto, las 3 PRs de dominio de la AO4 (POO, Eventos+DOM, Storage), el fix de Issue #68 y la suite de Tester QA están mergeadas a `develop` con revisión cruzada completa entre los 3 integrantes.
+
+*(Resto de los ítems del checklist de MOMENTO 1 — Kanban, GitHub Pages, tag/release, limpieza de ramas: pendientes de documentar al cerrar.)*
