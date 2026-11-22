@@ -1,3 +1,5 @@
+describe("models.spec.js", function () {
+
 describe("Validador", function () {
     describe("esTextoNoVacio", function () {
         it("debería devolver true con un texto con contenido", function () {
@@ -536,4 +538,6 @@ describe("CatalogoProveedores", function () {
         expect(function () { CatalogoProveedores.fromJSON(null); }).toThrowError();
         expect(function () { CatalogoProveedores.fromJSON({ proveedores: "no-es-array" }); }).toThrowError();
     });
+});
+
 });

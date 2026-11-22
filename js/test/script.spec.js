@@ -93,6 +93,8 @@ function tocarYValidar(elemento, valor) {
     emitir(elemento, "blur");
 }
 
+describe("script.spec.js", function () {
+
 let ui;
 
 beforeEach(function () {
@@ -119,6 +121,16 @@ describe("Flujo 1: Crear evento", function () {
 
         const guardado = Almacenamiento.cargar(CLAVES_STORAGE.evento);
         expect(guardado.nombre).toBe("Cumple de Lola");
+    });
+
+    it("debería avisar al usuario cuando el guardado falla (regresión del bug corregido en PR #104, ronda 1)", function () {
+        spyOn(Almacenamiento, "guardar").and.returnValue(false);
+
+        ui.nombreEvento.value = "Cumple de Lola";
+        ui.btnGuardarEvento.click();
+
+        expect(ui.avisoApp.hidden).toBe(false);
+        expect(ui.avisoApp.textContent).toContain("No se pudieron guardar los cambios");
     });
 
     it("no debería guardar ni actualizar el evento si los datos son inválidos", function () {
@@ -280,4 +292,6 @@ describe("Flujo 4: Gestionar invitados", function () {
         const guardado = Almacenamiento.cargar(CLAVES_STORAGE.evento);
         expect(guardado.invitados.invitados.some(function (i) { return i.nombre === "Nueva Persona"; })).toBe(true);
     });
+});
+
 });

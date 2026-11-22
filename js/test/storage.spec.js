@@ -46,6 +46,14 @@ describe("Almacenamiento", function () {
 
             expect(Almacenamiento.cargar(PREFIJO_TEST + "valor")).toBe("dos");
         });
+
+        it("guardar() debería devolver false si el storage está lleno, sin lanzar", function () {
+            spyOn(Storage.prototype, "setItem").and.throwError(new DOMException("Quota exceeded", "QuotaExceededError"));
+            spyOn(console, "error");
+
+            expect(Almacenamiento.guardar(PREFIJO_TEST + "storage-lleno", { a: 1 })).toBe(false);
+            expect(console.error).toHaveBeenCalled();
+        });
     });
 
     describe("obtener / actualizar (alias)", function () {

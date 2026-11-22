@@ -43,6 +43,12 @@ node js/test/run-jasmine.js
 ```
 Script ya commiteado desde la corrección de AO3 (RC13, PR #99): abre `test-runner.html` en Chromium headless con Playwright, espera el resumen de Jasmine y lo imprime. Termina con código de salida `1` si hay specs fallidos o si se registró algún `console.error`/`pageerror` durante la corrida (por eso los tests que ejercitan una ruta de error esperada de `Almacenamiento`, que loguea con `console.error` por diseño, usan `spyOn(console, "error")`).
 
+### Capturas de pantalla (evidencia visual)
+```
+node js/test/take-screenshots.js
+```
+Genera 4 PNG en `js/test/screenshots/` (`ao4-general.png`, `ao4-models.png`, `ao4-storage.png`, `ao4-script.png`) abriendo `test-runner.html` con la librería `playwright` (la misma que usa `run-jasmine.js`) y recortando el elemento `.jasmine-suite` correspondiente a cada suite. **No se usó el servidor Playwright MCP** para generarlas (no estaba conectado en la sesión donde se escribió esta suite): el resultado visual es equivalente porque usa el mismo navegador Chromium y el mismo reporter HTML de Jasmine, pero queda documentada la salvedad porque la consigna pide puntualmente el MCP.
+
 ---
 
 ## Suites de Tests
@@ -68,14 +74,14 @@ Un `describe` por clase, con esta estructura repetida donde aplica: constructor 
 
 | Grupo | Qué cubre |
 |---|---|
-| `guardar`/`cargar` | Ida y vuelta con valores simples y objetos; clave inexistente devuelve `null`; `guardar(clave, undefined)` devuelve `false` sin dejar la clave leíble; JSON corrupto en `cargar()` devuelve `null` sin lanzar; sobrescritura de un valor existente. |
+| `guardar`/`cargar` | Ida y vuelta con valores simples y objetos; clave inexistente devuelve `null`; `guardar(clave, undefined)` devuelve `false` sin dejar la clave leíble; JSON corrupto en `cargar()` devuelve `null` sin lanzar; sobrescritura de un valor existente; **storage lleno** (`setItem` lanza `QuotaExceededError`) devuelve `false` sin lanzar (sugerido en la review de Carola a PR #110). |
 | `obtener`/`actualizar` | Alias de `cargar`/`guardar`. |
 | `eliminar` | Borra una clave existente; devuelve `true` aunque no exista; borra de **ambos** storages aunque la clave esté sembrada en los dos (regla agregada en la review de PR #108). |
 | `listar` | Filtra por prefijo (con y sin el default `"planit:"`); vacío sin coincidencias. |
 | `limpiar` | Borra todas las claves de un prefijo y lo refleja en el `boolean` devuelto; no afecta otros prefijos. |
 | Integración con `js/models/` | Un `Evento` completo (con `Presupuesto` e invitados) sobrevive un ciclo `guardar(evento.toJSON())` → `Evento.fromJSON(cargar(...))`. |
 
-**18 specs.**
+**19 specs.**
 
 ### `script.spec.js` — Controlador de UI y eventos (PR #104)
 
@@ -83,12 +89,12 @@ Fixture de DOM en `test-runner.html`: subconjunto de `index.html` con los mismos
 
 | Flujo | Casos cubiertos |
 |---|---|
-| 1. Crear evento | Validación en vivo (nombre vacío deshabilita "Guardar"); guardado válido (confirmación + persistencia real en `Almacenamiento`); guardado inválido (no persiste, muestra error); el presupuesto estimado nuevo recalcula en vivo la alerta del Flujo 2. |
+| 1. Crear evento | Validación en vivo (nombre vacío deshabilita "Guardar"); guardado válido (confirmación + persistencia real en `Almacenamiento`); **regresión**: avisa al usuario cuando el guardado falla, en vez de reportar éxito igual (bug corregido en PR #104, ronda 1); guardado inválido (no persiste, muestra error); el presupuesto estimado nuevo recalcula en vivo la alerta del Flujo 2. |
 | 2. Calcular presupuesto | Total sin descuento y alerta "dentro del presupuesto"; descuento del 10%; alerta de excedido; cantidad negativa bloquea el resultado y se recupera al corregirla; descuento fuera de 0-100 bloquea el resultado. |
 | 3. Buscar en catálogo | Sin filtro (3 proveedores); filtro por texto; filtro por categoría (valor exacto de la opción); **regresión**: un proveedor cuyo nombre contiene el texto de otra categoría no aparece al filtrar por esa categoría (bug corregido en PR #104, ronda 3); combinación de texto + categoría; aviso de sin coincidencias. |
 | 4. Gestionar invitados | Alta válida (feedback + métricas); botón deshabilitado con nombre vacío; métricas tras eliminar; **regresión**: dos invitados con el mismo nombre se distinguen por posición al eliminar, no se mezclan (bug corregido en PR #104, ronda 2); persistencia tras agregar. |
 
-**20 specs.** Los dos casos marcados "regresión" reproducen exactamente los bugs que se encontraron y corrigieron durante el code review de PR #104 (documentados en `spec-devops.md`, MOMENTO 2): quedan en la suite para que una futura regresión los vuelva a detectar automáticamente.
+**21 specs.** Los tres casos marcados "regresión" reproducen exactamente los 3 bugs que se encontraron y corrigieron durante el code review de PR #104, ahora reportados y cerrados como issues de GitHub: [#111](https://github.com/carolabenvenuto-uces/planit/issues/111), [#112](https://github.com/carolabenvenuto-uces/planit/issues/112), [#113](https://github.com/carolabenvenuto-uces/planit/issues/113). Quedan en la suite para que una futura regresión los vuelva a detectar automáticamente.
 
 ---
 
@@ -110,24 +116,35 @@ Corrida con `node js/test/run-jasmine.js`, repetida 8 veces con semillas aleator
 
 0 errores o advertencias de consola sin mockear en las 8 corridas (código de salida `0`).
 
+Tras la review de Carola a PR #110 se agregaron 2 specs (storage lleno en `storage.spec.js`, y la regresión del bug de `escribirEnAlmacenamiento` en `script.spec.js`), reverificado 3 veces más:
+
+```
+111 specs, 0 failures, randomized with seed 95988
+111 specs, 0 failures, randomized with seed 03252
+111 specs, 0 failures, randomized with seed 47556
+```
+
 | Métrica | Valor |
 |---|---|
-| Total de Tests | 109 |
-| Tests Pasando | 109 ✅ |
+| Total de Tests | 111 |
+| Tests Pasando | 111 ✅ |
 | Tests Fallando | 0 ❌ |
 | Porcentaje de Éxito | 100% |
 | `models.spec.js` | 71 specs |
-| `storage.spec.js` | 18 specs |
-| `script.spec.js` | 20 specs |
+| `storage.spec.js` | 19 specs |
+| `script.spec.js` | 21 specs |
 
 ### Cobertura por Tipo de Test
-| Tipo | Cantidad aprox. |
+Conteo exacto (no aproximado) de `it()` por categoría, uno por uno:
+
+| Tipo | Cantidad |
 |---|---|
-| Happy Path / constructores válidos | 24 |
-| Validación de errores (`toThrowError`, datos inválidos) | 38 |
-| Serialización (`toJSON`/`fromJSON`) | 14 |
-| CRUD y manejo de errores de `Almacenamiento` | 18 |
-| Integración de controlador contra DOM (incluye 2 regresiones) | 20 |
+| `models.spec.js` — Happy path / métodos de negocio | 42 |
+| `models.spec.js` — Validación de errores (`toThrowError`) | 14 |
+| `models.spec.js` — Serialización (`toJSON`/`fromJSON`) | 15 |
+| `storage.spec.js` — CRUD y manejo de errores de `Almacenamiento` | 19 |
+| `script.spec.js` — Integración de controlador contra DOM (incluye 3 regresiones) | 21 |
+| **Total** | **111** |
 
 ### Un obstáculo real durante la escritura de `script.spec.js`
 
@@ -147,11 +164,11 @@ La primera versión de la suite tenía 4 specs que fallaban de forma **intermite
 
 ## Issues Conocidos
 
-No se encontraron bugs nuevos durante esta ronda de testing (modelos, storage y controlador). Los 3 bugs reales encontrados durante el ciclo de la AO4 se detectaron y corrigieron **antes** de esta etapa, durante el code review de PR #104 (documentados con su reproducción en `docs/03-specs/actividad-obligatoria-4/spec-devops.md`, MOMENTO 2):
+No se encontraron bugs nuevos durante esta ronda de testing (modelos, storage y controlador). Los 3 bugs reales encontrados durante el ciclo de la AO4 se detectaron y corrigieron **antes** de esta etapa, durante el code review de PR #104 (documentados con su reproducción en `docs/03-specs/actividad-obligatoria-4/spec-devops.md`, MOMENTO 2), y quedaron formalmente reportados como issues de GitHub (cerradas, referenciando su commit de fix) a pedido de la review de Carola a PR #110:
 
-1. Desacople de contrato entre `escribirEnAlmacenamiento()` y `Almacenamiento.guardar()` (ronda 1, commit `fb04e75`).
-2. Mezcla de invitados con nombre duplicado al eliminar/cambiar estado (ronda 2, commit `5479820`) — cubierto ahora por una regresión en Suite 4.
-3. El filtro de categoría del catálogo reutilizaba el matcher de texto libre (ronda 3, commit `64f3ccc`) — cubierto ahora por una regresión en Suite 3.
+1. [#111](https://github.com/carolabenvenuto-uces/planit/issues/111) — Desacople de contrato entre `escribirEnAlmacenamiento()` y `Almacenamiento.guardar()` (ronda 1, commit `fb04e75`) — cubierto ahora por una regresión en Suite 1.
+2. [#112](https://github.com/carolabenvenuto-uces/planit/issues/112) — Mezcla de invitados con nombre duplicado al eliminar/cambiar estado (ronda 2, commit `5479820`) — cubierto ahora por una regresión en Suite 4.
+3. [#113](https://github.com/carolabenvenuto-uces/planit/issues/113) — El filtro de categoría del catálogo reutilizaba el matcher de texto libre (ronda 3, commit `64f3ccc`) — cubierto ahora por una regresión en Suite 3.
 
 Un 4° hallazgo (el ruteo de `planit:detalles-evento` a `sessionStorage` en vez de `localStorage`) se encontró y corrigió en `feature/dev-storage` antes del merge de PR #108 (ver `docs/03-specs/actividad-obligatoria-4/spec-dev-storage.md`, MOMENTO 2); no se reporta como issue de GitHub porque se corrigió en la misma rama antes de integrarse.
 
