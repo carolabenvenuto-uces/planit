@@ -43,18 +43,18 @@ Se utilizará **Claude (Anthropic)** para los code reviews, con acceso de lectur
 ### 4. Criterios de Aceptación (Checklist)
 
 - [x] `spec-devops.md` creado y commiteado en `docs/03-specs/actividad-obligatoria-4/` antes de cualquier otra tarea de coordinación de la AO4.
-- [ ] PR #102 (Dev POO) revisada y mergeada.
-- [ ] PR #104 (Eventos + DOM) revisada y mergeada, tras actualizarse con `develop`.
-- [ ] PR de `feature/dev-storage` integrada.
+- [x] PR #102 (Dev POO) revisada y mergeada.
+- [x] PR #104 (Eventos + DOM) revisada y mergeada, tras actualizarse con `develop`.
+- [x] PR #108 (`feature/dev-storage`) integrada.
 - [ ] PR de `feature/tester-qa-specs` integrada.
-- [ ] Al menos 4 code reviews con `CHANGES_REQUESTED` documentados (si corresponde).
+- [x] Al menos 4 code reviews con `CHANGES_REQUESTED` documentados (si corresponde) — 3/4 sobre PRs de otros integrantes (ver MOMENTO 2), más la review recíproca de @ValeriaMSilva sobre la PR #108 de este responsable.
 - [ ] Tablero Kanban en GitHub Projects administrado con las issues de la AO4 (#101, #103, #105, #106, #107 y las que se abran).
-- [ ] Seguimiento del Issue [#68](https://github.com/carolabenvenuto-uces/planit/issues/68) (deuda técnica de `js/componentes-bootstrap.js`), todavía sin resolver en esta entrega.
-- [ ] `README.md` actualizado con información de la cuarta entrega.
+- [x] Seguimiento del Issue [#68](https://github.com/carolabenvenuto-uces/planit/issues/68) (deuda técnica de `js/componentes-bootstrap.js`) — resuelto en PR #109, issue cerrada.
+- [x] `README.md` actualizado con información de la cuarta entrega.
 - [ ] GitHub Pages activo y verificado en `release/cuarta-entrega`.
 - [ ] Limpieza de ramas al cierre (solo `master`, `develop`, `release/cuarta-entrega`).
 - [ ] Tag `v1.2-cuarta-entrega` y GitHub Release publicados tras la aprobación del docente.
-- [ ] `changelog.md` actualizado con la contribución de cada integrante.
+- [x] `changelog.md` actualizado con la contribución de cada integrante (pendiente solo la contribución final de Tester QA).
 
 ---
 
@@ -112,4 +112,16 @@ Se utilizará **Claude (Anthropic)** para los code reviews, con acceso de lectur
 #### Hallazgo adicional (autodetectado, fuera del conteo de PR #104)
 Durante la revisión de la ronda 3 se encontró un bug real en **`feature/dev-storage`** (PR #108, de este mismo responsable, no de Valeria): `storage.js` ruteaba `planit:detalles-evento` (fecha y ubicación reales del evento) a `sessionStorage`, bajo el supuesto erróneo de que era estado efímero de UI. Verificado con Playwright: tras simular un reinicio de navegador, fecha y ubicación volvían al valor del mockup mientras el resto del evento persistía correctamente. Corregido en el commit `92d5e1a` de `feature/dev-storage` (se vació `CLAVES_SESSION`, ruteando esa clave a `localStorage` como el resto) y se actualizó `storage-doc.md`. No se cuenta como ronda de `CHANGES_REQUESTED` porque el defecto es autoría propia, no de "otro integrante"; se documenta aquí como evidencia de QA rigurosa sobre el propio trabajo.
 
-*(Reviews de `feature/dev-storage` y de `feature/tester-qa-specs` por parte de otro integrante, y el resto de los ítems del checklist de MOMENTO 1: pendientes de documentar al cerrar.)*
+### Reviews recibidas sobre PRs de este responsable (requisito transversal)
+
+GitHub no permite aprobar/solicitar cambios sobre la propia PR, así que las PRs de Storage y del fix de Issue #68 (ambas de este responsable) necesitaron la revisión de otro integrante para cumplir el requisito transversal ("revisión y aprobación de otro integrante antes del merge").
+
+#### PR #109 (fix Issue #68: migrar Modal/Toast a `js/script.js`)
+- **Revisora:** @ValeriaMSilva. **Veredicto:** `APPROVE`. Mergeada a `develop`; Issue #68 cerrada definitivamente.
+
+#### PR #108 (`feature/dev-storage`)
+- **Revisora:** @ValeriaMSilva. **Primera ronda:** `CHANGES_REQUESTED` — pidió completar el MOMENTO 2 del spec, alinear la tabla de estrategia de storage con la implementación real, documentar el uso (hoy nulo) de `sessionStorage`, y sugirió 4 mejoras no bloqueantes de robustez en `storage.js` (`guardar(undefined)`, `eliminar` en ambos storages, `listar`/`limpiar`). Se aplicaron las 3 bloqueantes y las 4 no bloqueantes (detalle en `spec-dev-storage.md`, MOMENTO 2, y en `storage-doc.md`). **Segunda ronda:** `APPROVE`. Mergeada a `develop`; Issue #107 cerrada.
+
+Con esto, las 3 PRs de dominio de la AO4 (POO, Eventos+DOM, Storage) y el fix de Issue #68 están mergeadas a `develop` con revisión cruzada completa entre los 3 integrantes.
+
+*(Review de `feature/tester-qa-specs`, y el resto de los ítems del checklist de MOMENTO 1 — Kanban, GitHub Pages, tag/release, limpieza de ramas: pendientes de documentar al cerrar.)*
