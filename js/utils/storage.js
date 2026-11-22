@@ -14,7 +14,10 @@
 const Almacenamiento = (function () {
     const PREFIJO = "planit:";
 
-    const CLAVES_SESSION = new Set(["planit:detalles-evento"]);
+    // planit:detalles-evento guarda fecha y ubicación reales del evento (no estado
+    // efímero de la UI), por eso debe sobrevivir entre sesiones igual que el resto:
+    // no va en este Set.
+    const CLAVES_SESSION = new Set();
 
     function resolverStorage(clave) {
         return CLAVES_SESSION.has(clave) ? window.sessionStorage : window.localStorage;

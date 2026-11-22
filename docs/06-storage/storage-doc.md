@@ -29,9 +29,11 @@ Todas las operaciones están envueltas en `try/catch`. Las de lectura devuelven 
 | Clave | Storage | Por qué |
 |---|---|---|
 | `planit:evento` | `localStorage` | Es el estado principal del evento (resultado de `Evento.toJSON()`), debe sobrevivir entre sesiones. |
-| `planit:detalles-evento` | `sessionStorage` | Datos de UI de la sesión actual (ej. última sección activa), no tienen sentido persistidos entre visitas. |
+| `planit:detalles-evento` | `localStorage` | Fecha y ubicación reales del evento (Flujo 1), no estado efímero de la UI: debe sobrevivir entre sesiones igual que `planit:evento`. |
 
-La asignación storage-por-clave es interna a `storage.js` (`CLAVES_SESSION`, un `Set` con las claves que van a `sessionStorage`; cualquier otra clave con prefijo `planit:` va a `localStorage` por defecto). El resto del código no necesita saber en qué storage físico vive cada dato: solo llama a `Almacenamiento.guardar/cargar` con la clave correspondiente.
+La asignación storage-por-clave es interna a `storage.js` (`CLAVES_SESSION`, un `Set` con las claves que van a `sessionStorage`; cualquier otra clave con prefijo `planit:` va a `localStorage` por defecto, incluida `planit:detalles-evento`). El resto del código no necesita saber en qué storage físico vive cada dato: solo llama a `Almacenamiento.guardar/cargar` con la clave correspondiente.
+
+**Corrección (revisión del 21/11):** la primera versión de este documento asumía que `planit:detalles-evento` guardaba datos de UI efímeros (ej. última sección activa) y la ruteaba a `sessionStorage`. En los hechos, `js/script.js` la usa para la fecha y la ubicación reales del evento (ver `CLAVES_STORAGE` y `manejarSubmitEvento`), que deben persistir igual que el resto del evento. Se verificó con Playwright que, con la asignación anterior, cerrar y reabrir el navegador hacía que fecha y ubicación volvieran silenciosamente a los valores del mockup mientras el resto del evento sí persistía. Se corrigió vaciando `CLAVES_SESSION`, de modo que esa clave (como cualquier otra con prefijo `planit:` que no se agregue explícitamente a ese `Set`) vaya a `localStorage`.
 
 Toda clave nueva debe seguir el patrón `planit:<entidad>` o `planit:<entidad>-<detalle>`.
 
