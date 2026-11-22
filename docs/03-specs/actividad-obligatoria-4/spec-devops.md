@@ -48,7 +48,7 @@ Se utilizará **Claude (Anthropic)** para los code reviews, con acceso de lectur
 - [x] PR #108 (`feature/dev-storage`) integrada.
 - [x] PR #110 (`feature/tester-qa-specs`) integrada.
 - [x] Al menos 4 code reviews con `CHANGES_REQUESTED` documentados (si corresponde) — 3/4 sobre PRs de otros integrantes (ver MOMENTO 2), más la review recíproca de @ValeriaMSilva sobre la PR #108 de este responsable.
-- [ ] Tablero Kanban en GitHub Projects administrado con las issues de la AO4 (#101, #103, #105, #106, #107, #111, #112, #113 y las que se abran).
+- [x] Tablero Kanban en GitHub Projects administrado con las issues de la AO4: [PlanIT - Actividad Obligatoria N° 4](https://github.com/users/FacundoGuiraldes/projects/3) (15 ítems: #68, #101-#114; estado `Done` para lo mergeado/cerrado, `In Progress` para #105/#114 mientras se espera la review de Valeria).
 - [x] Seguimiento del Issue [#68](https://github.com/carolabenvenuto-uces/planit/issues/68) (deuda técnica de `js/componentes-bootstrap.js`) — resuelto en PR #109, issue cerrada.
 - [x] `README.md` actualizado con información de la cuarta entrega.
 - [ ] GitHub Pages activo y verificado en `release/cuarta-entrega`.
@@ -130,4 +130,8 @@ GitHub no permite aprobar/solicitar cambios sobre la propia PR, así que las PRs
 
 Con esto, las 3 PRs de dominio de la AO4 (POO, Eventos+DOM, Storage), el fix de Issue #68 y la suite de Tester QA están mergeadas a `develop` con revisión cruzada completa entre los 3 integrantes.
 
-*(Resto de los ítems del checklist de MOMENTO 1 — Kanban, GitHub Pages, tag/release, limpieza de ramas: pendientes de documentar al cerrar.)*
+### Tablero Kanban (GitHub Projects)
+
+[PlanIT - Actividad Obligatoria N° 4](https://github.com/users/FacundoGuiraldes/projects/3) (público), con las 15 issues/PRs de la AO4 (#68, #101 a #114). Se creó con la API de GraphQL de Projects v2, a diferencia del tablero de la AO3 ([PlanIT - Actividad Obligatoria N° 3](https://github.com/users/carolabenvenuto-uces/projects/2)), que se armó manualmente desde la interfaz. Por la misma restricción de GitHub que impide vincular un proyecto a un repositorio de otro dueño (ya aplicada también al tablero de la AO3, que tampoco quedó enlazado al repo), este tablero no aparece en la pestaña "Projects" de `planit`, pero cada ítem apunta al issue/PR real del repositorio. Estado: `Done` en todo lo ya mergeado/cerrado; `In Progress` en #105 y #114 (esta misma PR del Coordinador, a la espera de la review de @ValeriaMSilva).
+
+*(Resto de los ítems del checklist de MOMENTO 1 — GitHub Pages, tag/release, limpieza de ramas: pendientes de documentar al cerrar.)*

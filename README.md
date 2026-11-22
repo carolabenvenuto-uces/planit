@@ -63,6 +63,7 @@ Reducir la fragmentación al planificar reuniones y festejos. Busca ofrecer un s
 - 📝 Specs por rol: [Coordinación / DevOps](docs/03-specs/actividad-obligatoria-4/spec-devops.md) · [Desarrolladora JS POO](docs/03-specs/actividad-obligatoria-4/spec-dev-poo.md) · [Desarrolladora JS Eventos + DOM](docs/03-specs/actividad-obligatoria-4/spec-dev-eventos-dom.md) · [Desarrollador JS Storage](docs/03-specs/actividad-obligatoria-4/spec-dev-storage.md) · [Tester QA](docs/03-specs/actividad-obligatoria-4/spec-tester-qa.md)
 - 📦 [Documentación de `js/utils/storage.js` (API, estrategia de storage por clave)](docs/06-storage/storage-doc.md) (PR [#108](https://github.com/carolabenvenuto-uces/planit/pull/108))
 - 🧪 [Documentación de Testing JavaScript (Jasmine) para la AO4](js/test/testing-doc.md) | [Test runner](js/test/test-runner.html) | [Suites: `models.spec.js`](js/test/models.spec.js) · [`storage.spec.js`](js/test/storage.spec.js) · [`script.spec.js`](js/test/script.spec.js) (PR [#110](https://github.com/carolabenvenuto-uces/planit/pull/110))
+- 📋 [Tablero Kanban de la Actividad Obligatoria N°4 (GitHub Projects)](https://github.com/users/FacundoGuiraldes/projects/3)
 
 **Actividad Obligatoria N°3**
 - 🔀 [Diagramas de Actividades (índice, PlantUML y PNG)](docs/05-diagramas/01-diagrama-de-actividades/diagramas-doc.md)
