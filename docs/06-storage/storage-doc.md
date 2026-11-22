@@ -18,9 +18,9 @@
 | `cargar` | `cargar(clave)` | `objeto \| null` | Busca la clave, la deserializa con `JSON.parse`. Devuelve `null` si no existe o si falla (JSON corrupto, storage no disponible, etc.). **Nunca lanza una excepción.** |
 | `obtener` | `obtener(clave)` | `objeto \| null` | Alias de `cargar`. |
 | `actualizar` | `actualizar(clave, valor)` | `boolean` | Alias de `guardar` (sobrescribe el valor existente). |
-| `eliminar` | `eliminar(clave)` | `boolean` | Borra la clave. `true`/`false` según éxito. |
-| `listar` | `listar(prefijo = "planit:")` | `string[]` | Devuelve las claves (de `localStorage` + `sessionStorage`) que empiezan con `prefijo`. |
-| `limpiar` | `limpiar(prefijo = "planit:")` | `boolean` | Borra todas las claves que empiezan con `prefijo`. |
+| `eliminar` | `eliminar(clave)` | `boolean` | Borra la clave de **ambos** storages (no solo del que le asigna hoy `resolverStorage`), para no dejar claves huérfanas si una clave cambió de storage en una versión anterior. `true` si no hubo errores. |
+| `listar` | `listar(prefijo = "planit:")` | `string[]` | Devuelve las claves (de `localStorage` + `sessionStorage`) que empiezan con `prefijo`. Cada storage se recorre en su propio `try/catch`: si uno falla, igual devuelve las claves del otro. |
+| `limpiar` | `limpiar(prefijo = "planit:")` | `boolean` | Borra todas las claves que empiezan con `prefijo`. Devuelve `listar(prefijo).map(eliminar).every(Boolean)`: refleja si cada `eliminar()` tuvo éxito real, no un `true` fijo. |
 
 Todas las operaciones están envueltas en `try/catch`. Las de lectura devuelven `null` ante error; las de escritura devuelven `false`. Esto es intencional: el controlador (`js/script.js`) debe poder seguir funcionando en memoria si el storage no está disponible (modo privado del navegador, cuota excedida, etc.), sin que una excepción corte la ejecución.
 
@@ -57,6 +57,12 @@ const eventoRecuperado = datosGuardados ? Evento.fromJSON(datosGuardados) : null
 
 ## 6. Verificación manual realizada
 
-Se agregó temporalmente una suite de verificación (no commiteada, se descarta tras la prueba) que cubrió: guardar/cargar en `localStorage`, ruteo a `sessionStorage` para `planit:detalles-evento`, `cargar()` de clave inexistente, alias `obtener`/`actualizar`, `eliminar`, `listar` con filtro de prefijo, `limpiar`, y tolerancia a JSON corrupto sin lanzar excepciones. Resultado: **90/90 specs, 0 failures** (82 específicos del resto de la suite + 8 de esta verificación), corridos con `node js/test/run-jasmine.js`.
+**Primera versión (antes del ruteo a `localStorage` de `planit:detalles-evento`):** se agregó temporalmente una suite de verificación con Jasmine (no commiteada, descartada tras la prueba) que cubrió guardar/cargar en `localStorage`, ruteo a `sessionStorage` para `planit:detalles-evento`, `cargar()` de clave inexistente, alias `obtener`/`actualizar`, `eliminar`, `listar` con filtro de prefijo, `limpiar`, y tolerancia a JSON corrupto sin lanzar excepciones: **90/90 specs, 0 failures** (82 de la suite existente + 8 de esta verificación), corridos con `node js/test/run-jasmine.js`.
+
+**Tras la corrección del ruteo (commit `92d5e1a`):** se verificó con Playwright, sobre el `index.html` real integrado con `feature/dev-eventos-dom`, que guardar un evento con fecha y ubicación nuevas y simular un reinicio del navegador (`sessionStorage.clear()` + reload, dejando `localStorage` intacto) ya no revierte esos dos campos al valor del mockup.
+
+**Tras la code review de PR #108 (@ValeriaMSilva, puntos 5 a 8):** se verificó con Playwright, sobre `index.html`, que `guardar(clave, undefined)` devuelve `false` sin dejar rastro leíble, que `limpiar()` sobre varias claves recién creadas las borra y devuelve `true`, y que `eliminar()` sobre una clave sembrada a propósito en ambos storages (`localStorage` y `sessionStorage`) la borra de los dos con una sola llamada.
+
+En los tres casos se corrió además la suite completa del proyecto (`node js/test/run-jasmine.js`) para descartar regresiones: **82 specs**, con las mismas fallas ya conocidas de `script.spec.js` (legacy, pendientes del refactor a cargo de Tester QA) y ninguna falla nueva.
 
 La suite oficial y definitiva `js/test/storage.spec.js` es responsabilidad del rol Tester QA (Issue [#106](https://github.com/carolabenvenuto-uces/planit/issues/106)) y se integra en una etapa posterior.

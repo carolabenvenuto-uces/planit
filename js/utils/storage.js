@@ -24,6 +24,10 @@ const Almacenamiento = (function () {
     }
 
     function guardar(clave, valor) {
+        if (valor === undefined) {
+            console.error(`Almacenamiento: no se puede guardar "undefined" en la clave "${clave}".`);
+            return false;
+        }
         try {
             const storage = resolverStorage(clave);
             storage.setItem(clave, JSON.stringify(valor));
@@ -54,43 +58,41 @@ const Almacenamiento = (function () {
         return guardar(clave, valor);
     }
 
+    // Borra de ambos storages (no solo del que hoy le asigna resolverStorage): si una
+    // clave quedó en el storage "equivocado" por un cambio de ruteo anterior (ver
+    // CLAVES_SESSION), eliminar() igual la limpia por completo.
     function eliminar(clave) {
-        try {
-            resolverStorage(clave).removeItem(clave);
-            return true;
-        } catch (error) {
-            console.error(`Almacenamiento: no se pudo eliminar la clave "${clave}".`, error);
-            return false;
+        let exito = true;
+        for (const storage of [window.localStorage, window.sessionStorage]) {
+            try {
+                storage.removeItem(clave);
+            } catch (error) {
+                console.error(`Almacenamiento: no se pudo eliminar la clave "${clave}".`, error);
+                exito = false;
+            }
         }
+        return exito;
     }
 
     function listar(prefijo = PREFIJO) {
         const claves = [];
-        try {
-            for (const storage of [window.localStorage, window.sessionStorage]) {
+        for (const storage of [window.localStorage, window.sessionStorage]) {
+            try {
                 for (let i = 0; i < storage.length; i++) {
                     const clave = storage.key(i);
                     if (clave !== null && clave.startsWith(prefijo)) {
                         claves.push(clave);
                     }
                 }
+            } catch (error) {
+                console.error("Almacenamiento: no se pudo listar las claves.", error);
             }
-        } catch (error) {
-            console.error("Almacenamiento: no se pudo listar las claves.", error);
         }
         return claves;
     }
 
     function limpiar(prefijo = PREFIJO) {
-        try {
-            for (const clave of listar(prefijo)) {
-                eliminar(clave);
-            }
-            return true;
-        } catch (error) {
-            console.error("Almacenamiento: no se pudo limpiar el almacenamiento.", error);
-            return false;
-        }
+        return listar(prefijo).map(eliminar).every(Boolean);
     }
 
     return { guardar, cargar, obtener, actualizar, eliminar, listar, limpiar };
