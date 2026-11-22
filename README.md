@@ -26,7 +26,7 @@ Reducir la fragmentación al planificar reuniones y festejos. Busca ofrecer un s
 - Git & GitHub (GitFlow, GitHub Projects y GitHub Pages)
 - Playwright MCP y GitHub MCP (testing automatizado y registro de issues)
 
-🚀 **Sitio publicado (GitHub Pages):** [carolabenvenuto-uces.github.io/planit](https://carolabenvenuto-uces.github.io/planit/) — publicado desde `develop` hasta la creación de `release/cuarta-entrega`, rama desde la que se publica la versión entregable de la Actividad Obligatoria N°4.
+🚀 **Sitio publicado (GitHub Pages):** [carolabenvenuto-uces.github.io/planit](https://carolabenvenuto-uces.github.io/planit/) — al momento de este commit, todavía sirve `release/tercera-entrega` (AO3); se republica desde `release/cuarta-entrega` al cerrar la coordinación de la AO4 (ver `spec-devops.md`, MOMENTO 2).
 
 ✨ **Funcionalidades**
 - Formulario de alta y personalización de eventos, con validación en vivo y persistencia.
@@ -60,14 +60,14 @@ Reducir la fragmentación al planificar reuniones y festejos. Busca ofrecer un s
 **Actividad Obligatoria N°4**
 - 🧩 [Diagrama de Clases (índice, PlantUML y PNG)](docs/05-diagramas/02-diagrama-de-clases/diagrama-clases-doc.md)
 - 💻 [Clases del dominio (`js/models/`)](js/models/) | [Controlador de UI y eventos (`js/script.js`)](js/script.js)
-- 📝 Specs por rol: [Coordinación / DevOps](docs/03-specs/actividad-obligatoria-4/spec-devops.md) · [Desarrolladora JS POO](docs/03-specs/actividad-obligatoria-4/spec-dev-poo.md) · [Desarrolladora JS Eventos + DOM](docs/03-specs/actividad-obligatoria-4/spec-dev-eventos-dom.md)
-- 📦 Spec de Desarrollador JS Storage y documentación de `js/utils/storage.js`: en curso (PR [#108](https://github.com/carolabenvenuto-uces/planit/pull/108), pendiente de aprobación por otro integrante antes del merge a `develop`).
-- 🧪 Spec de Tester QA y refactor de `js/test/testing-doc.md`/`script.spec.js`: en curso (Issue [#106](https://github.com/carolabenvenuto-uces/planit/issues/106)).
+- 📝 Specs por rol: [Coordinación / DevOps](docs/03-specs/actividad-obligatoria-4/spec-devops.md) · [Desarrolladora JS POO](docs/03-specs/actividad-obligatoria-4/spec-dev-poo.md) · [Desarrolladora JS Eventos + DOM](docs/03-specs/actividad-obligatoria-4/spec-dev-eventos-dom.md) · [Desarrollador JS Storage](docs/03-specs/actividad-obligatoria-4/spec-dev-storage.md) · [Tester QA](docs/03-specs/actividad-obligatoria-4/spec-tester-qa.md)
+- 📦 [Documentación de `js/utils/storage.js` (API, estrategia de storage por clave)](docs/06-storage/storage-doc.md) (PR [#108](https://github.com/carolabenvenuto-uces/planit/pull/108))
+- 🧪 [Documentación de Testing JavaScript (Jasmine) para la AO4](js/test/testing-doc.md) | [Test runner](js/test/test-runner.html) | [Suites: `models.spec.js`](js/test/models.spec.js) · [`storage.spec.js`](js/test/storage.spec.js) · [`script.spec.js`](js/test/script.spec.js) (PR [#110](https://github.com/carolabenvenuto-uces/planit/pull/110))
 
 **Actividad Obligatoria N°3**
 - 🔀 [Diagramas de Actividades (índice, PlantUML y PNG)](docs/05-diagramas/01-diagrama-de-actividades/diagramas-doc.md)
-- 💻 [Lógica de negocio (`js/script.js`)](js/script.js)
-- 🧪 [Documentación de Testing JavaScript (Jasmine)](js/test/testing-doc.md) | [Test runner](js/test/test-runner.html) | [Suites de tests](js/test/script.spec.js)
+- 💻 Lógica de negocio: `js/script.js` tenía los 4 flujos con `prompt()`/`alert()` (ver historial de git); en la AO4 se reemplaza por completo por el modelo de dominio en `js/models/` y el controlador de UI/eventos en `js/script.js` actual.
+- 🧪 `js/test/testing-doc.md`/`script.spec.js` de la AO3 (43 specs con Playwright MCP) quedan en el historial de git: en la AO4 se reemplazan íntegramente por la suite documentada más arriba (ver nota al inicio de [`testing-doc.md`](js/test/testing-doc.md)).
 - 📝 Specs por rol: [Coordinación / DevOps](docs/03-specs/actividad-obligatoria-3/spec-devops.md) · [Arquitecto de Diagramas](docs/03-specs/actividad-obligatoria-3/spec-arq-diagramas.md) · [Desarrollador JavaScript](docs/03-specs/actividad-obligatoria-3/spec-dev-javascript.md) · [Tester JavaScript / QA](docs/03-specs/actividad-obligatoria-3/spec-tester.md)
 - 📋 [Tablero Kanban de la Actividad Obligatoria N°3 (GitHub Projects)](https://github.com/users/carolabenvenuto-uces/projects/2)
 
