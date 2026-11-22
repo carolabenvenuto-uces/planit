@@ -733,8 +733,10 @@ function construirCatalogoDesdeMarcado(ui) {
 }
 
 /**
- * Obtiene los proveedores que coinciden con el texto y la categoría. La
- * coincidencia la resuelve el modelo (buscar() y coincideCon()).
+ * Obtiene los proveedores que coinciden con el texto y la categoría. El texto
+ * libre usa buscar()/coincideCon() (nombre o categoría); el selector de
+ * categoría compara de forma exacta contra proveedor.categoria, sin
+ * mayúsculas ni tildes. Una categoría vacía o "todas" no filtra.
  * @returns {Proveedor[]} Proveedores a mostrar.
  */
 function obtenerResultadosCatalogo(texto, categoria) {
@@ -742,8 +744,11 @@ function obtenerResultadosCatalogo(texto, categoria) {
         ? estadoApp.catalogo.buscar(texto)
         : estadoApp.catalogo.proveedores;
 
-    if (Validador.esTextoNoVacio(categoria)) {
-        resultados = resultados.filter((proveedor) => proveedor.coincideCon(categoria));
+    const categoriaBuscada = Validador.esTextoNoVacio(categoria) ? Validador.normalizarTexto(categoria) : "";
+    if (categoriaBuscada !== "" && categoriaBuscada !== "todas") {
+        resultados = resultados.filter(
+            (proveedor) => Validador.normalizarTexto(proveedor.categoria) === categoriaBuscada
+        );
     }
     return resultados;
 }
