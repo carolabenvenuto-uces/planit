@@ -79,6 +79,10 @@ document.addEventListener("DOMContentLoaded", configurarEventos);
 function configurarEventos() {
     const ui = obtenerReferenciasUI();
 
+    // Independiente de los modelos de dominio: Modal de detalle y Toast son
+    // componentes de UI del mockup, no de los 4 flujos (ver Issue #68).
+    configurarComponentesBootstrap();
+
     const modelosFaltantes = obtenerModelosFaltantes();
     if (modelosFaltantes.length > 0) {
         renderAvisoGlobal(ui, "No se pudo iniciar PlanIT: faltan los modelos " +
@@ -1014,4 +1018,68 @@ function enfocarFilaInvitado(ui, indice) {
     const fila = indice === null ? null : ui.listaInvitados.querySelector('tr[data-indice="' + indice + '"]');
     const destino = fila ? fila.querySelector("button[data-accion]") : ui.nombreInvitado;
     if (destino) destino.focus();
+}
+
+/* ==========================================================================
+   9. COMPONENTES BOOTSTRAP: MODAL DE DETALLE Y TOAST DE CONFIRMACIÓN
+   (migrado desde js/componentes-bootstrap.js, deuda técnica Issue #68:
+   js/script.js pasa a ser el controlador único de eventos y DOM de la app)
+   ========================================================================== */
+
+/** Registra el Modal de detalle de servicio y el Toast de confirmación del catálogo. */
+function configurarComponentesBootstrap() {
+    configurarModalDetalleServicio();
+    configurarToastConfirmacion();
+}
+
+/** Completa el Modal con los datos del `data-service-*` de la tarjeta que lo abrió. */
+function configurarModalDetalleServicio() {
+    const modalDetalle = document.getElementById("modalDetalleServicio");
+    if (!modalDetalle) return;
+
+    const modalSumarEvento = modalDetalle.querySelector(".btn-sumar-evento");
+
+    modalDetalle.addEventListener("show.bs.modal", (evento) => {
+        const trigger = evento.relatedTarget;
+        if (!trigger) return;
+
+        document.getElementById("modalDetalleServicioTitulo").textContent = trigger.dataset.serviceTitle || "";
+        document.getElementById("modalDetalleServicioImagen").src = trigger.dataset.serviceImage || "";
+        document.getElementById("modalDetalleServicioImagen").alt = trigger.dataset.serviceAlt || "";
+        document.getElementById("modalDetalleServicioDescripcion").textContent = trigger.dataset.serviceDescription || "";
+        document.getElementById("modalDetalleServicioCapacidad").textContent = trigger.dataset.serviceCapacidad || "";
+        document.getElementById("modalDetalleServicioDuracion").textContent = trigger.dataset.serviceDuracion || "";
+        document.getElementById("modalDetalleServicioIncluye").textContent = trigger.dataset.serviceIncluye || "";
+        document.getElementById("modalDetalleServicioPrecio").textContent = trigger.dataset.servicePrice || "";
+
+        if (modalSumarEvento) {
+            modalSumarEvento.dataset.serviceTitle = trigger.dataset.serviceTitle || "";
+            modalSumarEvento.dataset.servicePrice = trigger.dataset.servicePrice || "";
+        }
+    });
+}
+
+/** Muestra el Toast de confirmación al hacer clic en cualquier botón "Sumar al Evento". */
+function configurarToastConfirmacion() {
+    const toastConfirmacionElement = document.getElementById("toastConfirmacion");
+    if (!toastConfirmacionElement || typeof bootstrap === "undefined") return;
+
+    const toastConfirmacion = bootstrap.Toast.getOrCreateInstance(toastConfirmacionElement);
+    const toastConfirmacionMensaje = document.getElementById("toastConfirmacionMensaje");
+    const toastConfirmacionServicio = document.getElementById("toastConfirmacionServicio");
+
+    document.querySelectorAll(".btn-sumar-evento").forEach((boton) => {
+        boton.addEventListener("click", () => {
+            const titulo = boton.dataset.serviceTitle || "Servicio";
+            const precio = boton.dataset.servicePrice || "";
+
+            toastConfirmacionElement.dataset.serviceTitle = titulo;
+            toastConfirmacionElement.dataset.servicePrice = precio;
+
+            if (toastConfirmacionServicio) toastConfirmacionServicio.textContent = titulo + " · " + precio;
+            if (toastConfirmacionMensaje) toastConfirmacionMensaje.textContent = "Experiencia agregada a tu evento";
+
+            toastConfirmacion.show();
+        });
+    });
 }
