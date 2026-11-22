@@ -52,42 +52,53 @@
             <!-- Título principal para la jerarquía de headings (el mockup no lo muestra visualmente) -->
             <h1 class="sr-only">Panel de organización de eventos de PlanIT</h1>
 
+            <!-- Aviso general del controlador (errores de carga o de guardado). Reemplaza a alert(). -->
+            <div id="aviso-app" role="alert" hidden></div>
+
             <!-- SECCIÓN 1: MI EVENTO (formulario de alta del evento) -->
             <section id="mi-evento" class="panel" aria-labelledby="titulo-mi-evento">
                 <h2 id="titulo-mi-evento" class="panel-title">
                     <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20h9M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
                     Mi Evento
                 </h2>
-                <form id="event-form" class="event-form" action="#" method="post">
+                <!-- Flujo 1 (AO4): js/script.js valida en vivo y delega en Evento.validarDatos().
+                     Cada campo tiene su .invalid-feedback con id "<id-del-campo>-error". -->
+                <form id="form-evento" class="event-form" action="#" method="post" novalidate>
                     <div class="form-group">
                         <label for="nombre-evento">Nombre del evento</label>
-                        <input type="text" id="nombre-evento" name="nombre-evento" value="Casamiento de Sofi &amp; Mateo" required>
+                        <input type="text" id="nombre-evento" name="nombre-evento" value="Casamiento de Sofi &amp; Mateo" required aria-describedby="nombre-evento-error">
+                        <p id="nombre-evento-error" class="invalid-feedback"></p>
                     </div>
                     <div class="form-group">
                         <label for="fecha-evento">Fecha</label>
-                        <input type="date" id="fecha-evento" name="fecha-evento" value="2026-11-14" required>
+                        <input type="date" id="fecha-evento" name="fecha-evento" value="2026-11-14" required aria-describedby="fecha-evento-error">
+                        <p id="fecha-evento-error" class="invalid-feedback"></p>
                     </div>
                     <div class="form-group">
                         <label for="tipo-evento">Tipo de evento</label>
-                        <select id="tipo-evento" name="tipo-evento" required>
+                        <!-- Los value coinciden con Evento.TIPOS del modelo -->
+                        <select id="tipo-evento" name="tipo-evento" required aria-describedby="tipo-evento-error">
                             <option value="">Seleccionar tipo de evento</option>
-                            <option value="cumpleanos">Cumpleaños</option>
+                            <option value="cumpleaños">Cumpleaños</option>
                             <option value="boda" selected>Casamiento / Boda</option>
-                            <option value="salida-casual">Salida casual</option>
-                            <option value="corporativo">Corporativo</option>
+                            <option value="salida casual">Salida casual</option>
                         </select>
+                        <p id="tipo-evento-error" class="invalid-feedback"></p>
                     </div>
                     <div class="form-group">
                         <label for="presupuesto-estimado">Presupuesto estimado</label>
-                        <input type="number" id="presupuesto-estimado" name="presupuesto-estimado" min="1" value="700000" required>
+                        <input type="number" id="presupuesto-estimado" name="presupuesto-estimado" min="1" value="700000" required aria-describedby="presupuesto-estimado-error">
+                        <p id="presupuesto-estimado-error" class="invalid-feedback"></p>
                     </div>
                     <div class="form-group form-group-full">
                         <label for="ubicacion">Ubicación</label>
-                        <input type="text" id="ubicacion" name="ubicacion" value="Quinta El Ombú, Pilar, Buenos Aires" required>
+                        <input type="text" id="ubicacion" name="ubicacion" value="Quinta El Ombú, Pilar, Buenos Aires" required aria-describedby="ubicacion-error">
+                        <p id="ubicacion-error" class="invalid-feedback"></p>
                     </div>
                     <div class="form-actions">
-                        <button type="submit" class="btn-primary">Guardar Cambios</button>
+                        <button type="submit" id="btn-guardar-evento" class="btn-primary">Guardar Cambios</button>
                     </div>
+                    <div id="confirmacion-evento" class="form-group-full mt-3" role="status" aria-live="polite" hidden></div>
                 </form>
             </section>
 
@@ -97,6 +108,9 @@
                     <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
                     Presupuesto
                 </h2>
+                <!-- Flujo 2 (AO4): cada fila con data-item se convierte en un ItemContratado.
+                     Los subtotales y totales los calcula el modelo Presupuesto; script.js solo los pinta. -->
+                <form id="form-presupuesto" action="#" method="post" novalidate>
                 <div class="table-wrapper">
                     <table class="data-table">
                         <caption class="sr-only">Desglose del presupuesto estimado del evento</caption>
@@ -110,56 +124,89 @@
                                 <th scope="col" class="num">Subtotal</th>
                             </tr>
                         </thead>
-                        <tbody>
-                            <tr>
+                        <tbody id="desglose-presupuesto">
+                            <tr data-item data-categoria="Catering" data-descripcion="Finger food premium y barra libre" data-precio-unitario="3500">
                                 <th scope="row">Catering</th>
                                 <td>Finger food premium y barra libre</td>
                                 <td>Proveedor</td>
-                                <td class="num">120 pax</td>
+                                <td class="num">
+                                    <input type="number" id="cantidad-catering" class="form-control form-control-sm input-cantidad" min="0" step="1" value="120" aria-label="Cantidad de Catering (pax)" aria-describedby="cantidad-catering-error"> pax
+                                    <span id="cantidad-catering-error" class="invalid-feedback"></span>
+                                </td>
                                 <td class="num">$3.500</td>
-                                <td class="num subtotal">$420.000</td>
+                                <td class="num subtotal" data-subtotal>$420.000</td>
                             </tr>
-                            <tr>
+                            <tr data-item data-categoria="Decoración" data-descripcion="Arreglos florales y ambientación luces" data-precio-unitario="70000">
                                 <th scope="row">Decoración</th>
                                 <td>Arreglos florales y ambientación luces</td>
                                 <td>Proveedor</td>
-                                <td class="num">1 global</td>
+                                <td class="num">
+                                    <input type="number" id="cantidad-decoracion" class="form-control form-control-sm input-cantidad" min="0" step="1" value="1" aria-label="Cantidad de Decoración (global)" aria-describedby="cantidad-decoracion-error"> global
+                                    <span id="cantidad-decoracion-error" class="invalid-feedback"></span>
+                                </td>
                                 <td class="num">$70.000</td>
-                                <td class="num subtotal">$70.000</td>
+                                <td class="num subtotal" data-subtotal>$70.000</td>
                             </tr>
-                            <tr>
+                            <tr data-item data-categoria="Sonido" data-descripcion="DJ set completo y sonido de pista" data-precio-unitario="8000">
                                 <th scope="row">Sonido</th>
                                 <td>DJ set completo y sonido de pista</td>
                                 <td>Proveedor</td>
-                                <td class="num">6 horas</td>
+                                <td class="num">
+                                    <input type="number" id="cantidad-sonido" class="form-control form-control-sm input-cantidad" min="0" step="1" value="6" aria-label="Cantidad de Sonido (horas)" aria-describedby="cantidad-sonido-error"> horas
+                                    <span id="cantidad-sonido-error" class="invalid-feedback"></span>
+                                </td>
                                 <td class="num">$8.000</td>
-                                <td class="num subtotal">$48.000</td>
+                                <td class="num subtotal" data-subtotal>$48.000</td>
                             </tr>
-                            <tr>
+                            <tr data-item data-categoria="Fotografía" data-descripcion="Cobertura de evento y álbum digital" data-precio-unitario="32000">
                                 <th scope="row">Fotografía</th>
                                 <td>Cobertura de evento y álbum digital</td>
                                 <td>Proveedor</td>
-                                <td class="num">1 global</td>
+                                <td class="num">
+                                    <input type="number" id="cantidad-fotografia" class="form-control form-control-sm input-cantidad" min="0" step="1" value="1" aria-label="Cantidad de Fotografía (global)" aria-describedby="cantidad-fotografia-error"> global
+                                    <span id="cantidad-fotografia-error" class="invalid-feedback"></span>
+                                </td>
                                 <td class="num">$32.000</td>
-                                <td class="num subtotal">$32.000</td>
+                                <td class="num subtotal" data-subtotal>$32.000</td>
                             </tr>
-                            <tr>
+                            <tr data-item data-categoria="Transporte" data-descripcion="Traslado de materiales y coordinación" data-precio-unitario="5000">
                                 <th scope="row">Transporte</th>
                                 <td>Traslado de materiales y coordinación</td>
                                 <td>Proveedor</td>
-                                <td class="num">2 viajes</td>
+                                <td class="num">
+                                    <input type="number" id="cantidad-transporte" class="form-control form-control-sm input-cantidad" min="0" step="1" value="2" aria-label="Cantidad de Transporte (viajes)" aria-describedby="cantidad-transporte-error"> viajes
+                                    <span id="cantidad-transporte-error" class="invalid-feedback"></span>
+                                </td>
                                 <td class="num">$5.000</td>
-                                <td class="num subtotal">$10.000</td>
+                                <td class="num subtotal" data-subtotal>$10.000</td>
                             </tr>
                         </tbody>
                         <tfoot>
                             <tr>
+                                <th scope="row" colspan="5">Subtotal</th>
+                                <td class="num" id="subtotal-presupuesto">$580.000</td>
+                            </tr>
+                            <tr>
+                                <th scope="row" colspan="5">
+                                    <label for="descuento-presupuesto">Descuento (%)</label>
+                                </th>
+                                <td class="num">
+                                    <input type="number" id="descuento-presupuesto" class="form-control form-control-sm" min="0" max="100" step="1" value="0" aria-describedby="descuento-presupuesto-error">
+                                    <span id="descuento-presupuesto-error" class="invalid-feedback"></span>
+                                </td>
+                            </tr>
+                            <tr>
                                 <th scope="row" colspan="5">Total Gastado Estimado</th>
-                                <td class="num">$580.000</td>
+                                <td class="num"><output id="total-presupuesto" for="desglose-presupuesto descuento-presupuesto">$580.000</output></td>
                             </tr>
                         </tfoot>
                     </table>
                 </div>
+                <div id="alerta-presupuesto" class="mt-3" role="status" aria-live="polite" hidden></div>
+                <div class="form-actions">
+                    <button type="submit" id="btn-calcular-presupuesto" class="btn-primary">Calcular presupuesto</button>
+                </div>
+                </form>
             </section>
 
             <!-- SECCIÓN 3: INVITADOS (lista con estado de confirmación textual) -->
@@ -168,53 +215,66 @@
                     <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
                     Invitados
                 </h2>
+                <!-- Flujo 4 (AO4): alta por formulario; la tabla se re-renderiza desde ListaInvitados.
+                     Las filas iniciales (data-nombre / data-estado) son los datos de ejemplo. -->
+                <form id="form-invitado" class="event-form" action="#" method="post" novalidate>
+                    <div class="form-group">
+                        <label for="nombre-invitado">Nombre del invitado</label>
+                        <input type="text" id="nombre-invitado" name="nombre-invitado" required aria-describedby="nombre-invitado-error">
+                        <p id="nombre-invitado-error" class="invalid-feedback"></p>
+                    </div>
+                    <div class="form-group">
+                        <label for="estado-invitado">Estado de asistencia</label>
+                        <!-- Los value coinciden con Invitado.ESTADOS del modelo -->
+                        <select id="estado-invitado" name="estado-invitado" required aria-describedby="estado-invitado-error">
+                            <option value="Pendiente" selected>Pendiente</option>
+                            <option value="Confirmado">Confirmado</option>
+                        </select>
+                        <p id="estado-invitado-error" class="invalid-feedback"></p>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" id="btn-agregar-invitado" class="btn-primary">Agregar invitado</button>
+                    </div>
+                </form>
+
+                <div id="feedback-invitados" class="mt-3" role="status" aria-live="polite" hidden></div>
+                <p id="metricas-invitados" class="mt-3" aria-live="polite"></p>
+
                 <div class="table-wrapper">
                     <table class="data-table">
-                        <caption class="sr-only">Lista de invitados con contacto, mesa y estado de confirmación</caption>
+                        <caption class="sr-only">Lista de invitados con estado de confirmación y acciones</caption>
                         <thead>
                             <tr>
                                 <th scope="col">Nombre</th>
-                                <th scope="col">Email</th>
-                                <th scope="col" class="center">Mesa</th>
                                 <th scope="col" class="center">Estado</th>
+                                <th scope="col" class="center">Acciones</th>
                             </tr>
                         </thead>
-                        <tbody>
-                            <tr>
+                        <tbody id="lista-invitados">
+                            <tr data-nombre="Sofía Rodríguez" data-estado="Confirmado">
                                 <th scope="row">Sofía Rodríguez</th>
-                                <td>sofia.rod@gmail.com</td>
-                                <td class="center">Mesa 3</td>
                                 <td class="center"><span class="badge badge-confirmado">Confirmado</span></td>
+                                <td class="center"></td>
                             </tr>
-                            <tr>
+                            <tr data-nombre="Mateo González" data-estado="Confirmado">
                                 <th scope="row">Mateo González</th>
-                                <td>mateo.gonzalez@live.com.ar</td>
-                                <td class="center">Mesa 1</td>
                                 <td class="center"><span class="badge badge-confirmado">Confirmado</span></td>
+                                <td class="center"></td>
                             </tr>
-                            <tr>
+                            <tr data-nombre="Valentina Benítez" data-estado="Pendiente">
                                 <th scope="row">Valentina Benítez</th>
-                                <td>vale.benitez@outlook.com</td>
-                                <td class="center">Mesa 3</td>
                                 <td class="center"><span class="badge badge-pendiente">Pendiente</span></td>
+                                <td class="center"></td>
                             </tr>
-                            <tr>
+                            <tr data-nombre="Bautista Martínez" data-estado="Confirmado">
                                 <th scope="row">Bautista Martínez</th>
-                                <td>bautimart@yahoo.com.ar</td>
-                                <td class="center">Mesa 2</td>
                                 <td class="center"><span class="badge badge-confirmado">Confirmado</span></td>
+                                <td class="center"></td>
                             </tr>
-                            <tr>
-                                <th scope="row">Camila Herrera</th>
-                                <td>camilita_h@gmail.com</td>
-                                <td class="center">Mesa 1</td>
-                                <td class="center"><span class="badge badge-declinado">Declinado</span></td>
-                            </tr>
-                            <tr>
+                            <tr data-nombre="Santiago Díaz" data-estado="Pendiente">
                                 <th scope="row">Santiago Díaz</th>
-                                <td>santiago.diaz@gmail.com</td>
-                                <td class="center">Mesa 2</td>
                                 <td class="center"><span class="badge badge-pendiente">Pendiente</span></td>
+                                <td class="center"></td>
                             </tr>
                         </tbody>
                     </table>
@@ -229,14 +289,26 @@
                         Catálogo de Plancitos recomendados
                     </h2>
                     <!-- Buscador requerido por plan.md §2.5 y por la corrección RC6 de la Actividad N°1 -->
-                    <form class="catalog-search" role="search" action="#catalogo" method="get">
-                        <label for="busqueda-catalogo" class="sr-only">Buscar en el catálogo</label>
-                        <input type="search" id="busqueda-catalogo" name="q" placeholder="Buscar proveedor o plancito">
+                    <!-- Flujo 3 (AO4): filtrado en tiempo real (evento input) con CatalogoProveedores -->
+                    <form id="form-catalogo" class="catalog-search d-flex gap-2" role="search" action="#catalogo" method="get">
+                        <label for="buscar-catalogo" class="sr-only">Buscar en el catálogo</label>
+                        <input type="search" id="buscar-catalogo" name="q" placeholder="Buscar proveedor o plancito" aria-controls="contenedor-catalogo">
+                        <label for="categoria-catalogo" class="sr-only">Filtrar por categoría</label>
+                        <select id="categoria-catalogo" name="categoria" class="form-select" aria-controls="contenedor-catalogo">
+                            <option value="" selected>Todas</option>
+                            <option value="Catering">Catering</option>
+                            <option value="Decoración">Decoración</option>
+                            <option value="Sonido">Sonido</option>
+                        </select>
                     </form>
                 </div>
 
-                <div class="cards-grid row g-3">
-                    <div class="col-12 col-md-4">
+                <p id="contador-catalogo" class="mb-2" role="status" aria-live="polite"></p>
+                <p id="catalogo-vacio" class="alert alert-info" hidden></p>
+
+                <!-- Cada tarjeta con data-proveedor se convierte en un Proveedor del modelo -->
+                <div id="contenedor-catalogo" class="cards-grid row g-3">
+                    <div class="col-12 col-md-4" data-proveedor data-nombre="Gourmet Finger Food" data-categoria="Catering" data-precio="3500" data-unidad="pax">
                         <article class="card">
                             <img src="./docs/01-mockup/actividad-obligatoria-2/catalogo-gourmet-finger-food.jpg" alt="Mesa de catering con bandejas de mini sándwiches y bocados en varios niveles" width="1344" height="655" loading="lazy">
                             <div class="card-body">
@@ -252,7 +324,7 @@
                         </article>
                     </div>
 
-                    <div class="col-12 col-md-4">
+                    <div class="col-12 col-md-4" data-proveedor data-nombre="Flores Pilar" data-categoria="Decoración" data-precio="70000" data-unidad="base">
                         <article class="card">
                             <img src="./docs/01-mockup/actividad-obligatoria-2/catalogo-flores-pilar.jpg" alt="Centro de mesa con rosas y peonías rosadas sobre una mesa de salón de eventos" width="1344" height="655" loading="lazy">
                             <div class="card-body">
@@ -268,7 +340,7 @@
                         </article>
                     </div>
 
-                    <div class="col-12 col-md-4">
+                    <div class="col-12 col-md-4" data-proveedor data-nombre="DJ Lucas &amp; Sonido" data-categoria="Sonido" data-precio="8000" data-unidad="hora">
                         <article class="card">
                             <img src="./docs/01-mockup/actividad-obligatoria-2/catalogo-dj-lucas-sonido.jpg" alt="DJ con auriculares mezclando en una consola frente a una pista iluminada" width="1344" height="655" loading="lazy">
                             <div class="card-body">
@@ -480,6 +552,7 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
     <script src="js/componentes-bootstrap.js" defer></script>
+    <!-- Modelos del dominio (orden por dependencias) -->
     <script src="js/models/Validador.js" defer></script>
     <script src="js/models/ItemContratado.js" defer></script>
     <script src="js/models/Presupuesto.js" defer></script>
@@ -488,7 +561,9 @@
     <script src="js/models/Evento.js" defer></script>
     <script src="js/models/Proveedor.js" defer></script>
     <script src="js/models/CatalogoProveedores.js" defer></script>
+    <!-- Persistencia (expone Almacenamiento.guardar / Almacenamiento.cargar) -->
     <script src="js/utils/storage.js" defer></script>
+    <!-- Controlador de UI y eventos: siempre al final -->
     <script src="js/script.js" defer></script>
 
 </body>
