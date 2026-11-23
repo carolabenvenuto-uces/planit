@@ -24,7 +24,7 @@ Reducir la fragmentación al planificar reuniones y festejos. Busca ofrecer un s
 - Jasmine 5.10 (testing unitario en navegador vía CDN)
 - PlantUML (diagramas de actividades y de clases)
 - Git & GitHub (GitFlow, GitHub Projects y GitHub Pages)
-- Playwright MCP y GitHub MCP (testing automatizado y registro de issues)
+- Playwright (testing automatizado en navegador headless) y la API de GitHub (registro de issues, code reviews, Projects); en la AO4 ambos se usaron como librería/REST/GraphQL, no como servidores MCP interactivos (ver `spec-tester-qa.md` y `spec-devops.md`, sección de obstáculos)
 
 🚀 **Sitio publicado (GitHub Pages):** [carolabenvenuto-uces.github.io/planit](https://carolabenvenuto-uces.github.io/planit/) — al momento de este commit, todavía sirve `release/tercera-entrega` (AO3); se republica desde `release/cuarta-entrega` al cerrar la coordinación de la AO4 (ver `spec-devops.md`, MOMENTO 2).
 
