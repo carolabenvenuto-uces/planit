@@ -195,7 +195,7 @@ function configurarEventos() {
     estadoApp.evento = estadoInicial.evento;
 
     sincronizarFormularioEvento(ui, estadoInicial.detalles);
-    sincronizarCantidadesPresupuesto(ui);
+    renderFilasPresupuesto(ui);
 
     configurarFlujoEvento(ui);
     configurarFlujoPresupuesto(ui);
@@ -1076,6 +1076,18 @@ function crearTarjetaProveedor(proveedor) {
         crearElemento("p", { clase: "card-price", texto: precio })
     );
 
+    const botonSumarEvento = crearElemento("button", {
+        clase: "btn btn-primary btn-sumar-evento",
+        texto: "Sumar al Evento",
+        atributos: {
+            type: "button",
+            "aria-label": "Sumar " + proveedor.nombre + " al evento",
+            "data-service-title": proveedor.nombre,
+            "data-service-price": precio
+        }
+    });
+    vincularBotonSumarEvento(botonSumarEvento);
+
     const acciones = crearElemento("div", { clase: "card-actions d-grid gap-2 mt-2" });
     acciones.append(
         crearElemento("button", {
@@ -1097,16 +1109,7 @@ function crearTarjetaProveedor(proveedor) {
                 "data-service-price": precio
             }
         }),
-        crearElemento("button", {
-            clase: "btn btn-primary btn-sumar-evento",
-            texto: "Sumar al Evento",
-            atributos: {
-                type: "button",
-                "aria-label": "Sumar " + proveedor.nombre + " al evento",
-                "data-service-title": proveedor.nombre,
-                "data-service-price": precio
-            }
-        })
+        botonSumarEvento
     );
 
     cuerpo.append(acciones);
@@ -1397,11 +1400,21 @@ function configurarModalDetalleServicio() {
  * disponibilidad de Bootstrap se consulta en cada clic (ver mostrarToast).
  */
 function configurarToastConfirmacion() {
-    const toastConfirmacionElement = document.getElementById("toastConfirmacion");
-    if (!toastConfirmacionElement) return;
+    document.querySelectorAll(".btn-sumar-evento").forEach(vincularBotonSumarEvento);
+}
 
-    const toastConfirmacionMensaje = document.getElementById("toastConfirmacionMensaje");
-    const toastConfirmacionServicio = document.getElementById("toastConfirmacionServicio");
+/** Botones que ya tienen su listener de "Sumar al Evento" (evita registrarlo dos veces). */
+const botonesSumarEventoVinculados = new WeakSet();
+
+/**
+ * Registra el listener del Toast directamente en el botón. No se delega en `document`
+ * para que funcione aunque un ancestro corte la propagación del clic. Las tarjetas
+ * del catálogo, que se crean dinámicamente, se vinculan al renderizarse.
+ * @param {HTMLElement} boton - Botón `.btn-sumar-evento`.
+ */
+function vincularBotonSumarEvento(boton) {
+    if (!boton || botonesSumarEventoVinculados.has(boton)) return;
+    botonesSumarEventoVinculados.add(boton);
 
     document.querySelectorAll(".btn-sumar-evento").forEach((boton) => {
         boton.addEventListener("click", () => {
@@ -1418,8 +1431,10 @@ function configurarToastConfirmacion() {
                 toastConfirmacionMensaje.textContent = "Experiencia agregada a tu evento";
             }
 
-            mostrarToast(toastConfirmacionElement);
-        });
+        if (toastConfirmacionServicio) toastConfirmacionServicio.textContent = titulo + " · " + precio;
+        if (toastConfirmacionMensaje) toastConfirmacionMensaje.textContent = "Experiencia agregada a tu evento";
+
+        mostrarToast(toastConfirmacionElement);
     });
 }
 
