@@ -147,3 +147,80 @@ Las 3 issues están cerradas, referenciando su commit de fix.
 - [x] Las tres suites ejecutadas con `node js/test/run-jasmine.js`, 0 fallas, resultado documentado (11 corridas con semillas distintas).
 - [x] `js/test/testing-doc.md` actualizado con la nueva estructura, instrucciones por módulo y métricas de cobertura.
 - [x] Bugs encontrados reportados como issues en GitHub — los 3 bugs de PR #104 están reportados como issues (#111, #112, #113), cerradas referenciando sus commits de fix.
+
+---
+
+## Corrección docente: RC4 y RC5 (23/11/2026)
+
+### Observaciones atendidas
+
+| ID | Observación del docente | Respuesta |
+|---|---|---|
+| **RC4** | "La cantidad de specs verdes no acredita cobertura de líneas y ramas. Agregar un reporte reproducible o justificar explícitamente las ramas excluidas." | Se hicieron las dos cosas: (1) una **matriz de trazabilidad** que asigna cada rama de `js/models/*.js` a los specs que la cubren, (2) un **procedimiento reproducible** con la cobertura por bloques de Chrome DevTools, que no requiere instalar nada, y (3) la **justificación explícita** de los casos fuera de alcance. Todo está en `js/test/testing-doc.md`, sección "Cobertura de líneas y ramas de los modelos (RC4 y RC5)". |
+| **RC5** | "Completar casos de límites y ramas independientes: índices inválidos, estados true/false, cantidades y precios límite, tipos inválidos y reconstrucciones parciales o malformadas." | Se agregaron **101 specs** a `js/test/models.spec.js`, en el bloque `describe("RC5 - Límites y ramas independientes")`, con identificadores `RC5-<CLASE>-<NN>` que se usan en la matriz. |
+
+### Metodología de cobertura (RC4)
+
+- **Unidad de medida:** la rama, no el spec. Se inventariaron como ramas independientes: cada resultado de un `if` (incluido el `throw` o el `return` anticipado), **cada operando** de un `||`/`&&` (porque cortocircuitan), cada parámetro por defecto, cada comparación de límite evaluada en el valor exacto y a un paso de él, y los callbacks con decisión (`reduce`, `findIndex`, `filter`) con colección vacía, con coincidencia y sin coincidencia. Los modelos no tienen operadores ternarios ni `?.`/`??` (el grep `grep -nE '\?[^.]|\?\?' js/models/*.js` no devuelve coincidencias).
+- **Independencia:** cada rama se activa con el resto de los datos válidos. Por ejemplo, en `!json || typeof json !== "object" || Array.isArray(json)`, `null` activa solo el 1er operando, `"texto"` solo el 2º y `[]` solo el 3º.
+- **Mensajes exactos:** los specs RC5 usan `toThrowError(mensaje)` con el texto literal de cada modelo. Así se sabe **qué** validación rechazó la entrada, no solo que algo lanzó un error.
+- **Cobertura de líneas:** se deduce de la de ramas, porque todas las líneas de `js/models/*.js` están dentro de métodos cuyos caminos de entrada y salida están todos en la matriz.
+- **Hallazgo durante el inventario:** el spec base `Proveedor › coincideCon("SONIDO")` coincidía por **nombre** ("DJ Lucas & **Sonido**") y nunca evaluaba el operando de categoría del `||`. Con la métrica "specs verdes" esta rama parecía cubierta y no lo estaba. Ahora la cubre `RC5-PRV-07`.
+
+### Resumen de la matriz de trazabilidad (RC4)
+
+La matriz completa (rama por rama) está en `js/test/testing-doc.md`. Resumen por clase:
+
+| Clase | Métodos con ramas | Specs base de la clase | Specs RC5 que completan |
+|---|---|---|---|
+| `Validador` | `esTextoNoVacio`, `convertirANumero`, `buscarOpcion` | 8 | RC5-VAL-01..09 |
+| `ItemContratado` | `constructor` (6 condiciones), `fromJSON` (3 + delegación) | 6 | RC5-IC-01..16 |
+| `Presupuesto` | `agregarItem`, `eliminarItem` (3 condiciones), `aplicarDescuento` (3), `superaLimite` (2 + resultado), `fromJSON` (3 + anidado) | 12 | RC5-PRE-01..19 |
+| `Invitado` | `validar`, `constructor`, `esConfirmado` (`true`/`false`), `cambiarEstado`, `fromJSON` | 6 | RC5-INV-01..11 |
+| `ListaInvitados` | `eliminar` (3 caminos), `contarAsistencia` (`if`/`else`), `fromJSON` | 11 | RC5-LI-01..10 |
+| `Evento` | `validarDatos` (4 condiciones), `superaPresupuesto` (parámetro por defecto + comparación), `fromJSON` (raíz + 2 claves opcionales independientes) | 11 | RC5-EV-01..19 |
+| `Proveedor` | `constructor` (5 condiciones), `coincideCon` (blanco + 2 operandos del `\|\|`), `fromJSON` | 6 | RC5-PRV-01..10 |
+| `CatalogoProveedores` | `agregarProveedor`, `buscar`, `fromJSON` | 11 | RC5-CAT-01..07 |
+
+**Resultado:** todas las ramas de `js/models/*.js` tienen al menos un spec asignado. **No hay ramas excluidas.**
+
+### Justificación de los casos fuera de alcance (RC4)
+
+1. **Salvaguarda `instanceof` de `agregarItem`/`agregarProveedor` cuando se llaman desde `fromJSON`:** por ese camino es inalcanzable, porque el elemento ya viene de `ItemContratado.fromJSON`/`Proveedor.fromJSON`, que devuelven una instancia válida o lanzan antes. La misma rama (la misma línea) sí se cubre con llamadas directas: `RC5-PRE-01` y `RC5-CAT-01`.
+2. **`Validador.buscarOpcion` con un `opciones` que no es array:** no es una rama del código. Es una entrada fuera del contrato de una API interna que solo recibe las constantes estáticas `Evento.TIPOS` e `Invitado.ESTADOS`.
+3. **Desborde numérico a `Infinity`** (`ItemContratado` con `Number.MAX_VALUE`): no hay ningún `if` que lo controle. `RC5-IC-12` documenta el comportamiento actual. Acotarlo sería una mejora del modelo (rol Dev POO), no una rama faltante de la suite.
+
+### Suite de specs ampliada (RC5)
+
+| Pedido del docente | Specs que lo cubren |
+|---|---|
+| **Índices inválidos** | `RC5-PRE-02` (`"0"`, `0.5`, `1.5`: no enteros aunque sean numéricos), `RC5-PRE-03` (`NaN`, `±Infinity`, `null`, `undefined`, `true`), `RC5-PRE-04` (`-1` con ítems), `RC5-PRE-05` (`=== length`); y como contraste válido, `RC5-PRE-06` (`length - 1`) y `RC5-PRE-07` (intermedio, orden preservado). En `ListaInvitados.eliminar` (por nombre): `RC5-LI-02..05`. |
+| **Estados `true`/`false`** | `RC5-INV-01` (`esConfirmado() === false`), `RC5-INV-02` (Pendiente → Confirmado → Pendiente), `RC5-INV-03` (idempotencia), `RC5-INV-04` (un cambio inválido no altera el estado), `RC5-LI-06`/`RC5-LI-07` (`if`/`else` de `contarAsistencia` por separado y después de una transición), `RC5-EV-07..10` (`superaPresupuesto` en `true` y en `false`, con total igual al estimado), `RC5-PRE-14`/`15` (`superaLimite`), `RC5-PRV-06..08` (`coincideCon`). |
+| **Cantidades y precios límite** | `RC5-IC-01` (`0` aceptado), `RC5-IC-02` (decimales), `RC5-IC-03`/`04` (`-0.01` en cada campo), `RC5-IC-05`/`06` (`NaN`, `Infinity`), `RC5-IC-11` (`MAX_SAFE_INTEGER`), `RC5-IC-12` (desborde), `RC5-PRE-10..13` (descuento decimal, redondeo, `-0.01`/`100.01`), `RC5-PRE-14..16` (límite `0`, decimal, inválidos), `RC5-EV-03`/`04` (presupuesto `0`, `-0.01`, mínimo `0.01`, `"1e6"`), `RC5-PRV-02`/`03` (precio `0`, decimal, `-0.01`). |
+| **Tipos inválidos** | `RC5-VAL-01`, `05`, `06` (boolean, array, objeto, `"3,5"`, `"1 000"`), `RC5-IC-07`/`08`, `RC5-PRE-01` (objeto plano con forma de ítem, otra clase del dominio), `RC5-INV-07`, `RC5-EV-01..03`, `RC5-PRV-01`/`03`, `RC5-CAT-01`/`02`. |
+| **Reconstrucciones parciales o malformadas** | `RC5-IC-13..16`, `RC5-PRE-17..19`, `RC5-INV-09..11`, `RC5-LI-08..10`, `RC5-EV-13..19` (incluye **clave ausente frente a clave `null`** en `presupuesto`/`invitados` y cada clave opcional por separado), `RC5-PRV-09`/`10`, `RC5-CAT-05..07`. |
+
+**Conteo:** `models.spec.js` pasa de 71 a **172 specs** (+101). La suite completa pasa de 111 a **212 specs** (172 + 19 + 21). Conteo reproducible con `grep -c '^\s*it("' js/test/*.spec.js`.
+
+### Resultados de ejecución de la suite ampliada
+
+La suite completa se ejecutó el 23/11/2026 en el navegador, abriendo el runner HTML de Jasmine (`js/test/test-runner.html`) servido con Live Server (`http://localhost:5500/js/test/test-runner.html`):
+
+```
+212 specs, 0 failures
+```
+
+- **Suite ampliada:** los 101 specs nuevos de RC5 pasaron sin fallas, y los 111 anteriores (`models.spec.js` base, `storage.spec.js` y `script.spec.js`) siguen pasando. Esta corrida se hizo en el navegador y no con `node js/test/run-jasmine.js`, porque el entorno de la corrección no tiene Node.js instalado. Se usó el mismo runner HTML y la misma versión de Jasmine.
+- **Cobertura (RC4):** en la misma corrida, la pestaña Coverage de DevTools (*Per block*) confirmó la **cobertura total de ramas** de las 8 clases de `js/models/`, sin bloques sin ejecutar. Coincide con la matriz de trazabilidad: 0 ramas excluidas.
+
+### Checklist de cierre RC4 / RC5
+
+- [x] **RC5:** specs de índices inválidos, estados `true`/`false`, cantidades y precios límite, tipos inválidos y reconstrucciones parciales o malformadas agregados a `js/test/models.spec.js` (101 specs, `RC5-*`).
+- [x] **RC5:** suite ampliada registrada en `js/test/testing-doc.md` (tabla por clase) y en este documento.
+- [x] **RC4:** metodología de cobertura de líneas y ramas documentada (`if`/`else`, operandos de `||`/`&&`, parámetros por defecto, límites, callbacks; sin ternarios en los modelos).
+- [x] **RC4:** matriz de trazabilidad rama → spec completa en `js/test/testing-doc.md`, con resumen en este documento.
+- [x] **RC4:** casos fuera de alcance justificados explícitamente (0 ramas excluidas).
+- [x] **RC4:** procedimiento de reporte reproducible documentado (Chrome DevTools Coverage, *Per block*, y mutación manual).
+- [x] **RC5:** suite ampliada ejecutada en el navegador (Jasmine, `js/test/test-runner.html` sobre Live Server): 212 specs, 0 fallas, resultado registrado.
+- [x] **RC4:** cobertura de ramas de `js/models/*.js` verificada con DevTools Coverage: cobertura total en las 8 clases, resultado registrado.
+- [ ] Capturas de `js/test/screenshots/` regeneradas con `node js/test/take-screenshots.js` (todavía muestran 111 specs).

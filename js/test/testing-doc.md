@@ -7,8 +7,9 @@
 2. [Ejecución de Tests](#ejecución-de-tests)
 3. [Suites de Tests](#suites-de-tests)
 4. [Métricas de Cobertura](#métricas-de-cobertura)
-5. [Alcance y Limitaciones](#alcance-y-limitaciones)
-6. [Issues Conocidos](#issues-conocidos)
+5. [Cobertura de líneas y ramas de los modelos (RC4 y RC5)](#cobertura-de-líneas-y-ramas-de-los-modelos-rc4-y-rc5)
+6. [Alcance y Limitaciones](#alcance-y-limitaciones)
+7. [Issues Conocidos](#issues-conocidos)
 
 ---
 
@@ -68,7 +69,29 @@ Un `describe` por clase, con esta estructura repetida donde aplica: constructor 
 | `Proveedor` | `coincideCon()` por nombre o categoría, case/tilde-insensitive. |
 | `CatalogoProveedores` | `buscar()` por nombre o categoría, que no modifique el catálogo original. |
 
-**71 specs.**
+**71 specs base** (AO4 original).
+
+#### Suite ampliada RC5: `describe("RC5 - Límites y ramas independientes")`
+
+En respuesta a la observación RC5 del docente se agregó al final de `models.spec.js` un bloque de **101 specs**. Cada uno tiene un identificador `RC5-<CLASE>-<NN>` que se usa en la [matriz de trazabilidad de ramas](#matriz-de-trazabilidad-de-ramas). Criterios aplicados en todo el bloque:
+
+- **Una rama por spec:** cada condición de un `if`, cada operando de un `||`/`&&` y cada parámetro por defecto se ejercita por separado, con el resto de los datos válidos. Así el error observado se debe a esa condición y no a otra que falla antes.
+- **Mensajes exactos:** se usa `toThrowError(mensaje)` con el texto literal del modelo (constante `MSG` del bloque), no un `toThrowError()` genérico. Esto distingue, por ejemplo, un `fromJSON` que falla por la raíz de uno que falla por un atributo interno.
+- **Sin efectos parciales:** después de una operación rechazada se verifica que el estado no cambió (largo de la colección, estado previo del invitado).
+
+| Grupo | Specs | Qué agrega |
+|---|---|---|
+| `Validador` (`RC5-VAL-01..09`) | 9 | Tipos no texto (`0`, `false`, `{}`, `[]`, `NaN`), espacios en blanco y tabulaciones, `NaN`/`Infinity` como `number`, notación científica, decimales con coma (`"3,5"` → `NaN`), separador de miles, `boolean`/`array` sin coerción implícita, `normalizarTexto(null)`, `buscarOpcion` sin coincidencias parciales. |
+| `ItemContratado` (`RC5-IC-01..16`) | 16 | Límite inferior inclusivo (cantidad y precio `0`), decimales, `-0.01` en cada campo por separado, `NaN`/`Infinity`/`null`/`undefined`/`true`/`[5]`/`""` en cantidad y precio, textos inválidos campo por campo, prioridad de mensajes, recorte de espacios, `Number.MAX_SAFE_INTEGER`, desborde a `Infinity` (comportamiento actual documentado), `fromJSON` con raíz `0`/`""`/`false`/función, con objeto vacío, claves nulas, faltantes o corrompidas y claves extra. |
+| `Presupuesto` (`RC5-PRE-01..19`) | 19 | `agregarItem` con objeto plano con forma de ítem u otra clase. **Índices inválidos de `eliminarItem`** (`"0"`, `0.5`, `1.5`, `NaN`, `±Infinity`, `null`, `undefined`, `true`, `-1` con ítems, `=== length`), último índice válido e índice intermedio (orden preservado). Decimales en el total, descuento sobre presupuesto vacío, descuento decimal o en texto, redondeo a 2 decimales, `-0.01`/`100.01`, límite `0`, límite decimal. `fromJSON` con raíz, `items` faltante/nulo/no array, `items: []` y un ítem anidado nulo o corrompido. |
+| `Invitado` (`RC5-INV-01..11`) | 11 | **Estados `true`/`false` explícitos de `esConfirmado()`**, transición completa Pendiente → Confirmado → Pendiente, idempotencia, que un cambio inválido no altere el estado previo, `validar()` con un error por dato, unión de mensajes, nombre de tipo inválido, recorte de espacios, `fromJSON` parcial (falta `nombre` o `estado`), claves nulas y estado persistido en minúsculas. |
+| `ListaInvitados` (`RC5-LI-01..10`) | 10 | Alta inválida sin efecto parcial, `eliminar` con tipo inválido o lista vacía, duplicados (solo se elimina la 1ª coincidencia), sin coincidencias parciales, **ramas `if`/`else` de `contarAsistencia` por separado** y después de una transición de estado. `fromJSON` con raíz o `invitados` inválidos, lista vacía e invitado anidado nulo, parcial o vacío. |
+| `Evento` (`RC5-EV-01..19`) | 19 | `validarDatos` con **un solo dato inválido por vez** (nombre, tipo, presupuesto), presupuesto `NaN`/`Infinity`/`0`/`"0"`/`-0.01`/`true`, mínimo positivo `0.01`, `"1e6"`, tipos sin tildes. `superaPresupuesto` con presupuesto vacío, **total exactamente igual al estimado (`>` estricto → `false`)**, un centavo por encima, descuento del 100%, descuento inválido propagado y `undefined` explícito (valor por defecto). `fromJSON` con solo `presupuesto` o solo `invitados` (ramas independientes), **clave nula frente a clave ausente**, componentes anidados malformados y presupuesto guardado como texto. |
+| `Proveedor` (`RC5-PRV-01..10`) | 10 | Nombre, categoría y unidad inválidos por separado, precio `0` y decimal, precio `-0.01`/`NaN`/`Infinity`/`null`/`"3,5"`, prioridad de mensajes, recorte de espacios, **coincidencia solo por nombre o solo por categoría** (cada operando del `\|\|`), criterio en blanco o numérico, `fromJSON` parcial o corrompido. |
+| `CatalogoProveedores` (`RC5-CAT-01..07`) | 7 | `agregarProveedor` con objeto plano u otra clase sin modificar el catálogo, criterio de búsqueda inválido, catálogo vacío, varias coincidencias en orden de alta, `fromJSON` con raíz o `proveedores` inválidos, lista vacía y proveedor anidado nulo, parcial o corrompido. |
+| **Total RC5** | **101** | |
+
+**Total de `models.spec.js`: 172 specs** (71 base + 101 RC5).
 
 ### `storage.spec.js` — Persistencia (PR #108)
 
@@ -134,6 +157,16 @@ Tras la review de Carola a PR #110 se agregaron 2 specs (storage lleno en `stora
 | `storage.spec.js` | 19 specs |
 | `script.spec.js` | 21 specs |
 
+**Ampliación RC5 (corrección docente):** se agregaron 101 specs a `models.spec.js`. La suite queda en **212 specs** (172 + 19 + 21). El conteo es estático y se puede reproducir con `grep -c '^\s*it("' js/test/*.spec.js`.
+
+**Resultado de la corrida de la suite ampliada (23/11/2026):** se ejecutó en el navegador, abriendo el runner HTML de Jasmine (`js/test/test-runner.html`) servido con Live Server (`http://localhost:5500/js/test/test-runner.html`):
+
+```
+212 specs, 0 failures
+```
+
+Los 101 specs nuevos de RC5 pasaron sin fallas, y los 111 anteriores siguen pasando. Esta corrida se hizo en el navegador y no con `node js/test/run-jasmine.js`, porque el entorno donde se redactó la corrección no tiene Node.js instalado. Se usó el mismo runner HTML que abre `run-jasmine.js` y la misma versión de Jasmine (5.10.0, desde CDN).
+
 ### Cobertura por Tipo de Test
 Conteo exacto (no aproximado) de `it()` por categoría, uno por uno:
 
@@ -142,9 +175,10 @@ Conteo exacto (no aproximado) de `it()` por categoría, uno por uno:
 | `models.spec.js` — Happy path / métodos de negocio | 42 |
 | `models.spec.js` — Validación de errores (`toThrowError`) | 14 |
 | `models.spec.js` — Serialización (`toJSON`/`fromJSON`) | 15 |
+| `models.spec.js` — RC5: límites y ramas independientes (`RC5-*`) | 101 |
 | `storage.spec.js` — CRUD y manejo de errores de `Almacenamiento` | 19 |
 | `script.spec.js` — Integración de controlador contra DOM (incluye 3 regresiones) | 21 |
-| **Total** | **111** |
+| **Total** | **212** |
 
 ### Un obstáculo real durante la escritura de `script.spec.js`
 
@@ -152,9 +186,211 @@ La primera versión de la suite tenía 4 specs que fallaban de forma **intermite
 
 ---
 
+## Cobertura de líneas y ramas de los modelos (RC4 y RC5)
+
+> **RC4 (docente):** "La cantidad de specs verdes no acredita cobertura de líneas y ramas. Agregar un reporte reproducible o justificar explícitamente las ramas excluidas."
+
+La cantidad de specs en verde no dice qué líneas ni qué ramas se ejecutaron. Esta sección reemplaza esa métrica por tres cosas: (1) un inventario de **todas** las ramas de `js/models/*.js`, (2) para cada rama, el spec que la ejerce, y (3) un procedimiento que cualquiera puede repetir para verificarlo con una herramienta, sin depender de este documento.
+
+### Metodología
+
+1. **Inventario de ramas.** Se recorrió cada método de las 8 clases y se registró como rama independiente cada uno de estos puntos de decisión:
+   - cada resultado (`true`/`false`) de un `if` y de su `else` implícito (el `throw` o el `return` anticipado frente a la continuación);
+   - **cada operando** de un `||` o `&&`, porque los dos cortocircuitan. Por ejemplo, `!json || typeof json !== "object" || Array.isArray(json)` aporta 3 ramas de rechazo más la de aceptación, y cada una necesita una entrada que la active **sola**: `null` activa solo el 1er operando, `"texto"` solo el 2º y `[]` solo el 3º;
+   - cada parámetro por defecto (`porcentajeDescuento = 0`): valor omitido o `undefined` frente a valor provisto;
+   - las comparaciones de límite (`<`, `<=`, `>`, `>=`), probadas **en el límite exacto y a un paso de él**: `0` y `-0.01`, `100` y `100.01`, `length - 1` y `length`, total igual al estimado y un centavo por encima;
+   - los callbacks con decisión interna (`reduce` de `contarAsistencia`, `findIndex` de `eliminar`, `filter` de `buscar`): colección vacía (el callback no se ejecuta), coincidencia y no coincidencia.
+   - El código no tiene operadores ternarios (`?:`) ni `?.`/`??` (se verificó con `grep -nE '\?[^.]|\?\?' js/models/*.js`, que no devuelve ninguna coincidencia), así que no aportan ramas.
+2. **Asignación.** Para cada rama se busca un spec que la active con el resto de los datos válidos. Si la única forma de activarla era un spec que también activaba otra rama antes, se escribió un spec RC5 nuevo. Ejemplo real: el spec base de `Proveedor.coincideCon("SONIDO")` coincide por **nombre** ("DJ Lucas & **Sonido**") y nunca llegaba a evaluar el operando de categoría del `||`; `RC5-PRV-07` lo cubre por separado.
+3. **Cobertura de líneas.** Se deduce de la de ramas: todas las líneas de `js/models/*.js` están dentro de un método, y la matriz cubre todos los caminos de entrada y salida de cada método (incluidos los `throw`). Los getters y `toJSON()` sin decisiones se ejecutan en los specs de *round-trip* `fromJSON(toJSON())` y en los que leen propiedades.
+4. **Verificación reproducible con herramienta.** Ver [Reporte reproducible](#reporte-reproducible-de-cobertura-chrome-devtools).
+
+Convención de la matriz: **base** = spec de la suite original (se cita su `describe` y el comienzo del título); **RC5-xxx** = spec nuevo del bloque `RC5 - Límites y ramas independientes`.
+
+### Matriz de trazabilidad de ramas
+
+#### `Validador`
+
+| Método | Rama | Cubierta por |
+|---|---|---|
+| `esTextoNoVacio` | `typeof !== "string"` → `false` | base `esTextoNoVacio › …false…` (`null`, `undefined`, `123`); RC5-VAL-01 |
+| | string en blanco → `false` | base (`""`, `"   "`); RC5-VAL-02 (`"\t\n"`) |
+| | string con contenido → `true` | base (`"Hola"`); RC5-VAL-02 (un carácter) |
+| `convertirANumero` | `typeof === "number"` → se devuelve tal cual | base (`42`); RC5-VAL-03 (`NaN`, `Infinity`, negativo, decimal) |
+| | string no vacío → `Number(trim)` (válido) | base (`"42"`, `"  42  "`); RC5-VAL-04 (`"3.5"`, `"1e3"`, `"-7"`) |
+| | string no vacío → `Number(trim)` (da `NaN`) | base (`"abc"`); RC5-VAL-05 (`"3,5"`, `"1 000"`, `"12abc"`) |
+| | string en blanco → cae a `NaN` | base (`""`); RC5-VAL-05 (`"   "`) |
+| | otro tipo → `NaN` | base (`null`, `undefined`); RC5-VAL-06 (`true`, `false`, `[]`, `[5]`, `{}`) |
+| `normalizarTexto` | sin ramas (una sola línea) | base `normalizarTexto`; RC5-VAL-07 (`null`, número, mayúsculas con tilde y `Ñ`) |
+| `buscarOpcion` | valor no texto o en blanco → `undefined` | base (`""`, `null`); RC5-VAL-08 (`1`, `undefined`, `"   "`) |
+| | `find` encuentra la opción | base (`"confirmado"`, `"PENDIENTE"`); RC5-VAL-08 (con espacios) |
+| | `find` no encuentra → `undefined` | base (`"Declinado"`); RC5-VAL-09 (coincidencia parcial) |
+
+#### `ItemContratado`
+
+| Método | Rama | Cubierta por |
+|---|---|---|
+| `constructor` | `!esTextoNoVacio(categoria)` | base `…categoría o descripción vacía`; RC5-IC-08 |
+| | `!esTextoNoVacio(descripcion)` (categoría válida) | base; RC5-IC-08 |
+| | `!Number.isFinite(cantidad)` | base (`"abc"`); RC5-IC-05, RC5-IC-07 |
+| | `cantidad < 0` | base (`-1`); RC5-IC-03 (`-0.01`) |
+| | `!Number.isFinite(precio)` (cantidad válida) | RC5-IC-06, RC5-IC-07 |
+| | `precio < 0` (cantidad válida) | base (`-100`); RC5-IC-04 (`-0.01`) |
+| | todos válidos (límite inferior `0` incluido) | base `…ítem válido…`; RC5-IC-01, RC5-IC-02, RC5-IC-10, RC5-IC-11 |
+| | orden de evaluación: textos antes que números | RC5-IC-09 |
+| `calcularSubtotal` | sin ramas | base; RC5-IC-01, RC5-IC-02, RC5-IC-12 (desborde) |
+| `fromJSON` | `!json` | base (`null`); RC5-IC-13 (`0`, `""`, `false`, `undefined`) |
+| | `typeof json !== "object"` | RC5-IC-13 (`"item"`, `42`, función) |
+| | `Array.isArray(json)` | base (`[]`) |
+| | objeto → delega en el constructor (falla) | RC5-IC-14, RC5-IC-15 |
+| | objeto → delega en el constructor (ok) | base *round-trip*; RC5-IC-16 |
+
+#### `Presupuesto`
+
+| Método | Rama | Cubierta por |
+|---|---|---|
+| `agregarItem` | no es `ItemContratado` → `throw` | base (objeto plano); RC5-PRE-01 (`null`, `undefined`, objeto con `calcularSubtotal`, `Proveedor`) |
+| | es `ItemContratado` → se agrega | base `agregarItem debería acumular…` |
+| `eliminarItem` | `!Number.isInteger(indice)` | RC5-PRE-02 (`"0"`, `0.5`, `1.5`), RC5-PRE-03 (`NaN`, `±Infinity`, `null`, `undefined`, `true`) |
+| | `indice < 0` | base (`-1` con lista vacía); RC5-PRE-04 (`-1` con ítems) |
+| | `indice >= length` | base (`0` con lista vacía); RC5-PRE-05 (`=== length`) |
+| | índice válido → `splice` | base (índice `0`); RC5-PRE-06 (`length - 1`), RC5-PRE-07 (intermedio) |
+| `calcularTotal` | `reduce` sobre colección vacía / con ítems | base `debería empezar vacío`, `…acumular el total…`; RC5-PRE-08 (decimales) |
+| `aplicarDescuento` | `!Number.isFinite(descuento)` | base (`"abc"`, `null`); RC5-PRE-13 (`NaN`, `Infinity`, `undefined`, `""`, `true`, `[]`) |
+| | `descuento < 0` | base (`-1`); RC5-PRE-12 (`-0.01`) |
+| | `descuento > 100` | base (`101`); RC5-PRE-12 (`100.01`) |
+| | rango válido (límites `0` y `100` inclusive) | base (`0`, `10`, `100`); RC5-PRE-09, RC5-PRE-10, RC5-PRE-11 (redondeo) |
+| `superaLimite` | `!Number.isFinite(monto)` | base (`"abc"`); RC5-PRE-16 |
+| | `monto < 0` | base (`-1`); RC5-PRE-16 (`-0.01`) |
+| | `total > monto` → `true` | base (`99999`); RC5-PRE-14, RC5-PRE-15 |
+| | `total > monto` → `false` (igual o menor) | base (`100000`, `100001`); RC5-PRE-14 (`0` con total `0`), RC5-PRE-15 |
+| `fromJSON` | `!json` | base (`null`); RC5-PRE-17 (`undefined`, `0`) |
+| | `typeof json !== "object"` | RC5-PRE-17 (`"items"`) |
+| | `!Array.isArray(json.items)` | base (`"no-es-array"`); RC5-PRE-17 (`[]`, `{}`, `items: null`, `items: {}`) |
+| | `items` vacío / con ítems | RC5-PRE-18; base *round-trip* |
+| | ítem anidado inválido (propaga el error) | RC5-PRE-19 |
+
+#### `Invitado`
+
+| Método | Rama | Cubierta por |
+|---|---|---|
+| `validar` | nombre inválido | base (constructor con `""`, `null`); RC5-INV-05, RC5-INV-07 |
+| | estado inválido | base (`"Declinado"`); RC5-INV-05 |
+| | ambos inválidos (dos mensajes) | RC5-INV-05, RC5-INV-06 |
+| | ambos válidos → `[]` | RC5-INV-05 |
+| `constructor` | `errores.length > 0` → `throw` / `=== 0` → crea | base; RC5-INV-06, RC5-INV-08 |
+| `esConfirmado` | `true` | base `…invitado válido…` |
+| | `false` | RC5-INV-01, RC5-INV-02 |
+| `cambiarEstado` | estado inválido → `throw` (sin modificar) | base (`"Declinado"`); RC5-INV-04 |
+| | estado válido → cambia | base (Pendiente → Confirmado); RC5-INV-02 (ida y vuelta), RC5-INV-03 (mismo estado) |
+| `fromJSON` | `!json` | base (`null`); RC5-INV-09 (`undefined`, `0`) |
+| | `typeof json !== "object"` | RC5-INV-09 (`"Ana"`, `42`) |
+| | `Array.isArray(json)` | base (`[]`) |
+| | objeto → constructor (falla / ok) | RC5-INV-10 / base *round-trip*, RC5-INV-11 |
+
+#### `ListaInvitados`
+
+| Método | Rama | Cubierta por |
+|---|---|---|
+| `agregar` | datos inválidos (propaga, sin efecto parcial) / válidos | base; RC5-LI-01 |
+| `eliminar` | nombre no texto o en blanco → `throw` | base (`""`); RC5-LI-02 (`null`, `undefined`, `0`, `"   "`) |
+| | `indice === -1` → `false` | base (`"Inexistente"`); RC5-LI-03 (lista vacía), RC5-LI-05 (parcial) |
+| | coincidencia → `splice` y `true` | base (`"jose perez"`); RC5-LI-04 (solo la 1ª de dos duplicados) |
+| `contarAsistencia` | colección vacía (callback no se ejecuta) | base `debería empezar vacía` |
+| | `if (esConfirmado())` | RC5-LI-06 (solo confirmados) |
+| | `else` | RC5-LI-06 (solo pendientes) |
+| | ambas ramas en la misma corrida | base (2 + 1); RC5-LI-07 (después de una transición) |
+| `fromJSON` | `!json` / `typeof` / `!Array.isArray(json.invitados)` | base (`null`, `"no-es-array"`); RC5-LI-08 |
+| | `invitados` vacío / con elementos | RC5-LI-09; base *round-trip* |
+| | invitado anidado inválido | RC5-LI-10 |
+
+#### `Evento`
+
+| Método | Rama | Cubierta por |
+|---|---|---|
+| `validarDatos` | nombre inválido (solo) | RC5-EV-01 |
+| | tipo inválido (solo) | RC5-EV-02 |
+| | `!Number.isFinite(monto)` (solo) | RC5-EV-03 (`NaN`, `Infinity`, `"abc"`, `""`, `null`, `undefined`, `true`) |
+| | `monto <= 0` (solo) | base (`"0"`, `"-100"`); RC5-EV-03 (`0`, `"0"`, `-0.01`) |
+| | los tres inválidos | base (`"", "congreso", "-1"`); RC5-EV-06 |
+| | todo válido → `[]` | base; RC5-EV-04 (`0.01`, `"1e6"`, tipos sin tilde) |
+| `constructor` | `errores.length > 0` / `=== 0` | base; RC5-EV-05, RC5-EV-06 |
+| `superaPresupuesto` | parámetro omitido → valor por defecto `0` | base (sin argumento); RC5-EV-07 |
+| | `undefined` explícito → valor por defecto | RC5-EV-12 |
+| | parámetro provisto | base (`0`, `50`); RC5-EV-10 (`100`, `"100"`) |
+| | `total > estimado` → `true` | base; RC5-EV-09 (un centavo por encima) |
+| | `total > estimado` → `false` | base (50%); RC5-EV-07 (vacío), RC5-EV-08 (igual), RC5-EV-10 |
+| | descuento inválido → `throw` propagado | RC5-EV-11 |
+| `fromJSON` | `!json` / `typeof` / `Array.isArray` | base (`null`, `[]`); RC5-EV-13 |
+| | datos básicos inválidos → `throw` del constructor | RC5-EV-14 |
+| | `json.presupuesto !== undefined` → `true` | base *round-trip*; RC5-EV-15 |
+| | `json.presupuesto !== undefined` → `false` | base `…si faltan en el JSON`; RC5-EV-16 |
+| | `json.invitados !== undefined` → `true` | base *round-trip*; RC5-EV-16 |
+| | `json.invitados !== undefined` → `false` | base `…si faltan en el JSON`; RC5-EV-15 |
+| | clave presente pero `null` (no es "ausente") | RC5-EV-17 |
+| | componente anidado malformado | RC5-EV-18 |
+| | presupuesto estimado como texto | RC5-EV-19 |
+
+#### `Proveedor`
+
+| Método | Rama | Cubierta por |
+|---|---|---|
+| `constructor` | `!esTextoNoVacio(nombre)` | base (`""`); RC5-PRV-01 |
+| | `!esTextoNoVacio(categoria)` | base (`""`); RC5-PRV-01 |
+| | `!esTextoNoVacio(unidad)` | base (`""`); RC5-PRV-01 |
+| | `!Number.isFinite(precio)` | RC5-PRV-03 |
+| | `precio < 0` | base (`-1`); RC5-PRV-03 (`-0.01`) |
+| | todo válido (precio `0` incluido) | base; RC5-PRV-02, RC5-PRV-05 |
+| | orden: textos antes que precio | RC5-PRV-04 |
+| `coincideCon` | criterio no texto o en blanco → `false` | base (`""`, `null`); RC5-PRV-08 (`"   "`, `undefined`, `70000`) |
+| | nombre coincide (1er operando del `\|\|`) | base (`"dj lucas"`, `"SONIDO"`); RC5-PRV-06 |
+| | nombre no coincide, categoría sí (2º operando) | RC5-PRV-07 |
+| | ninguno coincide | base (`"inexistente"`) |
+| `fromJSON` | `!json` / `typeof` / `Array.isArray` | base (`null`, `[]`); RC5-PRV-09 |
+| | objeto → constructor (falla / ok) | RC5-PRV-10 / base *round-trip* |
+
+#### `CatalogoProveedores`
+
+| Método | Rama | Cubierta por |
+|---|---|---|
+| `agregarProveedor` | no es `Proveedor` → `throw` | base (objeto plano); RC5-CAT-01 |
+| | es `Proveedor` → se agrega | base |
+| `buscar` | criterio inválido → `throw` | base (`""`, `null`); RC5-CAT-02 |
+| | `filter`: colección vacía / 0 / 1 / varias coincidencias | RC5-CAT-03 / base / base / RC5-CAT-04 |
+| `fromJSON` | `!json` / `typeof` / `!Array.isArray(json.proveedores)` | base (`null`, `"no-es-array"`); RC5-CAT-05 |
+| | `proveedores` vacío / con elementos | RC5-CAT-06; base *round-trip* |
+| | proveedor anidado inválido | RC5-CAT-07 |
+
+**Resultado del inventario:** todas las ramas de `js/models/*.js` tienen al menos un spec asignado. **No hay ramas excluidas.**
+
+### Ramas excluidas y casos no cubiertos a propósito
+
+No se excluye ninguna rama de los modelos. Quedan fuera tres situaciones que **no son ramas sin cubrir**, y se justifican acá para que no parezcan un vacío:
+
+1. **`throw` de `agregarItem`/`agregarProveedor` cuando se llaman desde `fromJSON`.** En `Presupuesto.fromJSON` y `CatalogoProveedores.fromJSON`, el elemento que se agrega sale de `ItemContratado.fromJSON`/`Proveedor.fromJSON`, que siempre devuelven una instancia válida o lanzan antes. Por ese camino la salvaguarda `instanceof` no puede activarse. Es código defensivo inalcanzable **desde `fromJSON`**, pero la misma rama sí se cubre llamando al método directamente (RC5-PRE-01, RC5-CAT-01). La matriz cuenta la rama una sola vez porque es la misma línea.
+2. **`Validador.buscarOpcion(opciones, …)` con un `opciones` que no es array.** No es una rama del código: el método no valida `opciones` porque solo se llama con las constantes estáticas `Evento.TIPOS` e `Invitado.ESTADOS`. Pasar otra cosa queda fuera del contrato de la API interna y no se prueba.
+3. **Desborde numérico (`Number.MAX_VALUE * 2`).** El constructor de `ItemContratado` acepta cualquier valor finito, así que un producto puede dar `Infinity`. No es una rama faltante (no hay ningún `if` que lo controle); RC5-IC-12 deja **documentado el comportamiento actual**. Si se decide acotar cantidades o precios, corresponde a una mejora del modelo (Dev POO), no a la suite.
+
+### Reporte reproducible de cobertura (Chrome DevTools)
+
+La matriz anterior se armó a mano. Para verificarla con una herramienta, sin instalar nada (el proyecto no tiene `package.json`), se usa la cobertura por bloques de V8 que trae Chrome/Edge:
+
+1. Abrir `js/test/test-runner.html` en Chrome o Edge (o con `npx http-server -p 8080`, ver [Ejecución de Tests](#ejecución-de-tests)).
+2. `F12` → menú `⋮` → *More tools* → **Coverage**. En el selector de tipo elegir **Per block** (no *Per function*: este último no distingue ramas dentro de un método).
+3. Hacer clic en el botón de recargar del panel Coverage. Jasmine vuelve a correr la suite completa con la instrumentación activa.
+4. Filtrar la tabla por `models/`. Para cada uno de los 8 archivos se ve el porcentaje de bytes sin usar; al abrir un archivo, el margen marca en **rojo** los bloques que nunca se ejecutaron y en **azul** los ejecutados.
+5. **Criterio de aceptación:** ningún bloque en rojo dentro de `js/models/*.js`. Un bloque rojo es una rama que no aparece en la matriz y se debe registrar como hallazgo.
+6. Exportar el reporte con el botón **Export** del panel (JSON) y guardarlo como evidencia junto a las capturas de `js/test/screenshots/`.
+
+Para comprobar que cada spec ataca la rama que dice la matriz se puede hacer una **mutación manual**: invertir o eliminar una condición (por ejemplo, cambiar `indice >= this.#items.length` por `indice > this.#items.length` en `Presupuesto.eliminarItem`) y volver a correr la suite. El spec indicado en la matriz (en este caso, RC5-PRE-05) tiene que fallar. Después se revierte el cambio.
+
+**Resultado de la verificación (23/11/2026):** se aplicó el procedimiento con la pestaña Coverage de DevTools sobre el runner servido con Live Server, durante la misma corrida de 212 specs. Se confirmó la **cobertura total de ramas** de las 8 clases de `js/models/` (`Validador`, `ItemContratado`, `Presupuesto`, `Invitado`, `ListaInvitados`, `Evento`, `Proveedor`, `CatalogoProveedores`), sin bloques sin ejecutar. Coincide con la matriz de trazabilidad: 0 ramas excluidas.
+
+---
+
 ## Alcance y Limitaciones
 
-- **Sin cobertura automatizada de código (Istanbul/nyc):** igual que en la AO3, la cobertura se estima revisando manualmente qué comportamiento ejercita cada test.
+- **Sin instrumentación de cobertura en la línea de comandos (Istanbul/nyc):** el proyecto no tiene `package.json` ni dependencias de build. La cobertura de líneas y ramas de `js/models/*.js` se acredita con la [matriz de trazabilidad](#matriz-de-trazabilidad-de-ramas) y se verifica con el [reporte de Chrome DevTools](#reporte-reproducible-de-cobertura-chrome-devtools), que tampoco requiere instalar nada (RC4). Para `storage.js` y `script.js` la cobertura sigue estimándose por comportamiento, como en la AO3.
 - **Requiere conexión a internet** para cargar Jasmine (y, si se agregara en el futuro, Bootstrap) desde CDN.
 - **El Modal de detalle de servicio y el Toast de confirmación** (migrados de `js/componentes-bootstrap.js` a `js/script.js` en PR #109, Issue #68) **no están en el fixture de `script.spec.js`**: `configurarComponentesBootstrap()` los omite sin error si no existen en el DOM, así que su ausencia no rompe la suite. Se decidió no agregarlos a la suite automatizada porque dependen del bundle de Bootstrap (animaciones de modal/toast con temporización propia, difícil de testear de forma determinística en Jasmine sin agregar esperas artificiales) y porque ya se verificaron manualmente con Playwright antes de abrir la PR #109 (ver esa PR para la evidencia: completado de datos del Modal desde `data-service-*`, Toast con el servicio correcto desde el Modal y desde una tarjeta directa). Queda como deuda de testing documentada, no como un vacío silencioso.
 - **El catálogo del fixture tiene 3 proveedores fijos** (los del mockup real). El caso de un catálogo extendido con nombres que colisionan entre categorías se prueba agregando un 4° proveedor hipotético dentro del test de regresión correspondiente, no como parte del fixture base.
@@ -174,7 +410,8 @@ Un 4° hallazgo (el ruteo de `planit:detalles-evento` a `sessionStorage` en vez 
 
 ---
 
-**Última actualización:** 22/11/2026 — reescritura completa para la AO4.
+**Última actualización:** 23/11/2026 — corrección docente RC4 (matriz de cobertura de ramas y reporte reproducible) y RC5 (101 specs de límites y ramas independientes en `models.spec.js`).
+**Actualización anterior:** 22/11/2026 — reescritura completa para la AO4.
 **Tester QA (AO4):** Facundo Guiraldes (@FacundoGuiraldes).
 **Colaboración con:** Desarrolladora JS POO - Carola Benvenuto (@carolabenvenuto-uces) · Desarrolladora JS Eventos + DOM - Valeria Silva (@ValeriaMSilva).
 **Versión AO3 (funciones `flujo*()` basadas en `prompt()`/`alert()`):** disponible en el historial de git de este archivo.
