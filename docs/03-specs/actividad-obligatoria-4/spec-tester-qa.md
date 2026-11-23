@@ -231,78 +231,88 @@ Las 3 issues están cerradas, referenciando su commit de fix.
 - [x] Las tres suites ejecutadas con `node js/test/run-jasmine.js`, 0 fallas, resultado documentado (11 corridas con semillas distintas).
 - [x] `js/test/testing-doc.md` actualizado con la nueva estructura, instrucciones por módulo y métricas de cobertura.
 - [x] Bugs encontrados reportados como issues en GitHub — los 3 bugs de PR #104 están reportados como issues (#111, #112, #113), cerradas referenciando sus commits de fix.
+- [x] **RC6:** `js/test/storage.spec.js` cubre storage ausente o inaccesible y errores de lectura, borrado y listado en `localStorage` y `sessionStorage`, incluyendo `SecurityError` y códigos alternativos de cuota (63 specs nuevos, `RC6-01` a `RC6-23`; ver sección 6).
 
-## Corrección docente: RC4 y RC5 (23/11/2026)
+## Corrección RC6 — Resiliencia del almacenamiento ante fallas
 
-### Observaciones atendidas
+### 6.1 Observación del docente
 
-| ID | Observación del docente | Respuesta |
-|---|---|---|
-| **RC4** | "La cantidad de specs verdes no acredita cobertura de líneas y ramas. Agregar un reporte reproducible o justificar explícitamente las ramas excluidas." | Se hicieron las dos cosas: (1) una **matriz de trazabilidad** que asigna cada rama de `js/models/*.js` a los specs que la cubren, (2) un **procedimiento reproducible** con la cobertura por bloques de Chrome DevTools, que no requiere instalar nada, y (3) la **justificación explícita** de los casos fuera de alcance. Todo está en `js/test/testing-doc.md`, sección "Cobertura de líneas y ramas de los modelos (RC4 y RC5)". |
-| **RC5** | "Completar casos de límites y ramas independientes: índices inválidos, estados true/false, cantidades y precios límite, tipos inválidos y reconstrucciones parciales o malformadas." | Se agregaron **101 specs** a `js/test/models.spec.js`, en el bloque `describe("RC5 - Límites y ramas independientes")`, con identificadores `RC5-<CLASE>-<NN>` que se usan en la matriz. |
+> "RC6 — Agregar pruebas para storage ausente o inaccesible y errores de lectura, borrado y listado en localStorage y sessionStorage, incluyendo SecurityError y códigos alternativos de cuota."
 
-### Metodología de cobertura (RC4)
+Antes de esta corrección, `storage.spec.js` solo probaba dos rutas de error: JSON corrupto en `cargar()` y `QuotaExceededError` estándar en `guardar()`. No cubría storage ausente, `SecurityError`, fallas de `removeItem`/`key`/`length`, ni las variantes de cuota de otros navegadores.
 
-- **Unidad de medida:** la rama, no el spec. Se inventariaron como ramas independientes: cada resultado de un `if` (incluido el `throw` o el `return` anticipado), **cada operando** de un `||`/`&&` (porque cortocircuitan), cada parámetro por defecto, cada comparación de límite evaluada en el valor exacto y a un paso de él, y los callbacks con decisión (`reduce`, `findIndex`, `filter`) con colección vacía, con coincidencia y sin coincidencia. Los modelos no tienen operadores ternarios ni `?.`/`??` (el grep `grep -nE '\?[^.]|\?\?' js/models/*.js` no devuelve coincidencias).
-- **Independencia:** cada rama se activa con el resto de los datos válidos. Por ejemplo, en `!json || typeof json !== "object" || Array.isArray(json)`, `null` activa solo el 1er operando, `"texto"` solo el 2º y `[]` solo el 3º.
-- **Mensajes exactos:** los specs RC5 usan `toThrowError(mensaje)` con el texto literal de cada modelo. Así se sabe **qué** validación rechazó la entrada, no solo que algo lanzó un error.
-- **Cobertura de líneas:** se deduce de la de ramas, porque todas las líneas de `js/models/*.js` están dentro de métodos cuyos caminos de entrada y salida están todos en la matriz.
-- **Hallazgo durante el inventario:** el spec base `Proveedor › coincideCon("SONIDO")` coincidía por **nombre** ("DJ Lucas & **Sonido**") y nunca evaluaba el operando de categoría del `||`. Con la métrica "specs verdes" esta rama parecía cubierta y no lo estaba. Ahora la cubre `RC5-PRV-07`.
+### 6.2 Casos de prueba agregados
 
-### Resumen de la matriz de trazabilidad (RC4)
+Bloque nuevo `describe("RC6 — Resiliencia ante storage ausente, inaccesible o con errores")` en `js/test/storage.spec.js`. El identificador de cada caso aparece entre corchetes en el título del `describe`/`it`, así se lo puede buscar en el reporter de Jasmine.
 
-La matriz completa (rama por rama) está en `js/test/testing-doc.md`. Resumen por clase:
+| ID | Escenario | Storage | Resultado esperado | Specs |
+|---|---|---|---|---|
+| RC6-01 | `window.<storage>` es `null` | local y session | Ninguna operación lanza; `eliminar()` → `false` pero borra igual del otro storage; `listar()` devuelve las claves del otro storage; si falta `localStorage`, `guardar()` → `false` y `cargar()` → `null`; si falta `sessionStorage`, `guardar()`/`cargar()` siguen funcionando. | 8 |
+| RC6-02 | `window.<storage>` es `undefined` | local y session | Igual que RC6-01. | 8 |
+| RC6-03 | El getter de `window.<storage>` lanza `SecurityError` (incógnito estricto, iframe cruzado) | local y session | Igual que RC6-01. | 8 |
+| RC6-04 | No hay ningún storage disponible | ambos | Todas las operaciones devuelven valores seguros (`false` / `null` / `[]`), sin lanzar. | 1 |
+| RC6-05 | El `SecurityError` simulado es el estándar | — | `DOMException`, `name: "SecurityError"`, `code: 18` (`DOMException.SECURITY_ERR`). | 1 |
+| RC6-06 | `setItem` lanza `SecurityError` | local | `guardar()` → `false`; `console.error` recibe el error original. | 1 |
+| RC6-07 | `getItem` lanza `SecurityError` | local | `cargar()` → `null`. | 1 |
+| RC6-08 | `removeItem` lanza `SecurityError` | local y session | `eliminar()` → `false`. | 2 |
+| RC6-09 | `SecurityError` legacy (`name: "SECURITY_ERR"`, `code: 18`, no es `DOMException`) | local | `guardar()` → `false`. | 1 |
+| RC6-10 | `getItem` lanza un error genérico | local | `cargar()`/`obtener()` → `null`, sin lanzar. | 1 |
+| RC6-11 | `getItem` falla solo en `sessionStorage` | session | `cargar()` no se ve afectado (lee de `localStorage`). | 1 |
+| RC6-12 | Dato no deserializable: objeto truncado, array truncado, `undefined`, `NaN`, comillas simples, string vacío | local | `cargar()` → `null`, sin lanzar. | 6 |
+| RC6-13 | `removeItem` falla en un storage | local y session | `eliminar()` → `false`, pero igual borra del otro storage. | 2 |
+| RC6-14 | `removeItem` falla durante `limpiar()` | local y session | `limpiar()` → `false`, sin lanzar, y limpia el otro storage. | 2 |
+| RC6-15 | `Storage.clear()` lanza | ambos | `limpiar()` no usa `clear()`: limpia igual y no toca claves de otro prefijo. | 1 |
+| RC6-16 | Leer `length` lanza | local y session | `listar()` devuelve las claves del otro storage. | 2 |
+| RC6-17 | `key()` lanza | local y session | `listar()` devuelve las claves del otro storage. | 2 |
+| RC6-18 | `key()` lanza en ambos | ambos | `listar()` → `[]`, sin lanzar. | 1 |
+| RC6-19 | `QuotaExceededError` (`DOMException`, code 22): W3C, Chromium y Firefox actual | local | Por cada variante de cuota (RC6-19 a RC6-22): (a) el error simulado tiene el `name`/`code` esperado; (b) `guardar()`/`actualizar()` → `false` sin lanzar y loguean el error original; (c) el valor previo de la clave queda intacto. | 3 |
+| RC6-20 | `NS_ERROR_DOM_QUOTA_REACHED`, code 1014 (Firefox legacy) | local | Ídem. | 3 |
+| RC6-21 | `QUOTA_EXCEEDED_ERR`, code 22 (WebKit/Safari legacy, incluido el modo privado con cuota 0) | local | Ídem. | 3 |
+| RC6-22 | IE/Edge legacy: `Error` genérico con `number: -2147024882` (`E_OUTOFMEMORY`) | local | Ídem. | 3 |
+| RC6-23 | Un storage lleno (todo `setItem` lanza) | local y session | Leer, listar y borrar siguen funcionando. | 2 |
+| | | | **Total** | **63** |
 
-| Clase | Métodos con ramas | Specs base de la clase | Specs RC5 que completan |
-|---|---|---|---|
-| `Validador` | `esTextoNoVacio`, `convertirANumero`, `buscarOpcion` | 8 | RC5-VAL-01..09 |
-| `ItemContratado` | `constructor` (6 condiciones), `fromJSON` (3 + delegación) | 6 | RC5-IC-01..16 |
-| `Presupuesto` | `agregarItem`, `eliminarItem` (3 condiciones), `aplicarDescuento` (3), `superaLimite` (2 + resultado), `fromJSON` (3 + anidado) | 12 | RC5-PRE-01..19 |
-| `Invitado` | `validar`, `constructor`, `esConfirmado` (`true`/`false`), `cambiarEstado`, `fromJSON` | 6 | RC5-INV-01..11 |
-| `ListaInvitados` | `eliminar` (3 caminos), `contarAsistencia` (`if`/`else`), `fromJSON` | 11 | RC5-LI-01..10 |
-| `Evento` | `validarDatos` (4 condiciones), `superaPresupuesto` (parámetro por defecto + comparación), `fromJSON` (raíz + 2 claves opcionales independientes) | 11 | RC5-EV-01..19 |
-| `Proveedor` | `constructor` (5 condiciones), `coincideCon` (blanco + 2 operandos del `\|\|`), `fromJSON` | 6 | RC5-PRV-01..10 |
-| `CatalogoProveedores` | `agregarProveedor`, `buscar`, `fromJSON` | 11 | RC5-CAT-01..07 |
+**Aislamiento entre specs:** cada falla se simula con `spyOnProperty(window, "localStorage" | "sessionStorage", "get")` o con espías sobre `Storage.prototype`. Para los espías de prototipo, un `callFake` lanza solo cuando `this` es el storage elegido y delega en el método original para el otro; así cada storage se prueba por separado. Jasmine restaura todos los espías al terminar cada spec. Además, el `afterEach` del bloque borra las claves `planit:test-*` usando los storages y métodos reales, capturados **antes** de instalar cualquier espía, para que la limpieza no dependa de los mocks. `console.error` se espía en el `beforeEach` porque `Almacenamiento` loguea cada falla a propósito y `run-jasmine.js` falla si encuentra un `console.error` sin mockear.
 
-**Resultado:** todas las ramas de `js/models/*.js` tienen al menos un spec asignado. **No hay ramas excluidas.**
+**Nota de ruteo:** `CLAVES_SESSION` está vacío, así que `guardar()` y `cargar()` siempre usan `localStorage`; `eliminar()` y `listar()` recorren ambos storages. Por eso `sessionStorage` se cubre en ausencia/inaccesibilidad, borrado y listado. En lectura y escritura se verifica que una falla suya no afecte a `cargar()`/`guardar()` (RC6-01 a RC6-03 y RC6-11).
 
-### Justificación de los casos fuera de alcance (RC4)
+### 6.3 Justificación técnica del manejo de excepciones
 
-1. **Salvaguarda `instanceof` de `agregarItem`/`agregarProveedor` cuando se llaman desde `fromJSON`:** por ese camino es inalcanzable, porque el elemento ya viene de `ItemContratado.fromJSON`/`Proveedor.fromJSON`, que devuelven una instancia válida o lanzan antes. La misma rama (la misma línea) sí se cubre con llamadas directas: `RC5-PRE-01` y `RC5-CAT-01`.
-2. **`Validador.buscarOpcion` con un `opciones` que no es array:** no es una rama del código. Es una entrada fuera del contrato de una API interna que solo recibe las constantes estáticas `Evento.TIPOS` e `Invitado.ESTADOS`.
-3. **Desborde numérico a `Infinity`** (`ItemContratado` con `Number.MAX_VALUE`): no hay ningún `if` que lo controle. `RC5-IC-12` documenta el comportamiento actual. Acotarlo sería una mejora del modelo (rol Dev POO), no una rama faltante de la suite.
+- **Captura uniforme en vez de clasificar el error.** `Almacenamiento` envuelve cada acceso al storage en `try/catch` y ante **cualquier** excepción devuelve un valor seguro (`false` en escrituras y borrados, `null` en lecturas, `[]` en listados). No inspecciona `name` ni `code`. No hace falta, porque la respuesta es la misma para todas las fallas: seguir en memoria y avisar. Además, no existe un único criterio portable para reconocer una falla de cuota: el estándar usa `QuotaExceededError`/22, Firefox legacy `NS_ERROR_DOM_QUOTA_REACHED`/1014, WebKit legacy `QUOTA_EXCEEDED_ERR`/22 e IE un `Error` con `number` −2147024882. RC6-19 a RC6-22 prueban que esta estrategia cubre las cuatro variantes sin una lista de códigos que mantener.
+- **SecurityError puede saltar en el getter, no solo en los métodos.** En modo incógnito estricto, con cookies de terceros bloqueadas o en un iframe de otro origen, el navegador lanza `SecurityError` (code 18) al **leer** la propiedad `window.localStorage`, antes de cualquier `getItem`/`setItem`. Por eso el acceso a la propiedad tiene que estar dentro del `try`.
+- **Degradación elegante.** Cuando un storage no está disponible, el otro sigue funcionando: `eliminar()` y `listar()` siguen con el storage restante. `eliminar()` devuelve `false` porque no puede garantizar que la clave se haya borrado de todos lados. El controlador (`escribirEnAlmacenamiento`, issue #111) usa ese `boolean` para avisarle al usuario en vez de reportar un falso éxito.
+- **Sin escrituras parciales.** Si `setItem` lanza, el valor anterior de la clave queda intacto (RC6-19 a RC6-22, caso c). El usuario pierde solo el último cambio, no el dato guardado.
 
-### Suite de specs ampliada (RC5)
+### 6.4 Bug encontrado y corregido
 
-| Pedido del docente | Specs que lo cubren |
-|---|---|
-| **Índices inválidos** | `RC5-PRE-02` (`"0"`, `0.5`, `1.5`: no enteros aunque sean numéricos), `RC5-PRE-03` (`NaN`, `±Infinity`, `null`, `undefined`, `true`), `RC5-PRE-04` (`-1` con ítems), `RC5-PRE-05` (`=== length`); y como contraste válido, `RC5-PRE-06` (`length - 1`) y `RC5-PRE-07` (intermedio, orden preservado). En `ListaInvitados.eliminar` (por nombre): `RC5-LI-02..05`. |
-| **Estados `true`/`false`** | `RC5-INV-01` (`esConfirmado() === false`), `RC5-INV-02` (Pendiente → Confirmado → Pendiente), `RC5-INV-03` (idempotencia), `RC5-INV-04` (un cambio inválido no altera el estado), `RC5-LI-06`/`RC5-LI-07` (`if`/`else` de `contarAsistencia` por separado y después de una transición), `RC5-EV-07..10` (`superaPresupuesto` en `true` y en `false`, con total igual al estimado), `RC5-PRE-14`/`15` (`superaLimite`), `RC5-PRV-06..08` (`coincideCon`). |
-| **Cantidades y precios límite** | `RC5-IC-01` (`0` aceptado), `RC5-IC-02` (decimales), `RC5-IC-03`/`04` (`-0.01` en cada campo), `RC5-IC-05`/`06` (`NaN`, `Infinity`), `RC5-IC-11` (`MAX_SAFE_INTEGER`), `RC5-IC-12` (desborde), `RC5-PRE-10..13` (descuento decimal, redondeo, `-0.01`/`100.01`), `RC5-PRE-14..16` (límite `0`, decimal, inválidos), `RC5-EV-03`/`04` (presupuesto `0`, `-0.01`, mínimo `0.01`, `"1e6"`), `RC5-PRV-02`/`03` (precio `0`, decimal, `-0.01`). |
-| **Tipos inválidos** | `RC5-VAL-01`, `05`, `06` (boolean, array, objeto, `"3,5"`, `"1 000"`), `RC5-IC-07`/`08`, `RC5-PRE-01` (objeto plano con forma de ítem, otra clase del dominio), `RC5-INV-07`, `RC5-EV-01..03`, `RC5-PRV-01`/`03`, `RC5-CAT-01`/`02`. |
-| **Reconstrucciones parciales o malformadas** | `RC5-IC-13..16`, `RC5-PRE-17..19`, `RC5-INV-09..11`, `RC5-LI-08..10`, `RC5-EV-13..19` (incluye **clave ausente frente a clave `null`** en `presupuesto`/`invitados` y cada clave opcional por separado), `RC5-PRV-09`/`10`, `RC5-CAT-05..07`. |
+Los tests RC6-03 (getter que lanza `SecurityError`) **fallaban** contra el `js/utils/storage.js` mergeado. `eliminar()` y `listar()` armaban el array `[window.localStorage, window.sessionStorage]` **fuera** del `try`, así que la excepción del getter llegaba al llamador y rompía el contrato de "ninguna operación lanza". `guardar()`/`cargar()` no tenían el problema, porque `resolverStorage()` ya se llamaba dentro del `try`.
 
-**Conteo:** `models.spec.js` pasa de 71 a **172 specs** (+101). La suite completa pasa de 111 a **212 specs** (172 + 19 + 21). Conteo reproducible con `grep -c '^\s*it("' js/test/*.spec.js`.
+**Fix mínimo** en `js/utils/storage.js`: los dos bucles recorren `NOMBRES_STORAGE = ["localStorage", "sessionStorage"]` y leen `window[nombre]` dentro del `try`. No cambia el contrato público ni el comportamiento cuando el storage funciona.
 
-### Resultados de ejecución de la suite ampliada
+**Verificación por mutación:** al volver a poner el acceso fuera del `try`, la suite pasa de 0 a **9 fallas** (todas en el bloque RC6-03). Con el fix, 0 fallas.
 
-La suite completa se ejecutó el 23/11/2026 en el navegador, abriendo el runner HTML de Jasmine (`js/test/test-runner.html`) servido con Live Server (`http://localhost:5500/js/test/test-runner.html`):
+### 6.5 Resultados de ejecución
+
+En esta máquina no hay Node.js, así que no se pudo usar `node js/test/run-jasmine.js`. La suite se ejecutó con el mismo `test-runner.html` en **Microsoft Edge headless** (Chromium), con `msedge --headless=new --virtual-time-budget=20000 --dump-dom` y logging de consola habilitado:
 
 ```
-212 specs, 0 failures
+174 specs, 0 failures, randomized with seed 29568
+174 specs, 0 failures, randomized with seed 52775
+174 specs, 0 failures, randomized with seed 40154
+174 specs, 0 failures, randomized with seed 55507
+174 specs, 0 failures, randomized with seed 53786
 ```
 
-- **Suite ampliada:** los 101 specs nuevos de RC5 pasaron sin fallas, y los 111 anteriores (`models.spec.js` base, `storage.spec.js` y `script.spec.js`) siguen pasando. Esta corrida se hizo en el navegador y no con `node js/test/run-jasmine.js`, porque el entorno de la corrección no tiene Node.js instalado. Se usó el mismo runner HTML y la misma versión de Jasmine.
-- **Cobertura (RC4):** en la misma corrida, la pestaña Coverage de DevTools (*Per block*) confirmó la **cobertura total de ramas** de las 8 clases de `js/models/`, sin bloques sin ejecutar. Coincide con la matriz de trazabilidad: 0 ramas excluidas.
+Total: 71 (`models.spec.js`) + **82** (`storage.spec.js`: 19 anteriores + 63 de RC6) + 21 (`script.spec.js`). En las 5 corridas, los únicos mensajes de consola fueron avisos de Tracking Prevention de Edge sobre los recursos de Jasmine en el CDN; ninguno vino de la aplicación ni de los tests. Queda pendiente repetir la corrida con `node js/test/run-jasmine.js` en un entorno con Node.js y Playwright, para que la evidencia quede con el runner oficial del proyecto.
 
-### Checklist de cierre RC4 / RC5
+### 6.6 Checklist de cierre RC6
 
-- [x] **RC5:** specs de índices inválidos, estados `true`/`false`, cantidades y precios límite, tipos inválidos y reconstrucciones parciales o malformadas agregados a `js/test/models.spec.js` (101 specs, `RC5-*`).
-- [x] **RC5:** suite ampliada registrada en `js/test/testing-doc.md` (tabla por clase) y en este documento.
-- [x] **RC4:** metodología de cobertura de líneas y ramas documentada (`if`/`else`, operandos de `||`/`&&`, parámetros por defecto, límites, callbacks; sin ternarios en los modelos).
-- [x] **RC4:** matriz de trazabilidad rama → spec completa en `js/test/testing-doc.md`, con resumen en este documento.
-- [x] **RC4:** casos fuera de alcance justificados explícitamente (0 ramas excluidas).
-- [x] **RC4:** procedimiento de reporte reproducible documentado (Chrome DevTools Coverage, *Per block*, y mutación manual).
-- [x] **RC5:** suite ampliada ejecutada en el navegador (Jasmine, `js/test/test-runner.html` sobre Live Server): 212 specs, 0 fallas, resultado registrado.
-- [x] **RC4:** cobertura de ramas de `js/models/*.js` verificada con DevTools Coverage: cobertura total en las 8 clases, resultado registrado.
-- [ ] Capturas de `js/test/screenshots/` regeneradas con `node js/test/take-screenshots.js` (todavía muestran 111 specs).
+- [x] Storage ausente (`null`/`undefined`) e inaccesible (getter que lanza) en `localStorage` y `sessionStorage` (RC6-01 a RC6-04).
+- [x] `SecurityError` estándar (`DOMException`, code 18) y legacy, en getter, `setItem`, `getItem` y `removeItem` (RC6-03, RC6-05 a RC6-09).
+- [x] Errores de lectura (`getItem` que lanza) y datos no deserializables (RC6-07, RC6-10 a RC6-12).
+- [x] Errores de borrado (`removeItem` y `clear`) (RC6-08, RC6-13 a RC6-15).
+- [x] Errores de listado (`key` y `length`) (RC6-16 a RC6-18).
+- [x] Códigos alternativos de cuota: `QuotaExceededError`/22, `NS_ERROR_DOM_QUOTA_REACHED`/1014, `QUOTA_EXCEEDED_ERR`/22 e IE `E_OUTOFMEMORY` (RC6-19 a RC6-23).
+- [x] Espías restaurados después de cada spec y limpieza en `afterEach` con referencias reales, sin contaminar otras suites (5 corridas con semillas aleatorias distintas, 0 fallas).
+- [x] Bug de `SecurityError` en `eliminar()`/`listar()` corregido en `js/utils/storage.js` (sección 6.4).
+- [x] `js/test/testing-doc.md` actualizado con los casos, la justificación técnica y las métricas nuevas.
