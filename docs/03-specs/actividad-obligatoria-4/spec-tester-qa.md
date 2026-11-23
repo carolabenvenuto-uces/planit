@@ -124,7 +124,7 @@ Detalle completo de las 3 suites (71 + 19 + 21 specs) en `js/test/testing-doc.md
 - `ao4-storage.png`: detalle de `storage.spec.js` (incluye el test de storage lleno agregado en esta ronda).
 - `ao4-script.png`: detalle de `script.spec.js`.
 
-**Nota sobre Playwright MCP:** no tuve el servidor Playwright MCP conectado en la sesión donde se escribió esta suite. Las capturas se generaron igual con Playwright, pero vía la librería `playwright` (la misma que ya usa `run-jasmine.js`, commiteada como devDependency desde la corrección de la AO3) en un script dedicado (`js/test/take-screenshots.js`), no con el servidor MCP interactivo. El resultado visual es equivalente (mismo navegador Chromium, misma página, mismo reporter HTML de Jasmine); la salvedad queda documentada acá para que quede claro que no se usó el MCP en sí.
+**Nota sobre Playwright MCP:** no tuve el servidor Playwright MCP conectado en la sesión donde se escribió esta suite. Las capturas se generaron igual con Playwright, pero vía la librería `playwright` (la misma que ya usa `run-jasmine.js`; en ese momento instalada solo en forma local, sin `package.json` versionado: se declaró formalmente como devDependency recién en la corrección RC20, ver sección 6) en un script dedicado (`js/test/take-screenshots.js`), no con el servidor MCP interactivo. El resultado visual es equivalente (mismo navegador Chromium, misma página, mismo reporter HTML de Jasmine); la salvedad queda documentada acá para que quede claro que no se usó el MCP en sí.
 
 ### 3.1. Corrección RC2: evidencia E2E mediante agente con automatización de navegador
 
@@ -293,79 +293,41 @@ Esto contradice el contrato que ya se testea para `guardar(clave, undefined)` (d
 - [x] Las tres suites ejecutadas con `node js/test/run-jasmine.js`, 0 fallas, resultado documentado (11 corridas con semillas distintas).
 - [x] `js/test/testing-doc.md` actualizado con la nueva estructura, instrucciones por módulo y métricas de cobertura.
 - [x] Bugs encontrados reportados como issues en GitHub — los 3 bugs de PR #104 están reportados como issues (#111, #112, #113), cerradas referenciando sus commits de fix.
-- [x] **RC14**: integración del Modal de detalle: `show.bs.modal` con `relatedTarget`, datos completos del servicio, ARIA y foco con Bootstrap real, y propagación al botón "Sumar al Evento" del Modal (INT-RC14-01 a 05, sección 6).
-- [x] **RC15**: integración de cada `.btn-sumar-evento` (3 tarjetas + Modal) con Bootstrap presente (`bootstrap.Toast` invocado) y ausente (degradación sin errores), más la degradación agregada en `js/script.js` (INT-RC15-01 a 05, sección 6).
-- [x] **RC16**: persistencia y restauración en una carga nueva de la página (reinicio de memoria y DOM + `DOMContentLoaded`), con control negativo y caso de datos inválidos (INT-RC16-01 a 03, sección 6).
-- [x] Suite ampliada ejecutada y resultado registrado en la sección 6.4: **124 specs, 0 failures**, en el navegador con `js/test/test-runner.html` sobre Live Server.
 
-### 6. Integración Controlador y UI (observaciones docentes RC14, RC15 y RC16)
+### 6. Ejecución reproducible por línea de comandos (corrección RC20)
 
-Observaciones atendidas:
+**Observación del docente (RC20):** "La ejecución documentada no es reproducible desde un checkout limpio: faltan package.json, lockfile y dependencia Playwright."
 
-- **RC14:** "Falta una integración que dispare `show.bs.modal` y verifique foco, datos completos del servicio y propagación al botón de sumar."
-- **RC15:** "Falta una integración para cada botón `btn-sumar-evento`, verificando el Toast con Bootstrap presente y ausente."
-- **RC16:** "Falta probar persistencia y restauración desde una carga nueva de la página; los round trips unitarios de Storage no reemplazan esta integración."
+**Causa:** `run-jasmine.js` y `take-screenshots.js` hacen `require("playwright")`, pero el repositorio no declaraba esa dependencia en ningún archivo versionado. `package.json` y `package-lock.json` existían solo en la máquina local de quien corrió la suite porque estaban listados en `.gitignore`. Un clon limpio fallaba con `Cannot find module 'playwright'`, y las afirmaciones previas de esta spec ("commiteada como devDependency") no se correspondían con el contenido real del repositorio.
 
-Se agregó a `js/test/script.spec.js` el bloque `describe("Integración - Controlador y UI (RC14, RC15, RC16)")`, con 13 specs nombrados con un identificador trazable.
+**Cambios realizados:**
+- `package.json` en la raíz: metadata del proyecto (`"name": "planit"`, `"version": "1.0.0"`, `"private": true`, `"type": "commonjs"` porque los scripts de test usan `require`), `"engines": { "node": ">=20" }` (mínimo que exige Playwright 1.64), `playwright` fijado en la versión exacta `1.64.1` como `devDependency` (sin `^`, para que una edición manual del lockfile no habilite otra versión) y los scripts `test`, `test:browser`, `test:install-browsers` y `test:screenshots`.
+- `package-lock.json` (formato `lockfileVersion: 3`): fija `playwright@1.64.1` y su única dependencia transitiva `playwright-core@1.64.1`, cada una con su URL de descarga del registro npm y su hash de integridad `sha512`, de modo que `npm ci` instala exactamente el mismo árbol en cualquier entorno.
+- `.gitignore`: se quitaron las entradas `package.json` y `package-lock.json` (se mantiene `node_modules/`).
+- `js/test/open-runner.js`: script nuevo detrás de `npm run test:browser`, que abre `test-runner.html` en un Chromium con ventana visible.
+- `js/test/testing-doc.md`: la sección "Ejecución reproducible por línea de comandos" pasa a documentar el procedimiento completo desde un checkout limpio.
 
-#### 6.1. Matriz de casos de integración
-
-| ID | Obs. | Caso | Resultado esperado |
-|---|---|---|---|
-| INT-RC14-01 | RC14 | `show.bs.modal` con `relatedTarget` (Flores Pilar) | Título, descripción, capacidad, duración, incluye, precio, `src` y `alt` de la imagen iguales a los `data-service-*` del disparador. |
-| INT-RC14-02 | RC14 | `show.bs.modal` sin `relatedTarget` | El Modal y su botón "Sumar al Evento" no cambian. |
-| INT-RC14-03 | RC14 | Apertura real con "Ver detalle" (Bootstrap) | `role="dialog"`, `aria-modal="true"`, sin `aria-hidden`, `aria-labelledby` con el servicio; foco dentro del Modal; al cerrar, `aria-hidden="true"` y el foco vuelve al disparador. |
-| INT-RC14-04 | RC14 | Dos aperturas seguidas (Gourmet → Flores) | El botón del Modal tiene título y precio del último proveedor, sin datos del anterior. |
-| INT-RC14-05 | RC14 | Abrir → "Sumar al Evento" del Modal | El Toast muestra el proveedor abierto y el Modal se cierra. |
-| INT-RC15-01 | RC15 | Bootstrap presente, 3 botones de tarjeta | `bootstrap.Toast.getOrCreateInstance` y `show()` invocados en cada clic; texto y clase `show` correctos. |
-| INT-RC15-02 | RC15 | Bootstrap presente, botón del Modal | `show()` invocado con el servicio del Modal. |
-| INT-RC15-03 | RC15 | Bootstrap ausente desde el arranque, 3 botones de tarjeta | Sin errores (`window` ni `console.error`); Toast visible con clase `show`, texto correcto, `role="status"`/`aria-live`; se oculta tras `data-bs-delay`. |
-| INT-RC15-04 | RC15 | Bootstrap ausente, botón del Modal | Sin errores; Toast degradado con el servicio del Modal. |
-| INT-RC15-05 | RC15 | Bootstrap ausente, dos clics seguidos | El segundo clic reinicia el temporizador del Toast. |
-| INT-RC16-01 | RC16 | Ciclo de vida completo (5 pasos) | Lo modificado en la UI se graba, se descarta de memoria y DOM, y se reconstruye fielmente al volver a disparar `DOMContentLoaded`. |
-| INT-RC16-02 | RC16 | Control: carga nueva con storage vacío | Se muestran los datos del marcado (total $580.000, 3 invitados). |
-| INT-RC16-03 | RC16 | Carga nueva con `planit:evento` inválido | Sin errores; aviso de datos dañados y caída a los datos de ejemplo. |
-
-El detalle de disparos y aserciones de cada caso está en `js/test/testing-doc.md`, sección "Integración - Controlador y UI (RC14, RC15, RC16)".
-
-#### 6.2. Justificación técnica: ciclo de vida completo (RC16)
-
-Los round trips de `storage.spec.js` prueban que un `Evento` sobrevive `guardar(toJSON())` → `fromJSON(cargar())`, pero no que la **aplicación** use esos datos al arrancar. Entre el storage y lo que ve el usuario están `cargarEventoInicial()`, `sincronizarFormularioEvento()` (fecha y ubicación desde `planit:detalles-evento`), `sincronizarCantidadesPresupuesto()` y el render inicial de cada flujo; un error en cualquiera de ellos deja el storage correcto y la pantalla mostrando el mockup.
-
-Por eso INT-RC16-01 separa explícitamente **memoria** de **persistencia**:
-
-1. Modifica el estado solo a través de la UI (alta de invitado, cantidad de Catering, ubicación guardada).
-2. Verifica el storage leyendo `localStorage` en crudo, no con `Almacenamiento`, para no validar el módulo consigo mismo.
-3. Descarta todo lo que no es storage: `estadoApp` queda en `null` y los nodos del fixture se reemplazan por nodos nuevos, parseados del marcado original capturado antes de `DOMContentLoaded` (sin listeners ni valores modificados). Antes de continuar se comprueba que no queda rastro del cambio en el DOM.
-4. Arranca la app con el mismo disparador que `index.html` (`DOMContentLoaded`).
-5. Verifica que el DOM reconstruido refleje lo persistido: subtotal de Catering $525.000, total $685.000, invitada con badge "Confirmado" y métricas 3/1, ubicación restaurada, y una instancia de `Evento` distinta de la anterior.
-
-INT-RC16-02 es el control negativo: la misma rutina, con storage vacío, muestra el marcado. Así se demuestra que lo que restaura INT-RC16-01 sale del storage. INT-RC16-03 cubre la rama de datos dañados de `cargarEventoInicial()`.
-
-#### 6.3. Justificación técnica: resiliencia ante la ausencia de Bootstrap (RC15)
-
-Bootstrap llega desde un CDN externo y es la única dependencia de terceros que usa `js/script.js` en tiempo de ejecución. Al escribir INT-RC15-03 apareció un hallazgo real: `configurarToastConfirmacion()` hacía `return` si `bootstrap` no existía al iniciar, así que sin Bootstrap el botón "Sumar al Evento" no daba ningún feedback. Se corrigió en `js/script.js`:
-
-- los listeners de `.btn-sumar-evento` se registran siempre;
-- la nueva función `mostrarToast()` consulta Bootstrap **en cada clic**: si existe, usa `bootstrap.Toast.getOrCreateInstance(...).show()`; si no, aplica la clase `show` del CSS de Bootstrap y quita el Toast al vencer el mismo `data-bs-delay`;
-- el Toast ya es `role="status"` + `aria-live="polite"`, así que el mensaje se anuncia en ambos casos.
-
-Los specs de "ausente" quitan `window.bootstrap` **antes** de montar los componentes (el caso más exigente: Bootstrap nunca cargó), escuchan errores en `window` y espían `console.error`, y usan `jasmine.clock()` para verificar el ocultamiento sin esperas reales. Los de "presente" cargan el mismo bundle 5.3.3 que `index.html` en `test-runner.html` y esperan los eventos `shown.bs.modal`/`hidden.bs.modal` en vez de usar tiempos fijos, que era el motivo por el que el Modal y el Toast se habían dejado fuera de la suite en PR #109.
-
-**Fuera de alcance de RC14:** la observación menciona "categoría" y "badge" en el Modal, pero el Modal de `index.html` no tiene esos campos. Se verifican todos los campos que sí existen, y la falta queda reportada al rol Eventos + DOM.
-
-#### 6.4. Resultados de ejecución
-
-**Primera corrida (navegador, `test-runner.html`, 23/11/2026): 2 errores en RC15.** `TypeError: Cannot read properties of null (reading 'classList') at bootstrap.bundle.min.js`, atribuido a los `describe` "Bootstrap presente" y "Bootstrap ausente (degradación)".
-
-- **Diagnóstico:** no faltaba el Toast en el DOM (el sandbox tiene `#toastConfirmacion` igual que `index.html`). `Toast.show()` deja en cola un callback de fin de transición (~5 ms, emulado con `setTimeout` porque el runner no carga el CSS de Bootstrap). El `afterEach` hacía `dispose()` en el mismo tick, `_element` quedaba en `null` y el callback fallaba al ejecutarse durante la suite siguiente.
-- **Corrección en `js/test/script.spec.js`:** el `afterEach` pasa a ser asíncrono y espera a que terminen las transiciones antes de hacer `dispose()`. `window.bootstrap` se guarda y se restaura en `beforeEach`/`afterEach`. En "Bootstrap ausente", los clics del sandbox ya no llegan a `document`, para que los handlers *data-api* que el bundle ya registró no se ejecuten.
-- **Corrección en `js/script.js`:** como defensa adicional, `mostrarToast()` sale sin hacer nada si recibe un elemento nulo.
-
-**Segunda corrida (navegador, `js/test/test-runner.html` sobre Live Server, 23/11/2026): en verde.**
+**Procedimiento desde un checkout limpio** (requisitos: Git y Node.js 20 o superior):
 
 ```
-124 specs, 0 failures
+git clone https://github.com/carolabenvenuto-uces/planit.git
+cd planit
+npm ci
+npm run test:install-browsers
+npm test
 ```
 
-Suite completa: 71 (`models.spec.js`) + 19 (`storage.spec.js`) + 34 (`script.spec.js`, de los cuales 13 son INT-RC14-01 a INT-RC16-03). Pasan todos los specs de integración de RC14, RC15 y RC16, y también los 111 anteriores, así que el bloque nuevo no rompió ninguno de los specs existentes.
+| Paso | Qué hace |
+|---|---|
+| `npm ci` | Instala `playwright` y `playwright-core` exactamente como figuran en `package-lock.json`. Falla si `package.json` y el lockfile no coinciden, en vez de resolver versiones nuevas. |
+| `npm run test:install-browsers` | Ejecuta `playwright install chromium`: descarga el Chromium que corresponde a Playwright 1.64.1. Es un paso aparte porque los binarios del navegador no son un paquete npm y el lockfile no los cubre. En Linux sin librerías de sistema: `npx playwright install --with-deps chromium`. |
+| `npm test` | Ejecuta `node js/test/run-jasmine.js`: imprime `111 specs, 0 failures, randomized with seed <n>` y termina con código `0` (o `1` si hay specs fallidos o errores de consola sin mockear). |
+
+`npm run test:browser` abre el mismo runner con ventana visible; abrir `js/test/test-runner.html` directamente en un navegador sigue siendo válido y no requiere Node.
+
+**Criterio de aceptación de RC20:**
+- [x] `package.json` versionado con la dependencia `playwright` y los scripts `test` y `test:browser`.
+- [x] `package-lock.json` versionado, coherente con `package.json` (mismas versiones en la raíz del lockfile y en `devDependencies`).
+- [x] `package.json` y `package-lock.json` fuera de `.gitignore`.
+- [x] Procedimiento paso a paso desde `git clone` documentado aquí y en `js/test/testing-doc.md`.
+- [ ] Verificado en un clon limpio con `npm ci` y `npm test` (pendiente: la máquina donde se preparó esta corrección no tiene Node.js instalado; el lockfile se armó con los metadatos reales del registro npm para `playwright@1.64.1` y `playwright-core@1.64.1`, URL e `integrity` incluidas, pero `npm ci` todavía no se corrió sobre él).

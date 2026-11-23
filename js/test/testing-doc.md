@@ -39,16 +39,52 @@ Como consecuencia, la suite se divide en 3 archivos con responsabilidades distin
 3. Verificar resultados en la interfaz de Jasmine (verde = pasando, rojo = fallando).
 
 ### Ejecución reproducible por línea de comandos
-```
-node js/test/run-jasmine.js
-```
-Script ya commiteado desde la corrección de AO3 (RC13, PR #99): abre `test-runner.html` en Chromium headless con Playwright, espera el resumen de Jasmine y lo imprime. Termina con código de salida `1` si hay specs fallidos o si se registró algún `console.error`/`pageerror` durante la corrida (por eso los tests que ejercitan una ruta de error esperada de `Almacenamiento`, que loguea con `console.error` por diseño, usan `spyOn(console, "error")`).
+
+> **Corrección RC20.** La versión anterior de esta sección indicaba `node js/test/run-jasmine.js`, pero no era reproducible desde un checkout limpio: el repositorio no tenía `package.json` ni lockfile (ambos estaban excluidos en `.gitignore`), así que la dependencia `playwright` que el script importa no quedaba declarada en ningún lado. Ahora se versionan `package.json` (con `playwright` fijado en `1.64.1` como `devDependency` y los scripts de npm) y `package-lock.json` (con la URL y el hash de integridad `sha512` de cada paquete), y se quitaron ambos del `.gitignore`.
+
+**Requisitos previos:** Git y Node.js 20 o superior (incluye npm). No hace falta instalar nada de forma global.
+
+**Procedimiento desde un checkout limpio:**
+
+1. Clonar el repositorio y entrar a la carpeta:
+   ```
+   git clone https://github.com/carolabenvenuto-uces/planit.git
+   cd planit
+   ```
+2. Instalar las dependencias exactas del lockfile (instalación determinista; `npm ci` falla si `package.json` y `package-lock.json` no coinciden, en vez de resolver versiones nuevas):
+   ```
+   npm ci
+   ```
+3. Descargar el navegador Chromium que usa Playwright (paso único por máquina; los binarios no son un paquete npm y por eso no los cubre el lockfile):
+   ```
+   npm run test:install-browsers
+   ```
+   En Linux sin las librerías de sistema de Chromium, usar `npx playwright install --with-deps chromium`.
+4. Ejecutar la suite de Jasmine por consola:
+   ```
+   npm test
+   ```
+   Salida esperada (la semilla cambia en cada corrida porque Jasmine aleatoriza el orden):
+   ```
+   111 specs, 0 failures, randomized with seed 12345
+   ```
+
+**Scripts disponibles en `package.json`:**
+
+| Script | Comando | Para qué sirve |
+|---|---|---|
+| `npm test` | `node js/test/run-jasmine.js` | Corre la suite en Chromium headless e imprime el resumen. Código de salida `0` si todo pasa, `1` si hay fallas. |
+| `npm run test:browser` | `node js/test/open-runner.js` | Abre `test-runner.html` en un Chromium con ventana visible para inspeccionar el reporter HTML de Jasmine. Equivale a abrir el archivo a mano (ver "Pasos para Ejecutar"). |
+| `npm run test:install-browsers` | `playwright install chromium` | Descarga el Chromium de la versión de Playwright fijada en el lockfile. |
+| `npm run test:screenshots` | `node js/test/take-screenshots.js` | Regenera las capturas de evidencia (ver abajo). |
+
+`run-jasmine.js` (commiteado desde la corrección de AO3, RC13, PR #99) abre `test-runner.html` en Chromium headless con Playwright, espera el resumen de Jasmine y lo imprime. Termina con código de salida `1` si hay specs fallidos o si se registró algún `console.error`/`pageerror` durante la corrida (por eso los tests que ejercitan una ruta de error esperada de `Almacenamiento`, que loguea con `console.error` por diseño, usan `spyOn(console, "error")`).
 
 ### Capturas de pantalla (evidencia visual)
 ```
-node js/test/take-screenshots.js
+npm run test:screenshots
 ```
-Genera 4 PNG en `js/test/screenshots/` (`ao4-general.png`, `ao4-models.png`, `ao4-storage.png`, `ao4-script.png`) abriendo `test-runner.html` con la librería `playwright` (la misma que usa `run-jasmine.js`) y recortando el elemento `.jasmine-suite` correspondiente a cada suite. **No se usó el servidor Playwright MCP** para generarlas (no estaba conectado en la sesión donde se escribió esta suite): el resultado visual es equivalente porque usa el mismo navegador Chromium y el mismo reporter HTML de Jasmine, pero queda documentada la salvedad porque la consigna pide puntualmente el MCP.
+(equivale a `node js/test/take-screenshots.js`; requiere los pasos 1 a 3 de la sección anterior). Genera 4 PNG en `js/test/screenshots/` (`ao4-general.png`, `ao4-models.png`, `ao4-storage.png`, `ao4-script.png`) abriendo `test-runner.html` con la librería `playwright` (la misma que usa `run-jasmine.js`) y recortando el elemento `.jasmine-suite` correspondiente a cada suite. **No se usó el servidor Playwright MCP** para generarlas (no estaba conectado en la sesión donde se escribió esta suite): el resultado visual es equivalente porque usa el mismo navegador Chromium y el mismo reporter HTML de Jasmine, pero queda documentada la salvedad porque la consigna pide puntualmente el MCP.
 
 ### Evidencia E2E con agente (corrección RC2)
 El 23/11/2026, GitHub Copilot en Modo Agente (VS Code) ejecutó de forma interactiva los 4 flujos sobre `http://localhost:5500/index.html` con sus herramientas de navegador integradas (`openBrowserPage`, `typeInPage`, `readPage`, `clickElement`, `runPlaywrightCode`, `screenshotPage`), en 22 invocaciones:
