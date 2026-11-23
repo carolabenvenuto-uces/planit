@@ -118,13 +118,118 @@ Tras la revisión de Carola (PR #110) se agregaron 2 specs más: un test de `sto
 
 Detalle completo de las 3 suites (71 + 19 + 21 specs) en `js/test/testing-doc.md`.
 
-**Capturas de pantalla** (generadas con la librería Playwright vía `node js/test/take-screenshots.js`, ver nota sobre Playwright MCP más abajo) en `js/test/screenshots/`:
+**Capturas de pantalla del test runner** (generadas con la librería Playwright vía `node js/test/take-screenshots.js`; la evidencia del servidor `@playwright/mcp` está en la sección 3.1) en `js/test/screenshots/`:
 - `ao4-general.png`: vista completa del test runner, banner de resultado global (`111 specs, 0 failures`) y árbol completo de las 3 suites.
 - `ao4-models.png`: detalle de `models.spec.js`.
 - `ao4-storage.png`: detalle de `storage.spec.js` (incluye el test de storage lleno agregado en esta ronda).
 - `ao4-script.png`: detalle de `script.spec.js`.
 
-**Nota sobre Playwright MCP:** no tuve el servidor Playwright MCP conectado en la sesión donde se escribió esta suite. Las capturas se generaron igual con Playwright, pero vía la librería `playwright` (la misma que ya usa `run-jasmine.js`, commiteada como devDependency desde la corrección de la AO3) en un script dedicado (`js/test/take-screenshots.js`), no con el servidor MCP interactivo. El resultado visual es equivalente (mismo navegador Chromium, misma página, mismo reporter HTML de Jasmine); la salvedad queda documentada acá para que quede claro que no se usó el MCP en sí.
+### 3.1 Evidencia con el servidor oficial `@playwright/mcp` (corrección RC27)
+
+**Contexto de la corrección.** La versión anterior de este documento declaraba que las capturas se habían hecho con la librería `playwright` y no con el servidor MCP. El docente observó (RC27) que eso no cumple el requisito de Playwright MCP. Para atenderlo, se ejecutó una sesión de prueba real contra el servidor oficial **`@playwright/mcp`**, hablando el protocolo MCP (JSON-RPC 2.0 por stdio). Se registraron todas las llamadas `tools/call` con su entrada y su salida. La sesión se corrió el **23/11/2026**, durante esta corrección. Las capturas del test runner de Jasmine de la sección 3 siguen siendo las de `take-screenshots.js`; la evidencia de esta sección es aparte y se suma a esas capturas, no las reemplaza.
+
+Toda la evidencia queda en [`js/test/mcp-evidence/`](../../../js/test/mcp-evidence/):
+
+| Archivo | Qué es |
+|---|---|
+| `mcp-session-log.json` | Log completo de la sesión: comando de arranque del servidor, `serverInfo`, las 25 herramientas listadas, cada `tools/call` (request JSON-RPC, duración y response textual completa) y las aserciones con el veredicto. |
+| `mcp-session.mjs` | Cliente MCP que ejecutó la sesión (SDK oficial `@modelcontextprotocol/sdk`, `StdioClientTransport`), con el servidor estático en `:5500` equivalente a Live Server. |
+| `mcp-01-toast.png`, `mcp-02-modal.png`, `mcp-03-toast-desde-modal.png` | Capturas tomadas por el propio servidor MCP con `browser_take_screenshot`. |
+| `page-*.yml` | Snapshots de accesibilidad que el servidor guardó tras cada acción (son los archivos que referencian las responses del log). |
+| `console-*.log` | Log de consola del navegador que capturó el servidor. |
+
+#### Configuración del MCP Server
+
+Comando con el que se arrancó el servidor. Es el que registra el campo `mcpServerLaunch` del log; el cliente lo lanza como subproceso stdio:
+
+```bash
+npx -y @playwright/mcp@latest --headless --browser chromium --output-dir .
+```
+
+- Versión resuelta: `@playwright/mcp` **0.0.86** (`npx @playwright/mcp@latest --version`). El `serverInfo` que devuelve el handshake MCP es `{"name":"Playwright","version":"1.66.0-alpha-2026-11-18"}`.
+- Navegador del servidor: hubo que instalarlo una vez con `npx @playwright/mcp install-browser chrome-for-testing`. En la primera corrida, el servidor respondió a `browser_navigate` con el error `Browser "chrome-for-testing" is not installed`.
+- Configuración equivalente para conectar el mismo servidor a un cliente MCP interactivo (VS Code `.vscode/mcp.json` o `claude_desktop_config.json`, bajo `"mcpServers"`). No fue la que usó esta sesión; se incluye como referencia:
+
+  ```json
+  {
+    "servers": {
+      "playwright": {
+        "command": "npx",
+        "args": ["-y", "@playwright/mcp@latest"]
+      }
+    }
+  }
+  ```
+
+#### Secuencia de llamadas (`tools/call`)
+
+Sesión del 23/11/2026, de `22:29:42.605Z` a `22:29:55.553Z` (UTC), contra `http://localhost:5500/index.html`. Los nombres de herramienta son los canónicos que expone el servidor en `tools/list`. Las salidas de esta tabla son extractos literales de las responses del log.
+
+| # | Herramienta | Entrada (`arguments`) | Salida registrada (extracto) | ms |
+|---|---|---|---|---|
+| 1 | `browser_navigate` | `{"url":"http://localhost:5500/index.html"}` | `await page.goto('http://localhost:5500/index.html');` · `Page Title: PlanIT - Plataforma All-in-One de Organización & Experiencias` | 3908 |
+| 2 | `browser_snapshot` | `{"target":"#contenedor-catalogo"}` | Árbol YAML con las 3 tarjetas; 3 × `button "Sumar al Evento"` | 27 |
+| 3 | `browser_click` | `{"element":"Boton 'Sumar al Evento' de Gourmet Finger Food","target":".btn-sumar-evento[data-service-title=\"Gourmet Finger Food\"]"}` | `await page.locator('.btn-sumar-evento[data-service-title="Gourmet Finger Food"]').click();` | 1126 |
+| 4 | `browser_wait_for` | `{"text":"Gourmet Finger Food · $3.500 / pax","time":10}` | `Waited for Gourmet Finger Food · $3.500 / pax` | 57 |
+| 5 | `browser_snapshot` | `{"target":"#toastConfirmacion"}` | `- status [ref=e310]` … `paragraph [ref=e316]: Gourmet Finger Food · $3.500 / pax` · `paragraph [ref=e317]: Experiencia agregada a tu evento` | 16 |
+| 6 | `browser_evaluate` | `{"element":"Toast de confirmacion","target":"#toastConfirmacion","function":"(el) => ({ visible: el.classList.contains('show'), … })"}` | `{"visible":true,"servicio":"Gourmet Finger Food · $3.500 / pax","mensaje":"Experiencia agregada a tu evento","dataTitle":"Gourmet Finger Food","dataPrice":"$3.500 / pax"}` | 537 |
+| 7 | `browser_take_screenshot` | `{"type":"png","filename":"mcp-01-toast.png","scale":"css"}` | `[Screenshot of viewport](./mcp-01-toast.png)` | 112 |
+| 8 | `browser_click` | `{"element":"Boton 'Ver detalle' de Flores Pilar","target":".btn-ver-detalle[data-service-title=\"Flores Pilar\"]"}` | `await page.locator('.btn-ver-detalle[data-service-title="Flores Pilar"]').click();` | 1090 |
+| 9 | `browser_wait_for` | `{"text":"1 jornada de montaje","time":10}` | `Waited for 1 jornada de montaje` | 48 |
+| 10 | `browser_snapshot` | `{"target":"#modalDetalleServicio"}` | `- dialog "Flores Pilar" [active] [ref=e318]` … `text: 1 jornada de montaje` · `paragraph [ref=e337]: $70.000 / base` | 11 |
+| 11 | `browser_evaluate` | `{"element":"Modal de detalle de servicio","target":"#modalDetalleServicio","function":"(el) => ({ abierto: el.classList.contains('show'), … })"}` | `{"abierto":true,"titulo":"Flores Pilar","capacidad":"1 evento por fecha","duracion":"1 jornada de montaje","precio":"$70.000 / base","sumarDataTitle":"Flores Pilar"}` | 1033 |
+| 12 | `browser_take_screenshot` | `{"type":"png","filename":"mcp-02-modal.png","scale":"css"}` | `[Screenshot of viewport](./mcp-02-modal.png)` | 121 |
+| 13 | `browser_click` | `{"element":"Boton 'Sumar al Evento' dentro del Modal","target":"#modalDetalleServicio .btn-sumar-evento"}` | `await page.locator('#modalDetalleServicio .btn-sumar-evento').click();` | 886 |
+| 14 | `browser_wait_for` | `{"text":"Flores Pilar · $70.000 / base","time":10}` | `Waited for Flores Pilar · $70.000 / base` | 45 |
+| 15 | `browser_evaluate` | `{"function":"() => ({ modalAbierto: …, toastVisible: …, toastServicio: … })"}` | `{"modalAbierto":false,"toastVisible":true,"toastServicio":"Flores Pilar · $70.000 / base"}` | 515 |
+| 16 | `browser_take_screenshot` | `{"type":"png","filename":"mcp-03-toast-desde-modal.png","scale":"css"}` | `[Screenshot of viewport](./mcp-03-toast-desde-modal.png)` | 440 |
+| 17 | `browser_console_messages` | `{"level":"error"}` | Único error: `404 (Not Found) @ http://localhost:5500/favicon.ico` (el proyecto no tiene favicon; no es un error de la app) | 5 |
+| 18 | `browser_close` | `{}` | `await browser.close();` · `No open tabs. Navigate to a URL to create one.` | 340 |
+
+Ejemplo de un request JSON-RPC completo tal como figura en el log (paso 3):
+
+```json
+{
+  "jsonrpc": "2.0",
+  "method": "tools/call",
+  "params": {
+    "name": "browser_click",
+    "arguments": {
+      "element": "Boton 'Sumar al Evento' de Gourmet Finger Food",
+      "target": ".btn-sumar-evento[data-service-title=\"Gourmet Finger Food\"]"
+    }
+  }
+}
+```
+
+Las cadenas `function` de los pasos 6, 11 y 15 aparecen abreviadas con `…` en la tabla; el texto completo está en `mcp-session-log.json`.
+
+#### Aserciones y conclusión
+
+| # | Qué se verificó | Resultado |
+|---|---|---|
+| 1 | El snapshot del catálogo lista 3 botones "Sumar al Evento" | PASS |
+| 2 | El snapshot del Toast contiene el servicio y "Experiencia agregada a tu evento" | PASS |
+| 3 | El Toast está visible (`.show`) y su `data-service-*` es el de Gourmet Finger Food | PASS |
+| 4 | El snapshot del Modal muestra `dialog "Flores Pilar"` con `$70.000 / base` | PASS |
+| 5 | El Modal está abierto y se completó con los `data-service-*` de Flores Pilar (título, capacidad, duración, precio y el botón "Sumar al Evento" interno) | PASS |
+| 6 | "Sumar al Evento" desde el Modal cierra el Modal y muestra el Toast con Flores Pilar | PASS |
+
+**Veredicto registrado en el log: `"verdict": "PASS"` (6/6 aserciones, 18 `tools/call` sin `isError`).** Los dos flujos de Bootstrap (Toast desde una tarjeta y Modal → Toast) funcionan en un navegador real manejado por el servidor oficial `@playwright/mcp`. Son justamente los dos componentes que la suite Jasmine no cubre (ver "Alcance y Limitaciones" en `testing-doc.md`).
+
+**Alcance de esta evidencia.** El cliente MCP fue un script (`mcp-session.mjs`), no un agente de IA conversacional: la secuencia de herramientas está fijada en el código y las aserciones se evalúan sobre las responses reales del servidor. El servidor, el protocolo y los nombres de herramienta son los mismos que usa cualquier cliente MCP (Copilot, Claude, etc.). Para reproducir la sesión, desde una carpeta con `@modelcontextprotocol/sdk` instalado (`npm i @modelcontextprotocol/sdk@1`):
+
+```bash
+node mcp-session.mjs <raíz-del-repo> <raíz-del-repo>/js/test/mcp-evidence
+```
+
+#### Trazabilidad de la observación RC27
+
+| Requisito / observación | Evidencia | Estado |
+|---|---|---|
+| RC27: usar el servidor oficial `@playwright/mcp` o declarar el criterio incumplido | Sección 3.1 + `js/test/mcp-evidence/mcp-session-log.json` (`mcpServerLaunch`, `serverInfo`, `toolsListed`) | Cumplido |
+| Secuencia de herramientas MCP canónicas con entradas y salidas | Tabla de la sección 3.1 + `calls[]` del log | Cumplido |
+| Validación de Toast y Modal en navegador real | Aserciones 2 a 6 + `mcp-01-toast.png`, `mcp-02-modal.png`, `mcp-03-toast-desde-modal.png` | Cumplido (6/6 PASS) |
 
 ### 4. Bugs reportados
 
@@ -147,3 +252,4 @@ Las 3 issues están cerradas, referenciando su commit de fix.
 - [x] Las tres suites ejecutadas con `node js/test/run-jasmine.js`, 0 fallas, resultado documentado (11 corridas con semillas distintas).
 - [x] `js/test/testing-doc.md` actualizado con la nueva estructura, instrucciones por módulo y métricas de cobertura.
 - [x] Bugs encontrados reportados como issues en GitHub — los 3 bugs de PR #104 están reportados como issues (#111, #112, #113), cerradas referenciando sus commits de fix.
+- [x] Prueba interactiva con el servidor oficial `@playwright/mcp` (RC27): 18 `tools/call` (`browser_navigate`, `browser_snapshot`, `browser_click`, `browser_wait_for`, `browser_evaluate`, `browser_take_screenshot`, `browser_console_messages`, `browser_close`) sobre el Toast y el Modal, 6/6 aserciones PASS, evidencia en `js/test/mcp-evidence/` (sección 3.1).

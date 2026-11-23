@@ -47,7 +47,19 @@ Script ya commiteado desde la corrección de AO3 (RC13, PR #99): abre `test-runn
 ```
 node js/test/take-screenshots.js
 ```
-Genera 4 PNG en `js/test/screenshots/` (`ao4-general.png`, `ao4-models.png`, `ao4-storage.png`, `ao4-script.png`) abriendo `test-runner.html` con la librería `playwright` (la misma que usa `run-jasmine.js`) y recortando el elemento `.jasmine-suite` correspondiente a cada suite. **No se usó el servidor Playwright MCP** para generarlas (no estaba conectado en la sesión donde se escribió esta suite): el resultado visual es equivalente porque usa el mismo navegador Chromium y el mismo reporter HTML de Jasmine, pero queda documentada la salvedad porque la consigna pide puntualmente el MCP.
+Genera 4 PNG en `js/test/screenshots/` (`ao4-general.png`, `ao4-models.png`, `ao4-storage.png`, `ao4-script.png`) abriendo `test-runner.html` con la librería `playwright` (la misma que usa `run-jasmine.js`) y recortando el elemento `.jasmine-suite` correspondiente a cada suite.
+
+### Prueba interactiva con el servidor oficial `@playwright/mcp` (RC27)
+
+La evidencia de Playwright MCP se generó en una sesión real contra el servidor oficial **`@playwright/mcp`** 0.0.86, arrancado con:
+
+```
+npx -y @playwright/mcp@latest --headless --browser chromium --output-dir .
+```
+
+Un cliente MCP (`js/test/mcp-evidence/mcp-session.mjs`, hecho con el SDK oficial `@modelcontextprotocol/sdk` sobre stdio) levanta `index.html` en `http://localhost:5500` y ejecuta 18 `tools/call` con los nombres canónicos del servidor: `browser_navigate`, `browser_snapshot`, `browser_click` (sobre `.btn-sumar-evento` y `.btn-ver-detalle`), `browser_wait_for`, `browser_evaluate`, `browser_take_screenshot`, `browser_console_messages` y `browser_close`. Verifica el Toast al sumar un servicio desde una tarjeta, el Modal de detalle completado con los `data-service-*` y el Toast al sumar desde el Modal.
+
+**Resultado: `PASS`, 6/6 aserciones** (23/11/2026). Todo queda en `js/test/mcp-evidence/`: log JSON completo con cada request y response, 3 capturas tomadas por el servidor, snapshots `.yml` y log de consola. La tabla de llamadas con entradas y salidas está en `docs/03-specs/actividad-obligatoria-4/spec-tester-qa.md`, sección 3.1.
 
 ---
 
@@ -156,7 +168,7 @@ La primera versión de la suite tenía 4 specs que fallaban de forma **intermite
 
 - **Sin cobertura automatizada de código (Istanbul/nyc):** igual que en la AO3, la cobertura se estima revisando manualmente qué comportamiento ejercita cada test.
 - **Requiere conexión a internet** para cargar Jasmine (y, si se agregara en el futuro, Bootstrap) desde CDN.
-- **El Modal de detalle de servicio y el Toast de confirmación** (migrados de `js/componentes-bootstrap.js` a `js/script.js` en PR #109, Issue #68) **no están en el fixture de `script.spec.js`**: `configurarComponentesBootstrap()` los omite sin error si no existen en el DOM, así que su ausencia no rompe la suite. Se decidió no agregarlos a la suite automatizada porque dependen del bundle de Bootstrap (animaciones de modal/toast con temporización propia, difícil de testear de forma determinística en Jasmine sin agregar esperas artificiales) y porque ya se verificaron manualmente con Playwright antes de abrir la PR #109 (ver esa PR para la evidencia: completado de datos del Modal desde `data-service-*`, Toast con el servicio correcto desde el Modal y desde una tarjeta directa). Queda como deuda de testing documentada, no como un vacío silencioso.
+- **El Modal de detalle de servicio y el Toast de confirmación** (migrados de `js/componentes-bootstrap.js` a `js/script.js` en PR #109, Issue #68) **no están en el fixture de `script.spec.js`**: `configurarComponentesBootstrap()` los omite sin error si no existen en el DOM, así que su ausencia no rompe la suite. Se decidió no agregarlos a la suite automatizada porque dependen del bundle de Bootstrap (animaciones de modal/toast con temporización propia, difícil de testear de forma determinística en Jasmine sin agregar esperas artificiales) y porque ya se verificaron manualmente con Playwright antes de abrir la PR #109 (ver esa PR para la evidencia: completado de datos del Modal desde `data-service-*`, Toast con el servicio correcto desde el Modal y desde una tarjeta directa). Esos mismos tres comportamientos quedan cubiertos por la sesión con el servidor `@playwright/mcp` (ver "Prueba interactiva con el servidor oficial `@playwright/mcp`"), que se corre aparte de `run-jasmine.js`. Dentro de la suite Jasmine siguen siendo deuda de testing documentada.
 - **El catálogo del fixture tiene 3 proveedores fijos** (los del mockup real). El caso de un catálogo extendido con nombres que colisionan entre categorías se prueba agregando un 4° proveedor hipotético dentro del test de regresión correspondiente, no como parte del fixture base.
 - Tests síncronos únicamente (sin `Promise`/`async`-`await`); no hace falta por ahora porque ni los modelos ni el controlador son asíncronos.
 
@@ -174,7 +186,7 @@ Un 4° hallazgo (el ruteo de `planit:detalles-evento` a `sessionStorage` en vez 
 
 ---
 
-**Última actualización:** 22/11/2026 — reescritura completa para la AO4.
+**Última actualización:** 23/11/2026: evidencia de la sesión con el servidor oficial `@playwright/mcp` (corrección RC27). Versión anterior: 22/11/2026, reescritura completa para la AO4.
 **Tester QA (AO4):** Facundo Guiraldes (@FacundoGuiraldes).
 **Colaboración con:** Desarrolladora JS POO - Carola Benvenuto (@carolabenvenuto-uces) · Desarrolladora JS Eventos + DOM - Valeria Silva (@ValeriaMSilva).
 **Versión AO3 (funciones `flujo*()` basadas en `prompt()`/`alert()`):** disponible en el historial de git de este archivo.
