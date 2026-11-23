@@ -73,7 +73,7 @@ function restaurarEstadoInicial() {
     ui.btnCalcularPresupuesto.disabled = false;
     ui.btnAgregarInvitado.disabled = false;
 
-    construirCatalogoDesdeMarcado(ui);
+    construirCatalogo(ui);
     recalcularPresupuesto(ui);
     renderInvitados(ui);
     filtrarCatalogo(ui);
