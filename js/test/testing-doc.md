@@ -64,9 +64,9 @@ Como consecuencia, la suite se divide en 3 archivos con responsabilidades distin
    ```
    npm test
    ```
-   Salida esperada (la semilla cambia en cada corrida porque Jasmine aleatoriza el orden):
+   Salida esperada (la semilla cambia en cada corrida porque Jasmine aleatoriza el orden; conteo vigente desde RC24–RC26, ver [Ejecución verificada de las suites de integración](#ejecución-verificada-de-las-suites-de-integración-rc24-rc25-rc26)):
    ```
-   111 specs, 0 failures, randomized with seed 12345
+   330 specs, 0 failures, randomized with seed 12345
    ```
 
 **Scripts disponibles en `package.json`:**
@@ -223,7 +223,7 @@ Bloque `describe("Integración - Controlador y UI (RC14, RC15, RC16)")` agregado
 | INT-RC15-04 | RC15 | Bootstrap ausente, Modal | `show.bs.modal` (Flores Pilar) → clic en el botón del Modal | Sin errores; Toast degradado con "Flores Pilar · $70.000 / base". |
 | INT-RC15-05 | RC15 | Bootstrap ausente, clics seguidos | clic → 3000 ms → otro clic → 3000 ms → 1000 ms | El segundo clic reinicia el temporizador: sigue visible a los 6000 ms y se oculta recién a los 7000 ms. |
 | INT-RC16-01 | RC16 | Ciclo de vida completo | ver detalle abajo | El DOM reconstruido refleja lo persistido (ver detalle abajo). |
-| INT-RC16-02 | RC16 | Control: carga nueva sin datos | storage vacío → reinicio → `DOMContentLoaded` | Se muestran los datos del marcado (3 invitados, total $580.000): confirma que lo que restaura INT-RC16-01 sale del storage y no del fixture. |
+| INT-RC16-02 | RC16 | Control: carga nueva sin datos | storage vacío → reinicio → `DOMContentLoaded` | Se muestran los datos semilla del dominio (`DATOS_SEMILLA`: 5 invitados, 3 confirmados y 2 pendientes, total $580.000): confirma que lo que restaura INT-RC16-01 sale del storage y no del fixture (que tiene 3 invitados). *Actualizado en RC26: antes esperaba "3 invitados del marcado", criterio anterior a RC9–RC11.* |
 | INT-RC16-03 | RC16 | Carga nueva con datos inválidos | `planit:evento` con un tipo inexistente → reinicio → `DOMContentLoaded` | Sin errores; aviso "datos dañados" visible y la app cae en los datos de ejemplo. |
 
 **Ciclo de vida de INT-RC16-01** (los 5 pasos pedidos por RC16):
@@ -289,8 +289,6 @@ Con la corrección RC7 se agregaron 21 specs a `storage.spec.js`. En la máquina
 
 Este método no captura `console.error`/`pageerror` como `run-jasmine.js`: queda pendiente una corrida con `node js/test/run-jasmine.js` para confirmar el código de salida `0`.
 
-| Métrica | Valor |
-|---|---|
 **Corrida con la integración RC14–RC16 (23/11/2026):** el bloque de integración agrega **13 specs** a `script.spec.js` (5 de RC14, 5 de RC15 y 3 de RC16), y la suite pasa a **124 specs** (71 + 19 + 34). Se ejecutó en el navegador abriendo `js/test/test-runner.html` con Live Server (reporter HTML de Jasmine):
 
 ```
@@ -320,6 +318,78 @@ La tabla anterior a esta actualización (111 specs, 0 fallas, 11 corridas con `r
 ```
 
 Los 101 specs nuevos de RC5 pasaron sin fallas, y los 111 anteriores siguen pasando. Esta corrida se hizo en el navegador y no con `node js/test/run-jasmine.js`, porque el entorno donde se redactó la corrección no tiene Node.js instalado. Se usó el mismo runner HTML que abre `run-jasmine.js` y la misma versión de Jasmine (5.10.0, desde CDN).
+
+### Ejecución verificada de las suites de integración (RC24, RC25, RC26)
+
+> **RC24 (Modal), RC25 (Toast) y RC26 (Persistencia):** los specs de integración del Modal de detalle, del Toast de confirmación y de la persistencia/restauración en una carga nueva debían quedar acreditados con una ejecución real por línea de comandos (`npm test`), en verde, con 0 fallas y código de salida `0`.
+
+Las corridas anteriores de RC14–RC16 se habían hecho en el navegador (Live Server) o con Chrome headless leyendo el DOM, métodos que no capturan `console.error`/`pageerror` ni dan código de salida. En el estado de la rama posterior a los merges de RC20 y RC22, `npm test` **no reproducía** ese verde:
+
+```
+330 specs, 37 failures, randomized with seed 01419
+Errores de consola: [ "pageerror: Unexpected token ')'" ]
+```
+(código de salida `1`; fallaban los 36 specs de `script.spec.js`, incluidos los 13 INT-RC14/15/16).
+
+**Causas encontradas y corrección:**
+
+| # | Causa | Efecto | Corrección | Archivo |
+|---|---|---|---|---|
+| 1 | `configurarToastConfirmacion()` quedó con un `});` sobrante y el listener mezclado entre delegación en `document` y registro por botón (resto de un merge). Además se perdió la escritura de `#toastConfirmacionServicio` / `#toastConfirmacionMensaje`. | `SyntaxError`: `js/script.js` no se cargaba y ningún spec del controlador podía correr. | Listener **por botón** `.btn-sumar-evento` (los specs de "Bootstrap ausente" cortan la propagación hacia `document` y `montarComponentesBootstrap()` reconfigura en cada spec, así que la delegación en `document` acumulaba listeners). Se reponen el texto `"<servicio> · <precio>"`, el mensaje fijo y `dataset.serviceTitle/servicePrice` del Toast. | `js/script.js` |
+| 2 | `configurarEventos()` llamaba a `sincronizarCantidadesPresupuesto(ui)` y `cargarEstadoInicial()` a `crearEventoDesdeMarcado(ui)`, funciones que no existían. | `ReferenceError` en `DOMContentLoaded`: los formularios quedaban sin `preventDefault`, el primer submit recargaba el runner (`test-runner.html?`) y la suite entraba en un bucle de recargas sin terminar. | Se repone `sincronizarCantidadesPresupuesto(ui)` (copia al input de cada fila la cantidad del modelo cargado, o regenera las filas si no se corresponden) y la llamada apunta a `crearEventoInicial(ui)`, la función real. | `js/script.js` |
+| 3 | `RUTA_IMAGENES_CATALOGO = "./docs/..."` se resolvía contra la página: en el runner (`js/test/`) pedía `js/test/docs/...`. | 404 por cada tarjeta renderizada; `run-jasmine.js` los cuenta como `console.error` y sale con `1`. | La ruta se resuelve relativa a `js/script.js` con `new URL("../docs/...", document.currentScript.src)`: misma imagen desde `index.html` y desde el runner. | `js/script.js` |
+| 4 | Los specs RC16 usaban `CLAVES_STORAGE`, que RC22 retiró del controlador (las claves son privadas de la fachada). | `ReferenceError` en INT-RC16-01 e INT-RC16-03. | Constante local `CLAVES_STORAGE_CRUDAS` en el spec, con las claves literales: los specs siguen leyendo/sembrando `localStorage` en crudo, sin pasar por el módulo que validan. | `js/test/script.spec.js` |
+| 5 | INT-RC16-01 usaba `ui.filasPresupuesto`, propiedad que ya no expone `obtenerReferenciasUI()` desde RC9. | `TypeError` al buscar la fila de Catering. | La fila se ubica por el id estable de su input (`#cantidad-catering`) y se verifica que pertenezca a `obtenerFilasPresupuesto(ui)`. | `js/test/script.spec.js` |
+| 6 | INT-RC16-02 esperaba "3 invitados del marcado", pero desde RC9–RC11 una carga sin storage usa `DATOS_SEMILLA` (5 invitados). | Expectativa desactualizada. | Se compara contra `DATOS_SEMILLA` (5 invitados, 3 confirmados, 2 pendientes). Sigue siendo el control negativo: el fixture tiene 3 invitados, así que un resto en memoria se detectaría. | `js/test/script.spec.js` |
+
+No se modificó ninguna aserción de RC14/RC24 ni de RC15/RC25: esos specs pasaron en cuanto `js/script.js` volvió a cargar y se repuso el comportamiento del Toast.
+
+**Evidencia ejecutable (23/11/2026)** — Windows 11, Node.js v26.13.1, npm 11.20.0, Playwright 1.64.1 (Chromium headless), desde la raíz del repositorio. 10 corridas consecutivas de `npm test`:
+
+```
+330 specs, 0 failures, randomized with seed 67178 | exit=0
+330 specs, 0 failures, randomized with seed 03453 | exit=0
+330 specs, 0 failures, randomized with seed 23947 | exit=0
+330 specs, 0 failures, randomized with seed 24502 | exit=0
+330 specs, 0 failures, randomized with seed 17683 | exit=0
+330 specs, 0 failures, randomized with seed 70659 | exit=0
+330 specs, 0 failures, randomized with seed 11862 | exit=0
+330 specs, 0 failures, randomized with seed 42904 | exit=0
+330 specs, 0 failures, randomized with seed 50613 | exit=0
+330 specs, 0 failures, randomized with seed 99216 | exit=0
+```
+
+Ninguna corrida registró `Specs fallidos` ni `Errores de consola` (`console.error`/`pageerror` sin mockear). El código de salida se tomó de `$?` después de cada `npm test`.
+
+**Desglose por suite** (contado por el reporter de Jasmine, `jsApiReporter.specs()`, agrupando por el `describe` raíz):
+
+| Suite | Specs |
+|---|---|
+| `models.spec.js` | 174 |
+| `storage.spec.js` (`Almacenamiento`) | 103 |
+| `servicio-persistencia.spec.js` (`ServicioPersistenciaEvento`, RC22) | 17 |
+| `script.spec.js` | 36 (23 de los 4 flujos y RC22 + 13 de integración) |
+| **Total** | **330** |
+
+**Estado individual de los 13 specs de integración** (leído del reporter HTML en una corrida adicional, `330 specs, 0 failures, randomized with seed 92187`):
+
+| Observación | Specs | Estado |
+|---|---|---|
+| RC24 — Modal de detalle | INT-RC14-01, INT-RC14-02, INT-RC14-03, INT-RC14-04, INT-RC14-05 | 5/5 ✅ passed |
+| RC25 — Toast (con y sin Bootstrap) | INT-RC15-01, INT-RC15-02, INT-RC15-03, INT-RC15-04, INT-RC15-05 | 5/5 ✅ passed |
+| RC26 — Persistencia y carga nueva | INT-RC16-01, INT-RC16-02, INT-RC16-03 | 3/3 ✅ passed |
+
+Con esto también queda resuelta la salvedad pendiente de la corrida RC7 ("falta una corrida con `run-jasmine.js` para confirmar el código de salida `0`").
+
+**Checklist RC24–RC26:**
+
+- [x] `npm test` ejecutado por línea de comandos (no en el navegador): `330 specs, 0 failures`.
+- [x] Código de salida `0` en las 10 corridas, sin errores de consola sin mockear.
+- [x] RC24: los 5 specs del Modal (INT-RC14-01 a 05) en verde.
+- [x] RC25: los 5 specs del Toast, con Bootstrap presente y ausente (INT-RC15-01 a 05), en verde.
+- [x] RC26: los 3 specs de persistencia y carga nueva (INT-RC16-01 a 03) en verde.
+- [x] Sin dependencia de orden: 10 semillas aleatorias distintas, todas en verde.
+- [x] Causas de las fallas corregidas y documentadas (tabla de arriba y "Issues Conocidos").
 
 ### Cobertura por Tipo de Test
 Conteo exacto (no aproximado) de `it()` por categoría, uno por uno:
@@ -570,6 +640,13 @@ Hallazgos al escribir los specs de RC14–RC16 (23/11/2026):
 
 5. **Toast sin feedback si Bootstrap no está cargado:** `configurarToastConfirmacion()` hacía `return` si `bootstrap` no existía al iniciar, así que "Sumar al Evento" no daba ningún feedback. Se corrigió en `js/script.js` con la degradación descrita arriba (`mostrarToast()`); lo cubren INT-RC15-03 a 05.
 6. **El Modal no muestra categoría ni badge del servicio** (lo menciona RC14): no es un bug del controlador sino un campo que no existe en el marcado. Queda reportado al rol Eventos + DOM.
+
+Hallazgos al ejecutar las suites de integración con `npm test` (RC24–RC26, 23/11/2026). Detalle y corrección en [Ejecución verificada de las suites de integración](#ejecución-verificada-de-las-suites-de-integración-rc24-rc25-rc26):
+
+7. **`js/script.js` no parseaba** (`SyntaxError: Unexpected token ')'` en `configurarToastConfirmacion()`, resto de un merge): ningún spec del controlador podía correr. Corregido.
+8. **Referencias a funciones inexistentes en el arranque** (`sincronizarCantidadesPresupuesto`, `crearEventoDesdeMarcado`): `DOMContentLoaded` lanzaba y, en el runner, el submit de un formulario sin `preventDefault` recargaba la página en bucle. Corregido.
+9. **Imágenes del catálogo con ruta relativa a la página** (`./docs/...`): 404 fuera de la raíz del sitio. Corregido resolviéndola relativa a `js/script.js`.
+10. **Specs RC16 desactualizados respecto de RC9–RC11 y RC22** (`CLAVES_STORAGE`, `ui.filasPresupuesto` y los "3 invitados del marcado"). Actualizados sin debilitar lo que verifican.
 
 ---
 

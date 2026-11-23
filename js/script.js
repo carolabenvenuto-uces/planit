@@ -111,7 +111,11 @@ const PRESENTACION_ITEMS = Object.freeze({
  * modal). Proveedor modela nombre, categoría, precio y unidad; lo demás es vista.
  * Un proveedor sin entrada acá se renderiza igual, sin imagen ni descripción.
  */
-const RUTA_IMAGENES_CATALOGO = "./docs/01-mockup/actividad-obligatoria-2/";
+// La ruta se resuelve relativa a este archivo (js/script.js) y no a la página que
+// lo carga: así sirve igual desde index.html (raíz) y desde js/test/test-runner.html.
+const RUTA_IMAGENES_CATALOGO = document.currentScript && document.currentScript.src
+    ? new URL("../docs/01-mockup/actividad-obligatoria-2/", document.currentScript.src).href
+    : "./docs/01-mockup/actividad-obligatoria-2/";
 const PRESENTACION_PROVEEDORES = Object.freeze({
     "Gourmet Finger Food": {
         imagen: RUTA_IMAGENES_CATALOGO + "catalogo-gourmet-finger-food.jpg",
@@ -191,7 +195,7 @@ function configurarEventos() {
     estadoApp.evento = estadoInicial.evento;
 
     sincronizarFormularioEvento(ui, estadoInicial.detalles);
-    sincronizarCantidadesPresupuesto(ui);
+    renderFilasPresupuesto(ui);
 
     configurarFlujoEvento(ui);
     configurarFlujoPresupuesto(ui);
@@ -302,7 +306,7 @@ function persistirEvento(ui, detalles) {
  */
 function cargarEstadoInicial(ui) {
     try {
-        const estado = estadoApp.persistencia.cargar(() => crearEventoDesdeMarcado(ui));
+        const estado = estadoApp.persistencia.cargar(() => crearEventoInicial(ui));
         if (estado.datosDanados) {
             renderAvisoGlobal(ui, "Los datos guardados estaban dañados; se cargaron los datos de ejemplo.");
         }
@@ -717,6 +721,30 @@ function crearFilaPresupuesto(item, indice, idCantidad) {
     return fila;
 }
 
+/**
+ * Proyecta en los inputs de cantidad las cantidades del Presupuesto del evento
+ * cargado (de storage o de la semilla). Si las filas del DOM no se corresponden
+ * con los ítems del modelo, las regenera desde el modelo; si se corresponden,
+ * solo copia cada cantidad, para que una carga nueva muestre lo persistido y no
+ * el valor inicial del marcado.
+ * @param {Object} ui - Referencias del DOM.
+ */
+function sincronizarCantidadesPresupuesto(ui) {
+    if (!ui.cuerpoPresupuesto) return;
+    const items = estadoApp.evento.presupuesto.items;
+    const filas = obtenerFilasPresupuesto(ui);
+
+    if (filas.length !== items.length) {
+        renderFilasPresupuesto(ui);
+        return;
+    }
+
+    filas.forEach((fila, indice) => {
+        const inputCantidad = fila.querySelector(".input-cantidad");
+        if (inputCantidad) inputCantidad.value = String(items[indice].cantidad);
+    });
+}
+
 /** @returns {HTMLTableRowElement[]} Filas de ítems generadas en el punto de montaje. */
 function obtenerFilasPresupuesto(ui) {
     return ui.cuerpoPresupuesto
@@ -1048,6 +1076,18 @@ function crearTarjetaProveedor(proveedor) {
         crearElemento("p", { clase: "card-price", texto: precio })
     );
 
+    const botonSumarEvento = crearElemento("button", {
+        clase: "btn btn-primary btn-sumar-evento",
+        texto: "Sumar al Evento",
+        atributos: {
+            type: "button",
+            "aria-label": "Sumar " + proveedor.nombre + " al evento",
+            "data-service-title": proveedor.nombre,
+            "data-service-price": precio
+        }
+    });
+    vincularBotonSumarEvento(botonSumarEvento);
+
     const acciones = crearElemento("div", { clase: "card-actions d-grid gap-2 mt-2" });
     acciones.append(
         crearElemento("button", {
@@ -1069,16 +1109,7 @@ function crearTarjetaProveedor(proveedor) {
                 "data-service-price": precio
             }
         }),
-        crearElemento("button", {
-            clase: "btn btn-primary btn-sumar-evento",
-            texto: "Sumar al Evento",
-            atributos: {
-                type: "button",
-                "aria-label": "Sumar " + proveedor.nombre + " al evento",
-                "data-service-title": proveedor.nombre,
-                "data-service-price": precio
-            }
-        })
+        botonSumarEvento
     );
 
     cuerpo.append(acciones);
@@ -1369,24 +1400,41 @@ function configurarModalDetalleServicio() {
  * disponibilidad de Bootstrap se consulta en cada clic (ver mostrarToast).
  */
 function configurarToastConfirmacion() {
-    const toastConfirmacionElement = document.getElementById("toastConfirmacion");
-    if (!toastConfirmacionElement) return;
+    document.querySelectorAll(".btn-sumar-evento").forEach(vincularBotonSumarEvento);
+}
 
-    const toastConfirmacionMensaje = document.getElementById("toastConfirmacionMensaje");
-    const toastConfirmacionServicio = document.getElementById("toastConfirmacionServicio");
+/** Botones que ya tienen su listener de "Sumar al Evento" (evita registrarlo dos veces). */
+const botonesSumarEventoVinculados = new WeakSet();
 
-    document.addEventListener("click", (evento) => {
-        const boton = evento.target.closest(".btn-sumar-evento");
-        if (!boton) return;
+/**
+ * Registra el listener del Toast directamente en el botón. No se delega en `document`
+ * para que funcione aunque un ancestro corte la propagación del clic. Las tarjetas
+ * del catálogo, que se crean dinámicamente, se vinculan al renderizarse.
+ * @param {HTMLElement} boton - Botón `.btn-sumar-evento`.
+ */
+function vincularBotonSumarEvento(boton) {
+    if (!boton || botonesSumarEventoVinculados.has(boton)) return;
+    botonesSumarEventoVinculados.add(boton);
 
-        const titulo = boton.dataset.serviceTitle || "Servicio";
-        const precio = boton.dataset.servicePrice || "";
+    document.querySelectorAll(".btn-sumar-evento").forEach((boton) => {
+        boton.addEventListener("click", () => {
+            const titulo = boton.dataset.serviceTitle || "Servicio";
+            const precio = boton.dataset.servicePrice || "";
 
-        toastConfirmacionElement.dataset.serviceTitle = titulo;
-        toastConfirmacionElement.dataset.servicePrice = precio;
+            toastConfirmacionElement.dataset.serviceTitle = titulo;
+            toastConfirmacionElement.dataset.servicePrice = precio;
 
-            mostrarToast(toastConfirmacionElement);
-        });
+            if (toastConfirmacionServicio) {
+                toastConfirmacionServicio.textContent = precio ? titulo + " · " + precio : titulo;
+            }
+            if (toastConfirmacionMensaje) {
+                toastConfirmacionMensaje.textContent = "Experiencia agregada a tu evento";
+            }
+
+        if (toastConfirmacionServicio) toastConfirmacionServicio.textContent = titulo + " · " + precio;
+        if (toastConfirmacionMensaje) toastConfirmacionMensaje.textContent = "Experiencia agregada a tu evento";
+
+        mostrarToast(toastConfirmacionElement);
     });
 }
 
