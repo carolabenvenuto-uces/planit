@@ -1059,12 +1059,15 @@ function configurarModalDetalleServicio() {
     });
 }
 
-/** Muestra el Toast de confirmación al hacer clic en cualquier botón "Sumar al Evento". */
+/**
+ * Muestra el Toast de confirmación al hacer clic en cualquier botón "Sumar al Evento".
+ * Los listeners se registran aunque el JS de Bootstrap no esté cargado: la
+ * disponibilidad de Bootstrap se consulta en cada clic (ver mostrarToast).
+ */
 function configurarToastConfirmacion() {
     const toastConfirmacionElement = document.getElementById("toastConfirmacion");
-    if (!toastConfirmacionElement || typeof bootstrap === "undefined") return;
+    if (!toastConfirmacionElement) return;
 
-    const toastConfirmacion = bootstrap.Toast.getOrCreateInstance(toastConfirmacionElement);
     const toastConfirmacionMensaje = document.getElementById("toastConfirmacionMensaje");
     const toastConfirmacionServicio = document.getElementById("toastConfirmacionServicio");
 
@@ -1079,7 +1082,32 @@ function configurarToastConfirmacion() {
             if (toastConfirmacionServicio) toastConfirmacionServicio.textContent = titulo + " · " + precio;
             if (toastConfirmacionMensaje) toastConfirmacionMensaje.textContent = "Experiencia agregada a tu evento";
 
-            toastConfirmacion.show();
+            mostrarToast(toastConfirmacionElement);
         });
     });
+}
+
+/**
+ * Muestra un Toast con Bootstrap si su JS está cargado. Si no lo está (CDN caído
+ * o bloqueado), degrada a la clase `show` del CSS de Bootstrap y lo oculta solo
+ * después del mismo `data-bs-delay`, para que el usuario reciba el feedback igual
+ * y sin errores de consola. El contenedor ya es role="status" + aria-live, así
+ * que el mensaje se anuncia en ambos casos.
+ * @param {HTMLElement} elemento - Nodo `.toast`.
+ */
+function mostrarToast(elemento) {
+    if (!elemento) return;
+
+    if (typeof bootstrap !== "undefined" && bootstrap && bootstrap.Toast) {
+        bootstrap.Toast.getOrCreateInstance(elemento).show();
+        return;
+    }
+
+    clearTimeout(Number(elemento.dataset.temporizadorToast));
+    elemento.classList.remove("hide");
+    elemento.classList.add("show");
+    const demora = parseInt(elemento.dataset.bsDelay, 10) || 5000;
+    elemento.dataset.temporizadorToast = String(setTimeout(() => {
+        elemento.classList.remove("show");
+    }, demora));
 }
