@@ -49,6 +49,18 @@ node js/test/take-screenshots.js
 ```
 Genera 4 PNG en `js/test/screenshots/` (`ao4-general.png`, `ao4-models.png`, `ao4-storage.png`, `ao4-script.png`) abriendo `test-runner.html` con la librería `playwright` (la misma que usa `run-jasmine.js`) y recortando el elemento `.jasmine-suite` correspondiente a cada suite. **No se usó el servidor Playwright MCP** para generarlas (no estaba conectado en la sesión donde se escribió esta suite): el resultado visual es equivalente porque usa el mismo navegador Chromium y el mismo reporter HTML de Jasmine, pero queda documentada la salvedad porque la consigna pide puntualmente el MCP.
 
+### Evidencia E2E con agente (corrección RC2)
+El 23/11/2026, GitHub Copilot en Modo Agente (VS Code) ejecutó de forma interactiva los 4 flujos sobre `http://localhost:5500/index.html` con sus herramientas de navegador integradas (`openBrowserPage`, `typeInPage`, `readPage`, `clickElement`, `runPlaywrightCode`, `screenshotPage`), en 22 invocaciones:
+
+| Captura | Flujo | Resultado |
+|---|---|---|
+| `01-crear-evento.png` | Crear evento ("Conferencia Tech 2026", 2027-06-15, $150.000) | ✅ Aprobado |
+| `02-presupuesto.png` | Presupuesto (Catering 120 → 100; subtotal $580.000 → $510.000) | ✅ Aprobado |
+| `03-catalogo.png` | Catálogo (filtro "Catering", 1 proveedor, "Sumar al Evento") | ✅ Aprobado |
+| `04-invitados.png` | Invitados (2 altas, en el DOM y en `planit:evento` de `localStorage`) | ✅ Aprobado |
+
+No se dispararon `alert()` ni `confirm()`, y la consola no registró errores de la aplicación (solo advertencias de terceros del reproductor de YouTube). **Salvedad:** esas herramientas son las integradas de Copilot, no las del servidor `@playwright/mcp` registrado en `.vscode/mcp.json`. El prompt, la secuencia completa de herramientas y la verificación están en `docs/03-specs/actividad-obligatoria-4/spec-tester-qa.md`, sección 3.1.
+
 ---
 
 ## Suites de Tests
