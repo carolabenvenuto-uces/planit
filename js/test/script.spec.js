@@ -195,7 +195,8 @@ const FIXTURE_CANTIDADES = {
 function restaurarEstadoInicial() {
     const ui = obtenerReferenciasUI();
 
-    Almacenamiento.limpiar("planit:");
+    // RC22: el estado persistido se limpia a través de la fachada, igual que lo usa el controlador.
+    estadoApp.persistencia.limpiar();
 
     ui.nombreEvento.value = "Casamiento de Sofi & Mateo";
     ui.fechaEvento.value = "2026-11-14";
@@ -281,7 +282,7 @@ describe("Flujo 1: Crear evento", function () {
         expect(ui.btnGuardarEvento.disabled).toBe(true);
     });
 
-    it("debería guardar el evento con datos válidos, confirmar y persistir en Almacenamiento", function () {
+    it("debería guardar el evento con datos válidos, confirmar y persistir vía la fachada de persistencia", function () {
         ui.nombreEvento.value = "Cumple de Lola";
 
         ui.btnGuardarEvento.click();
@@ -290,12 +291,38 @@ describe("Flujo 1: Crear evento", function () {
         expect(ui.confirmacionEvento.textContent).toContain("Cumple de Lola");
         expect(estadoApp.evento.nombre).toBe("Cumple de Lola");
 
-        const guardado = Almacenamiento.cargar(CLAVES_STORAGE.evento);
-        expect(guardado.nombre).toBe("Cumple de Lola");
+        const guardado = estadoApp.persistencia.cargar();
+        expect(guardado.evento.nombre).toBe("Cumple de Lola");
+        expect(guardado.detalles).toEqual({
+            fecha: "2026-11-14",
+            ubicacion: "Quinta El Ombú, Pilar, Buenos Aires"
+        });
+    });
+
+    it("debería delegar el guardado en la fachada con la instancia del dominio y los detalles (RC22)", function () {
+        spyOn(estadoApp.persistencia, "guardar").and.callThrough();
+
+        ui.btnGuardarEvento.click();
+
+        expect(estadoApp.persistencia.guardar).toHaveBeenCalledWith(estadoApp.evento, {
+            fecha: "2026-11-14",
+            ubicacion: "Quinta El Ombú, Pilar, Buenos Aires"
+        });
+    });
+
+    it("debería conservar presupuesto e invitados al actualizar los datos del evento", function () {
+        const itemsAntes = estadoApp.evento.presupuesto.items.length;
+        const invitadosAntes = estadoApp.evento.invitados.invitados.length;
+        ui.nombreEvento.value = "Cumple de Lola";
+
+        ui.btnGuardarEvento.click();
+
+        expect(estadoApp.evento.presupuesto.items.length).toBe(itemsAntes);
+        expect(estadoApp.evento.invitados.invitados.length).toBe(invitadosAntes);
     });
 
     it("debería avisar al usuario cuando el guardado falla (regresión del bug corregido en PR #104, ronda 1)", function () {
-        spyOn(Almacenamiento, "guardar").and.returnValue(false);
+        spyOn(estadoApp.persistencia, "guardar").and.returnValue(false);
 
         ui.nombreEvento.value = "Cumple de Lola";
         ui.btnGuardarEvento.click();
@@ -454,13 +481,13 @@ describe("Flujo 4: Gestionar invitados", function () {
         expect(restantes[0].querySelector("button[data-accion='confirmar']")).not.toBeNull();
     });
 
-    it("debería persistir la lista de invitados en Almacenamiento al agregar uno nuevo", function () {
+    it("debería persistir la lista de invitados vía la fachada al agregar uno nuevo", function () {
         tocarYValidar(ui.nombreInvitado, "Nueva Persona");
         ui.estadoInvitado.value = "Pendiente";
 
         ui.btnAgregarInvitado.click();
 
-        const guardado = Almacenamiento.cargar(CLAVES_STORAGE.evento);
+        const guardado = estadoApp.persistencia.cargar().evento;
         expect(guardado.invitados.invitados.some(function (i) { return i.nombre === "Nueva Persona"; })).toBe(true);
     });
 });

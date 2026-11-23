@@ -8,7 +8,7 @@
  *   - obtiene referencias del DOM y registra listeners;
  *   - lee los valores crudos de los controles;
  *   - delega validaciones, cálculos y reglas en las clases de js/models/;
- *   - delega la persistencia en js/utils/storage.js;
+ *   - delega la persistencia en la fachada ServicioPersistenciaEvento (RC22);
  *   - renderiza en el DOM lo que devuelven los modelos.
  *
  * Renderizado 100% dinámico (RC9, RC10, RC11): index.html solo aporta los puntos
@@ -27,21 +27,16 @@
  *
  * Dependencias (cargadas antes que este archivo, ver index.html):
  *   js/models/*.js  -> clases del dominio (PR #102, rama feature/dev-poo-logica-negocio).
- *   js/utils/storage.js -> objeto global `Almacenamiento` con el contrato:
- *       Almacenamiento.guardar(clave, valor)  // serializa y guarda; lanza Error si falla
- *       Almacenamiento.cargar(clave)          // devuelve el valor deserializado o null
+ *   js/services/ServicioPersistenciaEvento.js -> fachada de persistencia (RC22).
+ *       El controlador NO conoce el módulo de storage, ni las claves, ni el ciclo
+ *       toJSON/fromJSON: solo llama a guardar(), cargar(), estaDisponible() y
+ *       recibe/entrega instancias del dominio.
  *   Si el almacenamiento no está disponible, la app funciona en memoria y lo avisa.
  */
 
 /* ==========================================================================
    1. CONFIGURACIÓN Y ESTADO DEL CONTROLADOR
    ========================================================================== */
-
-/** Claves usadas en el almacenamiento persistente. */
-const CLAVES_STORAGE = {
-    evento: "planit:evento",
-    detallesEvento: "planit:detalles-evento"
-};
 
 /**
  * Relaciona cada campo del formulario con el inicio del mensaje de error que
@@ -154,7 +149,8 @@ const PRESENTACION_PROVEEDORES = Object.freeze({
 const estadoApp = {
     evento: null,            // Instancia de Evento (incluye Presupuesto y ListaInvitados)
     catalogo: null,          // Instancia de CatalogoProveedores
-    tarjetasCatalogo: new Map() // Proveedor -> tarjeta generada (caché de nodos ya creados)
+    tarjetasCatalogo: new Map(), // Proveedor -> nodo de la tarjeta en el DOM
+    persistencia: null       // Instancia de ServicioPersistenciaEvento (fachada)
 };
 
 /* ==========================================================================
@@ -182,18 +178,20 @@ function configurarEventos() {
         return;
     }
 
-    if (!almacenamientoDisponible()) {
+    estadoApp.persistencia = new ServicioPersistenciaEvento();
+    if (!estadoApp.persistencia.estaDisponible()) {
         renderAvisoGlobal(ui, "Los cambios no se guardarán al recargar la página: " +
             "el almacenamiento no está disponible.");
     }
 
-    estadoApp.evento = cargarEventoInicial(ui);
-    if (!estadoApp.evento) {
+    const estadoInicial = cargarEstadoInicial(ui);
+    if (!estadoInicial) {
         return;
     }
+    estadoApp.evento = estadoInicial.evento;
 
-    sincronizarFormularioEvento(ui);
-    renderFilasPresupuesto(ui);
+    sincronizarFormularioEvento(ui, estadoInicial.detalles);
+    sincronizarCantidadesPresupuesto(ui);
 
     configurarFlujoEvento(ui);
     configurarFlujoPresupuesto(ui);
@@ -270,73 +268,45 @@ function obtenerModelosFaltantes() {
         ["ListaInvitados", typeof ListaInvitados],
         ["Evento", typeof Evento],
         ["Proveedor", typeof Proveedor],
-        ["CatalogoProveedores", typeof CatalogoProveedores]
+        ["CatalogoProveedores", typeof CatalogoProveedores],
+        ["ServicioPersistenciaEvento", typeof ServicioPersistenciaEvento]
     ];
     return modelos.filter(([, tipo]) => tipo !== "function").map(([nombre]) => nombre);
 }
 
 /* ==========================================================================
-   3. PERSISTENCIA (delegada en js/utils/storage.js)
+   3. PERSISTENCIA (delegada en la fachada ServicioPersistenciaEvento, RC22)
    ========================================================================== */
 
-/** @returns {boolean} true si el módulo de almacenamiento está cargado. */
-function almacenamientoDisponible() {
-    return typeof Almacenamiento !== "undefined" &&
-        typeof Almacenamiento.guardar === "function" &&
-        typeof Almacenamiento.cargar === "function";
-}
-
 /**
- * Lee una clave del almacenamiento sin propagar errores.
- * @param {string} clave - Clave a leer.
- * @returns {*} Valor guardado o null si no existe o no se pudo leer.
- */
-function leerDelAlmacenamiento(clave) {
-    if (!almacenamientoDisponible()) return null;
-    try {
-        return Almacenamiento.cargar(clave);
-    } catch (error) {
-        return null;
-    }
-}
-
-/**
- * Guarda una clave en el almacenamiento. Si falla, lo informa en el DOM.
+ * Pide a la fachada que persista el evento actual (y opcionalmente sus detalles
+ * de agenda). El controlador solo se ocupa de informar el resultado en el DOM.
  * @param {Object} ui - Referencias del DOM.
- * @param {string} clave - Clave a guardar.
- * @param {*} valor - Valor serializable.
+ * @param {{fecha: string, ubicacion: string}} [detalles] - Fecha y ubicación.
  * @returns {boolean} true si se guardó.
  */
-function escribirEnAlmacenamiento(ui, clave, valor) {
-    if (!almacenamientoDisponible()) return false;
-    const guardado = Almacenamiento.guardar(clave, valor);
+function persistirEvento(ui, detalles) {
+    const persistencia = estadoApp.persistencia;
+    if (!persistencia || !persistencia.estaDisponible()) return false;
+    const guardado = persistencia.guardar(estadoApp.evento, detalles);
     if (!guardado) renderAvisoGlobal(ui, "No se pudieron guardar los cambios.");
     return guardado;
 }
 
-/** Persiste el evento actual (con su presupuesto e invitados). */
-function persistirEvento(ui) {
-    return escribirEnAlmacenamiento(ui, CLAVES_STORAGE.evento, estadoApp.evento.toJSON());
-}
-
 /**
- * Recupera el evento guardado o, si no hay, lo arma con los datos del formulario
- * y los DATOS_SEMILLA de presupuesto e invitados. El HTML ya no aporta filas.
+ * Pide a la fachada el estado guardado ya hidratado. Si no hay evento guardado,
+ * la fachada usa como semilla el evento armado con los datos de ejemplo del
+ * marcado (formulario, tabla de presupuesto y tabla de invitados).
  * @param {Object} ui - Referencias del DOM.
- * @returns {Evento|null} Evento listo para usar o null si no se pudo crear.
+ * @returns {{evento: Evento, detalles: Object|null}|null} Estado listo o null si no se pudo crear.
  */
-function cargarEventoInicial(ui) {
-    const guardado = leerDelAlmacenamiento(CLAVES_STORAGE.evento);
-    if (guardado) {
-        try {
-            return Evento.fromJSON(guardado);
-        } catch (error) {
+function cargarEstadoInicial(ui) {
+    try {
+        const estado = estadoApp.persistencia.cargar(() => crearEventoDesdeMarcado(ui));
+        if (estado.datosDanados) {
             renderAvisoGlobal(ui, "Los datos guardados estaban dañados; se cargaron los datos de ejemplo.");
         }
-    }
-
-    try {
-        return crearEventoInicial(ui);
+        return estado;
     } catch (error) {
         renderAvisoGlobal(ui, "No se pudo cargar el evento de ejemplo: " + error.message);
         return null;
@@ -580,23 +550,14 @@ function manejarSubmitEvento(evento, ui) {
 
     const datos = leerDatosEvento(ui);
     try {
-        // fromJSON valida de nuevo en el modelo y reconstruye presupuesto e invitados.
-        estadoApp.evento = Evento.fromJSON({
-            ...estadoApp.evento.toJSON(),
-            nombre: datos.nombre,
-            tipo: datos.tipo,
-            presupuestoEstimado: datos.presupuesto
-        });
+        // El modelo valida y actualiza conservando presupuesto e invitados.
+        estadoApp.evento.actualizarDatos(datos.nombre, datos.tipo, datos.presupuesto);
     } catch (error) {
         renderMensaje(ui.confirmacionEvento, "error", error.message);
         return;
     }
 
-    const guardado = persistirEvento(ui) &&
-        escribirEnAlmacenamiento(ui, CLAVES_STORAGE.detallesEvento, {
-            fecha: datos.fecha,
-            ubicacion: datos.ubicacion
-        });
+    const guardado = persistirEvento(ui, { fecha: datos.fecha, ubicacion: datos.ubicacion });
 
     renderConfirmacionEvento(ui, estadoApp.evento, datos, guardado);
     obtenerCamposEvento(ui).forEach(limpiarCampo);
@@ -618,11 +579,14 @@ function renderConfirmacionEvento(ui, evento, datos, guardado) {
     renderMensaje(ui.confirmacionEvento, "exito", contenido);
 }
 
-/** Copia los datos del evento cargado a los campos del formulario. */
-function sincronizarFormularioEvento(ui) {
+/**
+ * Copia los datos del evento cargado a los campos del formulario.
+ * @param {Object} ui - Referencias del DOM.
+ * @param {{fecha: string, ubicacion: string}|null} [detalles] - Detalles recuperados por la fachada.
+ */
+function sincronizarFormularioEvento(ui, detalles) {
     if (!ui.formEvento) return;
     const evento = estadoApp.evento;
-    const detalles = leerDelAlmacenamiento(CLAVES_STORAGE.detallesEvento);
 
     ui.nombreEvento.value = evento.nombre;
     ui.tipoEvento.value = evento.tipo;

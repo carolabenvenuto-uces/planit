@@ -395,7 +395,7 @@ La sección *ANTES* se escribió sin conocer la API final de las clases de POO. 
 **Otros ajustes respecto del plan:**
 - **Errores por campo:** `Evento.validarDatos()` e `Invitado.validar()` devuelven una lista de mensajes sin indicar a qué campo corresponde cada uno. El controlador los asigna según el comienzo del mensaje (`"El nombre"`, `"El tipo"`, `"El presupuesto"`, `"El estado"`). Si cambia el texto del mensaje, la asignación se rompe. Se propone que el rol POO devuelva los errores agrupados por campo.
 - **Fecha y ubicación:** `Evento` no tiene estas propiedades. Se validan como obligatorias con `Validador.esTextoNoVacio()` y se guardan aparte en `planit:detalles-evento`.
-- **Formulario `#form-evento`:** no se vacía al guardar, porque es el formulario de edición del evento actual y tiene que seguir mostrando sus datos. Al guardar se conservan el presupuesto y los invitados con `Evento.fromJSON({ ...anterior.toJSON(), nombre, tipo, presupuestoEstimado })`.
+- **Formulario `#form-evento`:** no se vacía al guardar, porque es el formulario de edición del evento actual y tiene que seguir mostrando sus datos. Al guardar se conservan el presupuesto y los invitados con `Evento.fromJSON({ ...anterior.toJSON(), nombre, tipo, presupuestoEstimado })`. *(Reemplazado en RC22 por `Evento.actualizarDatos()`; ver sección 6.)*
 - **Confirmación del Flujo 1:** se muestra dentro de la página, en `#confirmacion-evento`, y no en el toast.
 - **Eliminar invitado:** no pide confirmación (no se usa `confirm()`); el resultado se informa en `#feedback-invitados`.
 - **Resumen Financiero (barra lateral):** queda estático. Mostrar el saldo requiere una resta, que por la Regla 1 tiene que hacerse en el modelo. Se propone un método como `Presupuesto.calcularSaldo(limite)`.
@@ -471,6 +471,7 @@ Se abrió `index.html` en Chrome headless con los modelos del PR #102 y un `stor
 - [x] `js/script.js` no tiene reglas de validación propias, cálculos de montos ni accesos directos a `localStorage`.
 - [x] `configurarEventos()` avisa en la interfaz si faltan las clases del dominio o el almacenamiento.
 - [x] Los IDs de `index.html` coinciden con los que usa `js/script.js`.
+- [x] **RC22:** `js/script.js` no conoce `Almacenamiento`, ni las claves de storage, ni el ciclo `toJSON()` / `fromJSON()`. Toda la persistencia pasa por la fachada `ServicioPersistenciaEvento` (ver sección 6).
 
 #### Documentación
 - [x] Esta sección AL CERRAR registra el prompt, el fragmento de código, los ajustes y la verificación.
@@ -482,118 +483,67 @@ Se abrió `index.html` en Chrome headless con los modelos del PR #102 y un `stor
 - [ ] Adaptar `js/test/script.spec.js` y `js/test/test-runner.html` a las clases de `js/models/` (rol Tester QA).
 - [ ] Agregar al modelo un método para el saldo disponible y conectar el Resumen Financiero.
 
----
+### 6. Corrección RC22: desacoplamiento controlador–persistencia (Facade / Service Layer)
 
-### 6. Corrección de las observaciones RC9, RC10 y RC11 (renderizado 100 % dinámico)
+**Observación del docente:** *"RC22 — El controlador conoce directamente Almacenamiento y sus operaciones. Retirar claves, cargar/guardar y serialización/hidratación del controlador; usar una fachada o servicio de dominio."*
 
-#### 6.1 Observaciones del docente
+**Problema.** `js/script.js` tenía cuatro responsabilidades de persistencia que no le corresponden a un controlador:
 
-| ID | Observación | Sección afectada |
-| --- | --- | --- |
-| RC9 | "Estas filas de presupuesto siguen siendo datos operativos hardcodeados en el HTML. La vista debería conservar el contenedor y generar categorías, precios, cantidades y subtotales desde el modelo." | `#desglose-presupuesto` |
-| RC10 | "Las tarjetas del catálogo permanecen como fuente operativa en el HTML. El catálogo debe provenir del modelo y el controlador debe renderizar tarjetas, datos y estados derivados." | `#contenedor-catalogo` |
-| RC11 | "La lista inicial de invitados sigue cargada como filas operativas en el HTML. Dejar el tbody vacío y construir la lista desde ListaInvitados o el estado persistido." | `#lista-invitados` |
+| Acoplamiento previo en `js/script.js` | Dónde estaba |
+| --- | --- |
+| Claves de storage (`CLAVES_STORAGE = { evento: "planit:evento", detallesEvento: "planit:detalles-evento" }`) | Sección 1 |
+| Llamadas directas al módulo de bajo nivel (`Almacenamiento.guardar`, `Almacenamiento.cargar`) y su chequeo de disponibilidad | `almacenamientoDisponible()`, `leerDelAlmacenamiento()`, `escribirEnAlmacenamiento()` |
+| Serialización manual (`estadoApp.evento.toJSON()`) | `persistirEvento()` |
+| Hidratación manual (`Evento.fromJSON(guardado)` y `Evento.fromJSON({ ...evento.toJSON(), nombre, tipo, presupuestoEstimado })`) | `cargarEventoInicial()`, `manejarSubmitEvento()` |
 
-Las tres observaciones tienen la misma causa: hasta esta corrección el HTML era la **fuente de datos**. El controlador leía los `data-*` de filas y tarjetas maquetadas (`crearEventoDesdeMarcado()`, `construirCatalogoDesdeMarcado()`) para crear los modelos, así que el flujo de datos iba de la vista al modelo, al revés de lo que pide el patrón.
-
-#### 6.2 Arquitectura: puntos de montaje y proyección del modelo
-
-Después de la corrección, el flujo de datos va siempre en un solo sentido: **modelo → controlador → DOM**.
+**Solución.** Se incorporó una capa de servicio entre el controlador y el adaptador de storage:
 
 ```
- Estado persistido (Almacenamiento)          DATOS_SEMILLA (js/script.js)
- planit:evento = Evento.toJSON()             misma forma que los toJSON() de los modelos
-              │                                            │
-              └───────────── fromJSON() ───────────────────┘
-                                 │  (los modelos validan al reconstruir)
-                                 ▼
-   Evento ─┬─ Presupuesto ── ItemContratado[]        CatalogoProveedores ── Proveedor[]
-           └─ ListaInvitados ── Invitado[]
-                                 │
-                                 ▼  js/script.js proyecta (createElement + textContent)
- ┌───────────────────────────── index.html: puntos de montaje vacíos ─────────────────────────────┐
- │ <tbody id="desglose-presupuesto">   <div id="contenedor-catalogo">   <tbody id="lista-invitados"> │
- └─────────────────────────────────────────────────────────────────────────────────────────────────┘
+index.html ──eventos──▶ js/script.js ──instancias del dominio──▶ js/services/ServicioPersistenciaEvento.js ──datos planos──▶ js/utils/storage.js ──▶ localStorage
+ (vista)                (controlador)   guardar / cargar /          (fachada: claves + toJSON/fromJSON)          guardar / cargar /     (Almacenamiento)
+                                        estaDisponible / limpiar                                              eliminar
 ```
 
-- **Vista (`index.html`)**: aporta solo la estructura semántica y los **puntos de montaje**: la tabla con `<caption>`, `<thead>` y `<tfoot>` (subtotal, descuento y total), la grilla del catálogo con su buscador y la tabla de invitados con sus encabezados. Los `<tbody>` y el contenedor de tarjetas quedan vacíos; los totales muestran `—` hasta que el controlador los calcula con el modelo. El `<select id="categoria-catalogo">` conserva solo la opción `Todas`.
-- **Datos semilla (`DATOS_SEMILLA`)**: los datos de ejemplo que antes estaban en el marcado pasan a un objeto congelado en `js/script.js`, con la misma forma que producen `Presupuesto.toJSON()`, `ListaInvitados.toJSON()` y `CatalogoProveedores.toJSON()`. Solo se usan cuando no hay estado persistido y se convierten en instancias con los `fromJSON()` de los modelos, que validan cada ítem, invitado y proveedor.
-- **Metadatos de presentación (`PRESENTACION_ITEMS`, `PRESENTACION_PROVEEDORES`)**: la unidad (`pax`, `horas`…), el tipo de gasto, la imagen, el texto alternativo y los textos del modal no forman parte de `ItemContratado` ni de `Proveedor`. Son datos de la vista y por eso viven en el controlador. Un ítem o proveedor sin metadatos se renderiza igual, sin unidad ni imagen.
-- **Controlador (`js/script.js`)**: lee las instancias del modelo, crea cada nodo con `createElement` y `textContent`/`setAttribute` (nunca `innerHTML`) y lo inserta en su punto de montaje con `replaceChildren()`.
+- **`js/services/ServicioPersistenciaEvento.js`** (nuevo) es el **único** componente que:
+  - conoce el objeto global `Almacenamiento` (se recibe por constructor, por defecto el global; en los tests se inyecta un doble en memoria);
+  - conoce las claves `planit:evento` y `planit:detalles-evento` (campo estático privado `#CLAVES`, no accesible desde afuera);
+  - serializa (`evento.toJSON()`) e hidrata (`Evento.fromJSON()`), y normaliza los detalles de agenda.
+- **Interfaz declarativa** que consume el controlador:
 
-#### 6.3 Cambios por observación
+  | Método | Devuelve | Comportamiento |
+  | --- | --- | --- |
+  | `estaDisponible()` | `boolean` | `true` si el adaptador cumple el contrato `guardar` / `cargar` / `eliminar`. |
+  | `guardar(evento, [detalles])` | `boolean` | Persiste el `Evento` (con presupuesto e invitados) y, si se indican, `{ fecha, ubicacion }`. Rechaza con `TypeError` lo que no sea un `Evento`. |
+  | `guardarEvento(evento)` / `guardarDetalles(detalles)` | `boolean` | Variantes granulares de `guardar()`. |
+  | `cargar([crearSemilla])` | `{ evento, detalles, origen, datosDanados }` | Devuelve instancias ya hidratadas. Si no hay evento guardado o está dañado, usa la fábrica `crearSemilla` (los datos de ejemplo del marcado) y lo informa con `origen: "semilla"` / `datosDanados: true`. |
+  | `limpiar()` | `boolean` | Borra todo el estado persistido por la fachada. |
 
-**RC9 – Presupuesto (`#desglose-presupuesto`)**
+  Ninguna operación lanza por fallas del storage: las escrituras devuelven `false` y las lecturas se comportan como "no hay estado guardado", así la app sigue funcionando en memoria.
+- **`Evento.actualizarDatos(nombre, tipo, presupuestoEstimado)`** (nuevo método del modelo): reemplaza el `Evento.fromJSON({ ...evento.toJSON(), ... })` que hacía el submit del Flujo 1. Valida todo antes de modificar (si algo es inválido, lanza y el evento queda intacto) y conserva presupuesto e invitados. Así, "actualizar los datos del evento" es una operación de dominio y no un truco de serialización en el controlador.
+- **`js/script.js`** quedó así:
+  - `configurarEventos()` crea `estadoApp.persistencia = new ServicioPersistenciaEvento()` y usa `estaDisponible()` para el aviso de "funciona en memoria".
+  - `cargarEstadoInicial(ui)` llama a `persistencia.cargar(() => crearEventoDesdeMarcado(ui))` y solo decide qué aviso mostrar.
+  - `persistirEvento(ui, [detalles])` llama a `persistencia.guardar(estadoApp.evento, detalles)` y solo informa el resultado en `#aviso-app`.
+  - `sincronizarFormularioEvento(ui, detalles)` recibe los detalles ya recuperados en lugar de leer el storage.
+  - Se eliminaron `CLAVES_STORAGE`, `almacenamientoDisponible()`, `leerDelAlmacenamiento()`, `escribirEnAlmacenamiento()` y `cargarEventoInicial()`.
+  - `obtenerModelosFaltantes()` incluye `ServicioPersistenciaEvento` entre las dependencias obligatorias.
+- **Orden de carga** en `index.html` y `js/test/test-runner.html`: `js/models/*.js` → `js/utils/storage.js` → `js/services/ServicioPersistenciaEvento.js` → `js/script.js`.
+- **Fuera de alcance:** `CatalogoProveedores` no se persiste. El catálogo se arma desde las tarjetas estáticas del marcado en cada carga y el usuario no lo modifica. Si en el futuro se persiste, la fachada es el lugar para agregar `guardarCatalogo()` / `CatalogoProveedores.fromJSON()` sin tocar el controlador.
+- **Las claves y el formato JSON no cambian**, así que el estado que los usuarios ya tienen guardado se sigue leyendo sin migración.
 
-| Antes | Después |
+**Tests (`js/test/`).**
+
+| Archivo | Cambio |
 | --- | --- |
-| 5 `<tr data-item>` maquetadas con categoría, precio, cantidad y subtotal | `<tbody>` vacío; `renderFilasPresupuesto(ui)` crea una fila por cada `ItemContratado` de `evento.presupuesto.items` |
-| `crearItemDesdeFila(fila)` leía categoría, descripción y precio de los `data-*` de la fila | `crearItemConCantidad(itemBase, cantidad)` toma categoría, descripción y precio del **modelo**; de la vista solo lee la cantidad que escribió el usuario |
-| `sincronizarCantidadesPresupuesto()` copiaba las cantidades guardadas a los inputs existentes | Se elimina: la fila se genera con la cantidad del modelo (semilla o estado persistido) |
-| `ui.filasPresupuesto` (lista fija tomada al cargar) | `obtenerFilasPresupuesto(ui)` consulta las filas generadas; si su cantidad no coincide con la de ítems del modelo, `recalcularPresupuesto()` vuelve a proyectarlas |
+| `servicio-persistencia.spec.js` (nuevo, 17 specs) | Prueba la fachada aislada con un doble en memoria de `Almacenamiento`: disponibilidad, ciclo `toJSON`/`fromJSON` con presupuesto e invitados, detalles de agenda, rechazo de algo que no es un `Evento`, fallas y excepciones del storage, semilla (uso, no uso, datos dañados, error propagado), detalles inválidos y `limpiar()`. |
+| `script.spec.js` | Los specs que leían `Almacenamiento.cargar(CLAVES_STORAGE.evento)` o espiaban `Almacenamiento.guardar` ahora usan `estadoApp.persistencia` (la misma fachada que usa el controlador). Se agregaron 2 specs: el submit delega en `persistencia.guardar(evento, { fecha, ubicacion })` y la actualización conserva presupuesto e invitados. |
+| `models.spec.js` | 2 specs nuevos para `Evento.actualizarDatos()` (actualización que conserva componentes; error sin modificar el evento). |
+| `storage.spec.js` | Sin cambios: sigue probando el adaptador de bajo nivel `Almacenamiento`. |
 
-Cada fila trae `<th scope="row">` con la categoría, el concepto, el tipo, un `input.input-cantidad` (con `id` derivado de la categoría, `aria-label` y `aria-describedby` hacia su `.invalid-feedback`), el precio unitario formateado y el subtotal de `item.calcularSubtotal()`. Si no hay ítems, se muestra una fila de estado vacío. Mientras el usuario escribe, `renderDesglosePresupuesto()` solo actualiza las celdas de subtotal (no recrea las filas), así el input no pierde el foco. Los eventos se atienden con el listener `input` **delegado** en `#form-presupuesto`, que ya cubría tanto los inputs generados como el descuento.
+**Verificación.**
 
-**RC10 – Catálogo (`#contenedor-catalogo`)**
-
-| Antes | Después |
+| Prueba | Resultado |
 | --- | --- |
-| 3 tarjetas maquetadas con `data-proveedor`; `construirCatalogoDesdeMarcado()` creaba un `Proveedor` por tarjeta | `construirCatalogo(ui)` crea el catálogo con `CatalogoProveedores.fromJSON(DATOS_SEMILLA.catalogo)` |
-| El filtro alternaba `hidden` en las tarjetas existentes | `renderCatalogo()` proyecta solo las tarjetas de los `Proveedor` que devuelve el modelo, en su orden, con `replaceChildren()` |
-| Opciones de categoría fijas en el `<select>` | `renderOpcionesCategoria(ui)` deriva las categorías de los proveedores del catálogo (sin repetir, comparadas con `Validador.buscarOpcion()`) |
-| Toast con un listener por botón `.btn-sumar-evento` registrado al cargar | Un único listener `click` **delegado** en `document`, que también atiende los botones generados después |
-
-`crearTarjetaProveedor(proveedor)` arma la tarjeta completa: imagen, insignia de categoría, nombre, descripción, metadatos (`categoría · capacidad · zona`), precio por unidad formateado a partir de `proveedor.precio` y `proveedor.unidad`, y los botones **Ver detalle** (abre `#modalDetalleServicio` por `data-bs-toggle`, con los `data-service-*` que lee el modal) y **Sumar al Evento**. Las tarjetas ya creadas se guardan en `estadoApp.tarjetasCatalogo` (`Map` Proveedor → nodo), para no reconstruir imágenes ni botones con cada tecla del buscador. Los estados derivados (contador de resultados y mensaje de catálogo vacío) se actualizan en cada filtrado.
-
-**RC11 – Invitados (`#lista-invitados`)**
-
-| Antes | Después |
-| --- | --- |
-| 5 `<tr data-nombre data-estado>` maquetadas; `crearEventoDesdeMarcado()` las leía para llenar `ListaInvitados` | `<tbody>` vacío; `crearEventoInicial(ui)` construye la lista con `Evento.fromJSON({ …, invitados: DATOS_SEMILLA.invitados })` si no hay estado persistido |
-
-`renderInvitados(ui)` ya generaba las filas desde el modelo; ahora es la **única** fuente de la tabla. Cada fila trae el nombre (`<th scope="row">`), el badge de estado (`Confirmado`/`Pendiente`), el botón para alternar el estado y el botón Eliminar, ambos con `data-accion` y `aria-label`. Si la lista está vacía, se muestra la fila de estado vacío. Al recargar, la lista sale de `planit:evento` (estado persistido).
-
-#### 6.4 Desacoplamiento resultante
-
-| Capa | Responsabilidad tras RC9–RC11 |
-| --- | --- |
-| `index.html` | Estructura semántica y puntos de montaje vacíos (`#desglose-presupuesto`, `#contenedor-catalogo`, `#lista-invitados`), encabezados, `<tfoot>` de totales y mensajes accesibles (`#alerta-presupuesto`, `#contador-catalogo`, `#catalogo-vacio`, `#feedback-invitados`). Sin datos operativos. |
-| `js/models/` | Fuente de verdad: instancias de `Presupuesto`/`ItemContratado`, `CatalogoProveedores`/`Proveedor` y `ListaInvitados`/`Invitado`, su validación (`fromJSON()`, constructores) y todos los cálculos. Sin cambios en esta corrección. |
-| `js/script.js` | Proyecta los modelos al DOM (`renderFilasPresupuesto`, `renderCatalogo`/`crearTarjetaProveedor`, `renderInvitados`), mantiene los datos semilla y los metadatos de presentación, y atiende los eventos por delegación. |
-| `js/utils/storage.js` | Sin cambios: persiste `Evento.toJSON()`, que incluye presupuesto e invitados. |
-
-#### 6.5 Control de observaciones
-
-- [x] **RC9**: `#desglose-presupuesto` queda vacío en `index.html` y conserva tabla, encabezados y `<tfoot>` de totales.
-- [x] **RC9**: categorías, conceptos, precios, cantidades y subtotales se generan desde `Presupuesto`/`ItemContratado` (`renderFilasPresupuesto`).
-- [x] **RC9**: los inputs de cantidad generados se atienden con el listener `input` delegado en `#form-presupuesto`.
-- [x] **RC10**: `#contenedor-catalogo` queda vacío en `index.html`; el buscador y los mensajes de estado se conservan.
-- [x] **RC10**: el catálogo proviene de `CatalogoProveedores.fromJSON()`; las tarjetas (datos, precio, insignia y botones) se generan en `crearTarjetaProveedor`.
-- [x] **RC10**: las categorías del filtro, el contador y el estado vacío se derivan del modelo; el filtro proyecta solo los proveedores que coinciden.
-- [x] **RC10**: "Sumar al Evento" funciona en tarjetas generadas gracias a la delegación del Toast.
-- [x] **RC11**: `#lista-invitados` queda vacío en `index.html`.
-- [x] **RC11**: la lista se construye solo desde `ListaInvitados` (estado persistido o `DATOS_SEMILLA`), con nombre, badge, alternar estado y eliminar.
-- [x] Sin `innerHTML`: todos los nodos se crean con `createElement` y `textContent`/`setAttribute`.
-- [ ] Verificación en navegador y ejecución de `node js/test/run-jasmine.js` después de la corrección (pendiente: ver §6.6).
-
-#### 6.6 Impacto en otros roles
-
-- **Tester QA (`js/test/script.spec.js`)**: `restaurarEstadoInicial()` llamaba a `construirCatalogoDesdeMarcado(ui)`, que se renombró a `construirCatalogo(ui)` porque el catálogo ya no se lee del marcado. **Actualizado:** la llamada ya usa `construirCatalogo(ui)`. Las filas y tarjetas del fixture de `test-runner.html` ya no se leen (el controlador las reemplaza al iniciar), así que se pueden dejar vacías como en `index.html`. Los ids de los inputs de cantidad (`cantidad-catering`, `cantidad-decoracion`, …) se mantienen, por lo que el resto de la suite no necesita cambios.
-
-#### 6.7 Resumen Financiero (barra lateral) sin datos fijos
-
-Al revisar RC9 se detectó que la barra lateral también tenía datos financieros fijos en el HTML (`$700.000`, `$580.000`, `$120.000`, `82%` y la alerta "Estás a $120.000 de tu límite"). Se corrigió con el mismo criterio de punto de montaje:
-
-| Elemento | Antes | Después |
-| --- | --- | --- |
-| `#resumen-presupuesto-total` y `#resumen-limite` | `$700.000` fijo | `evento.presupuestoEstimado`, formateado |
-| `#resumen-gastado` | `$580.000` fijo | `resultado.total` (`Presupuesto.aplicarDescuento()`, el mismo valor de `#total-presupuesto`); `—` si hay datos inválidos |
-| `#resumen-saldo` | `$120.000` fijo | `—` |
-| `#resumen-progreso` y `#resumen-porcentaje` | `82%` fijo | Barra oculta (`hidden`) y `— utilizado` |
-| `#resumen-alerta` | "Estás a $120.000 de tu límite" fijo | Texto según `resultado.excedido` (`Evento.superaPresupuesto()`); oculta si hay datos inválidos |
-
-`renderResumenFinanciero(ui, resultado)` se ejecuta en cada recálculo (`renderDesglosePresupuesto`) y al bloquear el resultado (`bloquearResultadoPresupuesto`). El saldo y el porcentaje **no** se calculan en el controlador: requieren una resta y una división sobre montos, que la Regla 1 reserva al modelo. Quedan en `—` hasta que el rol POO agregue un método como `Presupuesto.calcularSaldo(limite)` (y uno para el porcentaje utilizado); con ese método, el controlador solo tiene que escribir el valor devuelto.
-
-- [x] El HTML no contiene montos ni porcentajes fijos en el Resumen Financiero ni en la alerta lateral.
-- [x] Presupuesto total, límite, gastado y alerta se sincronizan con el modelo en cada recálculo.
-- [ ] Saldo disponible y porcentaje utilizado (pendiente: método del modelo).
+| `js/test/test-runner.html` en Chrome headless, 3 corridas con semillas aleatorias distintas | **132 specs, 0 failures** en las 3 (antes de RC22: 111 specs) |
+| `index.html` en Chrome headless | Sin aviso en `#aviso-app`; total de $580.000 y 5 invitados renderizados, igual que antes del cambio |
+| `grep -nE "Almacenamiento\|CLAVES_STORAGE\|toJSON\(\|fromJSON\(" js/script.js` | 0 coincidencias |

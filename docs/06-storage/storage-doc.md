@@ -53,7 +53,8 @@ const eventoRecuperado = datosGuardados ? Evento.fromJSON(datosGuardados) : null
 
 - **Dev POO (`js/models/`):** los valores guardados son siempre el resultado de `toJSON()` de las clases de dominio; al cargar, se reconstruyen con `fromJSON()`. `storage.js` no conoce estas clases, solo mueve objetos planos.
 - **Dev Eventos + DOM (`js/script.js`):** ya consume `Almacenamiento.guardar(clave, valor)` / `Almacenamiento.cargar(clave)` con las claves `planit:evento` y `planit:detalles-evento` (constante `CLAVES_STORAGE`). Este módulo respeta ese contrato tal cual estaba escrito.
-- **Orden de carga en `index.html` / `js/test/test-runner.html`:** `js/utils/storage.js` se carga después de `js/models/*.js` y antes de `js/script.js`, porque el controlador lo usa apenas arranca.
+  - **Actualización RC22:** el controlador ya no consume `Almacenamiento` directamente. El único consumidor es la fachada `js/services/ServicioPersistenciaEvento.js`, que concentra las claves (`planit:evento`, `planit:detalles-evento`) y el ciclo `toJSON()` / `fromJSON()`. El contrato de este módulo y el formato guardado no cambiaron. Detalle en `docs/03-specs/actividad-obligatoria-4/spec-dev-eventos-dom.md`, sección 6 del cierre.
+- **Orden de carga en `index.html` / `js/test/test-runner.html`:** `js/utils/storage.js` se carga después de `js/models/*.js` y antes de `js/services/ServicioPersistenciaEvento.js`, que a su vez va antes de `js/script.js`.
 
 ## 6. Verificación manual realizada
 

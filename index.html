@@ -443,8 +443,10 @@
     <script src="js/models/Evento.js" defer></script>
     <script src="js/models/Proveedor.js" defer></script>
     <script src="js/models/CatalogoProveedores.js" defer></script>
-    <!-- Persistencia (expone Almacenamiento.guardar / Almacenamiento.cargar) -->
+    <!-- Adaptador de storage de bajo nivel (Almacenamiento): solo lo consume la fachada -->
     <script src="js/utils/storage.js" defer></script>
+    <!-- Fachada de persistencia (RC22): única que conoce Almacenamiento, las claves y toJSON/fromJSON -->
+    <script src="js/services/ServicioPersistenciaEvento.js" defer></script>
     <!-- Controlador de UI y eventos: siempre al final -->
     <script src="js/script.js" defer></script>
 
