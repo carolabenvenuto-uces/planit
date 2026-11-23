@@ -125,3 +125,7 @@ El esquema JSON de `planit:evento` (sección 4 del MOMENTO 1) se confirmó contr
 - [x] `docs/06-storage/storage-doc.md` actualizado y consistente con el código.
 - [x] Integración verificada con Playwright sobre `index.html` real, con `feature/dev-eventos-dom` ya mergeada.
 - [x] Code review de otro integrante (PR #108): `CHANGES_REQUESTED` → correcciones aplicadas → pendiente de re-aprobación.
+
+### 5. Actualización posterior: RC22 (fachada de persistencia)
+
+Por la observación RC22 del docente ("el controlador conoce directamente Almacenamiento y sus operaciones"), `js/script.js` dejó de llamar a `Almacenamiento` y ya no tiene la constante `CLAVES_STORAGE`. Entre los dos se agregó la fachada `js/services/ServicioPersistenciaEvento.js`, que ahora es el único consumidor de este módulo y la única dueña de las claves y del ciclo `toJSON()` / `fromJSON()`. `js/utils/storage.js` no cambió: mismo contrato, mismas claves, mismo formato JSON y mismo ruteo a `localStorage`. Lo que se dice arriba sobre "el contrato que ya usa `js/script.js`" (MOMENTO 1, sección 1) describe el estado previo a RC22. Detalle completo en `spec-dev-eventos-dom.md`, sección 6 del cierre.

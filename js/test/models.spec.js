@@ -357,6 +357,32 @@ describe("Evento", function () {
         expect(function () { new Evento("Evento", "boda", "0"); }).toThrowError();
     });
 
+    describe("actualizarDatos", function () {
+        it("debería actualizar nombre, tipo y presupuesto conservando ítems e invitados", function () {
+            const evento = new Evento("Original", "boda", 500000);
+            evento.presupuesto.agregarItem(new ItemContratado("Catering", "Finger food", 10, 3500));
+            evento.invitados.agregar("Juan Pérez", "Confirmado");
+
+            const resultado = evento.actualizarDatos("  Nuevo  ", "CUMPLEAÑOS", "800000");
+
+            expect(resultado).toBe(evento);
+            expect(evento.nombre).toBe("Nuevo");
+            expect(evento.tipo).toBe("cumpleaños");
+            expect(evento.presupuestoEstimado).toBe(800000);
+            expect(evento.presupuesto.items.length).toBe(1);
+            expect(evento.invitados.invitados.length).toBe(1);
+        });
+
+        it("debería lanzar y dejar el evento intacto si algún dato es inválido", function () {
+            const evento = new Evento("Original", "boda", 500000);
+
+            expect(function () { evento.actualizarDatos("Nuevo", "congreso", 800000); }).toThrowError(/tipo/);
+            expect(evento.nombre).toBe("Original");
+            expect(evento.tipo).toBe("boda");
+            expect(evento.presupuestoEstimado).toBe(500000);
+        });
+    });
+
     describe("superaPresupuesto", function () {
         let evento;
 

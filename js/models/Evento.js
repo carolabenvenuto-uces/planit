@@ -64,6 +64,24 @@ class Evento {
     }
 
     /**
+     * Actualiza los datos básicos conservando presupuesto e invitados. Valida todo
+     * antes de modificar: si algo es inválido, el evento queda intacto.
+     * @param {string} nombre Nombre del evento.
+     * @param {string} tipo Tipo del evento.
+     * @param {number|string} presupuestoEstimado Presupuesto mayor a cero.
+     * @returns {Evento} El mismo evento, actualizado.
+     * @throws {Error} Si los datos son inválidos.
+     */
+    actualizarDatos(nombre, tipo, presupuestoEstimado) {
+        const errores = Evento.validarDatos(nombre, tipo, presupuestoEstimado);
+        if (errores.length) throw new Error(errores.join(" "));
+        this.#nombre = nombre.trim();
+        this.#tipo = Validador.buscarOpcion(Evento.TIPOS, tipo);
+        this.#presupuestoEstimado = Validador.convertirANumero(presupuestoEstimado);
+        return this;
+    }
+
+    /**
      * Indica si el total del presupuesto, con el descuento aplicado, supera el presupuesto estimado.
      * @param {number|string} [porcentajeDescuento=0] Descuento entre 0 y 100.
      * @returns {boolean} Si el total supera estrictamente el presupuesto estimado.

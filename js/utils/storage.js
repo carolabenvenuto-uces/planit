@@ -1,8 +1,9 @@
 /**
  * Capa de abstracción de almacenamiento persistente para PlanIT.
- * Expone el objeto global `Almacenamiento`, consumido por js/script.js.
+ * Expone el objeto global `Almacenamiento`. Desde RC22 su único consumidor es la
+ * fachada js/services/ServicioPersistenciaEvento.js (el controlador no lo usa).
  *
- * Contrato principal (ya asumido por la capa de controlador):
+ * Contrato principal:
  *   - Almacenamiento.guardar(clave, valor) -> boolean
  *   - Almacenamiento.cargar(clave)         -> valor deserializado | null
  *

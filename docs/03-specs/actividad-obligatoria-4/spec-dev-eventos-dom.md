@@ -393,7 +393,7 @@ La sección *ANTES* se escribió sin conocer la API final de las clases de POO. 
 **Otros ajustes respecto del plan:**
 - **Errores por campo:** `Evento.validarDatos()` e `Invitado.validar()` devuelven una lista de mensajes sin indicar a qué campo corresponde cada uno. El controlador los asigna según el comienzo del mensaje (`"El nombre"`, `"El tipo"`, `"El presupuesto"`, `"El estado"`). Si cambia el texto del mensaje, la asignación se rompe. Se propone que el rol POO devuelva los errores agrupados por campo.
 - **Fecha y ubicación:** `Evento` no tiene estas propiedades. Se validan como obligatorias con `Validador.esTextoNoVacio()` y se guardan aparte en `planit:detalles-evento`.
-- **Formulario `#form-evento`:** no se vacía al guardar, porque es el formulario de edición del evento actual y tiene que seguir mostrando sus datos. Al guardar se conservan el presupuesto y los invitados con `Evento.fromJSON({ ...anterior.toJSON(), nombre, tipo, presupuestoEstimado })`.
+- **Formulario `#form-evento`:** no se vacía al guardar, porque es el formulario de edición del evento actual y tiene que seguir mostrando sus datos. Al guardar se conservan el presupuesto y los invitados con `Evento.fromJSON({ ...anterior.toJSON(), nombre, tipo, presupuestoEstimado })`. *(Reemplazado en RC22 por `Evento.actualizarDatos()`; ver sección 6.)*
 - **Confirmación del Flujo 1:** se muestra dentro de la página, en `#confirmacion-evento`, y no en el toast.
 - **Eliminar invitado:** no pide confirmación (no se usa `confirm()`); el resultado se informa en `#feedback-invitados`.
 - **Resumen Financiero (barra lateral):** queda estático. Mostrar el saldo requiere una resta, que por la Regla 1 tiene que hacerse en el modelo. Se propone un método como `Presupuesto.calcularSaldo(limite)`.
@@ -469,6 +469,7 @@ Se abrió `index.html` en Chrome headless con los modelos del PR #102 y un `stor
 - [x] `js/script.js` no tiene reglas de validación propias, cálculos de montos ni accesos directos a `localStorage`.
 - [x] `configurarEventos()` avisa en la interfaz si faltan las clases del dominio o el almacenamiento.
 - [x] Los IDs de `index.html` coinciden con los que usa `js/script.js`.
+- [x] **RC22:** `js/script.js` no conoce `Almacenamiento`, ni las claves de storage, ni el ciclo `toJSON()` / `fromJSON()`. Toda la persistencia pasa por la fachada `ServicioPersistenciaEvento` (ver sección 6).
 
 #### Documentación
 - [x] Esta sección AL CERRAR registra el prompt, el fragmento de código, los ajustes y la verificación.
@@ -478,3 +479,68 @@ Se abrió `index.html` en Chrome headless con los modelos del PR #102 y un `stor
 - [ ] Crear `js/utils/storage.js` con el contrato `Almacenamiento.guardar` / `Almacenamiento.cargar`.
 - [ ] Adaptar `js/test/script.spec.js` y `js/test/test-runner.html` a las clases de `js/models/` (rol Tester QA).
 - [ ] Agregar al modelo un método para el saldo disponible y conectar el Resumen Financiero.
+
+### 6. Corrección RC22: desacoplamiento controlador–persistencia (Facade / Service Layer)
+
+**Observación del docente:** *"RC22 — El controlador conoce directamente Almacenamiento y sus operaciones. Retirar claves, cargar/guardar y serialización/hidratación del controlador; usar una fachada o servicio de dominio."*
+
+**Problema.** `js/script.js` tenía cuatro responsabilidades de persistencia que no le corresponden a un controlador:
+
+| Acoplamiento previo en `js/script.js` | Dónde estaba |
+| --- | --- |
+| Claves de storage (`CLAVES_STORAGE = { evento: "planit:evento", detallesEvento: "planit:detalles-evento" }`) | Sección 1 |
+| Llamadas directas al módulo de bajo nivel (`Almacenamiento.guardar`, `Almacenamiento.cargar`) y su chequeo de disponibilidad | `almacenamientoDisponible()`, `leerDelAlmacenamiento()`, `escribirEnAlmacenamiento()` |
+| Serialización manual (`estadoApp.evento.toJSON()`) | `persistirEvento()` |
+| Hidratación manual (`Evento.fromJSON(guardado)` y `Evento.fromJSON({ ...evento.toJSON(), nombre, tipo, presupuestoEstimado })`) | `cargarEventoInicial()`, `manejarSubmitEvento()` |
+
+**Solución.** Se incorporó una capa de servicio entre el controlador y el adaptador de storage:
+
+```
+index.html ──eventos──▶ js/script.js ──instancias del dominio──▶ js/services/ServicioPersistenciaEvento.js ──datos planos──▶ js/utils/storage.js ──▶ localStorage
+ (vista)                (controlador)   guardar / cargar /          (fachada: claves + toJSON/fromJSON)          guardar / cargar /     (Almacenamiento)
+                                        estaDisponible / limpiar                                              eliminar
+```
+
+- **`js/services/ServicioPersistenciaEvento.js`** (nuevo) es el **único** componente que:
+  - conoce el objeto global `Almacenamiento` (se recibe por constructor, por defecto el global; en los tests se inyecta un doble en memoria);
+  - conoce las claves `planit:evento` y `planit:detalles-evento` (campo estático privado `#CLAVES`, no accesible desde afuera);
+  - serializa (`evento.toJSON()`) e hidrata (`Evento.fromJSON()`), y normaliza los detalles de agenda.
+- **Interfaz declarativa** que consume el controlador:
+
+  | Método | Devuelve | Comportamiento |
+  | --- | --- | --- |
+  | `estaDisponible()` | `boolean` | `true` si el adaptador cumple el contrato `guardar` / `cargar` / `eliminar`. |
+  | `guardar(evento, [detalles])` | `boolean` | Persiste el `Evento` (con presupuesto e invitados) y, si se indican, `{ fecha, ubicacion }`. Rechaza con `TypeError` lo que no sea un `Evento`. |
+  | `guardarEvento(evento)` / `guardarDetalles(detalles)` | `boolean` | Variantes granulares de `guardar()`. |
+  | `cargar([crearSemilla])` | `{ evento, detalles, origen, datosDanados }` | Devuelve instancias ya hidratadas. Si no hay evento guardado o está dañado, usa la fábrica `crearSemilla` (los datos de ejemplo del marcado) y lo informa con `origen: "semilla"` / `datosDanados: true`. |
+  | `limpiar()` | `boolean` | Borra todo el estado persistido por la fachada. |
+
+  Ninguna operación lanza por fallas del storage: las escrituras devuelven `false` y las lecturas se comportan como "no hay estado guardado", así la app sigue funcionando en memoria.
+- **`Evento.actualizarDatos(nombre, tipo, presupuestoEstimado)`** (nuevo método del modelo): reemplaza el `Evento.fromJSON({ ...evento.toJSON(), ... })` que hacía el submit del Flujo 1. Valida todo antes de modificar (si algo es inválido, lanza y el evento queda intacto) y conserva presupuesto e invitados. Así, "actualizar los datos del evento" es una operación de dominio y no un truco de serialización en el controlador.
+- **`js/script.js`** quedó así:
+  - `configurarEventos()` crea `estadoApp.persistencia = new ServicioPersistenciaEvento()` y usa `estaDisponible()` para el aviso de "funciona en memoria".
+  - `cargarEstadoInicial(ui)` llama a `persistencia.cargar(() => crearEventoDesdeMarcado(ui))` y solo decide qué aviso mostrar.
+  - `persistirEvento(ui, [detalles])` llama a `persistencia.guardar(estadoApp.evento, detalles)` y solo informa el resultado en `#aviso-app`.
+  - `sincronizarFormularioEvento(ui, detalles)` recibe los detalles ya recuperados en lugar de leer el storage.
+  - Se eliminaron `CLAVES_STORAGE`, `almacenamientoDisponible()`, `leerDelAlmacenamiento()`, `escribirEnAlmacenamiento()` y `cargarEventoInicial()`.
+  - `obtenerModelosFaltantes()` incluye `ServicioPersistenciaEvento` entre las dependencias obligatorias.
+- **Orden de carga** en `index.html` y `js/test/test-runner.html`: `js/models/*.js` → `js/utils/storage.js` → `js/services/ServicioPersistenciaEvento.js` → `js/script.js`.
+- **Fuera de alcance:** `CatalogoProveedores` no se persiste. El catálogo se arma desde las tarjetas estáticas del marcado en cada carga y el usuario no lo modifica. Si en el futuro se persiste, la fachada es el lugar para agregar `guardarCatalogo()` / `CatalogoProveedores.fromJSON()` sin tocar el controlador.
+- **Las claves y el formato JSON no cambian**, así que el estado que los usuarios ya tienen guardado se sigue leyendo sin migración.
+
+**Tests (`js/test/`).**
+
+| Archivo | Cambio |
+| --- | --- |
+| `servicio-persistencia.spec.js` (nuevo, 17 specs) | Prueba la fachada aislada con un doble en memoria de `Almacenamiento`: disponibilidad, ciclo `toJSON`/`fromJSON` con presupuesto e invitados, detalles de agenda, rechazo de algo que no es un `Evento`, fallas y excepciones del storage, semilla (uso, no uso, datos dañados, error propagado), detalles inválidos y `limpiar()`. |
+| `script.spec.js` | Los specs que leían `Almacenamiento.cargar(CLAVES_STORAGE.evento)` o espiaban `Almacenamiento.guardar` ahora usan `estadoApp.persistencia` (la misma fachada que usa el controlador). Se agregaron 2 specs: el submit delega en `persistencia.guardar(evento, { fecha, ubicacion })` y la actualización conserva presupuesto e invitados. |
+| `models.spec.js` | 2 specs nuevos para `Evento.actualizarDatos()` (actualización que conserva componentes; error sin modificar el evento). |
+| `storage.spec.js` | Sin cambios: sigue probando el adaptador de bajo nivel `Almacenamiento`. |
+
+**Verificación.**
+
+| Prueba | Resultado |
+| --- | --- |
+| `js/test/test-runner.html` en Chrome headless, 3 corridas con semillas aleatorias distintas | **132 specs, 0 failures** en las 3 (antes de RC22: 111 specs) |
+| `index.html` en Chrome headless | Sin aviso en `#aviso-app`; total de $580.000 y 5 invitados renderizados, igual que antes del cambio |
+| `grep -nE "Almacenamiento\|CLAVES_STORAGE\|toJSON\(\|fromJSON\(" js/script.js` | 0 coincidencias |
