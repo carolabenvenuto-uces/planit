@@ -80,8 +80,35 @@ Un `describe` por clase, con esta estructura repetida donde aplica: constructor 
 | `listar` | Filtra por prefijo (con y sin el default `"planit:"`); vacío sin coincidencias. |
 | `limpiar` | Borra todas las claves de un prefijo y lo refleja en el `boolean` devuelto; no afecta otros prefijos. |
 | Integración con `js/models/` | Un `Evento` completo (con `Presupuesto` e invitados) sobrevive un ciclo `guardar(evento.toJSON())` → `Evento.fromJSON(cargar(...))`. |
+| **RC6 — Resiliencia ante fallas del storage** | Storage ausente, inaccesible o con errores en `localStorage` y `sessionStorage`; detalle abajo. |
 
-**19 specs.**
+**82 specs** (19 de CRUD + 63 de RC6).
+
+#### RC6 — Resiliencia ante storage ausente, inaccesible o con errores
+
+Agregado para atender la observación del docente: *"RC6 — Agregar pruebas para storage ausente o inaccesible y errores de lectura, borrado y listado en localStorage y sessionStorage, incluyendo SecurityError y códigos alternativos de cuota."* El identificador de cada caso aparece entre corchetes en el título del spec. La tabla completa, con el resultado esperado de cada caso, está en `docs/03-specs/actividad-obligatoria-4/spec-tester-qa.md`, sección 6.2.
+
+| IDs | Grupo | Qué simula | Specs |
+|---|---|---|---|
+| RC6-01 a RC6-04 | Storage ausente o inaccesible | `window.localStorage`/`sessionStorage` es `null`, es `undefined` o su getter lanza `SecurityError`; RC6-04: ninguno de los dos disponible. | 25 |
+| RC6-05 a RC6-09 | `SecurityError` | `DOMException` estándar (code 18) lanzada por `setItem`, `getItem` y `removeItem` en cada storage; variante legacy `SECURITY_ERR`. | 6 |
+| RC6-10 a RC6-12 | Errores de lectura | `getItem` que lanza; falla aislada en `sessionStorage`; 6 formatos de dato no deserializable. | 8 |
+| RC6-13 a RC6-15 | Errores de borrado | `removeItem` que falla en un storage (`eliminar()` y `limpiar()` siguen con el otro); `clear()` que lanza no afecta a `limpiar()`. | 5 |
+| RC6-16 a RC6-18 | Errores de listado | Leer `length` lanza; `key()` lanza en uno o en ambos storages. | 5 |
+| RC6-19 a RC6-23 | Códigos alternativos de cuota | `QuotaExceededError`/22, `NS_ERROR_DOM_QUOTA_REACHED`/1014 (Firefox legacy), `QUOTA_EXCEEDED_ERR`/22 (WebKit/Safari legacy), IE `E_OUTOFMEMORY` (`number` −2147024882); un storage lleno no impide leer, listar ni borrar. | 14 |
+
+**Cómo se aísla cada spec:**
+- `spyOnProperty(window, "<storage>", "get")` simula un storage ausente (devuelve `null`/`undefined`) o inaccesible (el getter lanza).
+- Los espías sobre `Storage.prototype` usan un `callFake` que lanza solo cuando `this` es el storage elegido y delega en el método original para el otro. No se espían métodos sobre la instancia (`spyOn(localStorage, "getItem")`), porque asignar una propiedad a un `Storage` puede guardarla como un ítem más del storage.
+- Jasmine restaura todos los espías al terminar cada spec. El `afterEach` del bloque borra las claves `planit:test-*` con los storages y métodos reales, capturados antes de instalar cualquier espía.
+- `console.error` se espía en el `beforeEach`, porque cada falla se loguea a propósito.
+
+#### Justificación técnica del manejo de excepciones de almacenamiento
+
+- **Una sola estrategia para todas las fallas:** `Almacenamiento` no clasifica el error por `name`/`code`; ante cualquier excepción devuelve un valor seguro (`false`/`null`/`[]`) y loguea el error original. No hace falta distinguirlos, porque la reacción es siempre la misma: seguir en memoria y avisar. Tampoco hay un criterio portable para reconocer una falla de cuota (cada navegador usa un nombre o código distinto, ver RC6-19 a RC6-22). Así, la compatibilidad con varios navegadores no depende de una lista de códigos que mantener.
+- **`SecurityError` puede saltar en el getter:** en incógnito estricto, con cookies bloqueadas o en iframes de otro origen, lanza la simple lectura de `window.localStorage`, no solo `getItem`/`setItem`. Por eso el acceso a la propiedad también va dentro del `try`.
+- **Degradación elegante:** si falta un storage, se sigue con el otro. `eliminar()` devuelve `false` porque no puede garantizar el borrado completo, y el controlador usa ese `boolean` para avisarle al usuario (issue #111).
+- **Sin escrituras parciales:** si `setItem` lanza, el valor previo de la clave queda intacto.
 
 ### `script.spec.js` — Controlador de UI y eventos (PR #104)
 
@@ -124,14 +151,26 @@ Tras la review de Carola a PR #110 se agregaron 2 specs (storage lleno en `stora
 111 specs, 0 failures, randomized with seed 47556
 ```
 
+Con la corrección **RC6** se agregaron 63 specs a `storage.spec.js`. Sin Node.js en la máquina donde se hizo la corrección, la suite se ejecutó con el mismo `test-runner.html` en Microsoft Edge headless (Chromium: `msedge --headless=new --virtual-time-budget=20000 --dump-dom`), 5 veces con semillas distintas:
+
+```
+174 specs, 0 failures, randomized with seed 29568
+174 specs, 0 failures, randomized with seed 52775
+174 specs, 0 failures, randomized with seed 40154
+174 specs, 0 failures, randomized with seed 55507
+174 specs, 0 failures, randomized with seed 53786
+```
+
+Los únicos mensajes de consola fueron avisos de Tracking Prevention de Edge sobre los recursos de Jasmine en el CDN; ninguno vino de la aplicación ni de los tests. Queda pendiente repetir la corrida con `node js/test/run-jasmine.js`, el runner oficial del proyecto.
+
 | Métrica | Valor |
 |---|---|
-| Total de Tests | 111 |
-| Tests Pasando | 111 ✅ |
+| Total de Tests | 174 |
+| Tests Pasando | 174 ✅ |
 | Tests Fallando | 0 ❌ |
 | Porcentaje de Éxito | 100% |
 | `models.spec.js` | 71 specs |
-| `storage.spec.js` | 19 specs |
+| `storage.spec.js` | 82 specs (19 + 63 de RC6) |
 | `script.spec.js` | 21 specs |
 
 ### Cobertura por Tipo de Test
@@ -143,8 +182,9 @@ Conteo exacto (no aproximado) de `it()` por categoría, uno por uno:
 | `models.spec.js` — Validación de errores (`toThrowError`) | 14 |
 | `models.spec.js` — Serialización (`toJSON`/`fromJSON`) | 15 |
 | `storage.spec.js` — CRUD y manejo de errores de `Almacenamiento` | 19 |
+| `storage.spec.js` — RC6: resiliencia ante storage ausente/inaccesible, `SecurityError`, errores de lectura/borrado/listado y cuota multi-navegador | 63 |
 | `script.spec.js` — Integración de controlador contra DOM (incluye 3 regresiones) | 21 |
-| **Total** | **111** |
+| **Total** | **174** |
 
 ### Un obstáculo real durante la escritura de `script.spec.js`
 
@@ -172,9 +212,16 @@ No se encontraron bugs nuevos durante esta ronda de testing (modelos, storage y 
 
 Un 4° hallazgo (el ruteo de `planit:detalles-evento` a `sessionStorage` en vez de `localStorage`) se encontró y corrigió en `feature/dev-storage` antes del merge de PR #108 (ver `docs/03-specs/actividad-obligatoria-4/spec-dev-storage.md`, MOMENTO 2); no se reporta como issue de GitHub porque se corrigió en la misma rama antes de integrarse.
 
+### Hallazgo de la corrección RC6
+
+Los specs RC6-03 encontraron un bug real en `js/utils/storage.js`. `eliminar()` y `listar()` leían `window.localStorage`/`window.sessionStorage` **fuera** del `try`, así que si el getter lanzaba `SecurityError` (incógnito estricto o iframe cruzado), la excepción llegaba al llamador, a pesar de que el contrato dice que ninguna operación lanza. Se corrigió leyendo `window[nombre]` dentro del `try` (`NOMBRES_STORAGE`). Al volver a poner el acceso fuera del `try` (verificación por mutación), la suite da 9 fallas; con el fix, 0. Detalle en `spec-tester-qa.md`, sección 6.4.
+
+**Limitación observada, sin cambio de contrato:** si **ningún** storage se puede listar (por ejemplo, `key()` lanza en los dos), `listar()` devuelve `[]` y `limpiar()` devuelve `true`, porque no encontró nada para borrar, aunque en realidad no pudo inspeccionar el storage. RC6-04 y RC6-18 verifican solo que no lance, sin fijar este comportamiento, para no consolidarlo en la suite.
+
 ---
 
-**Última actualización:** 22/11/2026 — reescritura completa para la AO4.
+**Última actualización:** 23/11/2026 — corrección RC6 (resiliencia del storage ante fallas).
+**Versión anterior:** 22/11/2026 — reescritura completa para la AO4.
 **Tester QA (AO4):** Facundo Guiraldes (@FacundoGuiraldes).
 **Colaboración con:** Desarrolladora JS POO - Carola Benvenuto (@carolabenvenuto-uces) · Desarrolladora JS Eventos + DOM - Valeria Silva (@ValeriaMSilva).
 **Versión AO3 (funciones `flujo*()` basadas en `prompt()`/`alert()`):** disponible en el historial de git de este archivo.

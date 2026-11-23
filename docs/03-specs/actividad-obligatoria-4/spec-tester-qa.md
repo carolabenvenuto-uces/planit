@@ -147,3 +147,90 @@ Las 3 issues están cerradas, referenciando su commit de fix.
 - [x] Las tres suites ejecutadas con `node js/test/run-jasmine.js`, 0 fallas, resultado documentado (11 corridas con semillas distintas).
 - [x] `js/test/testing-doc.md` actualizado con la nueva estructura, instrucciones por módulo y métricas de cobertura.
 - [x] Bugs encontrados reportados como issues en GitHub — los 3 bugs de PR #104 están reportados como issues (#111, #112, #113), cerradas referenciando sus commits de fix.
+- [x] **RC6:** `js/test/storage.spec.js` cubre storage ausente o inaccesible y errores de lectura, borrado y listado en `localStorage` y `sessionStorage`, incluyendo `SecurityError` y códigos alternativos de cuota (63 specs nuevos, `RC6-01` a `RC6-23`; ver sección 6).
+
+---
+
+## Corrección RC6 — Resiliencia del almacenamiento ante fallas
+
+### 6.1 Observación del docente
+
+> "RC6 — Agregar pruebas para storage ausente o inaccesible y errores de lectura, borrado y listado en localStorage y sessionStorage, incluyendo SecurityError y códigos alternativos de cuota."
+
+Antes de esta corrección, `storage.spec.js` solo probaba dos rutas de error: JSON corrupto en `cargar()` y `QuotaExceededError` estándar en `guardar()`. No cubría storage ausente, `SecurityError`, fallas de `removeItem`/`key`/`length`, ni las variantes de cuota de otros navegadores.
+
+### 6.2 Casos de prueba agregados
+
+Bloque nuevo `describe("RC6 — Resiliencia ante storage ausente, inaccesible o con errores")` en `js/test/storage.spec.js`. El identificador de cada caso aparece entre corchetes en el título del `describe`/`it`, así se lo puede buscar en el reporter de Jasmine.
+
+| ID | Escenario | Storage | Resultado esperado | Specs |
+|---|---|---|---|---|
+| RC6-01 | `window.<storage>` es `null` | local y session | Ninguna operación lanza; `eliminar()` → `false` pero borra igual del otro storage; `listar()` devuelve las claves del otro storage; si falta `localStorage`, `guardar()` → `false` y `cargar()` → `null`; si falta `sessionStorage`, `guardar()`/`cargar()` siguen funcionando. | 8 |
+| RC6-02 | `window.<storage>` es `undefined` | local y session | Igual que RC6-01. | 8 |
+| RC6-03 | El getter de `window.<storage>` lanza `SecurityError` (incógnito estricto, iframe cruzado) | local y session | Igual que RC6-01. | 8 |
+| RC6-04 | No hay ningún storage disponible | ambos | Todas las operaciones devuelven valores seguros (`false` / `null` / `[]`), sin lanzar. | 1 |
+| RC6-05 | El `SecurityError` simulado es el estándar | — | `DOMException`, `name: "SecurityError"`, `code: 18` (`DOMException.SECURITY_ERR`). | 1 |
+| RC6-06 | `setItem` lanza `SecurityError` | local | `guardar()` → `false`; `console.error` recibe el error original. | 1 |
+| RC6-07 | `getItem` lanza `SecurityError` | local | `cargar()` → `null`. | 1 |
+| RC6-08 | `removeItem` lanza `SecurityError` | local y session | `eliminar()` → `false`. | 2 |
+| RC6-09 | `SecurityError` legacy (`name: "SECURITY_ERR"`, `code: 18`, no es `DOMException`) | local | `guardar()` → `false`. | 1 |
+| RC6-10 | `getItem` lanza un error genérico | local | `cargar()`/`obtener()` → `null`, sin lanzar. | 1 |
+| RC6-11 | `getItem` falla solo en `sessionStorage` | session | `cargar()` no se ve afectado (lee de `localStorage`). | 1 |
+| RC6-12 | Dato no deserializable: objeto truncado, array truncado, `undefined`, `NaN`, comillas simples, string vacío | local | `cargar()` → `null`, sin lanzar. | 6 |
+| RC6-13 | `removeItem` falla en un storage | local y session | `eliminar()` → `false`, pero igual borra del otro storage. | 2 |
+| RC6-14 | `removeItem` falla durante `limpiar()` | local y session | `limpiar()` → `false`, sin lanzar, y limpia el otro storage. | 2 |
+| RC6-15 | `Storage.clear()` lanza | ambos | `limpiar()` no usa `clear()`: limpia igual y no toca claves de otro prefijo. | 1 |
+| RC6-16 | Leer `length` lanza | local y session | `listar()` devuelve las claves del otro storage. | 2 |
+| RC6-17 | `key()` lanza | local y session | `listar()` devuelve las claves del otro storage. | 2 |
+| RC6-18 | `key()` lanza en ambos | ambos | `listar()` → `[]`, sin lanzar. | 1 |
+| RC6-19 | `QuotaExceededError` (`DOMException`, code 22): W3C, Chromium y Firefox actual | local | Por cada variante de cuota (RC6-19 a RC6-22): (a) el error simulado tiene el `name`/`code` esperado; (b) `guardar()`/`actualizar()` → `false` sin lanzar y loguean el error original; (c) el valor previo de la clave queda intacto. | 3 |
+| RC6-20 | `NS_ERROR_DOM_QUOTA_REACHED`, code 1014 (Firefox legacy) | local | Ídem. | 3 |
+| RC6-21 | `QUOTA_EXCEEDED_ERR`, code 22 (WebKit/Safari legacy, incluido el modo privado con cuota 0) | local | Ídem. | 3 |
+| RC6-22 | IE/Edge legacy: `Error` genérico con `number: -2147024882` (`E_OUTOFMEMORY`) | local | Ídem. | 3 |
+| RC6-23 | Un storage lleno (todo `setItem` lanza) | local y session | Leer, listar y borrar siguen funcionando. | 2 |
+| | | | **Total** | **63** |
+
+**Aislamiento entre specs:** cada falla se simula con `spyOnProperty(window, "localStorage" | "sessionStorage", "get")` o con espías sobre `Storage.prototype`. Para los espías de prototipo, un `callFake` lanza solo cuando `this` es el storage elegido y delega en el método original para el otro; así cada storage se prueba por separado. Jasmine restaura todos los espías al terminar cada spec. Además, el `afterEach` del bloque borra las claves `planit:test-*` usando los storages y métodos reales, capturados **antes** de instalar cualquier espía, para que la limpieza no dependa de los mocks. `console.error` se espía en el `beforeEach` porque `Almacenamiento` loguea cada falla a propósito y `run-jasmine.js` falla si encuentra un `console.error` sin mockear.
+
+**Nota de ruteo:** `CLAVES_SESSION` está vacío, así que `guardar()` y `cargar()` siempre usan `localStorage`; `eliminar()` y `listar()` recorren ambos storages. Por eso `sessionStorage` se cubre en ausencia/inaccesibilidad, borrado y listado. En lectura y escritura se verifica que una falla suya no afecte a `cargar()`/`guardar()` (RC6-01 a RC6-03 y RC6-11).
+
+### 6.3 Justificación técnica del manejo de excepciones
+
+- **Captura uniforme en vez de clasificar el error.** `Almacenamiento` envuelve cada acceso al storage en `try/catch` y ante **cualquier** excepción devuelve un valor seguro (`false` en escrituras y borrados, `null` en lecturas, `[]` en listados). No inspecciona `name` ni `code`. No hace falta, porque la respuesta es la misma para todas las fallas: seguir en memoria y avisar. Además, no existe un único criterio portable para reconocer una falla de cuota: el estándar usa `QuotaExceededError`/22, Firefox legacy `NS_ERROR_DOM_QUOTA_REACHED`/1014, WebKit legacy `QUOTA_EXCEEDED_ERR`/22 e IE un `Error` con `number` −2147024882. RC6-19 a RC6-22 prueban que esta estrategia cubre las cuatro variantes sin una lista de códigos que mantener.
+- **SecurityError puede saltar en el getter, no solo en los métodos.** En modo incógnito estricto, con cookies de terceros bloqueadas o en un iframe de otro origen, el navegador lanza `SecurityError` (code 18) al **leer** la propiedad `window.localStorage`, antes de cualquier `getItem`/`setItem`. Por eso el acceso a la propiedad tiene que estar dentro del `try`.
+- **Degradación elegante.** Cuando un storage no está disponible, el otro sigue funcionando: `eliminar()` y `listar()` siguen con el storage restante. `eliminar()` devuelve `false` porque no puede garantizar que la clave se haya borrado de todos lados. El controlador (`escribirEnAlmacenamiento`, issue #111) usa ese `boolean` para avisarle al usuario en vez de reportar un falso éxito.
+- **Sin escrituras parciales.** Si `setItem` lanza, el valor anterior de la clave queda intacto (RC6-19 a RC6-22, caso c). El usuario pierde solo el último cambio, no el dato guardado.
+
+### 6.4 Bug encontrado y corregido
+
+Los tests RC6-03 (getter que lanza `SecurityError`) **fallaban** contra el `js/utils/storage.js` mergeado. `eliminar()` y `listar()` armaban el array `[window.localStorage, window.sessionStorage]` **fuera** del `try`, así que la excepción del getter llegaba al llamador y rompía el contrato de "ninguna operación lanza". `guardar()`/`cargar()` no tenían el problema, porque `resolverStorage()` ya se llamaba dentro del `try`.
+
+**Fix mínimo** en `js/utils/storage.js`: los dos bucles recorren `NOMBRES_STORAGE = ["localStorage", "sessionStorage"]` y leen `window[nombre]` dentro del `try`. No cambia el contrato público ni el comportamiento cuando el storage funciona.
+
+**Verificación por mutación:** al volver a poner el acceso fuera del `try`, la suite pasa de 0 a **9 fallas** (todas en el bloque RC6-03). Con el fix, 0 fallas.
+
+### 6.5 Resultados de ejecución
+
+En esta máquina no hay Node.js, así que no se pudo usar `node js/test/run-jasmine.js`. La suite se ejecutó con el mismo `test-runner.html` en **Microsoft Edge headless** (Chromium), con `msedge --headless=new --virtual-time-budget=20000 --dump-dom` y logging de consola habilitado:
+
+```
+174 specs, 0 failures, randomized with seed 29568
+174 specs, 0 failures, randomized with seed 52775
+174 specs, 0 failures, randomized with seed 40154
+174 specs, 0 failures, randomized with seed 55507
+174 specs, 0 failures, randomized with seed 53786
+```
+
+Total: 71 (`models.spec.js`) + **82** (`storage.spec.js`: 19 anteriores + 63 de RC6) + 21 (`script.spec.js`). En las 5 corridas, los únicos mensajes de consola fueron avisos de Tracking Prevention de Edge sobre los recursos de Jasmine en el CDN; ninguno vino de la aplicación ni de los tests. Queda pendiente repetir la corrida con `node js/test/run-jasmine.js` en un entorno con Node.js y Playwright, para que la evidencia quede con el runner oficial del proyecto.
+
+### 6.6 Checklist de cierre RC6
+
+- [x] Storage ausente (`null`/`undefined`) e inaccesible (getter que lanza) en `localStorage` y `sessionStorage` (RC6-01 a RC6-04).
+- [x] `SecurityError` estándar (`DOMException`, code 18) y legacy, en getter, `setItem`, `getItem` y `removeItem` (RC6-03, RC6-05 a RC6-09).
+- [x] Errores de lectura (`getItem` que lanza) y datos no deserializables (RC6-07, RC6-10 a RC6-12).
+- [x] Errores de borrado (`removeItem` y `clear`) (RC6-08, RC6-13 a RC6-15).
+- [x] Errores de listado (`key` y `length`) (RC6-16 a RC6-18).
+- [x] Códigos alternativos de cuota: `QuotaExceededError`/22, `NS_ERROR_DOM_QUOTA_REACHED`/1014, `QUOTA_EXCEEDED_ERR`/22 e IE `E_OUTOFMEMORY` (RC6-19 a RC6-23).
+- [x] Espías restaurados después de cada spec y limpieza en `afterEach` con referencias reales, sin contaminar otras suites (5 corridas con semillas aleatorias distintas, 0 fallas).
+- [x] Bug de `SecurityError` en `eliminar()`/`listar()` corregido en `js/utils/storage.js` (sección 6.4).
+- [x] `js/test/testing-doc.md` actualizado con los casos, la justificación técnica y las métricas nuevas.
