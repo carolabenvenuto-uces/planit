@@ -124,7 +124,7 @@ Detalle completo de las 3 suites (71 + 19 + 21 specs) en `js/test/testing-doc.md
 - `ao4-storage.png`: detalle de `storage.spec.js` (incluye el test de storage lleno agregado en esta ronda).
 - `ao4-script.png`: detalle de `script.spec.js`.
 
-**Nota sobre Playwright MCP:** no tuve el servidor Playwright MCP conectado en la sesión donde se escribió esta suite. Las capturas se generaron igual con Playwright, pero vía la librería `playwright` (la misma que ya usa `run-jasmine.js`, commiteada como devDependency desde la corrección de la AO3) en un script dedicado (`js/test/take-screenshots.js`), no con el servidor MCP interactivo. El resultado visual es equivalente (mismo navegador Chromium, misma página, mismo reporter HTML de Jasmine); la salvedad queda documentada acá para que quede claro que no se usó el MCP en sí.
+**Nota sobre Playwright MCP:** no tuve el servidor Playwright MCP conectado en la sesión donde se escribió esta suite. Las capturas se generaron igual con Playwright, pero vía la librería `playwright` (la misma que ya usa `run-jasmine.js`; en ese momento instalada solo en forma local, sin `package.json` versionado: se declaró formalmente como devDependency recién en la corrección RC20, ver sección 6) en un script dedicado (`js/test/take-screenshots.js`), no con el servidor MCP interactivo. El resultado visual es equivalente (mismo navegador Chromium, misma página, mismo reporter HTML de Jasmine); la salvedad queda documentada acá para que quede claro que no se usó el MCP en sí.
 
 ### 4. Bugs reportados
 
@@ -147,3 +147,41 @@ Las 3 issues están cerradas, referenciando su commit de fix.
 - [x] Las tres suites ejecutadas con `node js/test/run-jasmine.js`, 0 fallas, resultado documentado (11 corridas con semillas distintas).
 - [x] `js/test/testing-doc.md` actualizado con la nueva estructura, instrucciones por módulo y métricas de cobertura.
 - [x] Bugs encontrados reportados como issues en GitHub — los 3 bugs de PR #104 están reportados como issues (#111, #112, #113), cerradas referenciando sus commits de fix.
+
+### 6. Ejecución reproducible por línea de comandos (corrección RC20)
+
+**Observación del docente (RC20):** "La ejecución documentada no es reproducible desde un checkout limpio: faltan package.json, lockfile y dependencia Playwright."
+
+**Causa:** `run-jasmine.js` y `take-screenshots.js` hacen `require("playwright")`, pero el repositorio no declaraba esa dependencia en ningún archivo versionado. `package.json` y `package-lock.json` existían solo en la máquina local de quien corrió la suite porque estaban listados en `.gitignore`. Un clon limpio fallaba con `Cannot find module 'playwright'`, y las afirmaciones previas de esta spec ("commiteada como devDependency") no se correspondían con el contenido real del repositorio.
+
+**Cambios realizados:**
+- `package.json` en la raíz: metadata del proyecto (`"name": "planit"`, `"version": "1.0.0"`, `"private": true`, `"type": "commonjs"` porque los scripts de test usan `require`), `"engines": { "node": ">=20" }` (mínimo que exige Playwright 1.64), `playwright` fijado en la versión exacta `1.64.1` como `devDependency` (sin `^`, para que una edición manual del lockfile no habilite otra versión) y los scripts `test`, `test:browser`, `test:install-browsers` y `test:screenshots`.
+- `package-lock.json` (formato `lockfileVersion: 3`): fija `playwright@1.64.1` y su única dependencia transitiva `playwright-core@1.64.1`, cada una con su URL de descarga del registro npm y su hash de integridad `sha512`, de modo que `npm ci` instala exactamente el mismo árbol en cualquier entorno.
+- `.gitignore`: se quitaron las entradas `package.json` y `package-lock.json` (se mantiene `node_modules/`).
+- `js/test/open-runner.js`: script nuevo detrás de `npm run test:browser`, que abre `test-runner.html` en un Chromium con ventana visible.
+- `js/test/testing-doc.md`: la sección "Ejecución reproducible por línea de comandos" pasa a documentar el procedimiento completo desde un checkout limpio.
+
+**Procedimiento desde un checkout limpio** (requisitos: Git y Node.js 20 o superior):
+
+```
+git clone https://github.com/carolabenvenuto-uces/planit.git
+cd planit
+npm ci
+npm run test:install-browsers
+npm test
+```
+
+| Paso | Qué hace |
+|---|---|
+| `npm ci` | Instala `playwright` y `playwright-core` exactamente como figuran en `package-lock.json`. Falla si `package.json` y el lockfile no coinciden, en vez de resolver versiones nuevas. |
+| `npm run test:install-browsers` | Ejecuta `playwright install chromium`: descarga el Chromium que corresponde a Playwright 1.64.1. Es un paso aparte porque los binarios del navegador no son un paquete npm y el lockfile no los cubre. En Linux sin librerías de sistema: `npx playwright install --with-deps chromium`. |
+| `npm test` | Ejecuta `node js/test/run-jasmine.js`: imprime `111 specs, 0 failures, randomized with seed <n>` y termina con código `0` (o `1` si hay specs fallidos o errores de consola sin mockear). |
+
+`npm run test:browser` abre el mismo runner con ventana visible; abrir `js/test/test-runner.html` directamente en un navegador sigue siendo válido y no requiere Node.
+
+**Criterio de aceptación de RC20:**
+- [x] `package.json` versionado con la dependencia `playwright` y los scripts `test` y `test:browser`.
+- [x] `package-lock.json` versionado, coherente con `package.json` (mismas versiones en la raíz del lockfile y en `devDependencies`).
+- [x] `package.json` y `package-lock.json` fuera de `.gitignore`.
+- [x] Procedimiento paso a paso desde `git clone` documentado aquí y en `js/test/testing-doc.md`.
+- [ ] Verificado en un clon limpio con `npm ci` y `npm test` (pendiente: la máquina donde se preparó esta corrección no tiene Node.js instalado; el lockfile se armó con los metadatos reales del registro npm para `playwright@1.64.1` y `playwright-core@1.64.1`, URL e `integrity` incluidas, pero `npm ci` todavía no se corrió sobre él).
