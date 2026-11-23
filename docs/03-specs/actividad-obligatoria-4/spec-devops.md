@@ -38,7 +38,7 @@ Criterio de aprobación para cada PR: el diff se revisa completo (no solo el res
 
 ### 3. Herramientas a Utilizar: Justificación
 
-Se utilizará **Claude (Anthropic)** para los code reviews, con acceso de lectura al repositorio (diffs, commits, archivos completos) y la consigna de la AO4 como contexto. La consigna de la AO4 pide GitHub Copilot Agent Mode como herramienta obligatoria; este cambio de herramienta ya se había consultado con el docente durante la AO3 (igual que se documentó en su momento en `docs/03-specs/actividad-obligatoria-3/spec-devops.md`, sección de obstáculos, y se validó en la review de la PR #81 de esa entrega) y se mantiene el mismo criterio para la AO4: las revisiones con GitHub Copilot Agent Mode resultaron incompletas en la AO3 (no analizaba todos los archivos del diff ni detectaba discrepancias con la consigna), mientras que las revisiones con Claude sí detectaron los bloqueantes reales. Cada resultado se contrasta manualmente contra el repositorio antes de publicarse como review en GitHub.
+Se utilizará **Claude (Anthropic)** para los code reviews, con acceso de lectura al repositorio (diffs, commits, archivos completos) y la consigna de la AO4 como contexto. Este criterio es consistente con el adoptado en el cierre de la AO3 (ver `docs/03-specs/actividad-obligatoria-3/spec-devops.md`, sección de obstáculos): las revisiones con GitHub Copilot Agent Mode resultaron incompletas en esa entrega (no analizaba todos los archivos del diff ni detectaba discrepancias con la consigna), mientras que las revisiones con Claude sí detectaron los bloqueantes reales. Cada resultado se contrasta manualmente contra el repositorio antes de publicarse como review en GitHub.
 
 ### 4. Criterios de Aceptación (Checklist)
 
@@ -56,13 +56,13 @@ Se utilizará **Claude (Anthropic)** para los code reviews, con acceso de lectur
 - [ ] Tag `v1.2-cuarta-entrega` y GitHub Release publicados tras la aprobación del docente.
 - [ ] `changelog.md` actualizado con la contribución de cada integrante.
 
-> Este checklist se conserva tal como se escribió el 18/11 (commit `b102a5d`), como registro del plan inicial. El cumplimiento real de cada ítem, con su evidencia, se registra en el **Checklist de cierre** de MOMENTO 2 — mismo criterio que se usó en `spec-devops.md` de la AO3.
-
 ---
 
 ## MOMENTO 2: Evidencia de Cierre (AL FINALIZAR)
 
-*(Sección en construcción: se completa íntegramente al cerrar la coordinación de la AO4. Los code reviews se documentan a medida que se publican, con el prompt utilizado cuando corresponde, qué se validó y los hallazgos. El resto — Kanban, limpieza de ramas, GitHub Pages, tag/release, obstáculos generales — se completa al final.)*
+El checklist de MOMENTO 1 se conserva tal como se escribió el 18/11 (commit `b102a5d`), como registro del plan inicial. El cumplimiento real de cada ítem, con su evidencia, se registra en el **Checklist de cierre** de esta sección — mismo criterio que se usó en `spec-devops.md` de la AO3. Sobre la herramienta de IA (MOMENTO 1, sección 3): el cambio de GitHub Copilot Agent Mode (obligatorio según la consigna de la AO4) a Claude ya se había consultado con el docente durante la AO3 (documentado en `docs/03-specs/actividad-obligatoria-3/spec-devops.md`, sección de obstáculos, y validado en la review de la PR #81 de esa entrega) y se mantiene el mismo criterio para la AO4.
+
+*(Al momento de este commit solo quedan pendientes los ítems posteriores al merge de esta PR: GitHub Pages, release y limpieza de ramas, que dependen de cortar `release/cuarta-entrega` desde `develop` una vez integrada.)*
 
 ### Correcciones de la revisión docente de la AO3 (RC1 a RC16) y backport
 
@@ -196,8 +196,10 @@ GitHub no permite aprobar/solicitar cambios sobre la propia PR, así que las PRs
 #### PR #114 (`feature/coord-devops-cuarta-entrega`, esta misma PR)
 - **Revisora:** @carolabenvenuto-uces. **Primera ronda:** `CHANGES_REQUESTED` — 6 bloqueantes: el checklist del MOMENTO 1 se modificó después de escrito en lugar de conservarse como plan original; el ítem de orden del spec no reflejaba que `b102a5d` (18/11) es posterior a las 17 correcciones de la AO3 (10/11) y al backport #100 (11/11); el MOMENTO 2 no documentaba esas correcciones ni el backport; los prompts de las rondas 2 y 3 estaban citados en vez de en bloque de código y faltaban los de la review de PR #102, la ronda 1 y la ronda final; los hallazgos no citaban archivo ni línea; el ítem de "al menos 4 code reviews" estaba tildado sin aclarar que son 3 de 4; no estaba documentado el primer `APPROVE` erróneo de la ronda 1 de PR #104 (corregido 5 minutos después); y el título de la PR no coincidía literalmente con la entrada del changelog. Más mejoras no bloqueantes: obstáculos a documentar antes del cierre, aclarar que el cambio de herramienta de IA se consultó con el docente, corregir la mención de Playwright MCP en el README, usar el template de PR y asignar la issue #105.
   - Se restauró el checklist del MOMENTO 1 a su versión original (`b102a5d`), se agregó esta misma sección de "Checklist de cierre" en MOMENTO 2 con el estado real de cada ítem, se documentaron las 17 correcciones de la AO3 (RC1-RC16) y el backport #100, se pasaron los prompts faltantes a bloque de código (agregando los de PR #102, ronda 1 y ronda final, todos conversacionales), se agregó archivo y línea a cada hallazgo, se documentó el `APPROVE` erróneo de la ronda 1, y se unificó el título de la PR con el changelog.
-  - Se aplicaron las mejoras no bloqueantes: sección "Obstáculos" agregada (más abajo), justificación de la herramienta de IA aclarada, README corregido, PR pasada al template de feature, issue #105 asignada a @FacundoGuiraldes.
-  - **Segunda ronda:** pendiente.
+  - Se aplicaron las mejoras no bloqueantes de la primera ronda: sección "Obstáculos" agregada (más abajo), README corregido, issue #105 asignada a @FacundoGuiraldes.
+  - **Segunda ronda:** `CHANGES_REQUESTED` — 2 bloqueantes: el MOMENTO 1 seguía sin coincidir byte a byte con `b102a5d` (el párrafo de herramientas de IA tenía la aclaración sobre el docente agregada, y quedaba una nota al final del checklist); y el spec afirmaba que la descripción de la PR usaba el template de feature, cuando en realidad mantenía su formato propio. Más 2 mejoras no bloqueantes: la nota inicial de MOMENTO 2 estaba desactualizada, y el ítem de "4 code reviews" del checklist de cierre estaba tildado pese a decir "cumplido parcialmente".
+    - Se restauró el párrafo de herramientas de IA tal como está en `b102a5d` y se movió la aclaración sobre el docente al inicio de esta sección (ver arriba); se sacó la nota del final del checklist de MOMENTO 1. Se corrigió la afirmación sobre el template de feature (la descripción de la PR mantiene su formato propio, igual que #108/#109/#110, y se aclara por qué). Se actualizó la nota inicial de MOMENTO 2 y se destildó el ítem de "4 code reviews" en el checklist de cierre.
+  - **Tercera ronda:** pendiente.
 
 Con esto, las 3 PRs de dominio de la AO4 (POO, Eventos+DOM, Storage), el fix de Issue #68 y la suite de Tester QA están mergeadas a `develop` con revisión cruzada completa entre los 3 integrantes.
 
@@ -220,7 +222,7 @@ Con esto, las 3 PRs de dominio de la AO4 (POO, Eventos+DOM, Storage), el fix de 
 - [x] PR #104 (Eventos + DOM) revisada y mergeada, tras actualizarse con `develop`.
 - [x] PR #108 (`feature/dev-storage`) integrada.
 - [x] PR #110 (`feature/tester-qa-specs`) integrada.
-- [x] Al menos 4 code reviews con `CHANGES_REQUESTED` documentados (si corresponde) — cumplido parcialmente: 3/4 sobre PR #104 (ver "Obstáculos"), más la review recíproca de @ValeriaMSilva sobre la PR #108 de este responsable.
+- [ ] Al menos 4 code reviews con `CHANGES_REQUESTED` documentados (si corresponde) — cumplido parcialmente: 3/4 sobre PR #104 (ver "Obstáculos"), más la review recíproca de @ValeriaMSilva sobre la PR #108 de este responsable.
 - [x] Tablero Kanban en GitHub Projects administrado con las issues de la AO4: [PlanIT - Actividad Obligatoria N° 4](https://github.com/users/FacundoGuiraldes/projects/3) (15 ítems: #68, #101-#114).
 - [x] Seguimiento del Issue [#68](https://github.com/carolabenvenuto-uces/planit/issues/68) (deuda técnica de `js/componentes-bootstrap.js`) — resuelto en PR #109, issue cerrada.
 - [x] `README.md` actualizado con información de la cuarta entrega.
