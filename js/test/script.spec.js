@@ -724,6 +724,13 @@ describe("Integración - Controlador y UI (RC14, RC15, RC16)", function () {
     });
 
     describe("RC16: Persistencia y restauración en una carga nueva de la página", function () {
+        // RC22: las claves son privadas de ServicioPersistenciaEvento. Estos specs leen y
+        // escriben el storage en crudo (caja negra), así que declaran las claves esperadas.
+        const CLAVES_STORAGE = Object.freeze({
+            evento: "planit:evento",
+            detallesEvento: "planit:detalles-evento"
+        });
+
         it("INT-RC16-01: los cambios hechos en el DOM deberían persistirse y reconstruirse tras reiniciar memoria y DOM y volver a disparar DOMContentLoaded", function () {
             // 1. Modificar el estado desde la UI (mismos eventos que un usuario real).
             tocarYValidar(ui.nombreInvitado, "Lucía Fernández");
@@ -761,7 +768,9 @@ describe("Integración - Controlador y UI (RC14, RC15, RC16)", function () {
             expect(estadoApp.evento instanceof Evento).toBe(true);
             expect(uiNueva.avisoApp.hidden).toBe(true);
 
-            const filaCatering = uiNueva.filasPresupuesto.find(function (fila) { return fila.dataset.categoria === "Catering"; });
+            // RC9-RC11: las filas se renderizan dinámicamente; se ubica la de Catering por su input.
+            const filaCatering = document.getElementById("cantidad-catering").closest("tr[data-item]");
+            expect(obtenerFilasPresupuesto(uiNueva)).toContain(filaCatering);
             expect(filaCatering.querySelector(".input-cantidad").value).toBe("150");
             expect(filaCatering.querySelector("[data-subtotal]").textContent).toBe("$525.000");
             expect(uiNueva.subtotalPresupuesto.textContent).toBe("$685.000");
@@ -788,10 +797,12 @@ describe("Integración - Controlador y UI (RC14, RC15, RC16)", function () {
             document.dispatchEvent(new Event("DOMContentLoaded"));
             const uiNueva = obtenerReferenciasUI();
 
-            expect(estadoApp.evento.invitados.invitados.length).toBe(3);
+            // RC9-RC11: los datos de ejemplo ya no vienen del marcado sino de DATOS_SEMILLA.
+            expect(estadoApp.evento.invitados.invitados.length).toBe(DATOS_SEMILLA.invitados.invitados.length);
             expect(document.getElementById("cantidad-catering").value).toBe("120");
             expect(uiNueva.totalPresupuesto.textContent).toBe("$580.000");
-            expect(uiNueva.metricasInvitados.textContent).toContain("Confirmados: 2");
+            expect(uiNueva.metricasInvitados.textContent).toContain("Confirmados: 3");
+            expect(uiNueva.metricasInvitados.textContent).toContain("Pendientes: 2");
         });
 
         it("INT-RC16-03: con un evento persistido inválido, una carga nueva debería avisar y caer en los datos de ejemplo sin lanzar", function () {
