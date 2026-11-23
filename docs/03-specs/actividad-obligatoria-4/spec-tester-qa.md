@@ -126,6 +126,90 @@ Detalle completo de las 3 suites (71 + 19 + 21 specs) en `js/test/testing-doc.md
 
 **Nota sobre Playwright MCP:** no tuve el servidor Playwright MCP conectado en la sesión donde se escribió esta suite. Las capturas se generaron igual con Playwright, pero vía la librería `playwright` (la misma que ya usa `run-jasmine.js`, commiteada como devDependency desde la corrección de la AO3) en un script dedicado (`js/test/take-screenshots.js`), no con el servidor MCP interactivo. El resultado visual es equivalente (mismo navegador Chromium, misma página, mismo reporter HTML de Jasmine); la salvedad queda documentada acá para que quede claro que no se usó el MCP en sí.
 
+### 3.1. Corrección RC2: evidencia E2E mediante agente con automatización de navegador
+
+> **Observación del docente (RC2):** "La evidencia de capturas refiere a Playwright como librería Node, pero la consigna exige ejecución mediante Playwright MCP; documentar el servidor MCP, prompt, ejecución y resultado."
+
+Las capturas `ao4-*.png` descritas arriba se conservan como evidencia histórica de la suite Jasmine, pero no atienden la RC2 porque se generaron con un script Node. Para la corrección, un agente de IA ejecutó de forma interactiva los 4 flujos E2E sobre la aplicación PlanIT (`index.html`), sin scripts propios del repositorio, y tomó las capturas `01`–`04`.
+
+**Estado:** ✅ Ejecutado el 23/11/2026 sobre la rama `fix/qa-rc2-playwright-mcp-evidence` (base `473b959`), servida con Live Server en `http://localhost:5500`.
+
+#### a) Cliente, servidor y herramientas utilizadas (aclaración metodológica)
+
+- **Cliente:** GitHub Copilot en Modo Agente, en VS Code.
+- **Herramientas efectivamente invocadas:** las herramientas de navegador integradas del agente de Copilot en VS Code: `openBrowserPage`, `typeInPage`, `readPage`, `clickElement`, `screenshotPage` y `runPlaywrightCode`. Esta última ejecuta código Playwright sobre la página abierta por el agente.
+- **Servidor configurado en el repositorio:** `.vscode/mcp.json` registra el servidor oficial `@playwright/mcp`, cuyas herramientas se denominan `browser_navigate`, `browser_type`, `browser_click`, `browser_take_screenshot`, etc.
+
+  ```json
+  "playwright": {
+    "command": "npx",
+    "args": ["-y", "@playwright/mcp@latest"]
+  }
+  ```
+
+- **Salvedad:** los nombres de las herramientas invocadas no corresponden a los de `@playwright/mcp`. Es decir, la corrida **no** se hizo a través de ese servidor, sino de las herramientas de navegador integradas de Copilot. Se deja asentado para que la evidencia no se presente como algo distinto de lo que fue. Respecto de la observación original, la diferencia sustantiva sí se atiende: la ejecución ya no es un script Node escrito por el equipo, sino una sesión interactiva de un agente sobre la aplicación real, con el prompt, la secuencia de herramientas y el resultado documentados.
+
+#### b) Prompt provisto al agente
+
+```text
+Navega a http://localhost:5500/index.html usando las herramientas de Playwright MCP. Ejecuta y captura los
+siguientes 4 flujos de prueba E2E de la Actividad Obligatoria 4:
+1. Flujo Crear Evento: Completa el formulario de evento con nombre "Conferencia Tech 2026", fecha futura
+   válida, presupuesto 150000 y presiona Guardar. Captura la pantalla mostrando el evento creado y
+   renderizado en el DOM.
+2. Flujo Presupuesto: Modifica los gastos/costos en el módulo de presupuesto y verifica que el cálculo
+   dinámico y el balance se actualicen en pantalla sin alertas nativas. Captura la pantalla.
+3. Flujo Catálogo de Proveedores: Aplica el filtro por categoría "Catering" y selecciona un proveedor para
+   agregarlo al evento. Captura la pantalla con los elementos filtrados.
+4. Flujo Gestión de Invitados: Agrega dos invitados con nombre y correo válidos. Verifica que aparezcan en
+   la lista del DOM y que persistan en localStorage. Captura la pantalla final.
+Asegúrate de no disparar alert() nativos y confirma que la consola del navegador esté limpia de errores.
+Guarda las capturas en js/test/screenshots/.
+```
+
+El formulario de invitados no tiene campo de correo (solo `#nombre-invitado` y `#estado-invitado`), así que el agente cargó nombre y estado de asistencia.
+
+#### c) Flujo de ejecución (herramientas invocadas por el agente)
+
+| # | Herramienta | Acción |
+|---|---|---|
+| 1 | `openBrowserPage` | Abrió `http://localhost:5500/index.html`. |
+| 2 | `typeInPage` | Completó el nombre del evento ("Conferencia Tech 2026"). |
+| 3 | `typeInPage` | Completó la fecha (`2027-06-15`). |
+| 4 | `readPage` | Identificó el selector del presupuesto estimado. |
+| 5 | `typeInPage` | Estableció el presupuesto en `150000`. |
+| 6 | `clickElement` | Presionó "Guardar Cambios". |
+| 7 | `screenshotPage` | Capturó el evento creado (`01-crear-evento.png`). |
+| 8 | `typeInPage` | Redujo la cantidad de Catering a 100 unidades. |
+| 9 | `clickElement` | Presionó "Calcular presupuesto". |
+| 10 | `readPage` | Verificó el nuevo subtotal y el balance. |
+| 11 | `screenshotPage` | Capturó el presupuesto (`02-presupuesto.png`). |
+| 12 | `runPlaywrightCode` | Seleccionó "Catering" en `#categoria-catalogo`. |
+| 13 | `clickElement` | Hizo clic en "Sumar al Evento". |
+| 14 | `screenshotPage` | Capturó el catálogo (`03-catalogo.png`). |
+| 15 | `typeInPage` | Completó el invitado pendiente. |
+| 16 | `clickElement` | Agregó el invitado pendiente. |
+| 17 | `typeInPage` | Completó el invitado confirmado. |
+| 18 | `runPlaywrightCode` | Seleccionó "Confirmado" en `#estado-invitado`. |
+| 19 | `clickElement` | Agregó el invitado confirmado. |
+| 20 | `runPlaywrightCode` | Verificó los invitados en el DOM. |
+| 21 | `runPlaywrightCode` | Verificó `planit:evento` en `localStorage`. |
+| 22 | `screenshotPage` | Capturó la lista de invitados (`04-invitados.png`). |
+
+Las capturas `02` y `03` de la primera corrida no reflejaban su flujo: en la `03` el filtro estaba en "Todas", con 3 proveedores, y en la `02` no se veían los importes. Se descartaron y se volvieron a tomar con el estado correspondiente en pantalla.
+
+#### d) Resultado y verificación
+
+| Captura (`js/test/screenshots/`) | Flujo | Verificación | Resultado |
+|---|---|---|---|
+| `01-crear-evento.png` | Crear evento | Confirmación visible: "Evento guardado. Conferencia Tech 2026 · boda · 2027-06-15 · Quinta El Ombú, Pilar, Buenos Aires · Presupuesto estimado: $150.000". | ✅ Aprobado |
+| `02-presupuesto.png` | Calcular presupuesto | Cantidad de Catering modificada de 120 a 100. Según la lectura `readPage` del agente (paso 10), el subtotal se recalculó de $580.000 a $510.000 (20 × $3.500 = $70.000). La captura muestra la cantidad modificada y la alerta dinámica en el DOM ("El total supera el presupuesto estimado de $150.000"). En el ancho móvil la tabla tiene scroll horizontal y la columna de importes queda fuera del recorte, por lo que el valor de $510.000 se respalda en la lectura del agente y no en la imagen. | ✅ Aprobado |
+| `03-catalogo.png` | Catálogo | Selector en "Catering", "1 proveedor encontrado" y tarjeta de "Gourmet Finger Food"; proveedor sumado al evento con "Sumar al Evento". | ✅ Aprobado |
+| `04-invitados.png` | Invitados | "Invitado Pendiente QA" (Pendiente) e "Invitado Confirmado QA" (Confirmado) renderizados en la tabla; métricas actualizadas (Confirmados: 4, Pendientes: 3); persistencia verificada en `planit:evento` de `localStorage` (paso 21). | ✅ Aprobado |
+
+- **Diálogos nativos:** no se dispararon `alert()` ni `confirm()` durante la corrida, lo que es consistente con que `js/script.js` no los invoca. Toda la retroalimentación se muestra en el DOM (`#confirmacion-evento`, alerta de presupuesto, `#feedback-invitados`).
+- **Consola del navegador:** sin errores JavaScript de la aplicación. Solo hubo advertencias de terceros, del reproductor embebido de YouTube.
+
 ### 4. Bugs reportados
 
 No se encontraron bugs nuevos en esta etapa: los 3 bugs reales de la AO4 fueron encontrados y corregidos **antes**, durante el code review de PR #104 (ver `spec-devops.md`, MOMENTO 2), no durante la escritura de esta suite. Siguiendo el pedido de Carola en la review de PR #110, se los reportó formalmente como issues de GitHub (no quedaban documentados más que en los comentarios del code review), cada una con comportamiento esperado vs. obtenido, pasos para reproducir, el test de regresión como test case que falla, etiqueta `bug` y asignada a @ValeriaMSilva (Dev Eventos+DOM, dueña del código de `js/script.js` donde viven los 3):
