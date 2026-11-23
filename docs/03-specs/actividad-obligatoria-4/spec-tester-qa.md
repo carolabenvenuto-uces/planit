@@ -118,97 +118,118 @@ Tras la revisión de Carola (PR #110) se agregaron 2 specs más: un test de `sto
 
 Detalle completo de las 3 suites (71 + 19 + 21 specs) en `js/test/testing-doc.md`.
 
-**Capturas de pantalla** (generadas con la librería Playwright vía `node js/test/take-screenshots.js`, ver nota sobre Playwright MCP más abajo) en `js/test/screenshots/`:
+**Capturas de pantalla del test runner** (generadas con la librería Playwright vía `node js/test/take-screenshots.js`; la evidencia del servidor `@playwright/mcp` está en la sección 3.1) en `js/test/screenshots/`:
 - `ao4-general.png`: vista completa del test runner, banner de resultado global (`111 specs, 0 failures`) y árbol completo de las 3 suites.
 - `ao4-models.png`: detalle de `models.spec.js`.
 - `ao4-storage.png`: detalle de `storage.spec.js` (incluye el test de storage lleno agregado en esta ronda).
 - `ao4-script.png`: detalle de `script.spec.js`.
 
-**Nota sobre Playwright MCP:** no tuve el servidor Playwright MCP conectado en la sesión donde se escribió esta suite. Las capturas se generaron igual con Playwright, pero vía la librería `playwright` (la misma que ya usa `run-jasmine.js`; en ese momento instalada solo en forma local, sin `package.json` versionado: se declaró formalmente como devDependency recién en la corrección RC20, ver sección 6) en un script dedicado (`js/test/take-screenshots.js`), no con el servidor MCP interactivo. El resultado visual es equivalente (mismo navegador Chromium, misma página, mismo reporter HTML de Jasmine); la salvedad queda documentada acá para que quede claro que no se usó el MCP en sí.
+### 3.1 Evidencia con el servidor oficial `@playwright/mcp` (corrección RC27)
 
-### 3.1. Corrección RC2: evidencia E2E mediante agente con automatización de navegador
+**Contexto de la corrección.** La versión anterior de este documento declaraba que las capturas se habían hecho con la librería `playwright` y no con el servidor MCP. El docente observó (RC27) que eso no cumple el requisito de Playwright MCP. Para atenderlo, se ejecutó una sesión de prueba real contra el servidor oficial **`@playwright/mcp`**, hablando el protocolo MCP (JSON-RPC 2.0 por stdio). Se registraron todas las llamadas `tools/call` con su entrada y su salida. La sesión se corrió el **23/11/2026**, durante esta corrección. Las capturas del test runner de Jasmine de la sección 3 siguen siendo las de `take-screenshots.js`; la evidencia de esta sección es aparte y se suma a esas capturas, no las reemplaza.
 
-> **Observación del docente (RC2):** "La evidencia de capturas refiere a Playwright como librería Node, pero la consigna exige ejecución mediante Playwright MCP; documentar el servidor MCP, prompt, ejecución y resultado."
+Toda la evidencia queda en [`js/test/mcp-evidence/`](../../../js/test/mcp-evidence/):
 
-Las capturas `ao4-*.png` descritas arriba se conservan como evidencia histórica de la suite Jasmine, pero no atienden la RC2 porque se generaron con un script Node. Para la corrección, un agente de IA ejecutó de forma interactiva los 4 flujos E2E sobre la aplicación PlanIT (`index.html`), sin scripts propios del repositorio, y tomó las capturas `01`–`04`.
+| Archivo | Qué es |
+|---|---|
+| `mcp-session-log.json` | Log completo de la sesión: comando de arranque del servidor, `serverInfo`, las 25 herramientas listadas, cada `tools/call` (request JSON-RPC, duración y response textual completa) y las aserciones con el veredicto. |
+| `mcp-session.mjs` | Cliente MCP que ejecutó la sesión (SDK oficial `@modelcontextprotocol/sdk`, `StdioClientTransport`), con el servidor estático en `:5500` equivalente a Live Server. |
+| `mcp-01-toast.png`, `mcp-02-modal.png`, `mcp-03-toast-desde-modal.png` | Capturas tomadas por el propio servidor MCP con `browser_take_screenshot`. |
+| `page-*.yml` | Snapshots de accesibilidad que el servidor guardó tras cada acción (son los archivos que referencian las responses del log). |
+| `console-*.log` | Log de consola del navegador que capturó el servidor. |
 
-**Estado:** ✅ Ejecutado el 23/11/2026 sobre la rama `fix/qa-rc2-playwright-mcp-evidence` (base `473b959`), servida con Live Server en `http://localhost:5500`.
+#### Configuración del MCP Server
 
-#### a) Cliente, servidor y herramientas utilizadas (aclaración metodológica)
+Comando con el que se arrancó el servidor. Es el que registra el campo `mcpServerLaunch` del log; el cliente lo lanza como subproceso stdio:
 
-- **Cliente:** GitHub Copilot en Modo Agente, en VS Code.
-- **Herramientas efectivamente invocadas:** las herramientas de navegador integradas del agente de Copilot en VS Code: `openBrowserPage`, `typeInPage`, `readPage`, `clickElement`, `screenshotPage` y `runPlaywrightCode`. Esta última ejecuta código Playwright sobre la página abierta por el agente.
-- **Servidor configurado en el repositorio:** `.vscode/mcp.json` registra el servidor oficial `@playwright/mcp`, cuyas herramientas se denominan `browser_navigate`, `browser_type`, `browser_click`, `browser_take_screenshot`, etc.
+```bash
+npx -y @playwright/mcp@latest --headless --browser chromium --output-dir .
+```
+
+- Versión resuelta: `@playwright/mcp` **0.0.86** (`npx @playwright/mcp@latest --version`). El `serverInfo` que devuelve el handshake MCP es `{"name":"Playwright","version":"1.66.0-alpha-2026-11-18"}`.
+- Navegador del servidor: hubo que instalarlo una vez con `npx @playwright/mcp install-browser chrome-for-testing`. En la primera corrida, el servidor respondió a `browser_navigate` con el error `Browser "chrome-for-testing" is not installed`.
+- Configuración equivalente para conectar el mismo servidor a un cliente MCP interactivo (VS Code `.vscode/mcp.json` o `claude_desktop_config.json`, bajo `"mcpServers"`). No fue la que usó esta sesión; se incluye como referencia:
 
   ```json
-  "playwright": {
-    "command": "npx",
-    "args": ["-y", "@playwright/mcp@latest"]
+  {
+    "servers": {
+      "playwright": {
+        "command": "npx",
+        "args": ["-y", "@playwright/mcp@latest"]
+      }
+    }
   }
   ```
 
-- **Salvedad:** los nombres de las herramientas invocadas no corresponden a los de `@playwright/mcp`. Es decir, la corrida **no** se hizo a través de ese servidor, sino de las herramientas de navegador integradas de Copilot. Se deja asentado para que la evidencia no se presente como algo distinto de lo que fue. Respecto de la observación original, la diferencia sustantiva sí se atiende: la ejecución ya no es un script Node escrito por el equipo, sino una sesión interactiva de un agente sobre la aplicación real, con el prompt, la secuencia de herramientas y el resultado documentados.
+#### Secuencia de llamadas (`tools/call`)
 
-#### b) Prompt provisto al agente
+Sesión del 23/11/2026, de `22:29:42.605Z` a `22:29:55.553Z` (UTC), contra `http://localhost:5500/index.html`. Los nombres de herramienta son los canónicos que expone el servidor en `tools/list`. Las salidas de esta tabla son extractos literales de las responses del log.
 
-```text
-Navega a http://localhost:5500/index.html usando las herramientas de Playwright MCP. Ejecuta y captura los
-siguientes 4 flujos de prueba E2E de la Actividad Obligatoria 4:
-1. Flujo Crear Evento: Completa el formulario de evento con nombre "Conferencia Tech 2026", fecha futura
-   válida, presupuesto 150000 y presiona Guardar. Captura la pantalla mostrando el evento creado y
-   renderizado en el DOM.
-2. Flujo Presupuesto: Modifica los gastos/costos en el módulo de presupuesto y verifica que el cálculo
-   dinámico y el balance se actualicen en pantalla sin alertas nativas. Captura la pantalla.
-3. Flujo Catálogo de Proveedores: Aplica el filtro por categoría "Catering" y selecciona un proveedor para
-   agregarlo al evento. Captura la pantalla con los elementos filtrados.
-4. Flujo Gestión de Invitados: Agrega dos invitados con nombre y correo válidos. Verifica que aparezcan en
-   la lista del DOM y que persistan en localStorage. Captura la pantalla final.
-Asegúrate de no disparar alert() nativos y confirma que la consola del navegador esté limpia de errores.
-Guarda las capturas en js/test/screenshots/.
+| # | Herramienta | Entrada (`arguments`) | Salida registrada (extracto) | ms |
+|---|---|---|---|---|
+| 1 | `browser_navigate` | `{"url":"http://localhost:5500/index.html"}` | `await page.goto('http://localhost:5500/index.html');` · `Page Title: PlanIT - Plataforma All-in-One de Organización & Experiencias` | 3908 |
+| 2 | `browser_snapshot` | `{"target":"#contenedor-catalogo"}` | Árbol YAML con las 3 tarjetas; 3 × `button "Sumar al Evento"` | 27 |
+| 3 | `browser_click` | `{"element":"Boton 'Sumar al Evento' de Gourmet Finger Food","target":".btn-sumar-evento[data-service-title=\"Gourmet Finger Food\"]"}` | `await page.locator('.btn-sumar-evento[data-service-title="Gourmet Finger Food"]').click();` | 1126 |
+| 4 | `browser_wait_for` | `{"text":"Gourmet Finger Food · $3.500 / pax","time":10}` | `Waited for Gourmet Finger Food · $3.500 / pax` | 57 |
+| 5 | `browser_snapshot` | `{"target":"#toastConfirmacion"}` | `- status [ref=e310]` … `paragraph [ref=e316]: Gourmet Finger Food · $3.500 / pax` · `paragraph [ref=e317]: Experiencia agregada a tu evento` | 16 |
+| 6 | `browser_evaluate` | `{"element":"Toast de confirmacion","target":"#toastConfirmacion","function":"(el) => ({ visible: el.classList.contains('show'), … })"}` | `{"visible":true,"servicio":"Gourmet Finger Food · $3.500 / pax","mensaje":"Experiencia agregada a tu evento","dataTitle":"Gourmet Finger Food","dataPrice":"$3.500 / pax"}` | 537 |
+| 7 | `browser_take_screenshot` | `{"type":"png","filename":"mcp-01-toast.png","scale":"css"}` | `[Screenshot of viewport](./mcp-01-toast.png)` | 112 |
+| 8 | `browser_click` | `{"element":"Boton 'Ver detalle' de Flores Pilar","target":".btn-ver-detalle[data-service-title=\"Flores Pilar\"]"}` | `await page.locator('.btn-ver-detalle[data-service-title="Flores Pilar"]').click();` | 1090 |
+| 9 | `browser_wait_for` | `{"text":"1 jornada de montaje","time":10}` | `Waited for 1 jornada de montaje` | 48 |
+| 10 | `browser_snapshot` | `{"target":"#modalDetalleServicio"}` | `- dialog "Flores Pilar" [active] [ref=e318]` … `text: 1 jornada de montaje` · `paragraph [ref=e337]: $70.000 / base` | 11 |
+| 11 | `browser_evaluate` | `{"element":"Modal de detalle de servicio","target":"#modalDetalleServicio","function":"(el) => ({ abierto: el.classList.contains('show'), … })"}` | `{"abierto":true,"titulo":"Flores Pilar","capacidad":"1 evento por fecha","duracion":"1 jornada de montaje","precio":"$70.000 / base","sumarDataTitle":"Flores Pilar"}` | 1033 |
+| 12 | `browser_take_screenshot` | `{"type":"png","filename":"mcp-02-modal.png","scale":"css"}` | `[Screenshot of viewport](./mcp-02-modal.png)` | 121 |
+| 13 | `browser_click` | `{"element":"Boton 'Sumar al Evento' dentro del Modal","target":"#modalDetalleServicio .btn-sumar-evento"}` | `await page.locator('#modalDetalleServicio .btn-sumar-evento').click();` | 886 |
+| 14 | `browser_wait_for` | `{"text":"Flores Pilar · $70.000 / base","time":10}` | `Waited for Flores Pilar · $70.000 / base` | 45 |
+| 15 | `browser_evaluate` | `{"function":"() => ({ modalAbierto: …, toastVisible: …, toastServicio: … })"}` | `{"modalAbierto":false,"toastVisible":true,"toastServicio":"Flores Pilar · $70.000 / base"}` | 515 |
+| 16 | `browser_take_screenshot` | `{"type":"png","filename":"mcp-03-toast-desde-modal.png","scale":"css"}` | `[Screenshot of viewport](./mcp-03-toast-desde-modal.png)` | 440 |
+| 17 | `browser_console_messages` | `{"level":"error"}` | Único error: `404 (Not Found) @ http://localhost:5500/favicon.ico` (el proyecto no tiene favicon; no es un error de la app) | 5 |
+| 18 | `browser_close` | `{}` | `await browser.close();` · `No open tabs. Navigate to a URL to create one.` | 340 |
+
+Ejemplo de un request JSON-RPC completo tal como figura en el log (paso 3):
+
+```json
+{
+  "jsonrpc": "2.0",
+  "method": "tools/call",
+  "params": {
+    "name": "browser_click",
+    "arguments": {
+      "element": "Boton 'Sumar al Evento' de Gourmet Finger Food",
+      "target": ".btn-sumar-evento[data-service-title=\"Gourmet Finger Food\"]"
+    }
+  }
+}
 ```
 
-El formulario de invitados no tiene campo de correo (solo `#nombre-invitado` y `#estado-invitado`), así que el agente cargó nombre y estado de asistencia.
+Las cadenas `function` de los pasos 6, 11 y 15 aparecen abreviadas con `…` en la tabla; el texto completo está en `mcp-session-log.json`.
 
-#### c) Flujo de ejecución (herramientas invocadas por el agente)
+#### Aserciones y conclusión
 
-| # | Herramienta | Acción |
+| # | Qué se verificó | Resultado |
 |---|---|---|
-| 1 | `openBrowserPage` | Abrió `http://localhost:5500/index.html`. |
-| 2 | `typeInPage` | Completó el nombre del evento ("Conferencia Tech 2026"). |
-| 3 | `typeInPage` | Completó la fecha (`2027-06-15`). |
-| 4 | `readPage` | Identificó el selector del presupuesto estimado. |
-| 5 | `typeInPage` | Estableció el presupuesto en `150000`. |
-| 6 | `clickElement` | Presionó "Guardar Cambios". |
-| 7 | `screenshotPage` | Capturó el evento creado (`01-crear-evento.png`). |
-| 8 | `typeInPage` | Redujo la cantidad de Catering a 100 unidades. |
-| 9 | `clickElement` | Presionó "Calcular presupuesto". |
-| 10 | `readPage` | Verificó el nuevo subtotal y el balance. |
-| 11 | `screenshotPage` | Capturó el presupuesto (`02-presupuesto.png`). |
-| 12 | `runPlaywrightCode` | Seleccionó "Catering" en `#categoria-catalogo`. |
-| 13 | `clickElement` | Hizo clic en "Sumar al Evento". |
-| 14 | `screenshotPage` | Capturó el catálogo (`03-catalogo.png`). |
-| 15 | `typeInPage` | Completó el invitado pendiente. |
-| 16 | `clickElement` | Agregó el invitado pendiente. |
-| 17 | `typeInPage` | Completó el invitado confirmado. |
-| 18 | `runPlaywrightCode` | Seleccionó "Confirmado" en `#estado-invitado`. |
-| 19 | `clickElement` | Agregó el invitado confirmado. |
-| 20 | `runPlaywrightCode` | Verificó los invitados en el DOM. |
-| 21 | `runPlaywrightCode` | Verificó `planit:evento` en `localStorage`. |
-| 22 | `screenshotPage` | Capturó la lista de invitados (`04-invitados.png`). |
+| 1 | El snapshot del catálogo lista 3 botones "Sumar al Evento" | PASS |
+| 2 | El snapshot del Toast contiene el servicio y "Experiencia agregada a tu evento" | PASS |
+| 3 | El Toast está visible (`.show`) y su `data-service-*` es el de Gourmet Finger Food | PASS |
+| 4 | El snapshot del Modal muestra `dialog "Flores Pilar"` con `$70.000 / base` | PASS |
+| 5 | El Modal está abierto y se completó con los `data-service-*` de Flores Pilar (título, capacidad, duración, precio y el botón "Sumar al Evento" interno) | PASS |
+| 6 | "Sumar al Evento" desde el Modal cierra el Modal y muestra el Toast con Flores Pilar | PASS |
 
-Las capturas `02` y `03` de la primera corrida no reflejaban su flujo: en la `03` el filtro estaba en "Todas", con 3 proveedores, y en la `02` no se veían los importes. Se descartaron y se volvieron a tomar con el estado correspondiente en pantalla.
+**Veredicto registrado en el log: `"verdict": "PASS"` (6/6 aserciones, 18 `tools/call` sin `isError`).** Los dos flujos de Bootstrap (Toast desde una tarjeta y Modal → Toast) funcionan en un navegador real manejado por el servidor oficial `@playwright/mcp`. Son justamente los dos componentes que la suite Jasmine no cubre (ver "Alcance y Limitaciones" en `testing-doc.md`).
 
-#### d) Resultado y verificación
+**Alcance de esta evidencia.** El cliente MCP fue un script (`mcp-session.mjs`), no un agente de IA conversacional: la secuencia de herramientas está fijada en el código y las aserciones se evalúan sobre las responses reales del servidor. El servidor, el protocolo y los nombres de herramienta son los mismos que usa cualquier cliente MCP (Copilot, Claude, etc.). Para reproducir la sesión, desde una carpeta con `@modelcontextprotocol/sdk` instalado (`npm i @modelcontextprotocol/sdk@1`):
 
-| Captura (`js/test/screenshots/`) | Flujo | Verificación | Resultado |
-|---|---|---|---|
-| `01-crear-evento.png` | Crear evento | Confirmación visible: "Evento guardado. Conferencia Tech 2026 · boda · 2027-06-15 · Quinta El Ombú, Pilar, Buenos Aires · Presupuesto estimado: $150.000". | ✅ Aprobado |
-| `02-presupuesto.png` | Calcular presupuesto | Cantidad de Catering modificada de 120 a 100. Según la lectura `readPage` del agente (paso 10), el subtotal se recalculó de $580.000 a $510.000 (20 × $3.500 = $70.000). La captura muestra la cantidad modificada y la alerta dinámica en el DOM ("El total supera el presupuesto estimado de $150.000"). En el ancho móvil la tabla tiene scroll horizontal y la columna de importes queda fuera del recorte, por lo que el valor de $510.000 se respalda en la lectura del agente y no en la imagen. | ✅ Aprobado |
-| `03-catalogo.png` | Catálogo | Selector en "Catering", "1 proveedor encontrado" y tarjeta de "Gourmet Finger Food"; proveedor sumado al evento con "Sumar al Evento". | ✅ Aprobado |
-| `04-invitados.png` | Invitados | "Invitado Pendiente QA" (Pendiente) e "Invitado Confirmado QA" (Confirmado) renderizados en la tabla; métricas actualizadas (Confirmados: 4, Pendientes: 3); persistencia verificada en `planit:evento` de `localStorage` (paso 21). | ✅ Aprobado |
+```bash
+node mcp-session.mjs <raíz-del-repo> <raíz-del-repo>/js/test/mcp-evidence
+```
 
-- **Diálogos nativos:** no se dispararon `alert()` ni `confirm()` durante la corrida, lo que es consistente con que `js/script.js` no los invoca. Toda la retroalimentación se muestra en el DOM (`#confirmacion-evento`, alerta de presupuesto, `#feedback-invitados`).
-- **Consola del navegador:** sin errores JavaScript de la aplicación. Solo hubo advertencias de terceros, del reproductor embebido de YouTube.
+#### Trazabilidad de la observación RC27
+
+| Requisito / observación | Evidencia | Estado |
+|---|---|---|
+| RC27: usar el servidor oficial `@playwright/mcp` o declarar el criterio incumplido | Sección 3.1 + `js/test/mcp-evidence/mcp-session-log.json` (`mcpServerLaunch`, `serverInfo`, `toolsListed`) | Cumplido |
+| Secuencia de herramientas MCP canónicas con entradas y salidas | Tabla de la sección 3.1 + `calls[]` del log | Cumplido |
+| Validación de Toast y Modal en navegador real | Aserciones 2 a 6 + `mcp-01-toast.png`, `mcp-02-modal.png`, `mcp-03-toast-desde-modal.png` | Cumplido (6/6 PASS) |
 
 ### 4. Bugs reportados
 

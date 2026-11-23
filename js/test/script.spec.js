@@ -736,6 +736,13 @@ describe("Integración - Controlador y UI (RC14, RC15, RC16)", function () {
     });
 
     describe("RC16: Persistencia y restauración en una carga nueva de la página", function () {
+        // RC22: las claves son privadas de ServicioPersistenciaEvento. Estos specs leen y
+        // escriben el storage en crudo (caja negra), así que declaran las claves esperadas.
+        const CLAVES_STORAGE = Object.freeze({
+            evento: "planit:evento",
+            detallesEvento: "planit:detalles-evento"
+        });
+
         it("INT-RC16-01: los cambios hechos en el DOM deberían persistirse y reconstruirse tras reiniciar memoria y DOM y volver a disparar DOMContentLoaded", function () {
             // 1. Modificar el estado desde la UI (mismos eventos que un usuario real).
             tocarYValidar(ui.nombreInvitado, "Lucía Fernández");
