@@ -11,6 +11,13 @@
  *   - delega la persistencia en js/utils/storage.js;
  *   - renderiza en el DOM lo que devuelven los modelos.
  *
+ * Renderizado 100% dinámico (RC9, RC10, RC11): index.html solo aporta los puntos
+ * de montaje vacíos (#desglose-presupuesto, #contenedor-catalogo, #lista-invitados).
+ * Las filas de presupuesto, las tarjetas del catálogo y las filas de invitados se
+ * construyen acá con createElement/textContent a partir de las instancias de
+ * Presupuesto/ItemContratado, CatalogoProveedores/Proveedor y ListaInvitados/Invitado,
+ * recuperadas de storage o reconstruidas con fromJSON() desde DATOS_SEMILLA.
+ *
  * Reglas:
  *   1. Sin lógica de negocio ni cálculos: los totales, descuentos, conteos y
  *      validaciones salen de los modelos (Evento, Presupuesto, ItemContratado,
@@ -56,13 +63,98 @@ const MAPA_ERRORES_INVITADO = {
 const FORMATEADOR_NUMERO = new Intl.NumberFormat("es-AR", { maximumFractionDigits: 2 });
 
 /**
+ * Datos semilla del dominio, usados solo cuando no hay estado persistido.
+ * Tienen exactamente la forma que producen los toJSON() de los modelos, así que
+ * se convierten en instancias con Presupuesto.fromJSON(), ListaInvitados.fromJSON()
+ * (vía Evento.fromJSON) y CatalogoProveedores.fromJSON(), que además los validan.
+ * Reemplazan a las filas y tarjetas que antes vivían hardcodeadas en index.html
+ * (observaciones RC9, RC10 y RC11 del docente).
+ */
+const DATOS_SEMILLA = Object.freeze({
+    presupuesto: {
+        items: [
+            { categoria: "Catering", descripcion: "Finger food premium y barra libre", cantidad: 120, precioUnitario: 3500 },
+            { categoria: "Decoración", descripcion: "Arreglos florales y ambientación luces", cantidad: 1, precioUnitario: 70000 },
+            { categoria: "Sonido", descripcion: "DJ set completo y sonido de pista", cantidad: 6, precioUnitario: 8000 },
+            { categoria: "Fotografía", descripcion: "Cobertura de evento y álbum digital", cantidad: 1, precioUnitario: 32000 },
+            { categoria: "Transporte", descripcion: "Traslado de materiales y coordinación", cantidad: 2, precioUnitario: 5000 }
+        ]
+    },
+    invitados: {
+        invitados: [
+            { nombre: "Sofía Rodríguez", estado: "Confirmado" },
+            { nombre: "Mateo González", estado: "Confirmado" },
+            { nombre: "Valentina Benítez", estado: "Pendiente" },
+            { nombre: "Bautista Martínez", estado: "Confirmado" },
+            { nombre: "Santiago Díaz", estado: "Pendiente" }
+        ]
+    },
+    catalogo: {
+        proveedores: [
+            { nombre: "Gourmet Finger Food", categoria: "Catering", precio: 3500, unidad: "pax" },
+            { nombre: "Flores Pilar", categoria: "Decoración", precio: 70000, unidad: "base" },
+            { nombre: "DJ Lucas & Sonido", categoria: "Sonido", precio: 8000, unidad: "hora" }
+        ]
+    }
+});
+
+/**
+ * Metadatos de presentación de cada ítem del presupuesto, por categoría.
+ * ItemContratado no modela la unidad de medida ni el tipo de gasto: son textos
+ * de la vista, por eso viven en el controlador y no en el modelo.
+ */
+const PRESENTACION_ITEMS = Object.freeze({
+    "Catering": { tipo: "Proveedor", unidad: "pax" },
+    "Decoración": { tipo: "Proveedor", unidad: "global" },
+    "Sonido": { tipo: "Proveedor", unidad: "horas" },
+    "Fotografía": { tipo: "Proveedor", unidad: "global" },
+    "Transporte": { tipo: "Proveedor", unidad: "viajes" }
+});
+
+/**
+ * Metadatos de presentación de cada proveedor, por nombre (imagen, textos del
+ * modal). Proveedor modela nombre, categoría, precio y unidad; lo demás es vista.
+ * Un proveedor sin entrada acá se renderiza igual, sin imagen ni descripción.
+ */
+const RUTA_IMAGENES_CATALOGO = "./docs/01-mockup/actividad-obligatoria-2/";
+const PRESENTACION_PROVEEDORES = Object.freeze({
+    "Gourmet Finger Food": {
+        imagen: RUTA_IMAGENES_CATALOGO + "catalogo-gourmet-finger-food.jpg",
+        alt: "Mesa de catering con bandejas de mini sándwiches y bocados en varios niveles",
+        descripcion: "Selección premium fría y caliente para recepción. Variedad para todos los gustos.",
+        capacidad: "Hasta 200 pax",
+        zona: "Zona Norte GBA",
+        duracion: "4 horas",
+        incluye: "Finger food frío y caliente, montaje y reposición"
+    },
+    "Flores Pilar": {
+        imagen: RUTA_IMAGENES_CATALOGO + "catalogo-flores-pilar.jpg",
+        alt: "Centro de mesa con rosas y peonías rosadas sobre una mesa de salón de eventos",
+        descripcion: "Centros de mesa personalizados y ramo para novias con flores naturales de estación.",
+        capacidad: "1 evento por fecha",
+        zona: "Pilar",
+        duracion: "1 jornada de montaje",
+        incluye: "Centros de mesa personalizados y ramo para novias"
+    },
+    "DJ Lucas & Sonido": {
+        imagen: RUTA_IMAGENES_CATALOGO + "catalogo-dj-lucas-sonido.jpg",
+        alt: "DJ con auriculares mezclando en una consola frente a una pista iluminada",
+        descripcion: "Equipamiento de audio completo de alta fidelidad, iluminación robótica y pista de baile.",
+        capacidad: "Hasta 300 personas",
+        zona: "CABA y GBA",
+        duracion: "6 horas",
+        incluye: "DJ, sonido de alta fidelidad e iluminación robótica"
+    }
+});
+
+/**
  * Estado que el controlador mantiene en memoria. No contiene reglas: solo guarda
  * las instancias de los modelos que se están mostrando.
  */
 const estadoApp = {
     evento: null,            // Instancia de Evento (incluye Presupuesto y ListaInvitados)
     catalogo: null,          // Instancia de CatalogoProveedores
-    tarjetasCatalogo: new Map() // Proveedor -> nodo de la tarjeta en el DOM
+    tarjetasCatalogo: new Map() // Proveedor -> tarjeta generada (caché de nodos ya creados)
 };
 
 /* ==========================================================================
@@ -101,7 +193,7 @@ function configurarEventos() {
     }
 
     sincronizarFormularioEvento(ui);
-    sincronizarCantidadesPresupuesto(ui);
+    renderFilasPresupuesto(ui);
 
     configurarFlujoEvento(ui);
     configurarFlujoPresupuesto(ui);
@@ -115,7 +207,6 @@ function configurarEventos() {
  */
 function obtenerReferenciasUI() {
     const porId = (id) => document.getElementById(id);
-    const formPresupuesto = porId("form-presupuesto");
 
     return {
         avisoApp: porId("aviso-app"),
@@ -131,15 +222,20 @@ function obtenerReferenciasUI() {
         confirmacionEvento: porId("confirmacion-evento"),
 
         // Flujo 2: Calcular presupuesto
-        formPresupuesto,
-        filasPresupuesto: formPresupuesto
-            ? Array.from(formPresupuesto.querySelectorAll("tr[data-item]"))
-            : [],
+        formPresupuesto: porId("form-presupuesto"),
+        cuerpoPresupuesto: porId("desglose-presupuesto"), // punto de montaje de las filas
         descuentoPresupuesto: porId("descuento-presupuesto"),
         subtotalPresupuesto: porId("subtotal-presupuesto"),
         totalPresupuesto: porId("total-presupuesto"),
         btnCalcularPresupuesto: porId("btn-calcular-presupuesto"),
         alertaPresupuesto: porId("alerta-presupuesto"),
+
+        // Resumen Financiero (barra lateral), sincronizado con el Flujo 2
+        resumenPresupuestoTotal: porId("resumen-presupuesto-total"),
+        resumenGastado: porId("resumen-gastado"),
+        resumenLimite: porId("resumen-limite"),
+        resumenAlerta: porId("resumen-alerta"),
+        resumenAlertaTexto: porId("resumen-alerta-texto"),
 
         // Flujo 3: Buscar en catálogo
         formCatalogo: porId("form-catalogo"),
@@ -224,8 +320,8 @@ function persistirEvento(ui) {
 }
 
 /**
- * Recupera el evento guardado o, si no hay, lo arma con los datos de ejemplo que
- * ya están en el marcado (formulario, tabla de presupuesto y tabla de invitados).
+ * Recupera el evento guardado o, si no hay, lo arma con los datos del formulario
+ * y los DATOS_SEMILLA de presupuesto e invitados. El HTML ya no aporta filas.
  * @param {Object} ui - Referencias del DOM.
  * @returns {Evento|null} Evento listo para usar o null si no se pudo crear.
  */
@@ -240,7 +336,7 @@ function cargarEventoInicial(ui) {
     }
 
     try {
-        return crearEventoDesdeMarcado(ui);
+        return crearEventoInicial(ui);
     } catch (error) {
         renderAvisoGlobal(ui, "No se pudo cargar el evento de ejemplo: " + error.message);
         return null;
@@ -248,28 +344,24 @@ function cargarEventoInicial(ui) {
 }
 
 /**
- * Construye el evento inicial a partir del HTML. No calcula nada: solo pasa los
- * valores del marcado a los constructores de los modelos.
+ * Construye el evento inicial: los datos generales salen del formulario y el
+ * presupuesto y los invitados salen de DATOS_SEMILLA. Evento.fromJSON()
+ * reconstruye y valida Presupuesto/ItemContratado y ListaInvitados/Invitado.
  * @param {Object} ui - Referencias del DOM.
  * @returns {Evento} Evento con ítems e invitados de ejemplo.
  */
-function crearEventoDesdeMarcado(ui) {
+function crearEventoInicial(ui) {
     if (!ui.formEvento) {
         throw new Error("no se encontró el formulario #form-evento.");
     }
     const datos = leerDatosEvento(ui);
-    const evento = new Evento(datos.nombre, datos.tipo, datos.presupuesto);
-
-    ui.filasPresupuesto.forEach((fila) => {
-        evento.presupuesto.agregarItem(crearItemDesdeFila(fila));
+    return Evento.fromJSON({
+        nombre: datos.nombre,
+        tipo: datos.tipo,
+        presupuestoEstimado: datos.presupuesto,
+        presupuesto: DATOS_SEMILLA.presupuesto,
+        invitados: DATOS_SEMILLA.invitados
     });
-
-    if (ui.listaInvitados) {
-        ui.listaInvitados.querySelectorAll("tr[data-nombre]").forEach((fila) => {
-            evento.invitados.agregar(fila.dataset.nombre, fila.dataset.estado);
-        });
-    }
-    return evento;
 }
 
 /* ==========================================================================
@@ -547,9 +639,10 @@ function sincronizarFormularioEvento(ui) {
 
 /** Registra los listeners del formulario #form-presupuesto. */
 function configurarFlujoPresupuesto(ui) {
-    if (!ui.formPresupuesto) return;
+    if (!ui.formPresupuesto || !ui.cuerpoPresupuesto) return;
 
-    // Un solo listener delegado recalcula ante cualquier cambio de cantidad o descuento.
+    // Delegación: un solo listener en el <form> atiende los inputs de cantidad que
+    // renderFilasPresupuesto() crea dinámicamente y el input de descuento del <tfoot>.
     ui.formPresupuesto.addEventListener("input", (evento) => {
         if (evento.target.matches(".input-cantidad, #descuento-presupuesto")) {
             recalcularPresupuesto(ui);
@@ -564,49 +657,145 @@ function configurarFlujoPresupuesto(ui) {
 }
 
 /**
- * Crea un ItemContratado con los datos de una fila de la tabla. El constructor
- * del modelo valida la cantidad y lanza un Error si es inválida.
- * @param {HTMLTableRowElement} fila - Fila con data-categoria, data-descripcion y data-precio-unitario.
- * @returns {ItemContratado}
+ * RC9: proyecta las instancias de ItemContratado del Presupuesto del evento en
+ * el <tbody id="desglose-presupuesto">. Cada fila se crea con createElement y
+ * textContent (categoría, concepto, tipo, input de cantidad, precio unitario y
+ * subtotal calculado por el modelo). Si no hay ítems, muestra una fila de
+ * estado vacío.
+ * @param {Object} ui - Referencias del DOM.
  */
-function crearItemDesdeFila(fila) {
-    const inputCantidad = fila.querySelector(".input-cantidad");
-    return new ItemContratado(
-        fila.dataset.categoria,
-        fila.dataset.descripcion,
-        inputCantidad ? inputCantidad.value : "",
-        fila.dataset.precioUnitario
-    );
+function renderFilasPresupuesto(ui) {
+    if (!ui.cuerpoPresupuesto) return;
+    const items = estadoApp.evento.presupuesto.items;
+    const idsUsados = new Set();
+    const fragmento = document.createDocumentFragment();
+
+    items.forEach((item, indice) => {
+        fragmento.append(crearFilaPresupuesto(item, indice, generarIdCantidad(item, idsUsados)));
+    });
+
+    if (items.length === 0) {
+        const filaVacia = crearElemento("tr");
+        filaVacia.append(crearElemento("td", {
+            clase: "center",
+            texto: "Todavía no hay ítems en el presupuesto.",
+            atributos: { colspan: "6" }
+        }));
+        fragmento.append(filaVacia);
+    }
+
+    ui.cuerpoPresupuesto.replaceChildren(fragmento);
 }
 
-/** Copia las cantidades guardadas en el evento a los inputs de la tabla. */
-function sincronizarCantidadesPresupuesto(ui) {
-    const items = estadoApp.evento.presupuesto.items;
-    if (items.length !== ui.filasPresupuesto.length) return;
+/**
+ * Genera un id estable y único para el input de cantidad a partir de la
+ * categoría (p. ej. "Decoración" -> "cantidad-decoracion"). Es presentación:
+ * solo sirve para asociar el input con su mensaje de error (aria-describedby).
+ * @param {ItemContratado} item - Ítem de la fila.
+ * @param {Set<string>} idsUsados - Ids ya asignados en este render.
+ * @returns {string} Id del input.
+ */
+function generarIdCantidad(item, idsUsados) {
+    const slug = Validador.normalizarTexto(item.categoria).replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+    const base = "cantidad-" + (slug || "item");
+    let id = base;
+    for (let sufijo = 2; idsUsados.has(id); sufijo++) {
+        id = base + "-" + sufijo;
+    }
+    idsUsados.add(id);
+    return id;
+}
 
-    ui.filasPresupuesto.forEach((fila, indice) => {
-        const inputCantidad = fila.querySelector(".input-cantidad");
-        if (inputCantidad) inputCantidad.value = items[indice].cantidad;
+/**
+ * Crea la fila <tr> de un ItemContratado. Los textos se asignan con textContent
+ * para que ningún dato se interprete como HTML.
+ * @param {ItemContratado} item - Instancia del modelo.
+ * @param {number} indice - Posición del ítem en Presupuesto.items.
+ * @param {string} idCantidad - Id del input de cantidad.
+ * @returns {HTMLTableRowElement}
+ */
+function crearFilaPresupuesto(item, indice, idCantidad) {
+    const presentacion = PRESENTACION_ITEMS[item.categoria] || {};
+    const unidad = presentacion.unidad || "";
+    const idError = idCantidad + "-error";
+
+    const fila = crearElemento("tr", { atributos: { "data-item": "", "data-indice": String(indice) } });
+
+    const celdaCategoria = crearElemento("th", { texto: item.categoria, atributos: { scope: "row" } });
+    const celdaConcepto = crearElemento("td", { texto: item.descripcion });
+    const celdaTipo = crearElemento("td", { texto: presentacion.tipo || "Proveedor" });
+
+    const celdaCantidad = crearElemento("td", { clase: "num" });
+    const inputCantidad = crearElemento("input", {
+        clase: "form-control form-control-sm input-cantidad",
+        atributos: {
+            type: "number",
+            id: idCantidad,
+            min: "0",
+            step: "1",
+            "aria-label": "Cantidad de " + item.categoria + (unidad ? " (" + unidad + ")" : ""),
+            "aria-describedby": idError
+        }
     });
+    inputCantidad.value = String(item.cantidad);
+    celdaCantidad.append(inputCantidad);
+    if (unidad) celdaCantidad.append(document.createTextNode(" " + unidad));
+    celdaCantidad.append(crearElemento("span", { clase: "invalid-feedback", atributos: { id: idError } }));
+
+    const celdaPrecio = crearElemento("td", { clase: "num", texto: formatearMonto(item.precioUnitario) });
+    const celdaSubtotal = crearElemento("td", {
+        clase: "num subtotal",
+        texto: formatearMonto(item.calcularSubtotal()),
+        atributos: { "data-subtotal": "" }
+    });
+
+    fila.append(celdaCategoria, celdaConcepto, celdaTipo, celdaCantidad, celdaPrecio, celdaSubtotal);
+    return fila;
+}
+
+/** @returns {HTMLTableRowElement[]} Filas de ítems generadas en el punto de montaje. */
+function obtenerFilasPresupuesto(ui) {
+    return ui.cuerpoPresupuesto
+        ? Array.from(ui.cuerpoPresupuesto.querySelectorAll("tr[data-item]"))
+        : [];
+}
+
+/**
+ * Crea un ItemContratado nuevo a partir del ítem del modelo y la cantidad que
+ * escribió el usuario. Categoría, descripción y precio salen del modelo (no del
+ * HTML); el constructor valida la cantidad y lanza un Error si es inválida.
+ * @param {ItemContratado} itemBase - Ítem actual del Presupuesto.
+ * @param {string} cantidad - Valor crudo del input.
+ * @returns {ItemContratado}
+ */
+function crearItemConCantidad(itemBase, cantidad) {
+    return new ItemContratado(itemBase.categoria, itemBase.descripcion, cantidad, itemBase.precioUnitario);
 }
 
 /**
  * Orquesta el cálculo del presupuesto:
- *   1. arma los ItemContratado desde la tabla (el modelo valida cada cantidad);
+ *   1. arma los ItemContratado con los datos del modelo y la cantidad de cada
+ *      input generado (el modelo valida cada cantidad);
  *   2. reemplaza los ítems del Presupuesto del evento;
  *   3. pide al modelo el total, el total con descuento y si se supera el límite;
  *   4. renderiza el desglose y persiste.
  */
 function recalcularPresupuesto(ui) {
-    if (!ui.formPresupuesto) return;
+    if (!ui.formPresupuesto || !ui.cuerpoPresupuesto) return;
     const evento = estadoApp.evento;
+    const itemsBase = evento.presupuesto.items;
 
-    // 1. Ítems desde la tabla, marcando las cantidades inválidas.
+    // Si el modelo cambió de forma (p. ej. se reemplazó el evento), se re-proyecta.
+    if (obtenerFilasPresupuesto(ui).length !== itemsBase.length) {
+        renderFilasPresupuesto(ui);
+    }
+
+    // 1. Ítems desde el modelo + cantidades de los inputs, marcando las inválidas.
     let cantidadesValidas = true;
-    const items = ui.filasPresupuesto.map((fila) => {
+    const items = obtenerFilasPresupuesto(ui).map((fila, indice) => {
         const inputCantidad = fila.querySelector(".input-cantidad");
         try {
-            const item = crearItemDesdeFila(fila);
+            const item = crearItemConCantidad(itemsBase[indice], inputCantidad ? inputCantidad.value : "");
             if (inputCantidad) marcarCampo(inputCantidad, "");
             return item;
         } catch (error) {
@@ -662,12 +851,45 @@ function reemplazarItemsPresupuesto(presupuesto, items) {
 function bloquearResultadoPresupuesto(ui, mensaje) {
     if (ui.btnCalcularPresupuesto) ui.btnCalcularPresupuesto.disabled = true;
     if (ui.totalPresupuesto) ui.totalPresupuesto.textContent = "—";
+    renderResumenFinanciero(ui, null);
     renderMensaje(ui.alertaPresupuesto, "error", mensaje);
 }
 
-/** Escribe subtotales, total y alerta de límite con los valores del modelo. */
+/**
+ * Sincroniza el Resumen Financiero de la barra lateral con el modelo. El
+ * presupuesto total y el límite salen de evento.presupuestoEstimado y el gastado
+ * es el total con descuento de Presupuesto.aplicarDescuento() (el mismo que
+ * #total-presupuesto). Con datos inválidos el gastado se muestra como "—".
+ * La alerta lateral (#resumen-alerta) usa el booleano `excedido` que devuelve
+ * Evento.superaPresupuesto(); con datos inválidos se oculta.
+ * El saldo y el porcentaje utilizado (#resumen-saldo, #resumen-porcentaje,
+ * #resumen-progreso) quedan en "—" / ocultos: requieren una resta y una
+ * división que, por la Regla 1, deben venir de un método del modelo que todavía
+ * no existe (p. ej. Presupuesto.calcularSaldo(limite)).
+ * @param {Object} ui - Referencias del DOM.
+ * @param {Object|null} resultado - Resultado del cálculo, o null si es inválido.
+ */
+function renderResumenFinanciero(ui, resultado) {
+    const limite = formatearMonto(estadoApp.evento.presupuestoEstimado);
+    if (ui.resumenPresupuestoTotal) ui.resumenPresupuestoTotal.textContent = limite;
+    if (ui.resumenLimite) ui.resumenLimite.textContent = "Límite: " + limite;
+    if (ui.resumenGastado) ui.resumenGastado.textContent = resultado ? formatearMonto(resultado.total) : "—";
+
+    if (ui.resumenAlerta && ui.resumenAlertaTexto) {
+        ui.resumenAlerta.hidden = !resultado;
+        ui.resumenAlertaTexto.textContent = !resultado ? "" : resultado.excedido
+            ? "Atención: el gasto estimado supera tu límite de presupuesto de " + limite + "."
+            : "El gasto estimado está dentro de tu límite de presupuesto de " + limite + ".";
+    }
+}
+
+/**
+ * Escribe subtotales, total y alerta de límite con los valores del modelo.
+ * Actualiza las celdas de las filas ya generadas (no las recrea) para no
+ * perder el foco del input mientras el usuario escribe.
+ */
 function renderDesglosePresupuesto(ui, resultado) {
-    ui.filasPresupuesto.forEach((fila, indice) => {
+    obtenerFilasPresupuesto(ui).forEach((fila, indice) => {
         const celdaSubtotal = fila.querySelector("[data-subtotal]");
         if (celdaSubtotal) celdaSubtotal.textContent = formatearMonto(resultado.subtotales[indice]);
     });
@@ -675,6 +897,7 @@ function renderDesglosePresupuesto(ui, resultado) {
     if (ui.subtotalPresupuesto) ui.subtotalPresupuesto.textContent = formatearMonto(resultado.subtotal);
     if (ui.totalPresupuesto) ui.totalPresupuesto.textContent = formatearMonto(resultado.total);
     if (ui.btnCalcularPresupuesto) ui.btnCalcularPresupuesto.disabled = false;
+    renderResumenFinanciero(ui, resultado);
 
     const limite = formatearMonto(resultado.presupuestoEstimado);
     if (resultado.excedido) {
@@ -691,13 +914,13 @@ function renderDesglosePresupuesto(ui, resultado) {
    ========================================================================== */
 
 /**
- * Arma el CatalogoProveedores a partir de las tarjetas del HTML y registra el
- * filtrado en tiempo real.
+ * Arma el CatalogoProveedores desde el modelo (DATOS_SEMILLA), genera las
+ * opciones del filtro y registra el filtrado en tiempo real.
  */
 function configurarFlujoCatalogo(ui) {
     if (!ui.contenedorCatalogo || !ui.buscarCatalogo) return;
 
-    construirCatalogoDesdeMarcado(ui);
+    construirCatalogo(ui);
 
     // La búsqueda es en vivo: el submit (tecla Enter) no debe recargar la página.
     if (ui.formCatalogo) {
@@ -712,28 +935,45 @@ function configurarFlujoCatalogo(ui) {
 }
 
 /**
- * Crea un Proveedor por cada tarjeta con data-proveedor y guarda la relación
- * proveedor -> tarjeta para mostrar u ocultar cada una sin recrearla (así se
- * conservan las imágenes y los disparadores del modal y del toast).
+ * RC10: crea el CatalogoProveedores con CatalogoProveedores.fromJSON(), que
+ * reconstruye y valida cada Proveedor. El HTML ya no aporta tarjetas: el
+ * catálogo proviene del modelo y las tarjetas se generan en renderCatalogo().
+ * @param {Object} ui - Referencias del DOM.
  */
-function construirCatalogoDesdeMarcado(ui) {
-    estadoApp.catalogo = new CatalogoProveedores();
+function construirCatalogo(ui) {
     estadoApp.tarjetasCatalogo.clear();
+    try {
+        estadoApp.catalogo = CatalogoProveedores.fromJSON(DATOS_SEMILLA.catalogo);
+    } catch (error) {
+        estadoApp.catalogo = new CatalogoProveedores();
+        renderAvisoGlobal(ui, "No se pudo cargar el catálogo de proveedores: " + error.message);
+    }
+    renderOpcionesCategoria(ui);
+}
 
-    ui.contenedorCatalogo.querySelectorAll("[data-proveedor]").forEach((tarjeta) => {
-        try {
-            const proveedor = estadoApp.catalogo.agregarProveedor(new Proveedor(
-                tarjeta.dataset.nombre,
-                tarjeta.dataset.categoria,
-                tarjeta.dataset.precio,
-                tarjeta.dataset.unidad
-            ));
-            estadoApp.tarjetasCatalogo.set(proveedor, tarjeta);
-        } catch (error) {
-            // Una tarjeta con datos incompletos queda fuera del filtrado pero visible.
-            tarjeta.dataset.errorModelo = error.message;
-        }
+/**
+ * Genera las opciones del <select> de categoría a partir de las categorías de
+ * los Proveedor del catálogo (sin repetir, sin distinguir mayúsculas ni tildes).
+ * Conserva la opción "Todas" (value="") del HTML y la selección vigente.
+ * @param {Object} ui - Referencias del DOM.
+ */
+function renderOpcionesCategoria(ui) {
+    if (!ui.categoriaCatalogo) return;
+    const seleccionActual = ui.categoriaCatalogo.value;
+
+    const categorias = [];
+    estadoApp.catalogo.proveedores.forEach((proveedor) => {
+        const yaIncluida = Validador.buscarOpcion(categorias, proveedor.categoria) !== undefined;
+        if (!yaIncluida) categorias.push(proveedor.categoria);
     });
+
+    const opcionTodas = ui.categoriaCatalogo.querySelector('option[value=""]') ||
+        crearElemento("option", { texto: "Todas", atributos: { value: "" } });
+    const opciones = categorias.map((categoria) =>
+        crearElemento("option", { texto: categoria, atributos: { value: categoria } }));
+
+    ui.categoriaCatalogo.replaceChildren(opcionTodas, ...opciones);
+    ui.categoriaCatalogo.value = categorias.includes(seleccionActual) ? seleccionActual : "";
 }
 
 /**
@@ -769,11 +1009,13 @@ function filtrarCatalogo(ui) {
     }
 }
 
-/** Muestra las tarjetas que coinciden, actualiza el contador y el estado vacío. */
+/**
+ * RC10: proyecta en #contenedor-catalogo las tarjetas de los Proveedor que
+ * devolvió el modelo, en el mismo orden, y actualiza los estados derivados
+ * (contador de resultados y mensaje de catálogo vacío).
+ */
 function renderCatalogo(ui, resultados, texto) {
-    estadoApp.tarjetasCatalogo.forEach((tarjeta, proveedor) => {
-        tarjeta.hidden = !resultados.includes(proveedor);
-    });
+    ui.contenedorCatalogo.replaceChildren(...resultados.map(obtenerTarjetaProveedor));
 
     if (ui.contadorCatalogo) {
         ui.contadorCatalogo.textContent = resultados.length === 1
@@ -787,6 +1029,98 @@ function renderCatalogo(ui, resultados, texto) {
             ? "Sin coincidencias para “" + texto.trim() + "”."
             : "No hay proveedores en esta categoría.";
     }
+}
+
+/**
+ * Devuelve la tarjeta de un proveedor, creándola la primera vez. La caché evita
+ * reconstruir imágenes y botones en cada tecla del buscador.
+ * @param {Proveedor} proveedor - Instancia del modelo.
+ * @returns {HTMLElement} Columna con la tarjeta.
+ */
+function obtenerTarjetaProveedor(proveedor) {
+    if (!estadoApp.tarjetasCatalogo.has(proveedor)) {
+        estadoApp.tarjetasCatalogo.set(proveedor, crearTarjetaProveedor(proveedor));
+    }
+    return estadoApp.tarjetasCatalogo.get(proveedor);
+}
+
+/**
+ * Crea la tarjeta completa de un Proveedor: imagen, insignia de categoría,
+ * nombre, descripción, metadatos, precio por unidad y botones "Ver detalle"
+ * (abre el Modal vía data-bs-toggle) y "Sumar al Evento" (Toast delegado).
+ * Todo texto se asigna con textContent/setAttribute, nunca con innerHTML.
+ * @param {Proveedor} proveedor - Instancia del modelo.
+ * @returns {HTMLElement} Columna de la grilla con la tarjeta.
+ */
+function crearTarjetaProveedor(proveedor) {
+    const info = PRESENTACION_PROVEEDORES[proveedor.nombre] || {};
+    const precio = formatearMonto(proveedor.precio) + " / " + proveedor.unidad;
+    const detalles = [proveedor.categoria, info.capacidad, info.zona].filter(Boolean).join(" · ");
+
+    const columna = crearElemento("div", {
+        clase: "col-12 col-md-4",
+        atributos: {
+            "data-proveedor": "",
+            "data-nombre": proveedor.nombre,
+            "data-categoria": proveedor.categoria
+        }
+    });
+    const tarjeta = crearElemento("article", { clase: "card" });
+
+    if (info.imagen) {
+        tarjeta.append(crearElemento("img", {
+            atributos: { src: info.imagen, alt: info.alt || "", width: "1344", height: "655", loading: "lazy" }
+        }));
+    }
+
+    const cuerpo = crearElemento("div", { clase: "card-body" });
+    cuerpo.append(
+        crearElemento("span", { clase: "badge text-bg-light border align-self-start mb-2", texto: proveedor.categoria }),
+        crearElemento("h3", { texto: proveedor.nombre })
+    );
+    if (info.descripcion) cuerpo.append(crearElemento("p", { texto: info.descripcion }));
+    cuerpo.append(
+        crearElemento("p", { clase: "card-meta", texto: detalles }),
+        crearElemento("p", { clase: "card-price", texto: precio })
+    );
+
+    const acciones = crearElemento("div", { clase: "card-actions d-grid gap-2 mt-2" });
+    acciones.append(
+        crearElemento("button", {
+            clase: "btn btn-outline-primary btn-ver-detalle",
+            texto: "Ver detalle",
+            atributos: {
+                type: "button",
+                "aria-label": "Ver detalle de " + proveedor.nombre,
+                "data-bs-toggle": "modal",
+                "data-bs-target": "#modalDetalleServicio",
+                "data-service-title": proveedor.nombre,
+                "data-service-image": info.imagen || "",
+                "data-service-alt": info.alt || "",
+                "data-service-description": info.descripcion || "",
+                "data-service-details": detalles,
+                "data-service-capacidad": info.capacidad || "",
+                "data-service-duracion": info.duracion || "",
+                "data-service-incluye": info.incluye || "",
+                "data-service-price": precio
+            }
+        }),
+        crearElemento("button", {
+            clase: "btn btn-primary btn-sumar-evento",
+            texto: "Sumar al Evento",
+            atributos: {
+                type: "button",
+                "aria-label": "Sumar " + proveedor.nombre + " al evento",
+                "data-service-title": proveedor.nombre,
+                "data-service-price": precio
+            }
+        })
+    );
+
+    cuerpo.append(acciones);
+    tarjeta.append(cuerpo);
+    columna.append(tarjeta);
+    return columna;
 }
 
 /* ==========================================================================
@@ -935,7 +1269,13 @@ function eliminarInvitadoPorIndice(lista, indice) {
     });
 }
 
-/** Re-renderiza la tabla de invitados y las métricas de asistencia. */
+/**
+ * RC11: construye la tabla de invitados exclusivamente desde ListaInvitados
+ * (recuperada de storage o creada con DATOS_SEMILLA en crearEventoInicial()).
+ * El <tbody id="lista-invitados"> llega vacío del HTML; cada fila trae nombre,
+ * badge de estado, botón para alternar estado y botón para eliminar. Si la lista
+ * está vacía, se muestra una fila de estado vacío. También actualiza las métricas.
+ */
 function renderInvitados(ui) {
     const lista = estadoApp.evento.invitados;
     const fragmento = document.createDocumentFragment();
@@ -1059,27 +1399,54 @@ function configurarModalDetalleServicio() {
     });
 }
 
-/** Muestra el Toast de confirmación al hacer clic en cualquier botón "Sumar al Evento". */
+/**
+ * Muestra el Toast de confirmación al hacer clic en cualquier botón "Sumar al Evento".
+ * Los listeners se registran aunque el JS de Bootstrap no esté cargado: la
+ * disponibilidad de Bootstrap se consulta en cada clic (ver mostrarToast).
+ */
 function configurarToastConfirmacion() {
     const toastConfirmacionElement = document.getElementById("toastConfirmacion");
-    if (!toastConfirmacionElement || typeof bootstrap === "undefined") return;
+    if (!toastConfirmacionElement) return;
 
-    const toastConfirmacion = bootstrap.Toast.getOrCreateInstance(toastConfirmacionElement);
     const toastConfirmacionMensaje = document.getElementById("toastConfirmacionMensaje");
     const toastConfirmacionServicio = document.getElementById("toastConfirmacionServicio");
 
-    document.querySelectorAll(".btn-sumar-evento").forEach((boton) => {
-        boton.addEventListener("click", () => {
-            const titulo = boton.dataset.serviceTitle || "Servicio";
-            const precio = boton.dataset.servicePrice || "";
+    document.addEventListener("click", (evento) => {
+        const boton = evento.target.closest(".btn-sumar-evento");
+        if (!boton) return;
 
-            toastConfirmacionElement.dataset.serviceTitle = titulo;
-            toastConfirmacionElement.dataset.servicePrice = precio;
+        const titulo = boton.dataset.serviceTitle || "Servicio";
+        const precio = boton.dataset.servicePrice || "";
 
-            if (toastConfirmacionServicio) toastConfirmacionServicio.textContent = titulo + " · " + precio;
-            if (toastConfirmacionMensaje) toastConfirmacionMensaje.textContent = "Experiencia agregada a tu evento";
+        toastConfirmacionElement.dataset.serviceTitle = titulo;
+        toastConfirmacionElement.dataset.servicePrice = precio;
 
-            toastConfirmacion.show();
+            mostrarToast(toastConfirmacionElement);
         });
     });
+}
+
+/**
+ * Muestra un Toast con Bootstrap si su JS está cargado. Si no lo está (CDN caído
+ * o bloqueado), degrada a la clase `show` del CSS de Bootstrap y lo oculta solo
+ * después del mismo `data-bs-delay`, para que el usuario reciba el feedback igual
+ * y sin errores de consola. El contenedor ya es role="status" + aria-live, así
+ * que el mensaje se anuncia en ambos casos.
+ * @param {HTMLElement} elemento - Nodo `.toast`.
+ */
+function mostrarToast(elemento) {
+    if (!elemento) return;
+
+    if (typeof bootstrap !== "undefined" && bootstrap && bootstrap.Toast) {
+        bootstrap.Toast.getOrCreateInstance(elemento).show();
+        return;
+    }
+
+    clearTimeout(Number(elemento.dataset.temporizadorToast));
+    elemento.classList.remove("hide");
+    elemento.classList.add("show");
+    const demora = parseInt(elemento.dataset.bsDelay, 10) || 5000;
+    elemento.dataset.temporizadorToast = String(setTimeout(() => {
+        elemento.classList.remove("show");
+    }, demora));
 }

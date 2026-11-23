@@ -175,3 +175,54 @@ Después de los ajustes, se volvieron a ejecutar las 8 clases en el navegador co
 - [x] `diagrama-clases-doc.md` con la descripción de cada clase, sus relaciones y las decisiones de diseño.
 - [x] `index.html` referencia los archivos de `js/models/` en orden de dependencia.
 - [x] Prompt de Copilot Agent documentado en el MOMENTO 2.
+- [x] **RC12:** el diagrama de clases incluye todos los getters públicos de la interfaz real de `js/models/` (20 getters, incluidos los estáticos `TIPOS` y `ESTADOS`), con la convención de la sección 5.
+
+### 5. Corrección RC12: getters públicos en el diagrama de clases
+
+**Observación del docente:** "El diagrama no representa todos los getters públicos que forman parte de la interfaz real de las clases. Incorporarlos o documentar una exclusión compatible con la consigna."
+
+**Decisión:** se incorporaron los getters al diagrama, en lugar de documentar una exclusión. Para el controlador (`js/script.js`) y para el Tester QA, los getters son la única forma de leer el estado de las clases, así que forman parte de su contrato.
+
+#### 5.1 Auditoría de la interfaz real
+
+Se revisaron las 8 clases de `js/models/` y se comparó cada `get` declarado con `docs/05-diagramas/02-diagrama-de-clases/diagrama-clases.puml`. Antes de la corrección, el diagrama mostraba los atributos privados, pero no los getters que los exponen. `TIPOS` y `ESTADOS` figuraban como atributos estáticos, aunque en el código son getters estáticos.
+
+| Clase | Getters públicos incorporados | Tipo de retorno | Qué devuelve |
+| --- | --- | --- | --- |
+| `Evento` | `{static} get TIPOS()` | `string[]` | Array nuevo en cada llamada |
+| | `get nombre()`, `get tipo()` | `string` | Valor primitivo |
+| | `get presupuestoEstimado()` | `number` | Valor primitivo |
+| | `get presupuesto()` | `Presupuesto` | El componente (composición) |
+| | `get invitados()` | `ListaInvitados` | El componente (composición) |
+| `Presupuesto` | `get items()` | `ItemContratado[]` | Copia (`this.#items.slice()`) |
+| `ItemContratado` | `get categoria()`, `get descripcion()` | `string` | Valor primitivo |
+| | `get cantidad()`, `get precioUnitario()` | `number` | Valor primitivo |
+| `ListaInvitados` | `get invitados()` | `Invitado[]` | Copia (`this.#invitados.slice()`) |
+| `Invitado` | `{static} get ESTADOS()` | `string[]` | Array nuevo en cada llamada |
+| | `get nombre()`, `get estado()` | `string` | Valor primitivo |
+| `CatalogoProveedores` | `get proveedores()` | `Proveedor[]` | Copia (`this.#proveedores.slice()`) |
+| `Proveedor` | `get nombre()`, `get categoria()`, `get unidad()` | `string` | Valor primitivo |
+| | `get precio()` | `number` | Valor primitivo |
+| `Validador` | — (solo métodos estáticos) | — | — |
+
+Ninguna clase declara setters. Tampoco existen getters de identificador, fecha, total ni subtotal (`id`, `fecha`, `total`, `subtotal`). Por eso no se agregaron al diagrama: los montos se obtienen con los métodos `calcularTotal()`, `aplicarDescuento()` y `calcularSubtotal()`, que ya figuraban. Agregar al diagrama miembros que no están en el código volvería a desincronizarlo.
+
+#### 5.2 Convención UML aplicada a los getters
+
+| Elemento en JavaScript | Notación en el diagrama | Ejemplo |
+| --- | --- | --- |
+| Campo privado `#campo` | `- campo : Tipo` (visibilidad privada) | `- nombre : string` |
+| Getter de instancia `get campo() { … }` | `+ get campo() : Tipo` (visibilidad pública, prefijo `get`, paréntesis vacíos y tipo de retorno) | `+ get nombre() : string` |
+| Getter estático `static get X() { … }` | `{static} + get X() : Tipo` (PlantUML lo muestra subrayado) | `{static} + get TIPOS() : string[]` |
+
+- **Nomenclatura:** el getter conserva el mismo nombre que el campo privado que expone, igual que en el código (`#items` → `get items()`).
+- **Orden dentro de cada clase:** atributos privados, constructor, getters (primero los estáticos), métodos de negocio y, al final, `toJSON()` / `fromJSON()`.
+- **Atributo y getter juntos:** se muestran ambos porque representan cosas distintas: el campo `#privado` es el estado encapsulado y el getter es la interfaz pública de solo lectura.
+- **Notas de encapsulamiento:** una nota general aclara que no hay setters y que el estado cambia con métodos que validan. Las notas de `Presupuesto`, `ListaInvitados` y `CatalogoProveedores` indican que sus getters de colección devuelven copias con `slice()`. La nota de `Evento` aclara que `presupuesto` e `invitados` devuelven el componente (por la composición, sus cambios pasan por `agregarItem()`, `agregar()`, etc.) y que `TIPOS`/`ESTADOS` devuelven un array nuevo en cada llamada.
+
+#### 5.3 Sincronización y verificación
+
+- Se actualizaron `diagrama-clases.puml`, la imagen `diagrama-clases.png` (reexportada desde el `.puml` con el `plantuml.jar` de la extensión de VS Code) y la sección *Decisiones de diseño* de `diagrama-clases-doc.md`.
+- `java -jar plantuml.jar -checkonly diagrama-clases.puml` no informa errores de sintaxis, y la imagen exportada muestra las 8 clases con sus getters, relaciones, multiplicidades y notas.
+- Las clases de `js/models/` no se modificaron: la corrección alinea el diagrama con el código y no al revés.
+- **Regla de mantenimiento:** si se agrega, quita o renombra un getter en `js/models/`, hay que actualizar en el mismo cambio el `.puml`, el `.png` y la tabla 5.1.
