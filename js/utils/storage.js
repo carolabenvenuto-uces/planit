@@ -19,6 +19,8 @@ const Almacenamiento = (function () {
     // no va en este Set.
     const CLAVES_SESSION = new Set();
 
+    const NOMBRES_STORAGE = ["localStorage", "sessionStorage"];
+
     function resolverStorage(clave) {
         return CLAVES_SESSION.has(clave) ? window.sessionStorage : window.localStorage;
     }
@@ -61,11 +63,15 @@ const Almacenamiento = (function () {
     // Borra de ambos storages (no solo del que hoy le asigna resolverStorage): si una
     // clave quedó en el storage "equivocado" por un cambio de ruteo anterior (ver
     // CLAVES_SESSION), eliminar() igual la limpia por completo.
+    //
+    // El acceso a window[nombre] va DENTRO del try (igual que en listar()): en modo
+    // incógnito estricto o en iframes con cookies bloqueadas, el propio getter de
+    // window.localStorage/sessionStorage lanza SecurityError (RC6).
     function eliminar(clave) {
         let exito = true;
-        for (const storage of [window.localStorage, window.sessionStorage]) {
+        for (const nombre of NOMBRES_STORAGE) {
             try {
-                storage.removeItem(clave);
+                window[nombre].removeItem(clave);
             } catch (error) {
                 console.error(`Almacenamiento: no se pudo eliminar la clave "${clave}".`, error);
                 exito = false;
@@ -76,8 +82,9 @@ const Almacenamiento = (function () {
 
     function listar(prefijo = PREFIJO) {
         const claves = [];
-        for (const storage of [window.localStorage, window.sessionStorage]) {
+        for (const nombre of NOMBRES_STORAGE) {
             try {
+                const storage = window[nombre];
                 for (let i = 0; i < storage.length; i++) {
                     const clave = storage.key(i);
                     if (clave !== null && clave.startsWith(prefijo)) {

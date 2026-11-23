@@ -322,6 +322,8 @@ function configurarEventos() {
 
 ### 1. Prompt utilizado en modo Agente
 
+- **Herramienta:** Claude Code (Anthropic), extensión de VS Code, en **modo agente**: el asistente trabajó sobre el workspace del repositorio, leyó y buscó en los archivos, ejecutó comandos en la terminal integrada y editó los archivos directamente. No se usó como chat para copiar y pegar código. La traza completa de la sesión está en la sección 6.
+
 **Contexto adjuntado al agente:**
 - `docs/03-specs/actividad-obligatoria-4/spec-dev-eventos-dom.md` (sección *ANTES DE LA IMPLEMENTACIÓN*).
 - Las clases del dominio de `js/models/` (`Validador.js`, `ItemContratado.js`, `Presupuesto.js`, `Invitado.js`, `ListaInvitados.js`, `Evento.js`, `Proveedor.js`, `CatalogoProveedores.js`), tomadas de la rama `feature/dev-poo-logica-negocio` (PR #102).
@@ -385,7 +387,7 @@ La sección *ANTES* se escribió sin conocer la API final de las clases de POO. 
 | 1 | `presupuesto.calcularPresupuestoTotal({ items, descuento, presupuestoEstimado })`, que devuelve un objeto de desglose | `item.calcularSubtotal()`, `presupuesto.calcularTotal()`, `presupuesto.aplicarDescuento(descuento)` y `evento.superaPresupuesto(descuento)` | `calcularPresupuestoTotal()` no existe en `Presupuesto`. Con los métodos reales, todos los montos y la comparación con el límite siguen en el modelo; el controlador solo arma el objeto `resultado` para renderizarlo. Los ítems de la tabla reemplazan a los del `Presupuesto` del evento mediante `eliminarItem()` / `agregarItem()`. Una cantidad inválida se detecta por el `Error` que lanza el constructor de `ItemContratado`. |
 | 2 | Tabla de invitados con email y mesa, y el estado "Declinado" del mockup | Columnas **Nombre / Estado / Acciones**; solo los estados `Confirmado` y `Pendiente` | `Invitado` solo tiene `nombre` y `estado`, e `Invitado.ESTADOS` es `["Confirmado", "Pendiente"]`. Un invitado nuevo no tendría email ni mesa, y "Declinado" haría fallar la carga. Se quitó a Camila Herrera (Declinado) de los datos de ejemplo. El cambio de estado usa `Invitado.cambiarEstado()` y la baja usa `ListaInvitados.eliminar(nombre)`. |
 | 3 | `select#tipo-evento` con los valores `cumpleanos`, `boda`, `salida-casual` y `corporativo` | `value` = `cumpleaños`, `boda` y `salida casual`; se quitó **Corporativo** | `Evento.TIPOS` es `["cumpleaños", "boda", "salida casual"]`. `Validador.buscarOpcion()` no considera iguales `salida-casual` y `salida casual`, y `corporativo` no existe en el modelo, así que esas dos opciones nunca pasarían la validación. |
-| 4 | Volver a crear las tarjetas de `#contenedor-catalogo` con `createElement` y delegar el `click` | Cada tarjeta del HTML se convierte en un `Proveedor` (a partir de sus `data-*`) y se muestra u oculta con el atributo `hidden` | Volver a crear las tarjetas haría perder los listeners de `.btn-sumar-evento` que registra `js/componentes-bootstrap.js` y los disparadores `data-bs-toggle="modal"`, y obligaría a descargar de nuevo las imágenes. Al ocultarlas, el modal `#modalDetalleServicio` y el toast `#toastConfirmacion` siguen funcionando. El filtrado lo resuelven `CatalogoProveedores.buscar()` y `Proveedor.coincideCon()`. Con el texto vacío se usa `catalogo.proveedores`, porque `buscar()` lanza un error si el criterio está vacío. Se agregaron el contador `#contador-catalogo` y el mensaje sin resultados `#catalogo-vacio`. |
+| 4 | Volver a crear las tarjetas de `#contenedor-catalogo` con `createElement` y delegar el `click` | Cada tarjeta del HTML se convierte en un `Proveedor` (a partir de sus `data-*`) y se muestra u oculta con el atributo `hidden` | Volver a crear las tarjetas haría perder los listeners de `.btn-sumar-evento` que registra `js/componentes-bootstrap.js` y los disparadores `data-bs-toggle="modal"`, y obligaría a descargar de nuevo las imágenes. Al ocultarlas, el modal `#modalDetalleServicio` y el toast `#toastConfirmacion` siguen funcionando. El filtrado lo resuelven `CatalogoProveedores.buscar()` y `Proveedor.coincideCon()`. Con el texto vacío se usa `catalogo.proveedores`, porque `buscar()` lanza un error si el criterio está vacío. Se agregaron el contador `#contador-catalogo` y el mensaje sin resultados `#catalogo-vacio`. **Reemplazado por la corrección RC10 (ver §6):** las tarjetas ya no están en el HTML; se generan desde `CatalogoProveedores` y el Toast usa delegación, así que el motivo original deja de aplicar. |
 | 5 | — | Guarda defensiva `obtenerModelosFaltantes()` en `configurarEventos()` | Las clases todavía no están en `develop`. Si falta alguna, se muestra un aviso en `#aviso-app` y no se registran los flujos, en lugar de fallar con un `ReferenceError`. Se comprueba con `typeof` porque las clases declaradas en scripts clásicos no se agregan a `window`. |
 | 6 | Persistencia en `js/models/storage.js` | Contrato asumido para **`js/utils/storage.js`**: un objeto global `Almacenamiento` con `guardar(clave, valor)` y `cargar(clave)` (devuelve `null` si no hay dato) | El archivo todavía no existe. Si `Almacenamiento` no está cargado, la app funciona en memoria y lo avisa en `#aviso-app`. Los errores de lectura y escritura se capturan con `try/catch`. Claves: `planit:evento` (`Evento.toJSON()`, que incluye presupuesto e invitados) y `planit:detalles-evento`. |
 | 7 | — | La adaptación de `js/test/script.spec.js` le corresponde al rol **Tester QA** | La suite prueba funciones de la AO3 que ya no están en `script.js` (`validarDatosEvento`, `calcularTotalItems`, etc.). Los tests tienen que pasar a probar las clases de `js/models/`. |
@@ -439,7 +441,7 @@ Se abrió `index.html` en Chrome headless con los modelos del PR #102 y un `stor
 #### Flujo 3: Buscar en catálogo
 - [x] `#buscar-catalogo` filtra en tiempo real con el evento `input`.
 - [x] `#categoria-catalogo` filtra por categoría y se combina con el texto.
-- [x] Las tarjetas se muestran u ocultan, se actualiza `#contador-catalogo` y, si no hay coincidencias, aparece `#catalogo-vacio`.
+- [x] Las tarjetas de los proveedores que coinciden se proyectan en `#contenedor-catalogo` (RC10, ver §6), se actualiza `#contador-catalogo` y, si no hay coincidencias, aparece `#catalogo-vacio`.
 - [x] La búsqueda no distingue mayúsculas ni tildes (lo resuelve `Validador.normalizarTexto()`).
 
 #### Flujo 4: Gestionar invitados
@@ -472,9 +474,126 @@ Se abrió `index.html` en Chrome headless con los modelos del PR #102 y un `stor
 
 #### Documentación
 - [x] Esta sección AL CERRAR registra el prompt, el fragmento de código, los ajustes y la verificación.
+- [x] **RC8 (cerrada):** se documenta en la sección 6 la evidencia verificable de la ejecución en modo agente (sesión de Claude Code en VS Code, bitácora de operaciones y controles humanos).
 
 #### Pendientes de otros roles (bloquean la integración en `develop`)
 - [x] Mergear el PR #102 (`js/models/`) en `develop` (integrado en esta rama con el merge `c3fa07e`).
 - [ ] Crear `js/utils/storage.js` con el contrato `Almacenamiento.guardar` / `Almacenamiento.cargar`.
 - [ ] Adaptar `js/test/script.spec.js` y `js/test/test-runner.html` a las clases de `js/models/` (rol Tester QA).
 - [ ] Agregar al modelo un método para el saldo disponible y conectar el Resumen Financiero.
+
+---
+
+### 6. Corrección de las observaciones RC9, RC10 y RC11 (renderizado 100 % dinámico)
+
+#### 6.1 Observaciones del docente
+
+| ID | Observación | Sección afectada |
+| --- | --- | --- |
+| RC9 | "Estas filas de presupuesto siguen siendo datos operativos hardcodeados en el HTML. La vista debería conservar el contenedor y generar categorías, precios, cantidades y subtotales desde el modelo." | `#desglose-presupuesto` |
+| RC10 | "Las tarjetas del catálogo permanecen como fuente operativa en el HTML. El catálogo debe provenir del modelo y el controlador debe renderizar tarjetas, datos y estados derivados." | `#contenedor-catalogo` |
+| RC11 | "La lista inicial de invitados sigue cargada como filas operativas en el HTML. Dejar el tbody vacío y construir la lista desde ListaInvitados o el estado persistido." | `#lista-invitados` |
+
+Las tres observaciones tienen la misma causa: hasta esta corrección el HTML era la **fuente de datos**. El controlador leía los `data-*` de filas y tarjetas maquetadas (`crearEventoDesdeMarcado()`, `construirCatalogoDesdeMarcado()`) para crear los modelos, así que el flujo de datos iba de la vista al modelo, al revés de lo que pide el patrón.
+
+#### 6.2 Arquitectura: puntos de montaje y proyección del modelo
+
+Después de la corrección, el flujo de datos va siempre en un solo sentido: **modelo → controlador → DOM**.
+
+```
+ Estado persistido (Almacenamiento)          DATOS_SEMILLA (js/script.js)
+ planit:evento = Evento.toJSON()             misma forma que los toJSON() de los modelos
+              │                                            │
+              └───────────── fromJSON() ───────────────────┘
+                                 │  (los modelos validan al reconstruir)
+                                 ▼
+   Evento ─┬─ Presupuesto ── ItemContratado[]        CatalogoProveedores ── Proveedor[]
+           └─ ListaInvitados ── Invitado[]
+                                 │
+                                 ▼  js/script.js proyecta (createElement + textContent)
+ ┌───────────────────────────── index.html: puntos de montaje vacíos ─────────────────────────────┐
+ │ <tbody id="desglose-presupuesto">   <div id="contenedor-catalogo">   <tbody id="lista-invitados"> │
+ └─────────────────────────────────────────────────────────────────────────────────────────────────┘
+```
+
+- **Vista (`index.html`)**: aporta solo la estructura semántica y los **puntos de montaje**: la tabla con `<caption>`, `<thead>` y `<tfoot>` (subtotal, descuento y total), la grilla del catálogo con su buscador y la tabla de invitados con sus encabezados. Los `<tbody>` y el contenedor de tarjetas quedan vacíos; los totales muestran `—` hasta que el controlador los calcula con el modelo. El `<select id="categoria-catalogo">` conserva solo la opción `Todas`.
+- **Datos semilla (`DATOS_SEMILLA`)**: los datos de ejemplo que antes estaban en el marcado pasan a un objeto congelado en `js/script.js`, con la misma forma que producen `Presupuesto.toJSON()`, `ListaInvitados.toJSON()` y `CatalogoProveedores.toJSON()`. Solo se usan cuando no hay estado persistido y se convierten en instancias con los `fromJSON()` de los modelos, que validan cada ítem, invitado y proveedor.
+- **Metadatos de presentación (`PRESENTACION_ITEMS`, `PRESENTACION_PROVEEDORES`)**: la unidad (`pax`, `horas`…), el tipo de gasto, la imagen, el texto alternativo y los textos del modal no forman parte de `ItemContratado` ni de `Proveedor`. Son datos de la vista y por eso viven en el controlador. Un ítem o proveedor sin metadatos se renderiza igual, sin unidad ni imagen.
+- **Controlador (`js/script.js`)**: lee las instancias del modelo, crea cada nodo con `createElement` y `textContent`/`setAttribute` (nunca `innerHTML`) y lo inserta en su punto de montaje con `replaceChildren()`.
+
+#### 6.3 Cambios por observación
+
+**RC9 – Presupuesto (`#desglose-presupuesto`)**
+
+| Antes | Después |
+| --- | --- |
+| 5 `<tr data-item>` maquetadas con categoría, precio, cantidad y subtotal | `<tbody>` vacío; `renderFilasPresupuesto(ui)` crea una fila por cada `ItemContratado` de `evento.presupuesto.items` |
+| `crearItemDesdeFila(fila)` leía categoría, descripción y precio de los `data-*` de la fila | `crearItemConCantidad(itemBase, cantidad)` toma categoría, descripción y precio del **modelo**; de la vista solo lee la cantidad que escribió el usuario |
+| `sincronizarCantidadesPresupuesto()` copiaba las cantidades guardadas a los inputs existentes | Se elimina: la fila se genera con la cantidad del modelo (semilla o estado persistido) |
+| `ui.filasPresupuesto` (lista fija tomada al cargar) | `obtenerFilasPresupuesto(ui)` consulta las filas generadas; si su cantidad no coincide con la de ítems del modelo, `recalcularPresupuesto()` vuelve a proyectarlas |
+
+Cada fila trae `<th scope="row">` con la categoría, el concepto, el tipo, un `input.input-cantidad` (con `id` derivado de la categoría, `aria-label` y `aria-describedby` hacia su `.invalid-feedback`), el precio unitario formateado y el subtotal de `item.calcularSubtotal()`. Si no hay ítems, se muestra una fila de estado vacío. Mientras el usuario escribe, `renderDesglosePresupuesto()` solo actualiza las celdas de subtotal (no recrea las filas), así el input no pierde el foco. Los eventos se atienden con el listener `input` **delegado** en `#form-presupuesto`, que ya cubría tanto los inputs generados como el descuento.
+
+**RC10 – Catálogo (`#contenedor-catalogo`)**
+
+| Antes | Después |
+| --- | --- |
+| 3 tarjetas maquetadas con `data-proveedor`; `construirCatalogoDesdeMarcado()` creaba un `Proveedor` por tarjeta | `construirCatalogo(ui)` crea el catálogo con `CatalogoProveedores.fromJSON(DATOS_SEMILLA.catalogo)` |
+| El filtro alternaba `hidden` en las tarjetas existentes | `renderCatalogo()` proyecta solo las tarjetas de los `Proveedor` que devuelve el modelo, en su orden, con `replaceChildren()` |
+| Opciones de categoría fijas en el `<select>` | `renderOpcionesCategoria(ui)` deriva las categorías de los proveedores del catálogo (sin repetir, comparadas con `Validador.buscarOpcion()`) |
+| Toast con un listener por botón `.btn-sumar-evento` registrado al cargar | Un único listener `click` **delegado** en `document`, que también atiende los botones generados después |
+
+`crearTarjetaProveedor(proveedor)` arma la tarjeta completa: imagen, insignia de categoría, nombre, descripción, metadatos (`categoría · capacidad · zona`), precio por unidad formateado a partir de `proveedor.precio` y `proveedor.unidad`, y los botones **Ver detalle** (abre `#modalDetalleServicio` por `data-bs-toggle`, con los `data-service-*` que lee el modal) y **Sumar al Evento**. Las tarjetas ya creadas se guardan en `estadoApp.tarjetasCatalogo` (`Map` Proveedor → nodo), para no reconstruir imágenes ni botones con cada tecla del buscador. Los estados derivados (contador de resultados y mensaje de catálogo vacío) se actualizan en cada filtrado.
+
+**RC11 – Invitados (`#lista-invitados`)**
+
+| Antes | Después |
+| --- | --- |
+| 5 `<tr data-nombre data-estado>` maquetadas; `crearEventoDesdeMarcado()` las leía para llenar `ListaInvitados` | `<tbody>` vacío; `crearEventoInicial(ui)` construye la lista con `Evento.fromJSON({ …, invitados: DATOS_SEMILLA.invitados })` si no hay estado persistido |
+
+`renderInvitados(ui)` ya generaba las filas desde el modelo; ahora es la **única** fuente de la tabla. Cada fila trae el nombre (`<th scope="row">`), el badge de estado (`Confirmado`/`Pendiente`), el botón para alternar el estado y el botón Eliminar, ambos con `data-accion` y `aria-label`. Si la lista está vacía, se muestra la fila de estado vacío. Al recargar, la lista sale de `planit:evento` (estado persistido).
+
+#### 6.4 Desacoplamiento resultante
+
+| Capa | Responsabilidad tras RC9–RC11 |
+| --- | --- |
+| `index.html` | Estructura semántica y puntos de montaje vacíos (`#desglose-presupuesto`, `#contenedor-catalogo`, `#lista-invitados`), encabezados, `<tfoot>` de totales y mensajes accesibles (`#alerta-presupuesto`, `#contador-catalogo`, `#catalogo-vacio`, `#feedback-invitados`). Sin datos operativos. |
+| `js/models/` | Fuente de verdad: instancias de `Presupuesto`/`ItemContratado`, `CatalogoProveedores`/`Proveedor` y `ListaInvitados`/`Invitado`, su validación (`fromJSON()`, constructores) y todos los cálculos. Sin cambios en esta corrección. |
+| `js/script.js` | Proyecta los modelos al DOM (`renderFilasPresupuesto`, `renderCatalogo`/`crearTarjetaProveedor`, `renderInvitados`), mantiene los datos semilla y los metadatos de presentación, y atiende los eventos por delegación. |
+| `js/utils/storage.js` | Sin cambios: persiste `Evento.toJSON()`, que incluye presupuesto e invitados. |
+
+#### 6.5 Control de observaciones
+
+- [x] **RC9**: `#desglose-presupuesto` queda vacío en `index.html` y conserva tabla, encabezados y `<tfoot>` de totales.
+- [x] **RC9**: categorías, conceptos, precios, cantidades y subtotales se generan desde `Presupuesto`/`ItemContratado` (`renderFilasPresupuesto`).
+- [x] **RC9**: los inputs de cantidad generados se atienden con el listener `input` delegado en `#form-presupuesto`.
+- [x] **RC10**: `#contenedor-catalogo` queda vacío en `index.html`; el buscador y los mensajes de estado se conservan.
+- [x] **RC10**: el catálogo proviene de `CatalogoProveedores.fromJSON()`; las tarjetas (datos, precio, insignia y botones) se generan en `crearTarjetaProveedor`.
+- [x] **RC10**: las categorías del filtro, el contador y el estado vacío se derivan del modelo; el filtro proyecta solo los proveedores que coinciden.
+- [x] **RC10**: "Sumar al Evento" funciona en tarjetas generadas gracias a la delegación del Toast.
+- [x] **RC11**: `#lista-invitados` queda vacío en `index.html`.
+- [x] **RC11**: la lista se construye solo desde `ListaInvitados` (estado persistido o `DATOS_SEMILLA`), con nombre, badge, alternar estado y eliminar.
+- [x] Sin `innerHTML`: todos los nodos se crean con `createElement` y `textContent`/`setAttribute`.
+- [ ] Verificación en navegador y ejecución de `node js/test/run-jasmine.js` después de la corrección (pendiente: ver §6.6).
+
+#### 6.6 Impacto en otros roles
+
+- **Tester QA (`js/test/script.spec.js`)**: `restaurarEstadoInicial()` llamaba a `construirCatalogoDesdeMarcado(ui)`, que se renombró a `construirCatalogo(ui)` porque el catálogo ya no se lee del marcado. **Actualizado:** la llamada ya usa `construirCatalogo(ui)`. Las filas y tarjetas del fixture de `test-runner.html` ya no se leen (el controlador las reemplaza al iniciar), así que se pueden dejar vacías como en `index.html`. Los ids de los inputs de cantidad (`cantidad-catering`, `cantidad-decoracion`, …) se mantienen, por lo que el resto de la suite no necesita cambios.
+
+#### 6.7 Resumen Financiero (barra lateral) sin datos fijos
+
+Al revisar RC9 se detectó que la barra lateral también tenía datos financieros fijos en el HTML (`$700.000`, `$580.000`, `$120.000`, `82%` y la alerta "Estás a $120.000 de tu límite"). Se corrigió con el mismo criterio de punto de montaje:
+
+| Elemento | Antes | Después |
+| --- | --- | --- |
+| `#resumen-presupuesto-total` y `#resumen-limite` | `$700.000` fijo | `evento.presupuestoEstimado`, formateado |
+| `#resumen-gastado` | `$580.000` fijo | `resultado.total` (`Presupuesto.aplicarDescuento()`, el mismo valor de `#total-presupuesto`); `—` si hay datos inválidos |
+| `#resumen-saldo` | `$120.000` fijo | `—` |
+| `#resumen-progreso` y `#resumen-porcentaje` | `82%` fijo | Barra oculta (`hidden`) y `— utilizado` |
+| `#resumen-alerta` | "Estás a $120.000 de tu límite" fijo | Texto según `resultado.excedido` (`Evento.superaPresupuesto()`); oculta si hay datos inválidos |
+
+`renderResumenFinanciero(ui, resultado)` se ejecuta en cada recálculo (`renderDesglosePresupuesto`) y al bloquear el resultado (`bloquearResultadoPresupuesto`). El saldo y el porcentaje **no** se calculan en el controlador: requieren una resta y una división sobre montos, que la Regla 1 reserva al modelo. Quedan en `—` hasta que el rol POO agregue un método como `Presupuesto.calcularSaldo(limite)` (y uno para el porcentaje utilizado); con ese método, el controlador solo tiene que escribir el valor devuelto.
+
+- [x] El HTML no contiene montos ni porcentajes fijos en el Resumen Financiero ni en la alerta lateral.
+- [x] Presupuesto total, límite, gastado y alerta se sincronizan con el modelo en cada recálculo.
+- [ ] Saldo disponible y porcentaje utilizado (pendiente: método del modelo).
