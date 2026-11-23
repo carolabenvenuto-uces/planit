@@ -322,6 +322,8 @@ function configurarEventos() {
 
 ### 1. Prompt utilizado en modo Agente
 
+- **Herramienta:** Claude Code (Anthropic), extensión de VS Code, en **modo agente**: el asistente trabajó sobre el workspace del repositorio, leyó y buscó en los archivos, ejecutó comandos en la terminal integrada y editó los archivos directamente. No se usó como chat para copiar y pegar código. La traza completa de la sesión está en la sección 6.
+
 **Contexto adjuntado al agente:**
 - `docs/03-specs/actividad-obligatoria-4/spec-dev-eventos-dom.md` (sección *ANTES DE LA IMPLEMENTACIÓN*).
 - Las clases del dominio de `js/models/` (`Validador.js`, `ItemContratado.js`, `Presupuesto.js`, `Invitado.js`, `ListaInvitados.js`, `Evento.js`, `Proveedor.js`, `CatalogoProveedores.js`), tomadas de la rama `feature/dev-poo-logica-negocio` (PR #102).
@@ -385,7 +387,7 @@ La sección *ANTES* se escribió sin conocer la API final de las clases de POO. 
 | 1 | `presupuesto.calcularPresupuestoTotal({ items, descuento, presupuestoEstimado })`, que devuelve un objeto de desglose | `item.calcularSubtotal()`, `presupuesto.calcularTotal()`, `presupuesto.aplicarDescuento(descuento)` y `evento.superaPresupuesto(descuento)` | `calcularPresupuestoTotal()` no existe en `Presupuesto`. Con los métodos reales, todos los montos y la comparación con el límite siguen en el modelo; el controlador solo arma el objeto `resultado` para renderizarlo. Los ítems de la tabla reemplazan a los del `Presupuesto` del evento mediante `eliminarItem()` / `agregarItem()`. Una cantidad inválida se detecta por el `Error` que lanza el constructor de `ItemContratado`. |
 | 2 | Tabla de invitados con email y mesa, y el estado "Declinado" del mockup | Columnas **Nombre / Estado / Acciones**; solo los estados `Confirmado` y `Pendiente` | `Invitado` solo tiene `nombre` y `estado`, e `Invitado.ESTADOS` es `["Confirmado", "Pendiente"]`. Un invitado nuevo no tendría email ni mesa, y "Declinado" haría fallar la carga. Se quitó a Camila Herrera (Declinado) de los datos de ejemplo. El cambio de estado usa `Invitado.cambiarEstado()` y la baja usa `ListaInvitados.eliminar(nombre)`. |
 | 3 | `select#tipo-evento` con los valores `cumpleanos`, `boda`, `salida-casual` y `corporativo` | `value` = `cumpleaños`, `boda` y `salida casual`; se quitó **Corporativo** | `Evento.TIPOS` es `["cumpleaños", "boda", "salida casual"]`. `Validador.buscarOpcion()` no considera iguales `salida-casual` y `salida casual`, y `corporativo` no existe en el modelo, así que esas dos opciones nunca pasarían la validación. |
-| 4 | Volver a crear las tarjetas de `#contenedor-catalogo` con `createElement` y delegar el `click` | Cada tarjeta del HTML se convierte en un `Proveedor` (a partir de sus `data-*`) y se muestra u oculta con el atributo `hidden` | Volver a crear las tarjetas haría perder los listeners de `.btn-sumar-evento` que registra `js/componentes-bootstrap.js` y los disparadores `data-bs-toggle="modal"`, y obligaría a descargar de nuevo las imágenes. Al ocultarlas, el modal `#modalDetalleServicio` y el toast `#toastConfirmacion` siguen funcionando. El filtrado lo resuelven `CatalogoProveedores.buscar()` y `Proveedor.coincideCon()`. Con el texto vacío se usa `catalogo.proveedores`, porque `buscar()` lanza un error si el criterio está vacío. Se agregaron el contador `#contador-catalogo` y el mensaje sin resultados `#catalogo-vacio`. |
+| 4 | Volver a crear las tarjetas de `#contenedor-catalogo` con `createElement` y delegar el `click` | Cada tarjeta del HTML se convierte en un `Proveedor` (a partir de sus `data-*`) y se muestra u oculta con el atributo `hidden` | Volver a crear las tarjetas haría perder los listeners de `.btn-sumar-evento` que registra `js/componentes-bootstrap.js` y los disparadores `data-bs-toggle="modal"`, y obligaría a descargar de nuevo las imágenes. Al ocultarlas, el modal `#modalDetalleServicio` y el toast `#toastConfirmacion` siguen funcionando. El filtrado lo resuelven `CatalogoProveedores.buscar()` y `Proveedor.coincideCon()`. Con el texto vacío se usa `catalogo.proveedores`, porque `buscar()` lanza un error si el criterio está vacío. Se agregaron el contador `#contador-catalogo` y el mensaje sin resultados `#catalogo-vacio`. **Reemplazado por la corrección RC10 (ver §6):** las tarjetas ya no están en el HTML; se generan desde `CatalogoProveedores` y el Toast usa delegación, así que el motivo original deja de aplicar. |
 | 5 | — | Guarda defensiva `obtenerModelosFaltantes()` en `configurarEventos()` | Las clases todavía no están en `develop`. Si falta alguna, se muestra un aviso en `#aviso-app` y no se registran los flujos, en lugar de fallar con un `ReferenceError`. Se comprueba con `typeof` porque las clases declaradas en scripts clásicos no se agregan a `window`. |
 | 6 | Persistencia en `js/models/storage.js` | Contrato asumido para **`js/utils/storage.js`**: un objeto global `Almacenamiento` con `guardar(clave, valor)` y `cargar(clave)` (devuelve `null` si no hay dato) | El archivo todavía no existe. Si `Almacenamiento` no está cargado, la app funciona en memoria y lo avisa en `#aviso-app`. Los errores de lectura y escritura se capturan con `try/catch`. Claves: `planit:evento` (`Evento.toJSON()`, que incluye presupuesto e invitados) y `planit:detalles-evento`. |
 | 7 | — | La adaptación de `js/test/script.spec.js` le corresponde al rol **Tester QA** | La suite prueba funciones de la AO3 que ya no están en `script.js` (`validarDatosEvento`, `calcularTotalItems`, etc.). Los tests tienen que pasar a probar las clases de `js/models/`. |
@@ -439,7 +441,7 @@ Se abrió `index.html` en Chrome headless con los modelos del PR #102 y un `stor
 #### Flujo 3: Buscar en catálogo
 - [x] `#buscar-catalogo` filtra en tiempo real con el evento `input`.
 - [x] `#categoria-catalogo` filtra por categoría y se combina con el texto.
-- [x] Las tarjetas se muestran u ocultan, se actualiza `#contador-catalogo` y, si no hay coincidencias, aparece `#catalogo-vacio`.
+- [x] Las tarjetas de los proveedores que coinciden se proyectan en `#contenedor-catalogo` (RC10, ver §6), se actualiza `#contador-catalogo` y, si no hay coincidencias, aparece `#catalogo-vacio`.
 - [x] La búsqueda no distingue mayúsculas ni tildes (lo resuelve `Validador.normalizarTexto()`).
 
 #### Flujo 4: Gestionar invitados
@@ -473,6 +475,7 @@ Se abrió `index.html` en Chrome headless con los modelos del PR #102 y un `stor
 
 #### Documentación
 - [x] Esta sección AL CERRAR registra el prompt, el fragmento de código, los ajustes y la verificación.
+- [x] **RC8 (cerrada):** se documenta en la sección 6 la evidencia verificable de la ejecución en modo agente (sesión de Claude Code en VS Code, bitácora de operaciones y controles humanos).
 
 #### Pendientes de otros roles (bloquean la integración en `develop`)
 - [x] Mergear el PR #102 (`js/models/`) en `develop` (integrado en esta rama con el merge `c3fa07e`).

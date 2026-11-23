@@ -145,6 +145,398 @@ describe("Almacenamiento", function () {
         });
     });
 
+    /*
+     * RC6 — Resiliencia ante fallas del storage.
+     *
+     * Contrato bajo prueba (cabecera de js/utils/storage.js): ninguna operación de
+     * Almacenamiento lanza; las lecturas devuelven null / [] y las escrituras o
+     * borrados devuelven false, para que el controlador siga funcionando en memoria.
+     *
+     * Técnica de aislamiento (nada toca el storage real de otras specs):
+     *   - spyOnProperty(window, "localStorage" | "sessionStorage", "get") para simular
+     *     storage ausente (null/undefined), inaccesible (el getter lanza) o un doble
+     *     de prueba con fallas puntuales.
+     *   - spyOn / spyOnProperty sobre Storage.prototype con un callFake que falla solo
+     *     para la instancia elegida (local o session) y delega en el método original
+     *     para la otra, así se prueba cada storage por separado.
+     *   - Jasmine restaura todos los espías al terminar cada spec; además el afterEach
+     *     de este bloque borra las claves sembradas usando referencias capturadas
+     *     ANTES de cualquier espía (storages y métodos originales), para que la
+     *     limpieza no dependa de los mocks activos.
+     *   - console.error se espía en el beforeEach: Almacenamiento loguea por diseño
+     *     cada falla y run-jasmine.js trata cualquier console.error sin mockear como
+     *     error de la corrida.
+     *
+     * Nota de ruteo: CLAVES_SESSION está vacío (ver storage.js), así que guardar() y
+     * cargar() siempre usan localStorage; eliminar() y listar() recorren ambos
+     * storages. Por eso sessionStorage se cubre en ausencia/inaccesibilidad, borrado
+     * y listado, y en lectura se verifica que una falla suya no afecte a cargar().
+     */
+    describe("RC6 — Resiliencia ante storage ausente, inaccesible o con errores", function () {
+        const STORAGES = ["localStorage", "sessionStorage"];
+        const REAL = { localStorage: window.localStorage, sessionStorage: window.sessionStorage };
+        const ORIGINAL = {
+            getItem: Storage.prototype.getItem,
+            setItem: Storage.prototype.setItem,
+            removeItem: Storage.prototype.removeItem,
+            key: Storage.prototype.key,
+            length: Object.getOwnPropertyDescriptor(Storage.prototype, "length").get
+        };
+
+        function sembrar(nombreStorage, clave, valor) {
+            ORIGINAL.setItem.call(REAL[nombreStorage], clave, JSON.stringify(valor));
+        }
+
+        function leerCrudo(nombreStorage, clave) {
+            return ORIGINAL.getItem.call(REAL[nombreStorage], clave);
+        }
+
+        function otroStorage(nombreStorage) {
+            return nombreStorage === "localStorage" ? "sessionStorage" : "localStorage";
+        }
+
+        // DOMException con nombre estándar: el navegador asigna el código legacy
+        // ("SecurityError" -> 18, "QuotaExceededError" -> 22).
+        function crearSecurityError() {
+            return new DOMException("The operation is insecure.", "SecurityError");
+        }
+
+        // Errores legacy cuyo name/code no se pueden fabricar con el constructor de
+        // DOMException (code es de solo lectura y vale 0 para nombres no estándar).
+        function crearErrorLegacy(nombre, codigo, extra) {
+            const error = new Error(`${nombre} (code ${codigo})`);
+            error.name = nombre;
+            error.code = codigo;
+            return Object.assign(error, extra || {});
+        }
+
+        // Hace fallar un método de Storage.prototype solo para la instancia indicada;
+        // para la otra delega en el método real.
+        function fallarMetodoEn(metodo, nombreStorage, error) {
+            const original = ORIGINAL[metodo];
+            return spyOn(Storage.prototype, metodo).and.callFake(function () {
+                if (this === REAL[nombreStorage]) throw error;
+                return original.apply(this, arguments);
+            });
+        }
+
+        beforeEach(function () {
+            spyOn(console, "error");
+        });
+
+        afterEach(function () {
+            for (const nombre of STORAGES) {
+                const storage = REAL[nombre];
+                const claves = [];
+                for (let i = 0; i < ORIGINAL.length.call(storage); i++) {
+                    const clave = ORIGINAL.key.call(storage, i);
+                    if (clave !== null && clave.startsWith(PREFIJO_TEST)) claves.push(clave);
+                }
+                claves.forEach(function (clave) { ORIGINAL.removeItem.call(storage, clave); });
+            }
+        });
+
+        describe("Storage ausente o inaccesible", function () {
+            STORAGES.forEach(function (nombre) {
+                const otro = otroStorage(nombre);
+                const escenarios = [
+                    { id: "RC6-01", descripcion: `window.${nombre} es null`, simular: function (spy) { spy.and.returnValue(null); } },
+                    { id: "RC6-02", descripcion: `window.${nombre} es undefined`, simular: function (spy) { spy.and.returnValue(undefined); } },
+                    { id: "RC6-03", descripcion: `acceder a window.${nombre} lanza SecurityError (incógnito estricto / iframe cruzado)`, simular: function (spy) { spy.and.throwError(crearSecurityError()); } }
+                ];
+
+                escenarios.forEach(function (escenario) {
+                    describe(`[${escenario.id}] ${escenario.descripcion}`, function () {
+                        beforeEach(function () {
+                            sembrar(otro, PREFIJO_TEST + "sobreviviente", "ok");
+                            escenario.simular(spyOnProperty(window, nombre, "get"));
+                        });
+
+                        it("ninguna operación de Almacenamiento debería lanzar", function () {
+                            expect(function () {
+                                Almacenamiento.guardar(PREFIJO_TEST + "x", 1);
+                                Almacenamiento.cargar(PREFIJO_TEST + "x");
+                                Almacenamiento.obtener(PREFIJO_TEST + "x");
+                                Almacenamiento.actualizar(PREFIJO_TEST + "x", 2);
+                                Almacenamiento.eliminar(PREFIJO_TEST + "x");
+                                Almacenamiento.listar(PREFIJO_TEST);
+                                Almacenamiento.limpiar(PREFIJO_TEST);
+                            }).not.toThrow();
+                        });
+
+                        it("eliminar() debería devolver false (no puede garantizar el borrado) y seguir con el otro storage", function () {
+                            expect(Almacenamiento.eliminar(PREFIJO_TEST + "sobreviviente")).toBe(false);
+                            expect(leerCrudo(otro, PREFIJO_TEST + "sobreviviente")).toBeNull();
+                            expect(console.error).toHaveBeenCalled();
+                        });
+
+                        it(`listar() debería devolver igual las claves de ${otro}`, function () {
+                            expect(Almacenamiento.listar(PREFIJO_TEST)).toEqual([PREFIJO_TEST + "sobreviviente"]);
+                        });
+
+                        if (nombre === "localStorage") {
+                            it("guardar() debería devolver false y cargar() null (degradación a memoria)", function () {
+                                expect(Almacenamiento.guardar(PREFIJO_TEST + "x", { a: 1 })).toBe(false);
+                                expect(Almacenamiento.cargar(PREFIJO_TEST + "x")).toBeNull();
+                                expect(console.error).toHaveBeenCalled();
+                            });
+                        } else {
+                            it("guardar()/cargar() deberían seguir funcionando sobre localStorage (la falla queda aislada)", function () {
+                                expect(Almacenamiento.guardar(PREFIJO_TEST + "x", { a: 1 })).toBe(true);
+                                expect(Almacenamiento.cargar(PREFIJO_TEST + "x")).toEqual({ a: 1 });
+                            });
+                        }
+                    });
+                });
+            });
+
+            it("[RC6-04] sin ningún storage disponible, todas las operaciones degradan a valores seguros", function () {
+                spyOnProperty(window, "localStorage", "get").and.throwError(crearSecurityError());
+                spyOnProperty(window, "sessionStorage", "get").and.returnValue(null);
+
+                expect(Almacenamiento.guardar(PREFIJO_TEST + "x", 1)).toBe(false);
+                expect(Almacenamiento.actualizar(PREFIJO_TEST + "x", 1)).toBe(false);
+                expect(Almacenamiento.cargar(PREFIJO_TEST + "x")).toBeNull();
+                expect(Almacenamiento.obtener(PREFIJO_TEST + "x")).toBeNull();
+                expect(Almacenamiento.eliminar(PREFIJO_TEST + "x")).toBe(false);
+                expect(Almacenamiento.listar(PREFIJO_TEST)).toEqual([]);
+                expect(function () { Almacenamiento.limpiar(PREFIJO_TEST); }).not.toThrow();
+            });
+        });
+
+        describe("SecurityError en operaciones individuales", function () {
+            it("[RC6-05] el SecurityError simulado debería ser el estándar W3C (name \"SecurityError\", code 18)", function () {
+                const error = crearSecurityError();
+                expect(error instanceof DOMException).toBe(true);
+                expect(error.name).toBe("SecurityError");
+                expect(error.code).toBe(18);
+                expect(error.code).toBe(DOMException.SECURITY_ERR);
+            });
+
+            it("[RC6-06] guardar() debería devolver false si setItem lanza SecurityError, logueando el error original", function () {
+                const error = crearSecurityError();
+                fallarMetodoEn("setItem", "localStorage", error);
+
+                expect(Almacenamiento.guardar(PREFIJO_TEST + "seguridad", "x")).toBe(false);
+                expect(console.error).toHaveBeenCalledWith(jasmine.any(String), error);
+            });
+
+            it("[RC6-07] cargar() debería devolver null si getItem lanza SecurityError", function () {
+                sembrar("localStorage", PREFIJO_TEST + "seguridad", "x");
+                fallarMetodoEn("getItem", "localStorage", crearSecurityError());
+
+                expect(Almacenamiento.cargar(PREFIJO_TEST + "seguridad")).toBeNull();
+                expect(console.error).toHaveBeenCalled();
+            });
+
+            STORAGES.forEach(function (nombre) {
+                it(`[RC6-08] eliminar() debería devolver false si removeItem lanza SecurityError en ${nombre}`, function () {
+                    fallarMetodoEn("removeItem", nombre, crearSecurityError());
+
+                    expect(Almacenamiento.eliminar(PREFIJO_TEST + "seguridad")).toBe(false);
+                });
+            });
+
+            it("[RC6-09] un SecurityError legacy (name \"SECURITY_ERR\", code 18, sin DOMException) también debería capturarse", function () {
+                const legacy = crearErrorLegacy("SECURITY_ERR", 18);
+                spyOn(Storage.prototype, "setItem").and.callFake(function () { throw legacy; });
+
+                expect(Almacenamiento.guardar(PREFIJO_TEST + "legacy", 1)).toBe(false);
+                expect(console.error).toHaveBeenCalledWith(jasmine.any(String), legacy);
+            });
+        });
+
+        describe("Errores de lectura (getItem)", function () {
+            it("[RC6-10] cargar()/obtener() deberían devolver null si getItem lanza un error genérico", function () {
+                sembrar("localStorage", PREFIJO_TEST + "lectura", "valor");
+                fallarMetodoEn("getItem", "localStorage", new Error("Fallo de I/O simulado"));
+
+                expect(function () { Almacenamiento.cargar(PREFIJO_TEST + "lectura"); }).not.toThrow();
+                expect(Almacenamiento.cargar(PREFIJO_TEST + "lectura")).toBeNull();
+                expect(Almacenamiento.obtener(PREFIJO_TEST + "lectura")).toBeNull();
+            });
+
+            it("[RC6-11] una falla de getItem en sessionStorage no debería afectar a cargar() (ruteo a localStorage)", function () {
+                sembrar("localStorage", PREFIJO_TEST + "lectura", "valor");
+                fallarMetodoEn("getItem", "sessionStorage", crearSecurityError());
+
+                expect(Almacenamiento.cargar(PREFIJO_TEST + "lectura")).toBe("valor");
+            });
+
+            [
+                { crudo: "{esto no es JSON", motivo: "objeto truncado" },
+                { crudo: "[1, 2", motivo: "array truncado" },
+                { crudo: "undefined", motivo: "literal undefined (no es JSON)" },
+                { crudo: "NaN", motivo: "NaN (no es JSON)" },
+                { crudo: "'comillas simples'", motivo: "string con comillas simples" },
+                { crudo: "", motivo: "string vacío" }
+            ].forEach(function (caso) {
+                it(`[RC6-12] cargar() debería devolver null ante dato no deserializable: ${caso.motivo}`, function () {
+                    ORIGINAL.setItem.call(REAL.localStorage, PREFIJO_TEST + "corrupto", caso.crudo);
+
+                    expect(function () { Almacenamiento.cargar(PREFIJO_TEST + "corrupto"); }).not.toThrow();
+                    expect(Almacenamiento.cargar(PREFIJO_TEST + "corrupto")).toBeNull();
+                    expect(console.error).toHaveBeenCalled();
+                });
+            });
+        });
+
+        describe("Errores de borrado (removeItem / clear)", function () {
+            STORAGES.forEach(function (nombre) {
+                const otro = otroStorage(nombre);
+
+                it(`[RC6-13] eliminar() debería devolver false si removeItem falla en ${nombre}, pero igual borrar de ${otro}`, function () {
+                    const clave = PREFIJO_TEST + "borrado-parcial";
+                    sembrar(nombre, clave, "queda");
+                    sembrar(otro, clave, "se-borra");
+                    fallarMetodoEn("removeItem", nombre, new Error("Fallo de borrado simulado"));
+
+                    expect(Almacenamiento.eliminar(clave)).toBe(false);
+                    expect(leerCrudo(otro, clave)).toBeNull();
+                    expect(leerCrudo(nombre, clave)).not.toBeNull();
+                });
+
+                it(`[RC6-14] limpiar() debería devolver false sin lanzar si removeItem falla en ${nombre}`, function () {
+                    sembrar(nombre, PREFIJO_TEST + "a", 1);
+                    sembrar(otro, PREFIJO_TEST + "b", 2);
+                    fallarMetodoEn("removeItem", nombre, crearSecurityError());
+
+                    let resultado;
+                    expect(function () { resultado = Almacenamiento.limpiar(PREFIJO_TEST); }).not.toThrow();
+                    expect(resultado).toBe(false);
+                    expect(leerCrudo(otro, PREFIJO_TEST + "b")).toBeNull();
+                });
+            });
+
+            it("[RC6-15] limpiar() no debería depender de Storage.clear(): si clear() lanza, limpia igual y respeta otros prefijos", function () {
+                const clear = spyOn(Storage.prototype, "clear").and.throwError(new Error("clear() no disponible"));
+                sembrar("localStorage", PREFIJO_TEST + "a", 1);
+                sembrar("sessionStorage", PREFIJO_TEST + "b", 2);
+                ORIGINAL.setItem.call(REAL.localStorage, "planit:rc6-ajena", "\"intacta\"");
+
+                expect(Almacenamiento.limpiar(PREFIJO_TEST)).toBe(true);
+                expect(clear).not.toHaveBeenCalled();
+                expect(Almacenamiento.listar(PREFIJO_TEST)).toEqual([]);
+                expect(leerCrudo("localStorage", "planit:rc6-ajena")).toBe("\"intacta\"");
+
+                ORIGINAL.removeItem.call(REAL.localStorage, "planit:rc6-ajena");
+            });
+        });
+
+        describe("Errores de listado (key / length)", function () {
+            STORAGES.forEach(function (nombre) {
+                const otro = otroStorage(nombre);
+
+                it(`[RC6-16] listar() debería devolver las claves de ${otro} si leer ${nombre}.length lanza`, function () {
+                    sembrar(nombre, PREFIJO_TEST + "inaccesible", 1);
+                    sembrar(otro, PREFIJO_TEST + "visible", 2);
+                    spyOnProperty(Storage.prototype, "length", "get").and.callFake(function () {
+                        if (this === REAL[nombre]) throw crearSecurityError();
+                        return ORIGINAL.length.call(this);
+                    });
+
+                    expect(Almacenamiento.listar(PREFIJO_TEST)).toEqual([PREFIJO_TEST + "visible"]);
+                    expect(console.error).toHaveBeenCalled();
+                });
+
+                it(`[RC6-17] listar() debería devolver las claves de ${otro} si ${nombre}.key() lanza`, function () {
+                    sembrar(nombre, PREFIJO_TEST + "inaccesible", 1);
+                    sembrar(otro, PREFIJO_TEST + "visible", 2);
+                    fallarMetodoEn("key", nombre, new Error("Fallo de iteración simulado"));
+
+                    expect(Almacenamiento.listar(PREFIJO_TEST)).toEqual([PREFIJO_TEST + "visible"]);
+                    expect(console.error).toHaveBeenCalled();
+                });
+            });
+
+            it("[RC6-18] listar() debería devolver [] sin lanzar si key() falla en ambos storages", function () {
+                sembrar("localStorage", PREFIJO_TEST + "a", 1);
+                sembrar("sessionStorage", PREFIJO_TEST + "b", 2);
+                spyOn(Storage.prototype, "key").and.throwError(new Error("Fallo de iteración simulado"));
+
+                expect(function () { Almacenamiento.listar(PREFIJO_TEST); }).not.toThrow();
+                expect(Almacenamiento.listar(PREFIJO_TEST)).toEqual([]);
+            });
+        });
+
+        describe("Códigos alternativos de cuota excedida", function () {
+            const VARIANTES_CUOTA = [
+                {
+                    id: "RC6-19",
+                    navegador: "estándar W3C / Chromium / Firefox actual",
+                    crear: function () { return new DOMException("Quota exceeded", "QuotaExceededError"); },
+                    name: "QuotaExceededError",
+                    code: 22
+                },
+                {
+                    id: "RC6-20",
+                    navegador: "Firefox legacy (Gecko < 66)",
+                    crear: function () { return crearErrorLegacy("NS_ERROR_DOM_QUOTA_REACHED", 1014); },
+                    name: "NS_ERROR_DOM_QUOTA_REACHED",
+                    code: 1014
+                },
+                {
+                    id: "RC6-21",
+                    navegador: "WebKit/Safari legacy (incluye Safari privado: cuota 0)",
+                    crear: function () { return crearErrorLegacy("QUOTA_EXCEEDED_ERR", 22); },
+                    name: "QUOTA_EXCEEDED_ERR",
+                    code: 22
+                },
+                {
+                    id: "RC6-22",
+                    navegador: "Internet Explorer / Edge legacy (E_OUTOFMEMORY, number -2147024882)",
+                    crear: function () { return crearErrorLegacy("Error", 0, { number: -2147024882 }); },
+                    name: "Error",
+                    code: 0
+                }
+            ];
+
+            VARIANTES_CUOTA.forEach(function (variante) {
+                describe(`[${variante.id}] ${variante.navegador}`, function () {
+                    it(`el error simulado debería tener name "${variante.name}" y code ${variante.code}`, function () {
+                        const error = variante.crear();
+                        expect(error.name).toBe(variante.name);
+                        expect(error.code).toBe(variante.code);
+                    });
+
+                    it("guardar()/actualizar() deberían devolver false sin lanzar y loguear el error original", function () {
+                        const error = variante.crear();
+                        spyOn(Storage.prototype, "setItem").and.callFake(function () { throw error; });
+
+                        expect(function () { Almacenamiento.guardar(PREFIJO_TEST + "cuota", { a: 1 }); }).not.toThrow();
+                        expect(Almacenamiento.guardar(PREFIJO_TEST + "cuota", { a: 1 })).toBe(false);
+                        expect(Almacenamiento.actualizar(PREFIJO_TEST + "cuota", { a: 1 })).toBe(false);
+                        expect(console.error).toHaveBeenCalledWith(jasmine.any(String), error);
+                    });
+
+                    it("el valor previo de la clave debería quedar intacto (sin escritura parcial)", function () {
+                        sembrar("localStorage", PREFIJO_TEST + "cuota", "previo");
+                        const error = variante.crear();
+                        spyOn(Storage.prototype, "setItem").and.callFake(function () { throw error; });
+
+                        Almacenamiento.guardar(PREFIJO_TEST + "cuota", "nuevo");
+
+                        expect(Almacenamiento.cargar(PREFIJO_TEST + "cuota")).toBe("previo");
+                    });
+                });
+            });
+
+            STORAGES.forEach(function (nombre) {
+                it(`[RC6-23] la cuota excedida en ${nombre} no debería impedir leer, listar ni borrar`, function () {
+                    sembrar(nombre, PREFIJO_TEST + "lleno", "dato");
+                    fallarMetodoEn("setItem", nombre, new DOMException("Quota exceeded", "QuotaExceededError"));
+
+                    expect(Almacenamiento.listar(PREFIJO_TEST)).toEqual([PREFIJO_TEST + "lleno"]);
+                    if (nombre === "localStorage") {
+                        expect(Almacenamiento.cargar(PREFIJO_TEST + "lleno")).toBe("dato");
+                    }
+                    expect(Almacenamiento.eliminar(PREFIJO_TEST + "lleno")).toBe(true);
+                    expect(leerCrudo(nombre, PREFIJO_TEST + "lleno")).toBeNull();
+                });
+            });
+        });
+    });
+
     describe("Integración con js/models/ (serialización de un Evento completo)", function () {
         it("debería guardar y reconstruir un Evento con presupuesto e invitados vía toJSON/fromJSON", function () {
             const evento = new Evento("Evento de prueba", "boda", 500000);
@@ -157,6 +549,343 @@ describe("Almacenamiento", function () {
             expect(recuperado.nombre).toBe("Evento de prueba");
             expect(recuperado.presupuesto.calcularTotal()).toBe(35000);
             expect(recuperado.invitados.invitados.length).toBe(1);
+        });
+    });
+
+    /*
+     * RC7 (observación docente): serialización fallida, ciclos, BigInt, toJSON que lanza,
+     * aislamiento entre storages, ruteo efectivo a sessionStorage y limpieza sin residuos.
+     * Matriz de casos RC7-01 a RC7-21 documentada en js/test/testing-doc.md y en
+     * docs/03-specs/actividad-obligatoria-4/spec-tester-qa.md.
+     */
+    describe("Serialización extrema, aislamiento y ciclo de vida de almacenamiento (RC7)", function () {
+        // Referencias nativas capturadas ANTES de cualquier spyOn: permiten (a) que un
+        // callFake delegue en el comportamiento real y (b) que el afterEach limpie aunque
+        // un spec haya dejado Storage.prototype.removeItem configurado para lanzar.
+        const removeItemNativo = Storage.prototype.removeItem;
+        const setItemNativo = Storage.prototype.setItem;
+
+        // Claves fuera de PREFIJO_TEST que un spec siembra a propósito (claves "de terceros"
+        // o reales de la app). El afterEach las restaura a su valor previo o las borra.
+        let respaldosExternos;
+
+        function sembrarExterna(storage, clave, valorCrudo) {
+            if (!respaldosExternos.some(function (r) { return r.storage === storage && r.clave === clave; })) {
+                respaldosExternos.push({ storage: storage, clave: clave, previo: storage.getItem(clave) });
+            }
+            if (valorCrudo !== undefined) setItemNativo.call(storage, clave, valorCrudo);
+        }
+
+        function clavesConPrefijo(storage, prefijo) {
+            const claves = [];
+            for (let i = 0; i < storage.length; i++) {
+                const clave = storage.key(i);
+                if (clave !== null && clave.startsWith(prefijo)) claves.push(clave);
+            }
+            return claves;
+        }
+
+        function clavesAjenas(storage, prefijo) {
+            const snapshot = {};
+            for (let i = 0; i < storage.length; i++) {
+                const clave = storage.key(i);
+                if (clave !== null && !(prefijo && clave.startsWith(prefijo))) snapshot[clave] = storage.getItem(clave);
+            }
+            return snapshot;
+        }
+
+        beforeEach(function () {
+            respaldosExternos = [];
+            spyOn(console, "error");
+        });
+
+        afterEach(function () {
+            // Un spec puede haber dejado removeItem/setItem lanzando: se neutraliza el spy
+            // antes de que el afterEach externo llame a Almacenamiento.limpiar().
+            [Storage.prototype.removeItem, Storage.prototype.setItem].forEach(function (metodo) {
+                if (jasmine.isSpy(metodo)) metodo.and.callThrough();
+            });
+
+            [window.localStorage, window.sessionStorage].forEach(function (storage) {
+                clavesConPrefijo(storage, PREFIJO_TEST).forEach(function (clave) {
+                    removeItemNativo.call(storage, clave);
+                });
+            });
+
+            respaldosExternos.forEach(function (r) {
+                if (r.previo === null) removeItemNativo.call(r.storage, r.clave);
+                else setItemNativo.call(r.storage, r.clave, r.previo);
+            });
+        });
+
+        describe("Serialización fallida: ciclos, BigInt y toJSON() que lanza", function () {
+            it("RC7-01: guardar() con un ciclo directo (obj.self = obj) devuelve false sin lanzar y loguea el TypeError", function () {
+                const clave = PREFIJO_TEST + "ciclo-directo";
+                const nodo = { nombre: "nodo" };
+                nodo.self = nodo;
+
+                let resultado;
+                expect(function () { resultado = Almacenamiento.guardar(clave, nodo); }).not.toThrow();
+                expect(resultado).toBe(false);
+                expect(console.error).toHaveBeenCalledWith(jasmine.any(String), jasmine.any(TypeError));
+                expect(localStorage.getItem(clave)).toBeNull();
+                expect(sessionStorage.getItem(clave)).toBeNull();
+            });
+
+            it("RC7-02: guardar() con un ciclo indirecto (a -> b -> c -> a) devuelve false y no deja la clave escrita", function () {
+                const clave = PREFIJO_TEST + "ciclo-indirecto";
+                const a = { id: "a" };
+                const b = { id: "b" };
+                const c = { id: "c" };
+                a.siguiente = b;
+                b.siguiente = c;
+                c.siguiente = a;
+
+                expect(Almacenamiento.guardar(clave, { raiz: a })).toBe(false);
+                expect(console.error).toHaveBeenCalledWith(jasmine.any(String), jasmine.any(TypeError));
+                expect(Almacenamiento.cargar(clave)).toBeNull();
+            });
+
+            it("RC7-03: guardar() con un ciclo que pasa por un array (lista.push(lista)) devuelve false", function () {
+                const clave = PREFIJO_TEST + "ciclo-array";
+                const lista = [1, 2];
+                lista.push(lista);
+
+                expect(Almacenamiento.guardar(clave, { lista: lista })).toBe(false);
+                expect(console.error).toHaveBeenCalledWith(jasmine.any(String), jasmine.any(TypeError));
+                expect(localStorage.getItem(clave)).toBeNull();
+            });
+
+            it("RC7-04: un guardado fallido por ciclo no pisa el valor válido previo de la misma clave", function () {
+                const clave = PREFIJO_TEST + "ciclo-preserva";
+                expect(Almacenamiento.guardar(clave, { version: 1 })).toBe(true);
+
+                const ciclico = { version: 2 };
+                ciclico.yo = ciclico;
+
+                expect(Almacenamiento.guardar(clave, ciclico)).toBe(false);
+                expect(Almacenamiento.cargar(clave)).toEqual({ version: 1 });
+            });
+
+            it("RC7-05: guardar() con un BigInt en la raíz devuelve false y loguea el TypeError de JSON.stringify", function () {
+                const clave = PREFIJO_TEST + "bigint-raiz";
+
+                let resultado;
+                expect(function () { resultado = Almacenamiento.guardar(clave, BigInt(10)); }).not.toThrow();
+                expect(resultado).toBe(false);
+                expect(console.error).toHaveBeenCalledWith(jasmine.any(String), jasmine.any(TypeError));
+                expect(localStorage.getItem(clave)).toBeNull();
+            });
+
+            it("RC7-06: guardar() con un BigInt anidado (objeto > array > BigInt) devuelve false sin residuos", function () {
+                const clave = PREFIJO_TEST + "bigint-anidado";
+                const valor = { presupuesto: { montos: [1000, BigInt("9007199254740993")] } };
+
+                expect(Almacenamiento.guardar(clave, valor)).toBe(false);
+                expect(console.error).toHaveBeenCalledWith(jasmine.any(String), jasmine.any(TypeError));
+                expect(localStorage.getItem(clave)).toBeNull();
+                expect(sessionStorage.getItem(clave)).toBeNull();
+            });
+
+            it("RC7-07: guardar() con un toJSON() que lanza un error propio devuelve false y loguea ese mismo error", function () {
+                class ErrorDeSerializacion extends Error {}
+                const errorEsperado = new ErrorDeSerializacion("toJSON roto a propósito");
+                const clave = PREFIJO_TEST + "tojson-lanza";
+                const valor = { toJSON: function () { throw errorEsperado; } };
+
+                let resultado;
+                expect(function () { resultado = Almacenamiento.guardar(clave, valor); }).not.toThrow();
+                expect(resultado).toBe(false);
+                expect(console.error).toHaveBeenCalledWith(jasmine.any(String), errorEsperado);
+                expect(localStorage.getItem(clave)).toBeNull();
+            });
+
+            it("RC7-08: un toJSON() que lanza en un objeto anidado no corrompe el valor previo de la clave", function () {
+                const clave = PREFIJO_TEST + "tojson-anidado";
+                expect(Almacenamiento.guardar(clave, ["original"])).toBe(true);
+
+                const valor = { items: [{ ok: true }, { toJSON: function () { throw new RangeError("fallo anidado"); } }] };
+
+                expect(Almacenamiento.guardar(clave, valor)).toBe(false);
+                expect(console.error).toHaveBeenCalledWith(jasmine.any(String), jasmine.any(RangeError));
+                expect(Almacenamiento.cargar(clave)).toEqual(["original"]);
+            });
+
+            it("RC7-09: actualizar() (alias de guardar) hereda el mismo manejo seguro ante un ciclo", function () {
+                const clave = PREFIJO_TEST + "actualizar-ciclo";
+                const ciclico = {};
+                ciclico.ref = ciclico;
+
+                let resultado;
+                expect(function () { resultado = Almacenamiento.actualizar(clave, ciclico); }).not.toThrow();
+                expect(resultado).toBe(false);
+                expect(localStorage.getItem(clave)).toBeNull();
+            });
+
+            it("RC7-10: tras una serialización fallida el módulo sigue operativo para la siguiente escritura", function () {
+                const claveFallida = PREFIJO_TEST + "fallo-previo";
+                const claveSana = PREFIJO_TEST + "escritura-posterior";
+
+                expect(Almacenamiento.guardar(claveFallida, { n: BigInt(1) })).toBe(false);
+                expect(Almacenamiento.guardar(claveSana, { n: 1 })).toBe(true);
+                expect(Almacenamiento.cargar(claveSana)).toEqual({ n: 1 });
+            });
+        });
+
+        describe("Aislamiento efectivo entre localStorage y sessionStorage", function () {
+            it("RC7-11: guardar() en localStorage no crea ni modifica una clave homónima sembrada en sessionStorage", function () {
+                const clave = PREFIJO_TEST + "homonima";
+                setItemNativo.call(sessionStorage, clave, JSON.stringify("valor-de-session"));
+
+                expect(Almacenamiento.guardar(clave, "valor-de-local")).toBe(true);
+
+                expect(localStorage.getItem(clave)).toBe(JSON.stringify("valor-de-local"));
+                expect(sessionStorage.getItem(clave)).toBe(JSON.stringify("valor-de-session"));
+                expect(Almacenamiento.cargar(clave)).toBe("valor-de-local");
+            });
+
+            it("RC7-12: un valor presente solo en sessionStorage no se filtra a cargar() (sin fallback cruzado)", function () {
+                const clave = PREFIJO_TEST + "solo-session";
+                setItemNativo.call(sessionStorage, clave, JSON.stringify({ origen: "session" }));
+
+                expect(localStorage.getItem(clave)).toBeNull();
+                expect(Almacenamiento.cargar(clave)).toBeNull();
+            });
+
+            it("RC7-13: una serie de guardar/actualizar/cargar no altera ninguna entrada de sessionStorage", function () {
+                const antes = clavesAjenas(sessionStorage);
+
+                Almacenamiento.guardar(PREFIJO_TEST + "serie-1", 1);
+                Almacenamiento.actualizar(PREFIJO_TEST + "serie-1", 2);
+                Almacenamiento.guardar(PREFIJO_TEST + "serie-2", { a: [1, 2] });
+                Almacenamiento.cargar(PREFIJO_TEST + "serie-1");
+                Almacenamiento.obtener(PREFIJO_TEST + "serie-2");
+
+                expect(clavesAjenas(sessionStorage)).toEqual(antes);
+            });
+        });
+
+        describe("Ruteo efectivo hacia window.sessionStorage", function () {
+            it("RC7-14: guardar() escribe exclusivamente sobre window.localStorage, incluida planit:detalles-evento", function () {
+                // planit:detalles-evento es la clave cuyo ruteo a sessionStorage se corrigió antes
+                // del merge de PR #108: se fija acá como regresión del ruteo estricto.
+                sembrarExterna(localStorage, "planit:detalles-evento");
+                sembrarExterna(sessionStorage, "planit:detalles-evento");
+                const spySetItem = spyOn(Storage.prototype, "setItem").and.callThrough();
+
+                Almacenamiento.guardar(PREFIJO_TEST + "ruteo", "x");
+                Almacenamiento.actualizar("planit:detalles-evento", { fecha: "2026-11-14", ubicacion: "Pilar" });
+
+                expect(spySetItem.calls.count()).toBe(2);
+                spySetItem.calls.all().forEach(function (llamada) {
+                    expect(llamada.object).toBe(window.localStorage);
+                    expect(llamada.object).not.toBe(window.sessionStorage);
+                });
+            });
+
+            it("RC7-15: eliminar() invoca removeItem sobre window.sessionStorage y borra una clave que solo existe allí", function () {
+                const clave = PREFIJO_TEST + "eliminar-session";
+                setItemNativo.call(sessionStorage, clave, JSON.stringify("solo-en-session"));
+                const spyRemove = spyOn(Storage.prototype, "removeItem").and.callThrough();
+
+                expect(Almacenamiento.eliminar(clave)).toBe(true);
+
+                const destinos = spyRemove.calls.all().map(function (llamada) { return llamada.object; });
+                expect(destinos).toContain(window.sessionStorage);
+                expect(destinos).toContain(window.localStorage);
+                expect(sessionStorage.getItem(clave)).toBeNull();
+            });
+
+            it("RC7-16: listar() recorre window.sessionStorage e incluye claves que solo existen allí", function () {
+                const clave = PREFIJO_TEST + "listar-session";
+                setItemNativo.call(sessionStorage, clave, JSON.stringify(1));
+
+                expect(localStorage.getItem(clave)).toBeNull();
+                expect(Almacenamiento.listar(PREFIJO_TEST)).toContain(clave);
+            });
+
+            it("RC7-17: si removeItem falla solo en sessionStorage, eliminar() devuelve false sin lanzar y aun así borra de localStorage", function () {
+                const clave = PREFIJO_TEST + "fallo-session";
+                setItemNativo.call(localStorage, clave, JSON.stringify("local"));
+                setItemNativo.call(sessionStorage, clave, JSON.stringify("session"));
+                spyOn(Storage.prototype, "removeItem").and.callFake(function (k) {
+                    if (this === window.sessionStorage) throw new DOMException("bloqueado", "SecurityError");
+                    return removeItemNativo.call(this, k);
+                });
+
+                let resultado;
+                expect(function () { resultado = Almacenamiento.eliminar(clave); }).not.toThrow();
+                expect(resultado).toBe(false);
+                expect(localStorage.getItem(clave)).toBeNull();
+                expect(sessionStorage.getItem(clave)).toBe(JSON.stringify("session"));
+                expect(console.error).toHaveBeenCalled();
+            });
+        });
+
+        describe("Limpieza sin residuos", function () {
+            it("RC7-18: limpiar() borra todas las entradas del prefijo repartidas en ambos storages, sin huérfanos", function () {
+                for (let i = 0; i < 25; i++) {
+                    const clave = PREFIJO_TEST + "masivo-" + i;
+                    if (i % 3 !== 1) setItemNativo.call(localStorage, clave, JSON.stringify(i));
+                    if (i % 3 !== 0) setItemNativo.call(sessionStorage, clave, JSON.stringify(i));
+                }
+                expect(Almacenamiento.listar(PREFIJO_TEST).length).toBeGreaterThan(25);
+
+                expect(Almacenamiento.limpiar(PREFIJO_TEST)).toBe(true);
+
+                expect(clavesConPrefijo(localStorage, PREFIJO_TEST)).toEqual([]);
+                expect(clavesConPrefijo(sessionStorage, PREFIJO_TEST)).toEqual([]);
+                expect(Almacenamiento.listar(PREFIJO_TEST)).toEqual([]);
+            });
+
+            it("RC7-19: limpiar() no toca claves de terceros ni claves que solo se parecen al prefijo", function () {
+                const parecidas = ["otra-app:sesion", "planit:test", "xplanit:test-a", "PLANIT:TEST-a", "planit:testa"];
+                parecidas.forEach(function (clave) {
+                    sembrarExterna(localStorage, clave, "local-" + clave);
+                    sembrarExterna(sessionStorage, clave, "session-" + clave);
+                });
+                Almacenamiento.guardar(PREFIJO_TEST + "propia", 1);
+                setItemNativo.call(sessionStorage, PREFIJO_TEST + "propia-session", "1");
+                const ajenasLocal = clavesAjenas(localStorage, PREFIJO_TEST);
+                const ajenasSession = clavesAjenas(sessionStorage, PREFIJO_TEST);
+
+                expect(Almacenamiento.limpiar(PREFIJO_TEST)).toBe(true);
+
+                expect(clavesAjenas(localStorage, PREFIJO_TEST)).toEqual(ajenasLocal);
+                expect(clavesAjenas(sessionStorage, PREFIJO_TEST)).toEqual(ajenasSession);
+                parecidas.forEach(function (clave) {
+                    expect(localStorage.getItem(clave)).toBe("local-" + clave);
+                    expect(sessionStorage.getItem(clave)).toBe("session-" + clave);
+                });
+            });
+
+            it("RC7-20: limpiar() es idempotente: una segunda llamada devuelve true y no altera nada", function () {
+                Almacenamiento.guardar(PREFIJO_TEST + "idem", 1);
+                expect(Almacenamiento.limpiar(PREFIJO_TEST)).toBe(true);
+                const localTrasPrimera = clavesAjenas(localStorage);
+                const sessionTrasPrimera = clavesAjenas(sessionStorage);
+
+                expect(Almacenamiento.limpiar(PREFIJO_TEST)).toBe(true);
+
+                expect(clavesAjenas(localStorage)).toEqual(localTrasPrimera);
+                expect(clavesAjenas(sessionStorage)).toEqual(sessionTrasPrimera);
+            });
+
+            it("RC7-21: limpiar() devuelve false (residuo reportado) si una entrada no se pudo borrar de sessionStorage", function () {
+                const clave = PREFIJO_TEST + "residuo";
+                setItemNativo.call(localStorage, clave, JSON.stringify("local"));
+                setItemNativo.call(sessionStorage, clave, JSON.stringify("session"));
+                spyOn(Storage.prototype, "removeItem").and.callFake(function (k) {
+                    if (this === window.sessionStorage) throw new DOMException("bloqueado", "SecurityError");
+                    return removeItemNativo.call(this, k);
+                });
+
+                let resultado;
+                expect(function () { resultado = Almacenamiento.limpiar(PREFIJO_TEST); }).not.toThrow();
+                expect(resultado).toBe(false);
+                expect(localStorage.getItem(clave)).toBeNull();
+                expect(Almacenamiento.listar(PREFIJO_TEST)).toEqual([clave]);
+            });
         });
     });
 });
