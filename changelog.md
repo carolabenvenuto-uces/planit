@@ -2,15 +2,31 @@
 
 ## [Unreleased]
 
+## [Release Actividad Obligatoria N°4] - 2026-11-23
+
 ### Added
 - [feature/dev-eventos-dom] feature/dev-eventos-dom: [Dev Eventos + DOM] Refactorización de script.js como controlador, eventos y DOM para PlanIT - AO4 PR: [#104](https://github.com/carolabenvenuto-uces/planit/pull/104) | Issue: [#103](https://github.com/carolabenvenuto-uces/planit/issues/103) - @ValeriaMSilva (Desarrollador JS Eventos + DOM)
 - [feature/dev-poo-logica-negocio] feature/dev-poo-logica-negocio: [DEV POO] Clases del dominio en js/models/ y diagrama de clases - AO4 PR: [#102](https://github.com/carolabenvenuto-uces/planit/pull/102) | Issue: [#101](https://github.com/carolabenvenuto-uces/planit/issues/101) - @carolabenvenuto-uces (Desarrolladora JS POO - Lógica de Negocio)
 - [feature/dev-storage] feature/dev-storage: [DEV STORAGE] Capa de abstracción Local/Session Storage (js/utils/storage.js) - AO4 PR: [#108](https://github.com/carolabenvenuto-uces/planit/pull/108) | Issue: [#107](https://github.com/carolabenvenuto-uces/planit/issues/107) - @FacundoGuiraldes (Coordinador/DevOps + Tester QA + Desarrollador JS Storage)
 - [feature/tester-qa-specs] feature/tester-qa-specs: [Tester QA] Suites de testing para la arquitectura POO (models, storage y script) - AO4 PR: [#110](https://github.com/carolabenvenuto-uces/planit/pull/110) | Issue: [#106](https://github.com/carolabenvenuto-uces/planit/issues/106) - @FacundoGuiraldes (Coordinador/DevOps + Tester QA + Desarrollador JS Storage)
 - [feature/coord-devops-cuarta-entrega] feature/coord-devops-cuarta-entrega: [Coordinador/DevOps] Coordinación, versionado y documentación - AO4 PR: [#114](https://github.com/carolabenvenuto-uces/planit/pull/114) | Issue: [#105](https://github.com/carolabenvenuto-uces/planit/issues/105) - @FacundoGuiraldes (Coordinador/DevOps + Tester QA + Desarrollador JS Storage)
+- [fix/rc-issue68-migrar-modal-toast] fix(rc-issue68): migrar Modal de detalle y Toast a js/script.js PR: [#109](https://github.com/carolabenvenuto-uces/planit/pull/109) | Issue: [#68](https://github.com/carolabenvenuto-uces/planit/issues/68) - @FacundoGuiraldes (Coordinador / DevOps + Tester QA + Desarrollador JS Storage)
+- **Modelado de clases de dominio (POO):** 8 clases en `js/models/`: `Evento`, `Invitado`, `ListaInvitados`, `ItemContratado`, `Presupuesto`, `Proveedor`, `CatalogoProveedores` y `Validador`. ([#102](https://github.com/carolabenvenuto-uces/planit/pull/102))
 
 ### Fixed
-- [fix/rc-issue68-migrar-modal-toast] fix(rc-issue68): migrar Modal de detalle y Toast a js/script.js PR: [#109](https://github.com/carolabenvenuto-uces/planit/pull/109) | Issue: [#68](https://github.com/carolabenvenuto-uces/planit/issues/68) - @FacundoGuiraldes (Coordinador / DevOps + Tester QA + Desarrollador JS Storage)
+- **RC1:** Acreditar 5 reviews formales y diferenciar soporte conversacional ([#116](https://github.com/carolabenvenuto-uces/planit/pull/116)).
+- **RC2:** Documentar ejecución con automatización de navegador y nuevas capturas ([#117](https://github.com/carolabenvenuto-uces/planit/pull/117)).
+- **RC4 y RC5:** Incorporar 101 specs y validar cobertura total de ramas ([#118](https://github.com/carolabenvenuto-uces/planit/pull/118)).
+- **RC6:** Agregar 63 specs de resiliencia y corregir manejo de SecurityError en storage ([#119](https://github.com/carolabenvenuto-uces/planit/pull/119)).
+- **RC17, RC18 y RC19:** Normalizar títulos exactos de PR 104 y 108 y rol femenino ([#120](https://github.com/carolabenvenuto-uces/planit/pull/120)).
+- **RC7:** Agregar specs de serialización fallida, aislamiento y limpieza en storage ([#121](https://github.com/carolabenvenuto-uces/planit/pull/121)).
+- **RC8:** Incorporar evidencia y bitácora de ejecución en Agent Mode ([#122](https://github.com/carolabenvenuto-uces/planit/pull/122)).
+- **RC9, RC10 y RC11:** Eliminar datos estáticos, renderizar dinámicamente y desacoplar resumen financiero ([#123](https://github.com/carolabenvenuto-uces/planit/pull/123)).
+- **RC12:** Incorporar getters públicos y regenerar diagrama de clases ([#124](https://github.com/carolabenvenuto-uces/planit/pull/124)).
+- **RC13:** Acreditar ejecución en Agent Mode y trazabilidad de contratos en storage ([#125](https://github.com/carolabenvenuto-uces/planit/pull/125)).
+- **RC14, RC15 y RC16:** Incorporar y validar 13 specs de integración de modal, toast y recarga limpia ([#126](https://github.com/carolabenvenuto-uces/planit/pull/126)).
+- **RC20:** Des-ignorar y crear package.json, lockfile y documentar checkout limpio ([#127](https://github.com/carolabenvenuto-uces/planit/pull/127)).
+- **RC22:** Desacoplar almacenamiento del controlador mediante fachada ServicioPersistenciaEvento ([#128](https://github.com/carolabenvenuto-uces/planit/pull/128)).
 
 ## [Release Tercera Entrega] - 2026-11-01
 
