@@ -84,19 +84,19 @@ Como consecuencia, la suite se divide en 3 archivos con responsabilidades distin
 ```
 npm run test:screenshots
 ```
-(equivale a `node js/test/take-screenshots.js`; requiere los pasos 1 a 3 de la sección anterior). Genera 4 PNG en `js/test/screenshots/` (`ao4-general.png`, `ao4-models.png`, `ao4-storage.png`, `ao4-script.png`) abriendo `test-runner.html` con la librería `playwright` (la misma que usa `run-jasmine.js`) y recortando el elemento `.jasmine-suite` correspondiente a cada suite. **No se usó el servidor Playwright MCP** para generarlas (no estaba conectado en la sesión donde se escribió esta suite): el resultado visual es equivalente porque usa el mismo navegador Chromium y el mismo reporter HTML de Jasmine, pero queda documentada la salvedad porque la consigna pide puntualmente el MCP.
+Genera 4 PNG en `js/test/screenshots/` (`ao4-general.png`, `ao4-models.png`, `ao4-storage.png`, `ao4-script.png`) abriendo `test-runner.html` con la librería `playwright` (la misma que usa `run-jasmine.js`) y recortando el elemento `.jasmine-suite` correspondiente a cada suite.
 
-### Evidencia E2E con agente (corrección RC2)
-El 23/11/2026, GitHub Copilot en Modo Agente (VS Code) ejecutó de forma interactiva los 4 flujos sobre `http://localhost:5500/index.html` con sus herramientas de navegador integradas (`openBrowserPage`, `typeInPage`, `readPage`, `clickElement`, `runPlaywrightCode`, `screenshotPage`), en 22 invocaciones:
+### Prueba interactiva con el servidor oficial `@playwright/mcp` (RC27)
 
-| Captura | Flujo | Resultado |
-|---|---|---|
-| `01-crear-evento.png` | Crear evento ("Conferencia Tech 2026", 2027-06-15, $150.000) | ✅ Aprobado |
-| `02-presupuesto.png` | Presupuesto (Catering 120 → 100; subtotal $580.000 → $510.000) | ✅ Aprobado |
-| `03-catalogo.png` | Catálogo (filtro "Catering", 1 proveedor, "Sumar al Evento") | ✅ Aprobado |
-| `04-invitados.png` | Invitados (2 altas, en el DOM y en `planit:evento` de `localStorage`) | ✅ Aprobado |
+La evidencia de Playwright MCP se generó en una sesión real contra el servidor oficial **`@playwright/mcp`** 0.0.86, arrancado con:
 
-No se dispararon `alert()` ni `confirm()`, y la consola no registró errores de la aplicación (solo advertencias de terceros del reproductor de YouTube). **Salvedad:** esas herramientas son las integradas de Copilot, no las del servidor `@playwright/mcp` registrado en `.vscode/mcp.json`. El prompt, la secuencia completa de herramientas y la verificación están en `docs/03-specs/actividad-obligatoria-4/spec-tester-qa.md`, sección 3.1.
+```
+npx -y @playwright/mcp@latest --headless --browser chromium --output-dir .
+```
+
+Un cliente MCP (`js/test/mcp-evidence/mcp-session.mjs`, hecho con el SDK oficial `@modelcontextprotocol/sdk` sobre stdio) levanta `index.html` en `http://localhost:5500` y ejecuta 18 `tools/call` con los nombres canónicos del servidor: `browser_navigate`, `browser_snapshot`, `browser_click` (sobre `.btn-sumar-evento` y `.btn-ver-detalle`), `browser_wait_for`, `browser_evaluate`, `browser_take_screenshot`, `browser_console_messages` y `browser_close`. Verifica el Toast al sumar un servicio desde una tarjeta, el Modal de detalle completado con los `data-service-*` y el Toast al sumar desde el Modal.
+
+**Resultado: `PASS`, 6/6 aserciones** (23/11/2026). Todo queda en `js/test/mcp-evidence/`: log JSON completo con cada request y response, 3 capturas tomadas por el servidor, snapshots `.yml` y log de consola. La tabla de llamadas con entradas y salidas está en `docs/03-specs/actividad-obligatoria-4/spec-tester-qa.md`, sección 3.1.
 
 ---
 
@@ -619,8 +619,8 @@ Para comprobar que cada spec ataca la rama que dice la matriz se puede hacer una
 ## Alcance y Limitaciones
 
 - **Sin cobertura automatizada de código (Istanbul/nyc):** igual que en la AO3, la cobertura se estima revisando manualmente qué comportamiento ejercita cada test.
-- **Requiere conexión a internet** para cargar Jasmine y Bootstrap desde CDN. Sin Bootstrap, los specs de "Bootstrap presente" (INT-RC14-03/05, INT-RC15-01/02) fallan; los de "Bootstrap ausente" no dependen del CDN.
-- **El Modal de detalle de servicio y el Toast de confirmación** (migrados a `js/script.js` en PR #109, Issue #68) ya no son deuda de testing: los cubre el bloque "Integración - Controlador y UI (RC14, RC15, RC16)". Hasta esta actualización se habían verificado solo a mano con Playwright (PR #109), con el argumento de que las animaciones de Bootstrap eran difíciles de testear de forma determinística. Se resolvió esperando los eventos propios de Bootstrap (`shown.bs.modal`/`hidden.bs.modal`) en vez de usar esperas fijas, y con `jasmine.clock()` para el temporizador del Toast degradado.
+- **Requiere conexión a internet** para cargar Jasmine (y, si se agregara en el futuro, Bootstrap) desde CDN.
+- **El Modal de detalle de servicio y el Toast de confirmación** (migrados de `js/componentes-bootstrap.js` a `js/script.js` en PR #109, Issue #68) **no están en el fixture de `script.spec.js`**: `configurarComponentesBootstrap()` los omite sin error si no existen en el DOM, así que su ausencia no rompe la suite. Se decidió no agregarlos a la suite automatizada porque dependen del bundle de Bootstrap (animaciones de modal/toast con temporización propia, difícil de testear de forma determinística en Jasmine sin agregar esperas artificiales) y porque ya se verificaron manualmente con Playwright antes de abrir la PR #109 (ver esa PR para la evidencia: completado de datos del Modal desde `data-service-*`, Toast con el servicio correcto desde el Modal y desde una tarjeta directa). Esos mismos tres comportamientos quedan cubiertos por la sesión con el servidor `@playwright/mcp` (ver "Prueba interactiva con el servidor oficial `@playwright/mcp`"), que se corre aparte de `run-jasmine.js`. Dentro de la suite Jasmine siguen siendo deuda de testing documentada.
 - **El catálogo del fixture tiene 3 proveedores fijos** (los del mockup real). El caso de un catálogo extendido con nombres que colisionan entre categorías se prueba agregando un 4° proveedor hipotético dentro del test de regresión correspondiente, no como parte del fixture base.
 - Los tests son síncronos salvo INT-RC14-03 e INT-RC14-05, que son `async` porque esperan las transiciones del Modal de Bootstrap (`shown.bs.modal`/`hidden.bs.modal`). Ni los modelos ni el controlador son asíncronos.
 
@@ -650,7 +650,7 @@ Hallazgos al ejecutar las suites de integración con `npm test` (RC24–RC26, 23
 
 ---
 
-**Última actualización:** 23/11/2026 — RC24–RC26: ejecución verificada con `npm test` de las suites de integración (Modal, Toast, Persistencia), 330 specs, 0 fallas, código de salida `0`. Anterior: 23/11/2026, integración RC14–RC16; 22/11/2026, reescritura completa para la AO4.
+**Última actualización:** 23/11/2026: evidencia de la sesión con el servidor oficial `@playwright/mcp` (corrección RC27). Versión anterior: 22/11/2026, reescritura completa para la AO4.
 **Tester QA (AO4):** Facundo Guiraldes (@FacundoGuiraldes).
 **Colaboración con:** Desarrolladora JS POO - Carola Benvenuto (@carolabenvenuto-uces) · Desarrolladora JS Eventos + DOM - Valeria Silva (@ValeriaMSilva).
 **Versión AO3 (funciones `flujo*()` basadas en `prompt()`/`alert()`):** disponible en el historial de git de este archivo.
