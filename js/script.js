@@ -111,7 +111,11 @@ const PRESENTACION_ITEMS = Object.freeze({
  * modal). Proveedor modela nombre, categoría, precio y unidad; lo demás es vista.
  * Un proveedor sin entrada acá se renderiza igual, sin imagen ni descripción.
  */
-const RUTA_IMAGENES_CATALOGO = "./docs/01-mockup/actividad-obligatoria-2/";
+// La ruta se resuelve relativa a este archivo (js/script.js) y no a la página que
+// lo carga: así sirve igual desde index.html (raíz) y desde js/test/test-runner.html.
+const RUTA_IMAGENES_CATALOGO = document.currentScript && document.currentScript.src
+    ? new URL("../docs/01-mockup/actividad-obligatoria-2/", document.currentScript.src).href
+    : "./docs/01-mockup/actividad-obligatoria-2/";
 const PRESENTACION_PROVEEDORES = Object.freeze({
     "Gourmet Finger Food": {
         imagen: RUTA_IMAGENES_CATALOGO + "catalogo-gourmet-finger-food.jpg",
@@ -302,7 +306,7 @@ function persistirEvento(ui, detalles) {
  */
 function cargarEstadoInicial(ui) {
     try {
-        const estado = estadoApp.persistencia.cargar(() => crearEventoDesdeMarcado(ui));
+        const estado = estadoApp.persistencia.cargar(() => crearEventoInicial(ui));
         if (estado.datosDanados) {
             renderAvisoGlobal(ui, "Los datos guardados estaban dañados; se cargaron los datos de ejemplo.");
         }
@@ -715,6 +719,30 @@ function crearFilaPresupuesto(item, indice, idCantidad) {
 
     fila.append(celdaCategoria, celdaConcepto, celdaTipo, celdaCantidad, celdaPrecio, celdaSubtotal);
     return fila;
+}
+
+/**
+ * Proyecta en los inputs de cantidad las cantidades del Presupuesto del evento
+ * cargado (de storage o de la semilla). Si las filas del DOM no se corresponden
+ * con los ítems del modelo, las regenera desde el modelo; si se corresponden,
+ * solo copia cada cantidad, para que una carga nueva muestre lo persistido y no
+ * el valor inicial del marcado.
+ * @param {Object} ui - Referencias del DOM.
+ */
+function sincronizarCantidadesPresupuesto(ui) {
+    if (!ui.cuerpoPresupuesto) return;
+    const items = estadoApp.evento.presupuesto.items;
+    const filas = obtenerFilasPresupuesto(ui);
+
+    if (filas.length !== items.length) {
+        renderFilasPresupuesto(ui);
+        return;
+    }
+
+    filas.forEach((fila, indice) => {
+        const inputCantidad = fila.querySelector(".input-cantidad");
+        if (inputCantidad) inputCantidad.value = String(items[indice].cantidad);
+    });
 }
 
 /** @returns {HTMLTableRowElement[]} Filas de ítems generadas en el punto de montaje. */
@@ -1375,15 +1403,20 @@ function configurarToastConfirmacion() {
     const toastConfirmacionMensaje = document.getElementById("toastConfirmacionMensaje");
     const toastConfirmacionServicio = document.getElementById("toastConfirmacionServicio");
 
-    document.addEventListener("click", (evento) => {
-        const boton = evento.target.closest(".btn-sumar-evento");
-        if (!boton) return;
+    document.querySelectorAll(".btn-sumar-evento").forEach((boton) => {
+        boton.addEventListener("click", () => {
+            const titulo = boton.dataset.serviceTitle || "Servicio";
+            const precio = boton.dataset.servicePrice || "";
 
-        const titulo = boton.dataset.serviceTitle || "Servicio";
-        const precio = boton.dataset.servicePrice || "";
+            toastConfirmacionElement.dataset.serviceTitle = titulo;
+            toastConfirmacionElement.dataset.servicePrice = precio;
 
-        toastConfirmacionElement.dataset.serviceTitle = titulo;
-        toastConfirmacionElement.dataset.servicePrice = precio;
+            if (toastConfirmacionServicio) {
+                toastConfirmacionServicio.textContent = precio ? titulo + " · " + precio : titulo;
+            }
+            if (toastConfirmacionMensaje) {
+                toastConfirmacionMensaje.textContent = "Experiencia agregada a tu evento";
+            }
 
             mostrarToast(toastConfirmacionElement);
         });
