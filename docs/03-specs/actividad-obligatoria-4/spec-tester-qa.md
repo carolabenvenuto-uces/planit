@@ -293,6 +293,9 @@ Esto contradice el contrato que ya se testea para `guardar(clave, undefined)` (d
 - [x] Las tres suites ejecutadas con `node js/test/run-jasmine.js`, 0 fallas, resultado documentado (11 corridas con semillas distintas).
 - [x] `js/test/testing-doc.md` actualizado con la nueva estructura, instrucciones por módulo y métricas de cobertura.
 - [x] Bugs encontrados reportados como issues en GitHub — los 3 bugs de PR #104 están reportados como issues (#111, #112, #113), cerradas referenciando sus commits de fix.
+- [x] **(RC28)** Suite completa verificada en un checkout limpio (`npm ci` + `npm test`): `330 specs, 0 failures`, código de salida `0`. Están resueltos el `SyntaxError: Unexpected token ')'` de `js/script.js` y las 37 fallas (ver secciones 7 y 8).
+
+> Los conteos de los ítems anteriores (71, 19 y 21 specs; 11 corridas) corresponden al cierre original de la AO4. La distribución vigente es `models.spec.js` 174 + `storage.spec.js` 103 + `servicio-persistencia.spec.js` 17 + `script.spec.js` 36 = **330 specs**.
 
 ### 6. Ejecución reproducible por línea de comandos (corrección RC20)
 
@@ -330,9 +333,9 @@ npm test
 - [x] `package-lock.json` versionado, coherente con `package.json` (mismas versiones en la raíz del lockfile y en `devDependencies`).
 - [x] `package.json` y `package-lock.json` fuera de `.gitignore`.
 - [x] Procedimiento paso a paso desde `git clone` documentado aquí y en `js/test/testing-doc.md`.
-- [ ] Verificado en un clon limpio con `npm ci` y `npm test` (pendiente: la máquina donde se preparó esta corrección no tiene Node.js instalado; el lockfile se armó con los metadatos reales del registro npm para `playwright@1.64.1` y `playwright-core@1.64.1`, URL e `integrity` incluidas, pero `npm ci` todavía no se corrió sobre él).
+- [x] Verificado en un checkout limpio con `npm ci` y `npm test` (RC28, 23/11/2026). Se copió el proyecto a un directorio vacío, sin `node_modules/` ni `.git/`. `npm ci` terminó con exit `0` (instaló `playwright@1.64.1` y `playwright-core@1.64.1` desde el lockfile) y `npm test` dio `330 specs, 0 failures` con código de salida `0` en 3 corridas con semillas distintas. Ver sección 8.
 
-  *Nota (RC24–RC26):* `npm test` ya se ejecutó con Node.js v26.13.1 en el working copy de la rama `fix/qa-rc24-rc26-integration-suites-execution` (ver sección 7), con exit code `0`. Este ítem sigue sin tildar porque esa corrida no fue sobre un **clon limpio** con `npm ci`, que es lo que pide RC20.
+  *Historial:* hasta RC28 este ítem estaba sin marcar. Al principio no había Node.js en la máquina, y la corrida de RC24–RC26 (sección 7) se hizo en un working copy, no en un checkout limpio. La primera verificación del docente en checkout limpio dio `330 specs, 37 failures` y `pageerror: Unexpected token ')'`. La resolución está en las secciones 7 y 8.
 
 ### 7. Ejecución de las suites de integración: Modal, Toast y Persistencia (corrección RC24, RC25, RC26)
 
@@ -431,3 +434,35 @@ Detalle completo, con la tabla de causas, en `js/test/testing-doc.md`, sección 
 - [x] **RC26:** INT-RC16-01 a INT-RC16-03 (Persistencia y carga nueva) en verde.
 - [x] Causas de las fallas diagnosticadas, corregidas y documentadas aquí y en `js/test/testing-doc.md`.
 - [x] `js/test/testing-doc.md` actualizado con la evidencia ejecutable y el checklist correspondiente.
+
+### 8. Verificación sobre checkout limpio (corrección RC28)
+
+**Observación del docente (RC28):** *"npm ci ya funciona, pero la verificación real del checkout limpio produjo 330 specs, 37 failures y pageerror: Unexpected token ')'. La documentación todavía afirma 111 specs, 0 failures y deja el checklist de ejecución sin verificar. Corregir el código/suite y actualizar el resultado documentado con una corrida reproducible exitosa."*
+
+**Código y suite.** El `SyntaxError: Unexpected token ')'` (un `});` sobrante en `configurarToastConfirmacion()`, cerca de la línea 1390 de `js/script.js`) y las 37 fallas se corrigieron con los cambios de la sección 7. Para RC28 se volvió a verificar cada uno en el código:
+
+- `node --check js/script.js` termina sin errores.
+- El Toast usa **listeners directos por botón** `.btn-sumar-evento`.
+- Las **funciones faltantes** están repuestas: `sincronizarCantidadesPresupuesto(ui)` existe y el arranque llama a `crearEventoInicial(ui)`.
+- Las imágenes usan **rutas relativas** a `js/script.js` (`RUTA_IMAGENES_CATALOGO` con `document.currentScript.src`).
+- Los specs RC16 usan `CLAVES_STORAGE_CRUDAS` y `DATOS_SEMILLA`.
+
+**Corrida reproducible (23/11/2026).** Windows 11, Node.js v26.13.1, npm 11.20.0, Playwright 1.64.1.
+
+1. Checkout limpio, con el proyecto copiado a un directorio vacío sin `node_modules/` ni `.git/`: `npm ci` (exit `0`) y luego `npm test` 3 veces:
+   ```
+   330 specs, 0 failures, randomized with seed 88268 | exit=0
+   330 specs, 0 failures, randomized with seed 53521 | exit=0
+   330 specs, 0 failures, randomized with seed 01753 | exit=0
+   ```
+2. Working copy del repositorio: `npm test` 10 veces más. Las 10 corridas dieron `330 specs, 0 failures` con exit `0` (semillas 56751, 19238, 59239, 09448, 17951, 77036, 03448, 80995, 78955 y 96716).
+
+Ninguna corrida registró `Specs fallidos` ni `Errores de consola`. Las semillas cambian, pero el resultado es siempre el mismo.
+
+**Documentación.** En `js/test/testing-doc.md`, la tabla de métricas, que seguía mostrando 124 specs como total, pasa a la distribución vigente (174 + 103 + 17 + 36 = **330**). Los conteos de 109, 111, 124, 132 y 212 specs quedan marcados como históricos, y se agrega la sección "Verificación sobre checkout limpio (RC28)" con su checklist. En esta spec se marca el ítem de clon limpio de RC20 (sección 6) y se agrega el ítem RC28 al checklist de cierre (sección 5).
+
+**Criterio de aceptación de RC28:**
+- [x] `js/script.js` compila (`node --check`): el `SyntaxError: Unexpected token ')'` está resuelto.
+- [x] Las 37 fallas están resueltas: listeners directos, funciones faltantes, rutas relativas y specs RC16 actualizados.
+- [x] Checkout limpio verificado: `npm ci` + `npm test` → `330 specs, 0 failures`, código de salida `0`, en corridas repetidas con semillas distintas.
+- [x] `testing-doc.md` y esta spec documentan 330 specs como conteo vigente, sin afirmar 111 specs como estado actual.

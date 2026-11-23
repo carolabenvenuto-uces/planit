@@ -253,6 +253,9 @@ Bloque `describe("Integración - Controlador y UI (RC14, RC15, RC16)")` agregado
 ## Métricas de Cobertura
 
 ### Resumen General
+
+> **Estado vigente (RC28, 23/11/2026): 330 specs, 0 failures, código de salida `0`** con `npm test`, reproducible desde un checkout limpio con `npm ci`. Distribución y evidencia en [Verificación sobre checkout limpio (RC28)](#verificación-sobre-checkout-limpio-rc28). Las corridas que siguen (109, 111, 124, 132 y 212 specs) son **registro histórico** de estados anteriores de la suite y no describen el estado actual.
+
 Corrida con `node js/test/run-jasmine.js`, repetida 8 veces con semillas aleatorias distintas para descartar dependencia de orden entre specs (cada spec de `script.spec.js` restaura el fixture completo en su `beforeEach`):
 
 ```
@@ -297,17 +300,19 @@ Este método no captura `console.error`/`pageerror` como `run-jasmine.js`: queda
 
 Antes de esa corrida hubo una primera ejecución con 2 errores en RC15, ya corregidos (ver "Falla de la primera corrida en navegador" en la sección de `script.spec.js`).
 
-| Métrica | Valor |
+En ese momento la suite tenía 124 specs (`models.spec.js` 71, `storage.spec.js` 19, `script.spec.js` 34). Ese conteo, igual que el de 111 specs previo a RC14–RC16, queda solo como registro histórico. **La distribución vigente es la de la tabla de abajo** (corregida en RC28: la versión anterior de esta tabla seguía mostrando 124 como total).
+
+| Métrica | Valor vigente (RC28, `npm test`) |
 |---|---|
-| Total de Tests | 124 |
-| Tests Pasando | 124 ✅ |
+| Total de Tests | 330 |
+| Tests Pasando | 330 ✅ |
 | Tests Fallando | 0 ❌ |
 | Porcentaje de Éxito | 100% |
-| `models.spec.js` | 71 specs |
-| `storage.spec.js` | 19 specs |
-| `script.spec.js` | 34 specs (21 de los 4 flujos + 13 de integración RC14–RC16) |
-
-La tabla anterior a esta actualización (111 specs, 0 fallas, 11 corridas con `run-jasmine.js`) queda como registro de la suite previa a RC14–RC16.
+| Código de salida | `0` |
+| `models.spec.js` | 174 specs |
+| `storage.spec.js` (`Almacenamiento`) | 103 specs |
+| `servicio-persistencia.spec.js` (`ServicioPersistenciaEvento`, RC22) | 17 specs |
+| `script.spec.js` | 36 specs (23 de los 4 flujos y RC22 + 13 de integración RC14–RC16) |
 
 **Ampliación RC5 (corrección docente):** se agregaron 101 specs a `models.spec.js`. La suite queda en **212 specs** (172 + 19 + 21). El conteo es estático y se puede reproducir con `grep -c '^\s*it("' js/test/*.spec.js`.
 
@@ -391,8 +396,60 @@ Con esto también queda resuelta la salvedad pendiente de la corrida RC7 ("falta
 - [x] Sin dependencia de orden: 10 semillas aleatorias distintas, todas en verde.
 - [x] Causas de las fallas corregidas y documentadas (tabla de arriba y "Issues Conocidos").
 
+### Verificación sobre checkout limpio (RC28)
+
+> **Observación del docente (RC28):** *"npm ci ya funciona, pero la verificación real del checkout limpio produjo 330 specs, 37 failures y pageerror: Unexpected token ')'. La documentación todavía afirma 111 specs, 0 failures y deja el checklist de ejecución sin verificar. Corregir el código/suite y actualizar el resultado documentado con una corrida reproducible exitosa."*
+
+**Qué estaba mal en la documentación:** la sección de ejecución ya decía 330 specs, pero el resumen de esta sección seguía mostrando 124 (tabla de métricas), 111 y 212 specs sin aclarar que eran conteos viejos. Además, el ítem "Verificado en un clon limpio con `npm ci` y `npm test`" de `spec-tester-qa.md` (RC20) seguía sin marcar.
+
+**Resolución del `pageerror` y de las 37 fallas.** Los 37 failures eran los 36 specs de `script.spec.js` más el error global de carga. Se resolvieron con las correcciones de la [tabla de causas de RC24–RC26](#ejecución-verificada-de-las-suites-de-integración-rc24-rc25-rc26). Para RC28 se volvió a comprobar que cada una está presente en el código:
+
+| Falla observada | Corrección verificada en el código |
+|---|---|
+| `pageerror: SyntaxError: Unexpected token ')'` (`});` sobrante en `configurarToastConfirmacion()`, alrededor de la línea 1390 de `js/script.js`, en la zona entre el handler del Modal y el Toast) | Se quitó el `});` sobrante. `node --check js/script.js` termina sin errores. `configurarToastConfirmacion()` registra un **listener directo por botón** (`document.querySelectorAll(".btn-sumar-evento").forEach(...)`) en vez de delegar en `document`, y vuelve a escribir `toastConfirmacionServicio` y `dataset.serviceTitle/servicePrice`. |
+| `ReferenceError` en `DOMContentLoaded` por **funciones faltantes** (bucle de recargas del runner) | Se repuso `sincronizarCantidadesPresupuesto(ui)` y `cargarEstadoInicial()` llama a `crearEventoInicial(ui)`, la función que existe. |
+| 404 de imágenes del catálogo contados como `console.error` (**rutas relativas** a la página) | `RUTA_IMAGENES_CATALOGO` se resuelve con `new URL("../docs/...", document.currentScript.src)`, relativa a `js/script.js`. |
+| `ReferenceError`/`TypeError` en INT-RC16-01 a 03 | El spec usa `CLAVES_STORAGE_CRUDAS`, ubica la fila con `#cantidad-catering` y compara contra `DATOS_SEMILLA`. |
+
+**Corrida reproducible desde un checkout limpio (23/11/2026).** Windows 11, Node.js v26.13.1, npm 11.20.0, Playwright 1.64.1 (Chromium headless). El proyecto se copió a un directorio vacío, sin `node_modules/`, `.git/` ni otros archivos locales. Ahí se ejecutaron `npm ci` (exit `0`; instaló `playwright` y `playwright-core` desde `package-lock.json`) y luego `npm test`:
+
+```
+330 specs, 0 failures, randomized with seed 88268 | exit=0
+330 specs, 0 failures, randomized with seed 53521 | exit=0
+330 specs, 0 failures, randomized with seed 01753 | exit=0
+```
+
+Después se corrió `npm test` 10 veces más en el working copy del repositorio:
+
+```
+330 specs, 0 failures, randomized with seed 56751 | exit=0
+330 specs, 0 failures, randomized with seed 19238 | exit=0
+330 specs, 0 failures, randomized with seed 59239 | exit=0
+330 specs, 0 failures, randomized with seed 09448 | exit=0
+330 specs, 0 failures, randomized with seed 17951 | exit=0
+330 specs, 0 failures, randomized with seed 77036 | exit=0
+330 specs, 0 failures, randomized with seed 03448 | exit=0
+330 specs, 0 failures, randomized with seed 80995 | exit=0
+330 specs, 0 failures, randomized with seed 78955 | exit=0
+330 specs, 0 failures, randomized with seed 96716 | exit=0
+```
+
+Ninguna de las 13 corridas imprimió `Specs fallidos` ni `Errores de consola`. El orden de los specs cambia en cada corrida (semilla aleatoria de Jasmine), pero el resultado es siempre el mismo: 330 specs, 0 fallas, código de salida `0`.
+
+**Distribución de los 330 specs** (contada por Jasmine, `jasmine.getEnv().topSuite()`, agrupando por `describe` raíz): `models.spec.js` 174 + `storage.spec.js` 103 + `servicio-persistencia.spec.js` 17 + `script.spec.js` 36 = **330**. Los bloques `it(` escritos en el código suman 291 (174 + 64 + 17 + 36). La diferencia de 39 está en `storage.spec.js`, que genera parte de sus specs dentro de bucles. Por eso el conteo con `grep` no sirve para el total y el valor de referencia es el del reporter.
+
+**Checklist de ejecución RC28:**
+
+- [x] `node --check js/script.js` compila sin errores: el `SyntaxError: Unexpected token ')'` está resuelto.
+- [x] Las correcciones de las 37 fallas (listeners directos por botón, funciones faltantes, rutas relativas y specs RC16) están verificadas en el código.
+- [x] Suite verificada sobre un checkout limpio: `npm ci` + `npm test` → `330 specs, 0 failures`, código de salida `0`, sin errores de consola. `npm test` da el mismo resultado en todas las corridas (13 en total, con semillas distintas).
+- [x] Tabla de distribución y total global actualizados a 330 specs. Los conteos de 111/124/212 quedan marcados como históricos.
+
 ### Cobertura por Tipo de Test
-Conteo exacto (no aproximado) de `it()` por categoría, uno por uno:
+
+> **Tabla histórica (estado RC14–RC16, 124 specs).** No incluye los specs que se agregaron después: RC5 en `models.spec.js`, RC7 en `storage.spec.js`, los casos RC6 de `storage.spec.js` (varios generados por storage dentro de `forEach`) y la fachada de persistencia de RC22. El total vigente es **330**: ver [Verificación sobre checkout limpio (RC28)](#verificación-sobre-checkout-limpio-rc28).
+
+Conteo exacto (no aproximado) de `it()` por categoría en ese momento, uno por uno:
 
 | Tipo | Cantidad |
 |---|---|
@@ -407,7 +464,7 @@ Conteo exacto (no aproximado) de `it()` por categoría, uno por uno:
 | `storage.spec.js` — RC7: limpieza sin residuos (`RC7-18` a `RC7-21`) | 4 |
 | `script.spec.js` — Integración de controlador contra DOM (incluye 3 regresiones) | 21 |
 | `script.spec.js` — Integración Controlador y UI: Modal (RC14), Toast con y sin Bootstrap (RC15), carga nueva (RC16) | 13 |
-| **Total** | **124** |
+| **Total (histórico, RC14–RC16)** | **124** |
 
 ### Un obstáculo real durante la escritura de `script.spec.js`
 
@@ -601,7 +658,7 @@ No se excluye ninguna rama de los modelos. Quedan fuera tres situaciones que **n
 
 ### Reporte reproducible de cobertura (Chrome DevTools)
 
-La matriz anterior se armó a mano. Para verificarla con una herramienta, sin instalar nada (el proyecto no tiene `package.json`), se usa la cobertura por bloques de V8 que trae Chrome/Edge:
+La matriz anterior se armó a mano. Para verificarla con una herramienta, sin instalar nada más que el navegador, se usa la cobertura por bloques de V8 que trae Chrome/Edge:
 
 1. Abrir `js/test/test-runner.html` en Chrome o Edge (o con `npx http-server -p 8080`, ver [Ejecución de Tests](#ejecución-de-tests)).
 2. `F12` → menú `⋮` → *More tools* → **Coverage**. En el selector de tipo elegir **Per block** (no *Per function*: este último no distingue ramas dentro de un método).
@@ -650,7 +707,7 @@ Hallazgos al ejecutar las suites de integración con `npm test` (RC24–RC26, 23
 
 ---
 
-**Última actualización:** 23/11/2026 — RC24–RC26: ejecución verificada con `npm test` de las suites de integración (Modal, Toast, Persistencia), 330 specs, 0 fallas, código de salida `0`. Anterior: 23/11/2026, integración RC14–RC16; 22/11/2026, reescritura completa para la AO4.
+**Última actualización:** 23/11/2026 — RC28: suite verificada sobre checkout limpio (`npm ci` + `npm test`), 330 specs, 0 fallas, código de salida `0`; tabla de distribución y total global actualizados. Anterior: 23/11/2026, RC24–RC26: ejecución verificada con `npm test` de las suites de integración (Modal, Toast, Persistencia), 330 specs, 0 fallas, código de salida `0`. Anterior: 23/11/2026, integración RC14–RC16; 22/11/2026, reescritura completa para la AO4.
 **Tester QA (AO4):** Facundo Guiraldes (@FacundoGuiraldes).
 **Colaboración con:** Desarrolladora JS POO - Carola Benvenuto (@carolabenvenuto-uces) · Desarrolladora JS Eventos + DOM - Valeria Silva (@ValeriaMSilva).
 **Versión AO3 (funciones `flujo*()` basadas en `prompt()`/`alert()`):** disponible en el historial de git de este archivo.
