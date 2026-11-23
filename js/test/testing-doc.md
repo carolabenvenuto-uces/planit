@@ -80,8 +80,47 @@ Un `describe` por clase, con esta estructura repetida donde aplica: constructor 
 | `listar` | Filtra por prefijo (con y sin el default `"planit:"`); vacío sin coincidencias. |
 | `limpiar` | Borra todas las claves de un prefijo y lo refleja en el `boolean` devuelto; no afecta otros prefijos. |
 | Integración con `js/models/` | Un `Evento` completo (con `Presupuesto` e invitados) sobrevive un ciclo `guardar(evento.toJSON())` → `Evento.fromJSON(cargar(...))`. |
+| **RC7** — Serialización fallida | Ciclos directos, indirectos y a través de arrays; `BigInt` en la raíz y anidado; `toJSON()` que lanza (en la raíz y anidado); alias `actualizar()`; resiliencia después de un fallo (`RC7-01` a `RC7-10`). |
+| **RC7** — Aislamiento | `localStorage` y `sessionStorage` no se contaminan entre sí; sin *fallback* cruzado en `cargar()` (`RC7-11` a `RC7-13`). |
+| **RC7** — Ruteo | Escrituras estrictamente a `localStorage` (incluida `planit:detalles-evento`); `eliminar()` y `listar()` alcanzan `window.sessionStorage`; fallo aislado en `sessionStorage` (`RC7-14` a `RC7-17`). |
+| **RC7** — Limpieza sin residuos | 25 claves repartidas en ambos storages; claves de terceros y claves parecidas al prefijo intactas; idempotencia; residuo reportado con `false` (`RC7-18` a `RC7-21`). |
 
-**19 specs.**
+**40 specs** (19 originales + 21 de RC7). Matriz completa en [Casos RC7](#casos-rc7-serialización-extrema-aislamiento-y-limpieza).
+
+### Casos RC7: serialización extrema, aislamiento y limpieza
+
+Corrección de la observación docente RC7: *"Agregar casos de serialización fallida, ciclos, BigInt, toJSON que lanza, aislamiento entre storages, ruteo efectivo a sessionStorage y limpieza sin residuos."* Los casos están en el bloque `describe("Serialización extrema, aislamiento y ciclo de vida de almacenamiento (RC7)")` de `storage.spec.js`. Cada `it()` empieza con su ID, así el ID se puede buscar en el reporter de Jasmine.
+
+| ID | Caso | Verificación |
+|---|---|---|
+| RC7-01 | Ciclo directo (`obj.self = obj`) | `false`, no lanza, `console.error` con `TypeError`, la clave no queda en ningún storage |
+| RC7-02 | Ciclo indirecto (`a → b → c → a`) | `false`, `TypeError`, `cargar()` → `null` |
+| RC7-03 | Ciclo a través de un array | `false`, `TypeError`, sin escritura |
+| RC7-04 | Ciclo sobre una clave con valor previo | `false`; el valor previo se conserva |
+| RC7-05 | `BigInt` en la raíz | `false`, no lanza, `TypeError` |
+| RC7-06 | `BigInt` anidado | `false`; sin residuos en ninguno de los dos storages |
+| RC7-07 | `toJSON()` lanza un error propio | `false`, no lanza; `console.error` recibe la misma instancia de error |
+| RC7-08 | `toJSON()` lanza `RangeError` en un objeto anidado | `false`; el valor previo se conserva |
+| RC7-09 | `actualizar()` con un ciclo | Mismo manejo que `guardar()` |
+| RC7-10 | Escritura válida después de una fallida | `true`, y se lee bien |
+| RC7-11 | Clave homónima en `sessionStorage` + `guardar()` | Solo cambia `localStorage`; `sessionStorage` queda intacto |
+| RC7-12 | Valor solo en `sessionStorage` | `cargar()` → `null` |
+| RC7-13 | Serie de `guardar`/`actualizar`/`cargar`/`obtener` | Snapshot completo de `sessionStorage` idéntico antes y después |
+| RC7-14 | Ruteo de `guardar()`/`actualizar()` (incluida `planit:detalles-evento`) | Todo `setItem` sobre `window.localStorage` |
+| RC7-15 | `eliminar()` de una clave solo en `sessionStorage` | `removeItem` invocado sobre `window.sessionStorage`; la clave desaparece |
+| RC7-16 | `listar()` con una clave solo en `sessionStorage` | Se incluye en el resultado |
+| RC7-17 | `removeItem` falla solo en `sessionStorage` | `eliminar()` → `false`, no lanza, borra igual de `localStorage` |
+| RC7-18 | 25 claves del prefijo en ambos storages | `limpiar()` → `true`; 0 claves del prefijo (recorrido nativo) |
+| RC7-19 | Terceros y claves parecidas (`otra-app:sesion`, `planit:test`, `xplanit:test-a`, `PLANIT:TEST-a`, `planit:testa`) | Intactas con su valor exacto; snapshots de claves ajenas idénticos |
+| RC7-20 | `limpiar()` dos veces | `true` y sin cambios (idempotente) |
+| RC7-21 | Una entrada no se puede borrar de `sessionStorage` | `limpiar()` → `false` (el residuo se reporta) |
+
+**Por qué estos casos:**
+
+- **`TypeError` en `JSON.stringify`:** los ciclos (directos, indirectos o a través de arrays) y los `BigInt` hacen que `JSON.stringify` lance `TypeError`. Un `toJSON()` que lanza, en cambio, propaga **su propio error**: por eso RC7-07 verifica la instancia exacta y RC7-08 usa `RangeError`, para probar que `guardar()` captura cualquier error de serialización y no solo `TypeError`. Como `storage.js` serializa antes de llamar a `setItem`, un fallo nunca deja una escritura parcial (RC7-04 y RC7-08 lo verifican conservando el valor previo).
+- **Aislamiento y ruteo:** `Almacenamiento` no expone un parámetro ni una bandera para elegir el storage. Enruta a `sessionStorage` solo las claves de `CLAVES_SESSION`, que hoy está vacío a propósito: `planit:detalles-evento` se movió a `localStorage` antes del merge de PR #108. Por eso el ruteo efectivo hacia `window.sessionStorage` se verifica en las operaciones que efectivamente lo usan (`eliminar`, `listar`, `limpiar`), comprobando con `spy.calls.all()[i].object` sobre qué instancia se invocó cada método. RC7-14 fija que las escrituras van estrictamente a `localStorage`.
+- **Limpieza sin residuos:** RC7-18 detecta el error clásico de borrar mientras se recorre por índice. RC7-19 compara snapshots `{clave: valor}` completos de todo lo que está fuera del prefijo.
+- **Idempotencia:** el bloque guarda `Storage.prototype.setItem/removeItem` nativos antes de cualquier `spyOn`. Su `afterEach` neutraliza los spies que hayan quedado lanzando, borra con los métodos nativos todas las claves `planit:test-` de ambos storages y restaura cada clave externa sembrada (terceros y `planit:detalles-evento`) a su valor previo.
 
 ### `script.spec.js` — Controlador de UI y eventos (PR #104)
 
@@ -124,14 +163,27 @@ Tras la review de Carola a PR #110 se agregaron 2 specs (storage lleno en `stora
 111 specs, 0 failures, randomized with seed 47556
 ```
 
+Con la corrección RC7 se agregaron 21 specs a `storage.spec.js`. En la máquina donde se hizo la corrección no había Node.js, así que `test-runner.html` se ejecutó con Chrome headless (`--headless=new --virtual-time-budget=20000 --dump-dom`, leyendo el banner de Jasmine del DOM), con 6 semillas:
+
+```
+132 specs, 0 failures, randomized with seed 44244
+132 specs, 0 failures, randomized with seed 11111
+132 specs, 0 failures, randomized with seed 22222
+132 specs, 0 failures, randomized with seed 33333
+132 specs, 0 failures, randomized with seed 44444
+132 specs, 0 failures, randomized with seed 55555
+```
+
+Este método no captura `console.error`/`pageerror` como `run-jasmine.js`: queda pendiente una corrida con `node js/test/run-jasmine.js` para confirmar el código de salida `0`.
+
 | Métrica | Valor |
 |---|---|
-| Total de Tests | 111 |
-| Tests Pasando | 111 ✅ |
+| Total de Tests | 132 |
+| Tests Pasando | 132 ✅ |
 | Tests Fallando | 0 ❌ |
 | Porcentaje de Éxito | 100% |
 | `models.spec.js` | 71 specs |
-| `storage.spec.js` | 19 specs |
+| `storage.spec.js` | 40 specs (19 + 21 de RC7) |
 | `script.spec.js` | 21 specs |
 
 ### Cobertura por Tipo de Test
@@ -143,8 +195,12 @@ Conteo exacto (no aproximado) de `it()` por categoría, uno por uno:
 | `models.spec.js` — Validación de errores (`toThrowError`) | 14 |
 | `models.spec.js` — Serialización (`toJSON`/`fromJSON`) | 15 |
 | `storage.spec.js` — CRUD y manejo de errores de `Almacenamiento` | 19 |
+| `storage.spec.js` — RC7: serialización fallida (`RC7-01` a `RC7-10`) | 10 |
+| `storage.spec.js` — RC7: aislamiento entre storages (`RC7-11` a `RC7-13`) | 3 |
+| `storage.spec.js` — RC7: ruteo efectivo a `sessionStorage` (`RC7-14` a `RC7-17`) | 4 |
+| `storage.spec.js` — RC7: limpieza sin residuos (`RC7-18` a `RC7-21`) | 4 |
 | `script.spec.js` — Integración de controlador contra DOM (incluye 3 regresiones) | 21 |
-| **Total** | **111** |
+| **Total** | **132** |
 
 ### Un obstáculo real durante la escritura de `script.spec.js`
 
@@ -172,9 +228,12 @@ No se encontraron bugs nuevos durante esta ronda de testing (modelos, storage y 
 
 Un 4° hallazgo (el ruteo de `planit:detalles-evento` a `sessionStorage` en vez de `localStorage`) se encontró y corrigió en `feature/dev-storage` antes del merge de PR #108 (ver `docs/03-specs/actividad-obligatoria-4/spec-dev-storage.md`, MOMENTO 2); no se reporta como issue de GitHub porque se corrigió en la misma rama antes de integrarse.
 
+**Hallazgo de la corrección RC7 (pendiente de reportar como issue):** `Almacenamiento.guardar()` devuelve `true` cuando el valor es algo que `JSON.stringify` convierte en `undefined` **sin lanzar** (una función, un `Symbol` o un objeto cuyo `toJSON()` devuelve `undefined`). En ese caso `setItem` guarda el texto literal `"undefined"` y el siguiente `cargar()` devuelve `null`. Se verificó en Chrome (`guardar=true crudo=undefined cargar=null` en los tres casos). Contradice el contrato ya testeado de `guardar(clave, undefined)` → `false`. No se agregó como spec porque fallaría y la corrección es de `js/utils/storage.js`, fuera del alcance de RC7. Corrección sugerida: devolver `false` si `typeof JSON.stringify(valor) !== "string"`.
+
 ---
 
-**Última actualización:** 22/11/2026 — reescritura completa para la AO4.
+**Última actualización:** 23/11/2026 — corrección RC7 (21 specs de serialización extrema, aislamiento y limpieza en `storage.spec.js`).
+**Reescritura completa para la AO4:** 22/11/2026.
 **Tester QA (AO4):** Facundo Guiraldes (@FacundoGuiraldes).
 **Colaboración con:** Desarrolladora JS POO - Carola Benvenuto (@carolabenvenuto-uces) · Desarrolladora JS Eventos + DOM - Valeria Silva (@ValeriaMSilva).
 **Versión AO3 (funciones `flujo*()` basadas en `prompt()`/`alert()`):** disponible en el historial de git de este archivo.
