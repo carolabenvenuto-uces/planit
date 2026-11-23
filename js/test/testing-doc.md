@@ -35,7 +35,7 @@ Como consecuencia, la suite se divide en 3 archivos con responsabilidades distin
 
 ### Pasos para Ejecutar
 1. Abrir `js/test/test-runner.html` en el navegador (doble clic o arrastrándolo). Si el navegador bloquea archivos locales, levantar un servidor desde la raíz del repositorio con `npx http-server -p 8080` y abrir `http://localhost:8080/js/test/test-runner.html`.
-2. El runner carga, en orden: `js/models/*.js`, `js/utils/storage.js`, `js/script.js` (código a testear), y luego `models.spec.js`, `storage.spec.js`, `script.spec.js` (las 3 suites). `script.js` arranca automáticamente al cargar la página (`DOMContentLoaded`) contra el fixture de DOM embebido en el propio `test-runner.html`; cada test de `script.spec.js` restaura ese fixture a un estado conocido en su `beforeEach` (función `restaurarEstadoInicial()`), así el orden aleatorio de Jasmine no afecta el resultado.
+2. El runner carga, en orden: el bundle de Bootstrap 5.3.3 (misma URL e integridad que `index.html`, necesario para los specs de integración RC14/RC15), `js/models/*.js`, `js/utils/storage.js`, `js/script.js` (código a testear), y luego `models.spec.js`, `storage.spec.js`, `script.spec.js` (las 3 suites). `script.js` arranca automáticamente al cargar la página (`DOMContentLoaded`) contra el fixture de DOM embebido en el propio `test-runner.html`; cada test de `script.spec.js` restaura ese fixture a un estado conocido en su `beforeEach` (función `restaurarEstadoInicial()`), así el orden aleatorio de Jasmine no afecta el resultado.
 3. Verificar resultados en la interfaz de Jasmine (verde = pasando, rojo = fallando).
 
 ### Ejecución reproducible por línea de comandos
@@ -159,7 +159,7 @@ Corrección de la observación docente RC7: *"Agregar casos de serialización fa
 
 ### `script.spec.js` — Controlador de UI y eventos (PR #104)
 
-Fixture de DOM en `test-runner.html`: subconjunto de `index.html` con los mismos `id`/`data-*` que lee `obtenerReferenciasUI()`, con los 3 proveedores y los 5 ítems de presupuesto reales del mockup. No incluye el Modal de detalle ni el Toast de confirmación (ver "Alcance y Limitaciones").
+Fixture de DOM en `test-runner.html`: subconjunto de `index.html` con los mismos `id`/`data-*` que lee `obtenerReferenciasUI()`, con los 3 proveedores y los 5 ítems de presupuesto reales del mockup. El Modal de detalle y el Toast de confirmación no están en el fixture base: los specs RC14/RC15 los montan en un sandbox propio (ver "Integración - Controlador y UI" más abajo).
 
 | Flujo | Casos cubiertos |
 |---|---|
@@ -169,6 +169,48 @@ Fixture de DOM en `test-runner.html`: subconjunto de `index.html` con los mismos
 | 4. Gestionar invitados | Alta válida (feedback + métricas); botón deshabilitado con nombre vacío; métricas tras eliminar; **regresión**: dos invitados con el mismo nombre se distinguen por posición al eliminar, no se mezclan (bug corregido en PR #104, ronda 2); persistencia tras agregar. |
 
 **21 specs.** Los tres casos marcados "regresión" reproducen exactamente los 3 bugs que se encontraron y corrigieron durante el code review de PR #104, ahora reportados y cerrados como issues de GitHub: [#111](https://github.com/carolabenvenuto-uces/planit/issues/111), [#112](https://github.com/carolabenvenuto-uces/planit/issues/112), [#113](https://github.com/carolabenvenuto-uces/planit/issues/113). Quedan en la suite para que una futura regresión los vuelva a detectar automáticamente.
+
+#### Integración - Controlador y UI (RC14, RC15, RC16)
+
+Bloque `describe("Integración - Controlador y UI (RC14, RC15, RC16)")` agregado para atender las observaciones docentes RC14 a RC16. Cada `it()` lleva su identificador al inicio del nombre (`INT-RC14-01`, etc.), que es el que se usa en la matriz y en el reporter de Jasmine.
+
+| ID | Observación | Escenario | Disparo | Verificación |
+|---|---|---|---|---|
+| INT-RC14-01 | RC14 | Datos del servicio en el Modal | `show.bs.modal` con `relatedTarget` = "Ver detalle" de Flores Pilar | Título, descripción, capacidad, duración, incluye y precio iguales a los `data-service-*` del disparador; `src` y `alt` de la imagen (alt no vacío). |
+| INT-RC14-02 | RC14 | Evento sin disparador | `show.bs.modal` sin `relatedTarget` | El Modal y el botón "Sumar al Evento" no se modifican. |
+| INT-RC14-03 | RC14 | Accesibilidad y foco (Bootstrap real) | clic en "Ver detalle" (data-api de Bootstrap) → `shown.bs.modal` → `hide()` → `hidden.bs.modal` | `role="dialog"`, `aria-modal="true"`, sin `aria-hidden` mientras está abierto; `aria-labelledby` apunta al título con el servicio; foco dentro del Modal; al cerrar vuelve `aria-hidden="true"` y el foco regresa al disparador. |
+| INT-RC14-04 | RC14 | Propagación al botón del Modal | dos `show.bs.modal` seguidos (Gourmet → Flores) | El `.btn-sumar-evento` del Modal tiene título y precio del último proveedor abierto, sin arrastrar datos del anterior. |
+| INT-RC14-05 | RC14 | Propagación de punta a punta | abrir con Bootstrap real → clic en "Sumar al Evento" del Modal | El Toast muestra "Gourmet Finger Food · $3.500 / pax" y el Modal se cierra (`data-bs-dismiss`). |
+| INT-RC15-01 | RC15 | Bootstrap presente, tarjetas | clic en cada uno de los 3 `.btn-sumar-evento` de las tarjetas | `bootstrap.Toast.getOrCreateInstance(#toastConfirmacion)` y `Toast.prototype.show` invocados (1, 2, 3 veces); texto del servicio y mensaje de éxito; clase `show`. |
+| INT-RC15-02 | RC15 | Bootstrap presente, Modal | `show.bs.modal` (DJ Lucas) → clic en el `.btn-sumar-evento` del Modal | `Toast.show` invocado una vez con "DJ Lucas & Sonido · $8.000 / hora". |
+| INT-RC15-03 | RC15 | Bootstrap ausente, tarjetas | `window.bootstrap = undefined` **antes** de montar los componentes → clic en cada botón | Sin errores en `window` ni `console.error`; Toast con clase `show`, texto correcto y `role="status"`/`aria-live="polite"`; se oculta al vencer `data-bs-delay` (4000 ms, con `jasmine.clock()`). |
+| INT-RC15-04 | RC15 | Bootstrap ausente, Modal | `show.bs.modal` (Flores Pilar) → clic en el botón del Modal | Sin errores; Toast degradado con "Flores Pilar · $70.000 / base". |
+| INT-RC15-05 | RC15 | Bootstrap ausente, clics seguidos | clic → 3000 ms → otro clic → 3000 ms → 1000 ms | El segundo clic reinicia el temporizador: sigue visible a los 6000 ms y se oculta recién a los 7000 ms. |
+| INT-RC16-01 | RC16 | Ciclo de vida completo | ver detalle abajo | El DOM reconstruido refleja lo persistido (ver detalle abajo). |
+| INT-RC16-02 | RC16 | Control: carga nueva sin datos | storage vacío → reinicio → `DOMContentLoaded` | Se muestran los datos del marcado (3 invitados, total $580.000): confirma que lo que restaura INT-RC16-01 sale del storage y no del fixture. |
+| INT-RC16-03 | RC16 | Carga nueva con datos inválidos | `planit:evento` con un tipo inexistente → reinicio → `DOMContentLoaded` | Sin errores; aviso "datos dañados" visible y la app cae en los datos de ejemplo. |
+
+**Ciclo de vida de INT-RC16-01** (los 5 pasos pedidos por RC16):
+
+1. **Modificar desde la UI:** alta de "Lucía Fernández" como Confirmado por el formulario, cantidad de Catering a 150 (evento `input`) y ubicación nueva guardada con "Guardar Cambios".
+2. **Verificar lo grabado:** se lee `localStorage` en crudo con `JSON.parse(localStorage.getItem(...))`, sin pasar por `Almacenamiento`, para no validar el módulo con sí mismo: cantidad 150 en el ítem Catering, la invitada en `invitados.invitados` y la ubicación en `planit:detalles-evento`.
+3. **Reiniciar memoria y DOM:** `reiniciarMemoriaYDOM()` pone `estadoApp.evento`/`catalogo` en `null`, vacía `tarjetasCatalogo` y reemplaza los 11 nodos del fixture por nodos nuevos parseados desde su `outerHTML` original, capturado cuando se carga `script.spec.js` (antes de `DOMContentLoaded`). Antes de seguir se comprueba que no queda rastro: cantidad 120, sin la fila de Lucía, ubicación original y total vacío.
+4. **Arranque:** `document.dispatchEvent(new Event("DOMContentLoaded"))`, el mismo disparador que usa `index.html` (no se llama a funciones internas a mano).
+5. **Verificar la reconstrucción:** instancia de `Evento` nueva (no la anterior); input de Catering en 150, subtotal "$525.000", subtotal general y total "$685.000", alerta "dentro del presupuesto"; fila de Lucía con badge "Confirmado" (`badge-confirmado`) y acción "Marcar pendiente"; métricas "Confirmados: 3"/"Pendientes: 1"; ubicación restaurada.
+
+**Por qué hace falta el ciclo completo y no alcanzan los round trips de `storage.spec.js`:** el round trip unitario (`guardar(evento.toJSON())` → `Evento.fromJSON(cargar())`) prueba que el **dato** sobrevive, pero no que la **aplicación** lo use al arrancar. Un fallo en `cargarEventoInicial()`, en `sincronizarCantidadesPresupuesto()`, en `sincronizarFormularioEvento()` (la ruta de `planit:detalles-evento`) o en el render inicial pasaría inadvertido: el storage tendría los datos correctos y el usuario igual vería el mockup. Por eso el test descarta todo lo que vive en memoria y en el DOM, y solo deja el storage como fuente posible. INT-RC16-02 es el control negativo: sin storage la misma rutina muestra el fixture, así que lo que restaura INT-RC16-01 sale del storage y no de valores que hayan quedado en el DOM.
+
+**Por qué se prueba Bootstrap ausente (RC15):** Bootstrap se carga desde un CDN externo; si el CDN cae, se bloquea o la red lo filtra, el resto de la app (que es JS propio) sigue funcionando y el botón "Sumar al Evento" no debe quedar mudo ni romper con un `ReferenceError`. Antes de este cambio `configurarToastConfirmacion()` hacía `return` si `bootstrap` no existía al iniciar, así que el clic no daba ningún feedback. Ahora los listeners se registran siempre y `mostrarToast()` (en `js/script.js`) consulta Bootstrap **en cada clic**: si está, usa `bootstrap.Toast`; si no, aplica la clase `show` del CSS de Bootstrap y oculta el Toast después del mismo `data-bs-delay`. El contenedor ya es `role="status"` + `aria-live="polite"`, así que el mensaje se anuncia a lectores de pantalla en ambos casos. INT-RC15-03 quita `window.bootstrap` **antes** de montar los componentes, para cubrir también el caso de que Bootstrap no esté desde el arranque.
+
+**Aislamiento:** el sandbox de RC14/RC15 se monta en `beforeEach` y se desmonta en un `afterEach` asíncrono. Ahí espera 50 ms a que terminen las transiciones en cola, después hace `dispose()` de las instancias de Modal y Toast y limpia `.modal-backdrop` y los estilos que Bootstrap pone en `<body>`. `window.bootstrap` se guarda en `beforeEach` y se restaura siempre en `afterEach`. En los specs de "Bootstrap ausente", un listener en el sandbox corta la propagación de los clics hacia `document`. Así los handlers *data-api* que el bundle ya registró (`data-bs-dismiss`, `data-bs-toggle`), que no dependen de `window.bootstrap`, no se ejecutan, y el escenario equivale de verdad a "Bootstrap no cargó".
+
+**Falla de la primera corrida en navegador (23/11/2026) y corrección:** al abrir `test-runner.html` aparecieron 2 errores `TypeError: Cannot read properties of null (reading 'classList') at bootstrap.bundle.min.js`, atribuidos a los dos `describe` de RC15.
+- **Lo que no era:** el `#toastConfirmacion` existe en el sandbox con el mismo `id`, clases y atributos que `index.html`.
+- **Causa:** `Toast.show()` deja en cola un callback de fin de transición que Bootstrap emula con un `setTimeout` de ~5 ms, porque el runner no carga su CSS. Ese callback hace `this._element.classList.remove("showing")`. El `afterEach` llamaba a `dispose()` en el mismo tick, y `dispose()` pone `_element` en `null`. Unos milisegundos después el callback fallaba, y Jasmine le atribuía el error a la suite que estuviera corriendo en ese momento.
+- **Corrección:** el desmontaje espera esas transiciones antes de llamar a `dispose()`. Como defensa adicional, `mostrarToast()` en `js/script.js` sale sin hacer nada si recibe un elemento nulo.
+- **Por qué no se agregó el Toast al fixture base de `test-runner.html`:** `configurarEventos()` registraría listeners sobre ese Toast al cargar la página y habría `id` duplicados con el sandbox. Las rutas de imagen del sandbox apuntan a `../../docs/...` (relativas a `js/test/`), porque con `./docs/...` la imagen daría 404 y `run-jasmine.js` lo contaría como `console.error`. Los nodos que RC16 reemplaza quedan con sus listeners registrados por el `DOMContentLoaded` del propio test, así que los specs que corren después siguen funcionando igual con `restaurarEstadoInicial()`.
+
+**Fuera de alcance de INT-RC14-01:** la observación menciona "categoría" y "badge" del servicio, pero el Modal de `index.html` no tiene esos campos (solo título, imagen, descripción, capacidad, duración, incluye, precio y el texto fijo "Proveedor verificado"), y el handler de `show.bs.modal` no los inyecta. El test verifica todos los campos que existen. Agregar categoría/badge al Modal sería un cambio de UI que le corresponde al rol Eventos + DOM, no a la suite.
 
 ---
 
@@ -213,13 +255,25 @@ Este método no captura `console.error`/`pageerror` como `run-jasmine.js`: queda
 
 | Métrica | Valor |
 |---|---|
-| Total de Tests | 132 |
-| Tests Pasando | 132 ✅ |
+**Corrida con la integración RC14–RC16 (23/11/2026):** el bloque de integración agrega **13 specs** a `script.spec.js` (5 de RC14, 5 de RC15 y 3 de RC16), y la suite pasa a **124 specs** (71 + 19 + 34). Se ejecutó en el navegador abriendo `js/test/test-runner.html` con Live Server (reporter HTML de Jasmine):
+
+```
+124 specs, 0 failures
+```
+
+Antes de esa corrida hubo una primera ejecución con 2 errores en RC15, ya corregidos (ver "Falla de la primera corrida en navegador" en la sección de `script.spec.js`).
+
+| Métrica | Valor |
+|---|---|
+| Total de Tests | 124 |
+| Tests Pasando | 124 ✅ |
 | Tests Fallando | 0 ❌ |
 | Porcentaje de Éxito | 100% |
 | `models.spec.js` | 71 specs |
-| `storage.spec.js` | 40 specs (19 + 21 de RC7) |
-| `script.spec.js` | 21 specs |
+| `storage.spec.js` | 19 specs |
+| `script.spec.js` | 34 specs (21 de los 4 flujos + 13 de integración RC14–RC16) |
+
+La tabla anterior a esta actualización (111 specs, 0 fallas, 11 corridas con `run-jasmine.js`) queda como registro de la suite previa a RC14–RC16.
 
 **Ampliación RC5 (corrección docente):** se agregaron 101 specs a `models.spec.js`. La suite queda en **212 specs** (172 + 19 + 21). El conteo es estático y se puede reproducir con `grep -c '^\s*it("' js/test/*.spec.js`.
 
@@ -246,7 +300,8 @@ Conteo exacto (no aproximado) de `it()` por categoría, uno por uno:
 | `storage.spec.js` — RC7: ruteo efectivo a `sessionStorage` (`RC7-14` a `RC7-17`) | 4 |
 | `storage.spec.js` — RC7: limpieza sin residuos (`RC7-18` a `RC7-21`) | 4 |
 | `script.spec.js` — Integración de controlador contra DOM (incluye 3 regresiones) | 21 |
-| **Total** | **132** |
+| `script.spec.js` — Integración Controlador y UI: Modal (RC14), Toast con y sin Bootstrap (RC15), carga nueva (RC16) | 13 |
+| **Total** | **124** |
 
 ### Un obstáculo real durante la escritura de `script.spec.js`
 
@@ -457,11 +512,11 @@ Para comprobar que cada spec ataca la rama que dice la matriz se puede hacer una
 
 ## Alcance y Limitaciones
 
-- **Sin instrumentación de cobertura en la línea de comandos (Istanbul/nyc):** el proyecto no tiene `package.json` ni dependencias de build. La cobertura de líneas y ramas de `js/models/*.js` se acredita con la [matriz de trazabilidad](#matriz-de-trazabilidad-de-ramas) y se verifica con el [reporte de Chrome DevTools](#reporte-reproducible-de-cobertura-chrome-devtools), que tampoco requiere instalar nada (RC4). Para `storage.js` y `script.js` la cobertura sigue estimándose por comportamiento, como en la AO3.
-- **Requiere conexión a internet** para cargar Jasmine (y, si se agregara en el futuro, Bootstrap) desde CDN.
-- **El Modal de detalle de servicio y el Toast de confirmación** (migrados de `js/componentes-bootstrap.js` a `js/script.js` en PR #109, Issue #68) **no están en el fixture de `script.spec.js`**: `configurarComponentesBootstrap()` los omite sin error si no existen en el DOM, así que su ausencia no rompe la suite. Se decidió no agregarlos a la suite automatizada porque dependen del bundle de Bootstrap (animaciones de modal/toast con temporización propia, difícil de testear de forma determinística en Jasmine sin agregar esperas artificiales) y porque ya se verificaron manualmente con Playwright antes de abrir la PR #109 (ver esa PR para la evidencia: completado de datos del Modal desde `data-service-*`, Toast con el servicio correcto desde el Modal y desde una tarjeta directa). Queda como deuda de testing documentada, no como un vacío silencioso.
+- **Sin cobertura automatizada de código (Istanbul/nyc):** igual que en la AO3, la cobertura se estima revisando manualmente qué comportamiento ejercita cada test.
+- **Requiere conexión a internet** para cargar Jasmine y Bootstrap desde CDN. Sin Bootstrap, los specs de "Bootstrap presente" (INT-RC14-03/05, INT-RC15-01/02) fallan; los de "Bootstrap ausente" no dependen del CDN.
+- **El Modal de detalle de servicio y el Toast de confirmación** (migrados a `js/script.js` en PR #109, Issue #68) ya no son deuda de testing: los cubre el bloque "Integración - Controlador y UI (RC14, RC15, RC16)". Hasta esta actualización se habían verificado solo a mano con Playwright (PR #109), con el argumento de que las animaciones de Bootstrap eran difíciles de testear de forma determinística. Se resolvió esperando los eventos propios de Bootstrap (`shown.bs.modal`/`hidden.bs.modal`) en vez de usar esperas fijas, y con `jasmine.clock()` para el temporizador del Toast degradado.
 - **El catálogo del fixture tiene 3 proveedores fijos** (los del mockup real). El caso de un catálogo extendido con nombres que colisionan entre categorías se prueba agregando un 4° proveedor hipotético dentro del test de regresión correspondiente, no como parte del fixture base.
-- Tests síncronos únicamente (sin `Promise`/`async`-`await`); no hace falta por ahora porque ni los modelos ni el controlador son asíncronos.
+- Los tests son síncronos salvo INT-RC14-03 e INT-RC14-05, que son `async` porque esperan las transiciones del Modal de Bootstrap (`shown.bs.modal`/`hidden.bs.modal`). Ni los modelos ni el controlador son asíncronos.
 
 ---
 
@@ -475,12 +530,14 @@ No se encontraron bugs nuevos durante esta ronda de testing (modelos, storage y 
 
 Un 4° hallazgo (el ruteo de `planit:detalles-evento` a `sessionStorage` en vez de `localStorage`) se encontró y corrigió en `feature/dev-storage` antes del merge de PR #108 (ver `docs/03-specs/actividad-obligatoria-4/spec-dev-storage.md`, MOMENTO 2); no se reporta como issue de GitHub porque se corrigió en la misma rama antes de integrarse.
 
-**Hallazgo de la corrección RC7 (pendiente de reportar como issue):** `Almacenamiento.guardar()` devuelve `true` cuando el valor es algo que `JSON.stringify` convierte en `undefined` **sin lanzar** (una función, un `Symbol` o un objeto cuyo `toJSON()` devuelve `undefined`). En ese caso `setItem` guarda el texto literal `"undefined"` y el siguiente `cargar()` devuelve `null`. Se verificó en Chrome (`guardar=true crudo=undefined cargar=null` en los tres casos). Contradice el contrato ya testeado de `guardar(clave, undefined)` → `false`. No se agregó como spec porque fallaría y la corrección es de `js/utils/storage.js`, fuera del alcance de RC7. Corrección sugerida: devolver `false` si `typeof JSON.stringify(valor) !== "string"`.
+Hallazgos al escribir los specs de RC14–RC16 (23/11/2026):
+
+5. **Toast sin feedback si Bootstrap no está cargado:** `configurarToastConfirmacion()` hacía `return` si `bootstrap` no existía al iniciar, así que "Sumar al Evento" no daba ningún feedback. Se corrigió en `js/script.js` con la degradación descrita arriba (`mostrarToast()`); lo cubren INT-RC15-03 a 05.
+6. **El Modal no muestra categoría ni badge del servicio** (lo menciona RC14): no es un bug del controlador sino un campo que no existe en el marcado. Queda reportado al rol Eventos + DOM.
 
 ---
 
-**Última actualización:** 23/11/2026 — corrección RC7 (21 specs de serialización extrema, aislamiento y limpieza en `storage.spec.js`).
-**Reescritura completa para la AO4:** 22/11/2026.
+**Última actualización:** 23/11/2026 — integración RC14–RC16 (Modal, Toast con y sin Bootstrap, carga nueva de la página). Anterior: 22/11/2026, reescritura completa para la AO4.
 **Tester QA (AO4):** Facundo Guiraldes (@FacundoGuiraldes).
 **Colaboración con:** Desarrolladora JS POO - Carola Benvenuto (@carolabenvenuto-uces) · Desarrolladora JS Eventos + DOM - Valeria Silva (@ValeriaMSilva).
 **Versión AO3 (funciones `flujo*()` basadas en `prompt()`/`alert()`):** disponible en el historial de git de este archivo.

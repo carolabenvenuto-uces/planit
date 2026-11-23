@@ -293,4 +293,79 @@ Esto contradice el contrato que ya se testea para `guardar(clave, undefined)` (d
 - [x] Las tres suites ejecutadas con `node js/test/run-jasmine.js`, 0 fallas, resultado documentado (11 corridas con semillas distintas).
 - [x] `js/test/testing-doc.md` actualizado con la nueva estructura, instrucciones por módulo y métricas de cobertura.
 - [x] Bugs encontrados reportados como issues en GitHub — los 3 bugs de PR #104 están reportados como issues (#111, #112, #113), cerradas referenciando sus commits de fix.
-- [x] **RC7** (revisión docente): `storage.spec.js` con casos de serialización fallida (ciclos directos, indirectos y por array; `BigInt`; `toJSON()` que lanza), aislamiento entre storages, ruteo efectivo a `sessionStorage` y limpieza sin residuos: `RC7-01` a `RC7-21`, 21 specs nuevos (`storage.spec.js` pasa de 19 a 40; la suite completa, de 111 a 132). 6 corridas con 0 fallas y matriz documentada en la sección 4.1 y en `js/test/testing-doc.md`.
+- [x] **RC14**: integración del Modal de detalle: `show.bs.modal` con `relatedTarget`, datos completos del servicio, ARIA y foco con Bootstrap real, y propagación al botón "Sumar al Evento" del Modal (INT-RC14-01 a 05, sección 6).
+- [x] **RC15**: integración de cada `.btn-sumar-evento` (3 tarjetas + Modal) con Bootstrap presente (`bootstrap.Toast` invocado) y ausente (degradación sin errores), más la degradación agregada en `js/script.js` (INT-RC15-01 a 05, sección 6).
+- [x] **RC16**: persistencia y restauración en una carga nueva de la página (reinicio de memoria y DOM + `DOMContentLoaded`), con control negativo y caso de datos inválidos (INT-RC16-01 a 03, sección 6).
+- [x] Suite ampliada ejecutada y resultado registrado en la sección 6.4: **124 specs, 0 failures**, en el navegador con `js/test/test-runner.html` sobre Live Server.
+
+### 6. Integración Controlador y UI (observaciones docentes RC14, RC15 y RC16)
+
+Observaciones atendidas:
+
+- **RC14:** "Falta una integración que dispare `show.bs.modal` y verifique foco, datos completos del servicio y propagación al botón de sumar."
+- **RC15:** "Falta una integración para cada botón `btn-sumar-evento`, verificando el Toast con Bootstrap presente y ausente."
+- **RC16:** "Falta probar persistencia y restauración desde una carga nueva de la página; los round trips unitarios de Storage no reemplazan esta integración."
+
+Se agregó a `js/test/script.spec.js` el bloque `describe("Integración - Controlador y UI (RC14, RC15, RC16)")`, con 13 specs nombrados con un identificador trazable.
+
+#### 6.1. Matriz de casos de integración
+
+| ID | Obs. | Caso | Resultado esperado |
+|---|---|---|---|
+| INT-RC14-01 | RC14 | `show.bs.modal` con `relatedTarget` (Flores Pilar) | Título, descripción, capacidad, duración, incluye, precio, `src` y `alt` de la imagen iguales a los `data-service-*` del disparador. |
+| INT-RC14-02 | RC14 | `show.bs.modal` sin `relatedTarget` | El Modal y su botón "Sumar al Evento" no cambian. |
+| INT-RC14-03 | RC14 | Apertura real con "Ver detalle" (Bootstrap) | `role="dialog"`, `aria-modal="true"`, sin `aria-hidden`, `aria-labelledby` con el servicio; foco dentro del Modal; al cerrar, `aria-hidden="true"` y el foco vuelve al disparador. |
+| INT-RC14-04 | RC14 | Dos aperturas seguidas (Gourmet → Flores) | El botón del Modal tiene título y precio del último proveedor, sin datos del anterior. |
+| INT-RC14-05 | RC14 | Abrir → "Sumar al Evento" del Modal | El Toast muestra el proveedor abierto y el Modal se cierra. |
+| INT-RC15-01 | RC15 | Bootstrap presente, 3 botones de tarjeta | `bootstrap.Toast.getOrCreateInstance` y `show()` invocados en cada clic; texto y clase `show` correctos. |
+| INT-RC15-02 | RC15 | Bootstrap presente, botón del Modal | `show()` invocado con el servicio del Modal. |
+| INT-RC15-03 | RC15 | Bootstrap ausente desde el arranque, 3 botones de tarjeta | Sin errores (`window` ni `console.error`); Toast visible con clase `show`, texto correcto, `role="status"`/`aria-live`; se oculta tras `data-bs-delay`. |
+| INT-RC15-04 | RC15 | Bootstrap ausente, botón del Modal | Sin errores; Toast degradado con el servicio del Modal. |
+| INT-RC15-05 | RC15 | Bootstrap ausente, dos clics seguidos | El segundo clic reinicia el temporizador del Toast. |
+| INT-RC16-01 | RC16 | Ciclo de vida completo (5 pasos) | Lo modificado en la UI se graba, se descarta de memoria y DOM, y se reconstruye fielmente al volver a disparar `DOMContentLoaded`. |
+| INT-RC16-02 | RC16 | Control: carga nueva con storage vacío | Se muestran los datos del marcado (total $580.000, 3 invitados). |
+| INT-RC16-03 | RC16 | Carga nueva con `planit:evento` inválido | Sin errores; aviso de datos dañados y caída a los datos de ejemplo. |
+
+El detalle de disparos y aserciones de cada caso está en `js/test/testing-doc.md`, sección "Integración - Controlador y UI (RC14, RC15, RC16)".
+
+#### 6.2. Justificación técnica: ciclo de vida completo (RC16)
+
+Los round trips de `storage.spec.js` prueban que un `Evento` sobrevive `guardar(toJSON())` → `fromJSON(cargar())`, pero no que la **aplicación** use esos datos al arrancar. Entre el storage y lo que ve el usuario están `cargarEventoInicial()`, `sincronizarFormularioEvento()` (fecha y ubicación desde `planit:detalles-evento`), `sincronizarCantidadesPresupuesto()` y el render inicial de cada flujo; un error en cualquiera de ellos deja el storage correcto y la pantalla mostrando el mockup.
+
+Por eso INT-RC16-01 separa explícitamente **memoria** de **persistencia**:
+
+1. Modifica el estado solo a través de la UI (alta de invitado, cantidad de Catering, ubicación guardada).
+2. Verifica el storage leyendo `localStorage` en crudo, no con `Almacenamiento`, para no validar el módulo consigo mismo.
+3. Descarta todo lo que no es storage: `estadoApp` queda en `null` y los nodos del fixture se reemplazan por nodos nuevos, parseados del marcado original capturado antes de `DOMContentLoaded` (sin listeners ni valores modificados). Antes de continuar se comprueba que no queda rastro del cambio en el DOM.
+4. Arranca la app con el mismo disparador que `index.html` (`DOMContentLoaded`).
+5. Verifica que el DOM reconstruido refleje lo persistido: subtotal de Catering $525.000, total $685.000, invitada con badge "Confirmado" y métricas 3/1, ubicación restaurada, y una instancia de `Evento` distinta de la anterior.
+
+INT-RC16-02 es el control negativo: la misma rutina, con storage vacío, muestra el marcado. Así se demuestra que lo que restaura INT-RC16-01 sale del storage. INT-RC16-03 cubre la rama de datos dañados de `cargarEventoInicial()`.
+
+#### 6.3. Justificación técnica: resiliencia ante la ausencia de Bootstrap (RC15)
+
+Bootstrap llega desde un CDN externo y es la única dependencia de terceros que usa `js/script.js` en tiempo de ejecución. Al escribir INT-RC15-03 apareció un hallazgo real: `configurarToastConfirmacion()` hacía `return` si `bootstrap` no existía al iniciar, así que sin Bootstrap el botón "Sumar al Evento" no daba ningún feedback. Se corrigió en `js/script.js`:
+
+- los listeners de `.btn-sumar-evento` se registran siempre;
+- la nueva función `mostrarToast()` consulta Bootstrap **en cada clic**: si existe, usa `bootstrap.Toast.getOrCreateInstance(...).show()`; si no, aplica la clase `show` del CSS de Bootstrap y quita el Toast al vencer el mismo `data-bs-delay`;
+- el Toast ya es `role="status"` + `aria-live="polite"`, así que el mensaje se anuncia en ambos casos.
+
+Los specs de "ausente" quitan `window.bootstrap` **antes** de montar los componentes (el caso más exigente: Bootstrap nunca cargó), escuchan errores en `window` y espían `console.error`, y usan `jasmine.clock()` para verificar el ocultamiento sin esperas reales. Los de "presente" cargan el mismo bundle 5.3.3 que `index.html` en `test-runner.html` y esperan los eventos `shown.bs.modal`/`hidden.bs.modal` en vez de usar tiempos fijos, que era el motivo por el que el Modal y el Toast se habían dejado fuera de la suite en PR #109.
+
+**Fuera de alcance de RC14:** la observación menciona "categoría" y "badge" en el Modal, pero el Modal de `index.html` no tiene esos campos. Se verifican todos los campos que sí existen, y la falta queda reportada al rol Eventos + DOM.
+
+#### 6.4. Resultados de ejecución
+
+**Primera corrida (navegador, `test-runner.html`, 23/11/2026): 2 errores en RC15.** `TypeError: Cannot read properties of null (reading 'classList') at bootstrap.bundle.min.js`, atribuido a los `describe` "Bootstrap presente" y "Bootstrap ausente (degradación)".
+
+- **Diagnóstico:** no faltaba el Toast en el DOM (el sandbox tiene `#toastConfirmacion` igual que `index.html`). `Toast.show()` deja en cola un callback de fin de transición (~5 ms, emulado con `setTimeout` porque el runner no carga el CSS de Bootstrap). El `afterEach` hacía `dispose()` en el mismo tick, `_element` quedaba en `null` y el callback fallaba al ejecutarse durante la suite siguiente.
+- **Corrección en `js/test/script.spec.js`:** el `afterEach` pasa a ser asíncrono y espera a que terminen las transiciones antes de hacer `dispose()`. `window.bootstrap` se guarda y se restaura en `beforeEach`/`afterEach`. En "Bootstrap ausente", los clics del sandbox ya no llegan a `document`, para que los handlers *data-api* que el bundle ya registró no se ejecuten.
+- **Corrección en `js/script.js`:** como defensa adicional, `mostrarToast()` sale sin hacer nada si recibe un elemento nulo.
+
+**Segunda corrida (navegador, `js/test/test-runner.html` sobre Live Server, 23/11/2026): en verde.**
+
+```
+124 specs, 0 failures
+```
+
+Suite completa: 71 (`models.spec.js`) + 19 (`storage.spec.js`) + 34 (`script.spec.js`, de los cuales 13 son INT-RC14-01 a INT-RC16-03). Pasan todos los specs de integración de RC14, RC15 y RC16, y también los 111 anteriores, así que el bloque nuevo no rompió ninguno de los specs existentes.
