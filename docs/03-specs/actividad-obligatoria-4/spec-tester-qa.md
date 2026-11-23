@@ -314,4 +314,176 @@ Esto contradice el contrato que ya se testea para `guardar(clave, undefined)` (d
 - [x] Las tres suites ejecutadas con `node js/test/run-jasmine.js`, 0 fallas, resultado documentado (11 corridas con semillas distintas).
 - [x] `js/test/testing-doc.md` actualizado con la nueva estructura, instrucciones por módulo y métricas de cobertura.
 - [x] Bugs encontrados reportados como issues en GitHub — los 3 bugs de PR #104 están reportados como issues (#111, #112, #113), cerradas referenciando sus commits de fix.
-- [x] Prueba interactiva con el servidor oficial `@playwright/mcp` (RC27): 18 `tools/call` (`browser_navigate`, `browser_snapshot`, `browser_click`, `browser_wait_for`, `browser_evaluate`, `browser_take_screenshot`, `browser_console_messages`, `browser_close`) sobre el Toast y el Modal, 6/6 aserciones PASS, evidencia en `js/test/mcp-evidence/` (sección 3.1).
+- [x] **(RC28)** Suite completa verificada en un checkout limpio (`npm ci` + `npm test`): `330 specs, 0 failures`, código de salida `0`. Están resueltos el `SyntaxError: Unexpected token ')'` de `js/script.js` y las 37 fallas (ver secciones 7 y 8).
+
+> Los conteos de los ítems anteriores (71, 19 y 21 specs; 11 corridas) corresponden al cierre original de la AO4. La distribución vigente es `models.spec.js` 174 + `storage.spec.js` 103 + `servicio-persistencia.spec.js` 17 + `script.spec.js` 36 = **330 specs**.
+
+### 6. Ejecución reproducible por línea de comandos (corrección RC20)
+
+**Observación del docente (RC20):** "La ejecución documentada no es reproducible desde un checkout limpio: faltan package.json, lockfile y dependencia Playwright."
+
+**Causa:** `run-jasmine.js` y `take-screenshots.js` hacen `require("playwright")`, pero el repositorio no declaraba esa dependencia en ningún archivo versionado. `package.json` y `package-lock.json` existían solo en la máquina local de quien corrió la suite porque estaban listados en `.gitignore`. Un clon limpio fallaba con `Cannot find module 'playwright'`, y las afirmaciones previas de esta spec ("commiteada como devDependency") no se correspondían con el contenido real del repositorio.
+
+**Cambios realizados:**
+- `package.json` en la raíz: metadata del proyecto (`"name": "planit"`, `"version": "1.0.0"`, `"private": true`, `"type": "commonjs"` porque los scripts de test usan `require`), `"engines": { "node": ">=20" }` (mínimo que exige Playwright 1.64), `playwright` fijado en la versión exacta `1.64.1` como `devDependency` (sin `^`, para que una edición manual del lockfile no habilite otra versión) y los scripts `test`, `test:browser`, `test:install-browsers` y `test:screenshots`.
+- `package-lock.json` (formato `lockfileVersion: 3`): fija `playwright@1.64.1` y su única dependencia transitiva `playwright-core@1.64.1`, cada una con su URL de descarga del registro npm y su hash de integridad `sha512`, de modo que `npm ci` instala exactamente el mismo árbol en cualquier entorno.
+- `.gitignore`: se quitaron las entradas `package.json` y `package-lock.json` (se mantiene `node_modules/`).
+- `js/test/open-runner.js`: script nuevo detrás de `npm run test:browser`, que abre `test-runner.html` en un Chromium con ventana visible.
+- `js/test/testing-doc.md`: la sección "Ejecución reproducible por línea de comandos" pasa a documentar el procedimiento completo desde un checkout limpio.
+
+**Procedimiento desde un checkout limpio** (requisitos: Git y Node.js 20 o superior):
+
+```
+git clone https://github.com/carolabenvenuto-uces/planit.git
+cd planit
+npm ci
+npm run test:install-browsers
+npm test
+```
+
+| Paso | Qué hace |
+|---|---|
+| `npm ci` | Instala `playwright` y `playwright-core` exactamente como figuran en `package-lock.json`. Falla si `package.json` y el lockfile no coinciden, en vez de resolver versiones nuevas. |
+| `npm run test:install-browsers` | Ejecuta `playwright install chromium`: descarga el Chromium que corresponde a Playwright 1.64.1. Es un paso aparte porque los binarios del navegador no son un paquete npm y el lockfile no los cubre. En Linux sin librerías de sistema: `npx playwright install --with-deps chromium`. |
+| `npm test` | Ejecuta `node js/test/run-jasmine.js`: imprime `330 specs, 0 failures, randomized with seed <n>` (conteo vigente desde RC24–RC26, ver sección 7) y termina con código `0` (o `1` si hay specs fallidos o errores de consola sin mockear). |
+
+`npm run test:browser` abre el mismo runner con ventana visible; abrir `js/test/test-runner.html` directamente en un navegador sigue siendo válido y no requiere Node.
+
+**Criterio de aceptación de RC20:**
+- [x] `package.json` versionado con la dependencia `playwright` y los scripts `test` y `test:browser`.
+- [x] `package-lock.json` versionado, coherente con `package.json` (mismas versiones en la raíz del lockfile y en `devDependencies`).
+- [x] `package.json` y `package-lock.json` fuera de `.gitignore`.
+- [x] Procedimiento paso a paso desde `git clone` documentado aquí y en `js/test/testing-doc.md`.
+- [x] Verificado en un checkout limpio con `npm ci` y `npm test` (RC28, 23/11/2026). Se copió el proyecto a un directorio vacío, sin `node_modules/` ni `.git/`. `npm ci` terminó con exit `0` (instaló `playwright@1.64.1` y `playwright-core@1.64.1` desde el lockfile) y `npm test` dio `330 specs, 0 failures` con código de salida `0` en 3 corridas con semillas distintas. Ver sección 8.
+
+  *Historial:* hasta RC28 este ítem estaba sin marcar. Al principio no había Node.js en la máquina, y la corrida de RC24–RC26 (sección 7) se hizo en un working copy, no en un checkout limpio. La primera verificación del docente en checkout limpio dio `330 specs, 37 failures` y `pageerror: Unexpected token ')'`. La resolución está en las secciones 7 y 8.
+
+### 7. Ejecución de las suites de integración: Modal, Toast y Persistencia (corrección RC24, RC25, RC26)
+
+**Observaciones del docente (síntesis):**
+- **RC24:** acreditar con una ejecución real que los specs de integración del **Modal** de detalle de proveedor pasan.
+- **RC25:** ídem para los specs de integración del **Toast** de confirmación (con Bootstrap presente y ausente).
+- **RC26:** ídem para los specs de integración de **persistencia** y restauración en una carga nueva de la página.
+
+El criterio en los tres casos: `npm test` en verde, 0 fallas, código de salida `0`.
+
+**Correspondencia con la suite:** los tres grupos son los `describe` del bloque `"Integración - Controlador y UI (RC14, RC15, RC16)"` de `js/test/script.spec.js`. Los identificadores de los specs se conservan para no romper la trazabilidad con `testing-doc.md`:
+
+| Observación | `describe` | Specs |
+|---|---|---|
+| RC24 (Modal) | `RC14: Modal de detalle de proveedor (show.bs.modal)` | INT-RC14-01 a INT-RC14-05 |
+| RC25 (Toast) | `RC15: Toast de 'Sumar al Evento'` con Bootstrap presente / ausente | INT-RC15-01 a INT-RC15-05 |
+| RC26 (Persistencia) | `RC16: Persistencia y restauración en una carga nueva de la página` | INT-RC16-01 a INT-RC16-03 |
+
+**Estado inicial (antes de la corrección):** la evidencia previa de RC14–RC16 (`124 specs, 0 failures`) se había obtenido en el navegador con Live Server, sin código de salida ni captura de `console.error`/`pageerror`. Al correr `npm test` sobre la rama, después de los merges de RC20 y RC22, el resultado fue:
+
+```
+330 specs, 37 failures, randomized with seed 01419
+Errores de consola: [ "pageerror: Unexpected token ')'" ]
+```
+
+Código de salida `1`. Fallaban los 36 specs de `script.spec.js`, entre ellos los 13 de integración. `models.spec.js`, `storage.spec.js` y `servicio-persistencia.spec.js` pasaban, pero la corrida global no quedaba en verde.
+
+**Diagnóstico.** Se hizo con scripts de Playwright ad hoc, fuera del repositorio, que registraban `pageerror`, `requestfailed` y las navegaciones del frame principal, y después leían los mensajes de cada spec fallido del reporter HTML:
+
+1. `node --check js/script.js` → `SyntaxError` en `configurarToastConfirmacion()`: un `});` sobrante, resto de un merge, que impedía cargar el controlador.
+2. Una vez corregido eso, la suite no terminaba en 15 s y aparecían ~1.800 `ERR_FILE_NOT_FOUND`. El runner se **recargaba en bucle** (49 navegaciones a `test-runner.html?` en 8 s): `configurarEventos()` lanzaba `ReferenceError: sincronizarCantidadesPresupuesto is not defined` (y `cargarEstadoInicial()` llamaba a `crearEventoDesdeMarcado`, también inexistente), así que los formularios quedaban sin el `preventDefault` del submit.
+3. Imágenes del catálogo pedidas en `js/test/docs/...` (404 → `console.error`).
+4. Fallas puntuales de los specs RC16 y de INT-RC14-05 (`CLAVES_STORAGE is not defined`, `ui.filasPresupuesto` indefinido, cantidad de invitados semilla y `dataset.serviceTitle` del Toast sin asignar).
+
+**Cambios realizados:**
+
+| Archivo | Cambio | Motivo |
+|---|---|---|
+| `js/script.js` → `configurarToastConfirmacion()` | Se quita el `});` sobrante y el listener vuelve a registrarse **por botón** `.btn-sumar-evento`. Se reponen `toastConfirmacionServicio.textContent = "<servicio> · <precio>"`, el mensaje "Experiencia agregada a tu evento" y `dataset.serviceTitle/servicePrice` del Toast. | RC24/RC25. Los specs de "Bootstrap ausente" cortan la propagación hacia `document`, y `montarComponentesBootstrap()` reconfigura los componentes en cada spec. Con delegación en `document` el clic no llegaba en esos specs y, en los demás, se acumulaban listeners (`Toast.show` se llamaba más de una vez). |
+| `js/script.js` → `sincronizarCantidadesPresupuesto(ui)` (repuesta) | Copia al input de cada fila la cantidad del Presupuesto cargado. Si las filas del DOM no se corresponden con los ítems del modelo, las regenera con `renderFilasPresupuesto()`. | RC26. Sin esta función el arranque lanzaba. Además, `recalcularPresupuesto()` solo re-renderiza cuando cambia la cantidad de filas, así que sin la sincronización una carga nueva mostraría la cantidad del marcado (120) y no la persistida (150). |
+| `js/script.js` → `cargarEstadoInicial()` | `crearEventoDesdeMarcado(ui)` → `crearEventoInicial(ui)`. | RC26. La función real es `crearEventoInicial`; la otra no existía. |
+| `js/script.js` → `RUTA_IMAGENES_CATALOGO` | Se resuelve relativa a `js/script.js` (`new URL("../docs/...", document.currentScript.src)`). Si `currentScript` no está disponible, se usa `./docs/...` como antes. | Las tarjetas que renderiza el controlador pedían la imagen relativa a la página. En el runner (`js/test/`) daba 404, y `run-jasmine.js` lo cuenta como error. En `index.html` resuelve a la misma ruta que antes. |
+| `js/test/script.spec.js` | Constante `CLAVES_STORAGE_CRUDAS` con las claves literales (`planit:evento`, `planit:detalles-evento`) en lugar de `CLAVES_STORAGE`. | RC26. RC22 hizo privadas las claves en la fachada. Los specs leen y siembran `localStorage` en crudo a propósito, para no validar el módulo consigo mismo. |
+| `js/test/script.spec.js` → INT-RC16-01 | La fila de Catering se busca con `#cantidad-catering` → `closest("tr")`, verificando que pertenezca a `obtenerFilasPresupuesto(ui)`. | RC26. `obtenerReferenciasUI()` ya no expone `filasPresupuesto` (RC9), y las filas generadas no tienen `data-categoria`. |
+| `js/test/script.spec.js` → INT-RC16-02 | Se compara contra `DATOS_SEMILLA` (5 invitados: 3 confirmados, 2 pendientes) en lugar de "3 invitados del marcado". | RC26. Desde RC9–RC11 los datos de ejemplo salen de `DATOS_SEMILLA`. El spec sigue funcionando como control negativo, porque el fixture tiene 3 invitados y un resto en memoria se detectaría. |
+
+Las aserciones de los specs del Modal (RC24) y del Toast (RC25) **no se modificaron**: pasaron en cuanto el controlador volvió a cargar y se repuso el comportamiento del Toast.
+
+**Evidencia ejecutable (23/11/2026).** Windows 11, Node.js v26.13.1, npm 11.20.0, Playwright 1.64.1 (Chromium headless). `npm test` desde la raíz del repositorio, 10 corridas consecutivas, con el código de salida tomado de `$?`:
+
+```
+330 specs, 0 failures, randomized with seed 67178 | exit=0
+330 specs, 0 failures, randomized with seed 03453 | exit=0
+330 specs, 0 failures, randomized with seed 23947 | exit=0
+330 specs, 0 failures, randomized with seed 24502 | exit=0
+330 specs, 0 failures, randomized with seed 17683 | exit=0
+330 specs, 0 failures, randomized with seed 70659 | exit=0
+330 specs, 0 failures, randomized with seed 11862 | exit=0
+330 specs, 0 failures, randomized with seed 42904 | exit=0
+330 specs, 0 failures, randomized with seed 50613 | exit=0
+330 specs, 0 failures, randomized with seed 99216 | exit=0
+```
+
+Ninguna de las 10 corridas imprimió `Specs fallidos` ni `Errores de consola`.
+
+**Desglose de los 330 specs** (reporter de Jasmine): `models.spec.js` 174 · `storage.spec.js` 103 · `servicio-persistencia.spec.js` 17 · `script.spec.js` 36.
+
+**Estado de cada spec de integración** (reporter HTML, corrida `330 specs, 0 failures, randomized with seed 92187`):
+
+| Observación | Spec | Estado |
+|---|---|---|
+| RC24 | INT-RC14-01 — datos del servicio en el Modal (`show.bs.modal` con `relatedTarget`) | ✅ passed |
+| RC24 | INT-RC14-02 — `show.bs.modal` sin disparador no modifica el Modal | ✅ passed |
+| RC24 | INT-RC14-03 — ARIA y foco con Bootstrap real (apertura y cierre) | ✅ passed |
+| RC24 | INT-RC14-04 — el botón del Modal recibe el último proveedor abierto | ✅ passed |
+| RC24 | INT-RC14-05 — Modal → "Sumar al Evento" → Toast, y cierre del Modal | ✅ passed |
+| RC25 | INT-RC15-01 — Toast de Bootstrap desde las 3 tarjetas | ✅ passed |
+| RC25 | INT-RC15-02 — Toast de Bootstrap desde el Modal | ✅ passed |
+| RC25 | INT-RC15-03 — Toast degradado sin Bootstrap (clase `show`, `data-bs-delay`) | ✅ passed |
+| RC25 | INT-RC15-04 — Toast degradado desde el Modal | ✅ passed |
+| RC25 | INT-RC15-05 — un segundo clic reinicia el temporizador | ✅ passed |
+| RC26 | INT-RC16-01 — cambios desde la UI → storage → reinicio de memoria y DOM → `DOMContentLoaded` → reconstrucción | ✅ passed |
+| RC26 | INT-RC16-02 — control: sin storage se muestran los datos semilla | ✅ passed |
+| RC26 | INT-RC16-03 — storage dañado: aviso y caída a la semilla, sin lanzar | ✅ passed |
+
+Esta corrida también cierra la salvedad de la sección 4.1 (RC7): queda confirmado con `run-jasmine.js` el código de salida `0` que la corrida con Chrome headless no podía acreditar.
+
+Detalle completo, con la tabla de causas, en `js/test/testing-doc.md`, sección "Ejecución verificada de las suites de integración (RC24, RC25, RC26)".
+
+**Criterio de aceptación de RC24, RC25 y RC26:**
+- [x] `npm test` ejecutado por línea de comandos (Playwright + Chromium headless), no solo en el navegador.
+- [x] Resultado `330 specs, 0 failures` con código de salida `0`, en 10 corridas con semillas aleatorias distintas.
+- [x] Sin `console.error` ni `pageerror` sin mockear en ninguna corrida.
+- [x] **RC24:** INT-RC14-01 a INT-RC14-05 (Modal) en verde.
+- [x] **RC25:** INT-RC15-01 a INT-RC15-05 (Toast, con y sin Bootstrap) en verde.
+- [x] **RC26:** INT-RC16-01 a INT-RC16-03 (Persistencia y carga nueva) en verde.
+- [x] Causas de las fallas diagnosticadas, corregidas y documentadas aquí y en `js/test/testing-doc.md`.
+- [x] `js/test/testing-doc.md` actualizado con la evidencia ejecutable y el checklist correspondiente.
+
+### 8. Verificación sobre checkout limpio (corrección RC28)
+
+**Observación del docente (RC28):** *"npm ci ya funciona, pero la verificación real del checkout limpio produjo 330 specs, 37 failures y pageerror: Unexpected token ')'. La documentación todavía afirma 111 specs, 0 failures y deja el checklist de ejecución sin verificar. Corregir el código/suite y actualizar el resultado documentado con una corrida reproducible exitosa."*
+
+**Código y suite.** El `SyntaxError: Unexpected token ')'` (un `});` sobrante en `configurarToastConfirmacion()`, cerca de la línea 1390 de `js/script.js`) y las 37 fallas se corrigieron con los cambios de la sección 7. Para RC28 se volvió a verificar cada uno en el código:
+
+- `node --check js/script.js` termina sin errores.
+- El Toast usa **listeners directos por botón** `.btn-sumar-evento`.
+- Las **funciones faltantes** están repuestas: `sincronizarCantidadesPresupuesto(ui)` existe y el arranque llama a `crearEventoInicial(ui)`.
+- Las imágenes usan **rutas relativas** a `js/script.js` (`RUTA_IMAGENES_CATALOGO` con `document.currentScript.src`).
+- Los specs RC16 usan `CLAVES_STORAGE_CRUDAS` y `DATOS_SEMILLA`.
+
+**Corrida reproducible (23/11/2026).** Windows 11, Node.js v26.13.1, npm 11.20.0, Playwright 1.64.1.
+
+1. Checkout limpio, con el proyecto copiado a un directorio vacío sin `node_modules/` ni `.git/`: `npm ci` (exit `0`) y luego `npm test` 3 veces:
+   ```
+   330 specs, 0 failures, randomized with seed 88268 | exit=0
+   330 specs, 0 failures, randomized with seed 53521 | exit=0
+   330 specs, 0 failures, randomized with seed 01753 | exit=0
+   ```
+2. Working copy del repositorio: `npm test` 10 veces más. Las 10 corridas dieron `330 specs, 0 failures` con exit `0` (semillas 56751, 19238, 59239, 09448, 17951, 77036, 03448, 80995, 78955 y 96716).
+
+Ninguna corrida registró `Specs fallidos` ni `Errores de consola`. Las semillas cambian, pero el resultado es siempre el mismo.
+
+**Documentación.** En `js/test/testing-doc.md`, la tabla de métricas, que seguía mostrando 124 specs como total, pasa a la distribución vigente (174 + 103 + 17 + 36 = **330**). Los conteos de 109, 111, 124, 132 y 212 specs quedan marcados como históricos, y se agrega la sección "Verificación sobre checkout limpio (RC28)" con su checklist. En esta spec se marca el ítem de clon limpio de RC20 (sección 6) y se agrega el ítem RC28 al checklist de cierre (sección 5).
+
+**Criterio de aceptación de RC28:**
+- [x] `js/script.js` compila (`node --check`): el `SyntaxError: Unexpected token ')'` está resuelto.
+- [x] Las 37 fallas están resueltas: listeners directos, funciones faltantes, rutas relativas y specs RC16 actualizados.
+- [x] Checkout limpio verificado: `npm ci` + `npm test` → `330 specs, 0 failures`, código de salida `0`, en corridas repetidas con semillas distintas.
+- [x] `testing-doc.md` y esta spec documentan 330 specs como conteo vigente, sin afirmar 111 specs como estado actual.
