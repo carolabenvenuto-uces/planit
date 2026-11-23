@@ -322,6 +322,8 @@ function configurarEventos() {
 
 ### 1. Prompt utilizado en modo Agente
 
+- **Herramienta:** Claude Code (Anthropic), extensión de VS Code, en **modo agente**: el asistente trabajó sobre el workspace del repositorio, leyó y buscó en los archivos, ejecutó comandos en la terminal integrada y editó los archivos directamente. No se usó como chat para copiar y pegar código. La traza completa de la sesión está en la sección 6.
+
 **Contexto adjuntado al agente:**
 - `docs/03-specs/actividad-obligatoria-4/spec-dev-eventos-dom.md` (sección *ANTES DE LA IMPLEMENTACIÓN*).
 - Las clases del dominio de `js/models/` (`Validador.js`, `ItemContratado.js`, `Presupuesto.js`, `Invitado.js`, `ListaInvitados.js`, `Evento.js`, `Proveedor.js`, `CatalogoProveedores.js`), tomadas de la rama `feature/dev-poo-logica-negocio` (PR #102).
@@ -472,6 +474,7 @@ Se abrió `index.html` en Chrome headless con los modelos del PR #102 y un `stor
 
 #### Documentación
 - [x] Esta sección AL CERRAR registra el prompt, el fragmento de código, los ajustes y la verificación.
+- [x] **RC8 (cerrada):** se documenta en la sección 6 la evidencia verificable de la ejecución en modo agente (sesión de Claude Code en VS Code, bitácora de operaciones y controles humanos).
 
 #### Pendientes de otros roles (bloquean la integración en `develop`)
 - [x] Mergear el PR #102 (`js/models/`) en `develop` (integrado en esta rama con el merge `c3fa07e`).
