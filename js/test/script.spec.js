@@ -184,6 +184,18 @@ function capturarErroresNoControlados(accion) {
     return errores;
 }
 
+/**
+ * Claves crudas de localStorage que usa la fachada ServicioPersistenciaEvento.
+ * Desde RC22 el controlador ya no expone CLAVES_STORAGE (las claves son privadas
+ * de la fachada); los specs RC16 leen y siembran el storage en crudo a propósito,
+ * sin pasar por Almacenamiento ni por la fachada, para no validar el módulo con
+ * sí mismo. Si la fachada cambiara sus claves, estos specs fallarían a la vista.
+ */
+const CLAVES_STORAGE_CRUDAS = Object.freeze({
+    evento: "planit:evento",
+    detallesEvento: "planit:detalles-evento"
+});
+
 const FIXTURE_CANTIDADES = {
     "cantidad-catering": "120",
     "cantidad-decoracion": "1",
@@ -741,11 +753,11 @@ describe("Integración - Controlador y UI (RC14, RC15, RC16)", function () {
             ui.btnGuardarEvento.click();
 
             // 2. Verificar lo grabado leyendo el storage en crudo (sin pasar por Almacenamiento).
-            const eventoCrudo = JSON.parse(localStorage.getItem(CLAVES_STORAGE.evento));
+            const eventoCrudo = JSON.parse(localStorage.getItem(CLAVES_STORAGE_CRUDAS.evento));
             const catering = eventoCrudo.presupuesto.items.find(function (item) { return item.categoria === "Catering"; });
             expect(Number(catering.cantidad)).toBe(150);
             expect(eventoCrudo.invitados.invitados).toContain({ nombre: "Lucía Fernández", estado: "Confirmado" });
-            expect(JSON.parse(localStorage.getItem(CLAVES_STORAGE.detallesEvento)).ubicacion)
+            expect(JSON.parse(localStorage.getItem(CLAVES_STORAGE_CRUDAS.detallesEvento)).ubicacion)
                 .toBe("Estancia La Candelaria, Lobos");
 
             // 3. Reiniciar memoria y DOM: nada de lo anterior debe quedar fuera del storage.
@@ -768,8 +780,10 @@ describe("Integración - Controlador y UI (RC14, RC15, RC16)", function () {
             expect(estadoApp.evento instanceof Evento).toBe(true);
             expect(uiNueva.avisoApp.hidden).toBe(true);
 
-            // RC9-RC11: las filas se renderizan dinámicamente; se ubica la de Catering por su input.
-            const filaCatering = document.getElementById("cantidad-catering").closest("tr[data-item]");
+            // RC9: obtenerReferenciasUI() ya no expone `filasPresupuesto`; la fila se ubica
+            // por el id estable de su input, válido tanto en el fixture como en las filas
+            // que genera renderFilasPresupuesto().
+            const filaCatering = document.getElementById("cantidad-catering").closest("tr");
             expect(obtenerFilasPresupuesto(uiNueva)).toContain(filaCatering);
             expect(filaCatering.querySelector(".input-cantidad").value).toBe("150");
             expect(filaCatering.querySelector("[data-subtotal]").textContent).toBe("$525.000");
@@ -790,23 +804,28 @@ describe("Integración - Controlador y UI (RC14, RC15, RC16)", function () {
             expect(uiNueva.nombreEvento.value).toBe("Casamiento de Sofi & Mateo");
         });
 
-        it("INT-RC16-02: sin datos persistidos, una carga nueva debería mostrar los datos de ejemplo del marcado (control)", function () {
+        it("INT-RC16-02: sin datos persistidos, una carga nueva debería mostrar los datos semilla del dominio (control)", function () {
             Almacenamiento.limpiar("planit:");
 
             reiniciarMemoriaYDOM();
             document.dispatchEvent(new Event("DOMContentLoaded"));
             const uiNueva = obtenerReferenciasUI();
 
-            // RC9-RC11: los datos de ejemplo ya no vienen del marcado sino de DATOS_SEMILLA.
-            expect(estadoApp.evento.invitados.invitados.length).toBe(DATOS_SEMILLA.invitados.invitados.length);
+            // Desde RC9-RC11 los datos de ejemplo salen de DATOS_SEMILLA (no del marcado):
+            // 5 invitados (3 confirmados, 2 pendientes), distintos de los 3 del fixture
+            // que deja restaurarEstadoInicial(). Así se distingue la semilla de un resto en memoria.
+            const invitadosSemilla = DATOS_SEMILLA.invitados.invitados;
+            const confirmadosSemilla = invitadosSemilla.filter(function (inv) { return inv.estado === "Confirmado"; }).length;
+            expect(invitadosSemilla.length).toBe(5);
+            expect(estadoApp.evento.invitados.invitados.length).toBe(invitadosSemilla.length);
             expect(document.getElementById("cantidad-catering").value).toBe("120");
             expect(uiNueva.totalPresupuesto.textContent).toBe("$580.000");
-            expect(uiNueva.metricasInvitados.textContent).toContain("Confirmados: 3");
-            expect(uiNueva.metricasInvitados.textContent).toContain("Pendientes: 2");
+            expect(uiNueva.metricasInvitados.textContent).toContain("Confirmados: " + confirmadosSemilla);
+            expect(uiNueva.metricasInvitados.textContent).toContain("Pendientes: " + (invitadosSemilla.length - confirmadosSemilla));
         });
 
         it("INT-RC16-03: con un evento persistido inválido, una carga nueva debería avisar y caer en los datos de ejemplo sin lanzar", function () {
-            localStorage.setItem(CLAVES_STORAGE.evento, JSON.stringify({ nombre: "X", tipo: "tipo-inexistente", presupuestoEstimado: 1000 }));
+            localStorage.setItem(CLAVES_STORAGE_CRUDAS.evento, JSON.stringify({ nombre: "X", tipo: "tipo-inexistente", presupuestoEstimado: 1000 }));
 
             reiniciarMemoriaYDOM();
             const errores = capturarErroresNoControlados(function () {
