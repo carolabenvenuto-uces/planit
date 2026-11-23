@@ -322,6 +322,8 @@ function configurarEventos() {
 
 ### 1. Prompt utilizado en modo Agente
 
+- **Herramienta:** Claude Code (Anthropic), extensión de VS Code, en **modo agente**: el asistente trabajó sobre el workspace del repositorio, leyó y buscó en los archivos, ejecutó comandos en la terminal integrada y editó los archivos directamente. No se usó como chat para copiar y pegar código. La traza completa de la sesión está en la sección 6.
+
 **Contexto adjuntado al agente:**
 - `docs/03-specs/actividad-obligatoria-4/spec-dev-eventos-dom.md` (sección *ANTES DE LA IMPLEMENTACIÓN*).
 - Las clases del dominio de `js/models/` (`Validador.js`, `ItemContratado.js`, `Presupuesto.js`, `Invitado.js`, `ListaInvitados.js`, `Evento.js`, `Proveedor.js`, `CatalogoProveedores.js`), tomadas de la rama `feature/dev-poo-logica-negocio` (PR #102).
@@ -472,9 +474,70 @@ Se abrió `index.html` en Chrome headless con los modelos del PR #102 y un `stor
 
 #### Documentación
 - [x] Esta sección AL CERRAR registra el prompt, el fragmento de código, los ajustes y la verificación.
+- [x] **RC8 (cerrada):** se documenta en la sección 6 la evidencia verificable de la ejecución en modo agente (sesión de Claude Code en VS Code, bitácora de operaciones y controles humanos).
 
 #### Pendientes de otros roles (bloquean la integración en `develop`)
 - [x] Mergear el PR #102 (`js/models/`) en `develop` (integrado en esta rama con el merge `c3fa07e`).
 - [ ] Crear `js/utils/storage.js` con el contrato `Almacenamiento.guardar` / `Almacenamiento.cargar`.
 - [ ] Adaptar `js/test/script.spec.js` y `js/test/test-runner.html` a las clases de `js/models/` (rol Tester QA).
 - [ ] Agregar al modelo un método para el saldo disponible y conectar el Resumen Financiero.
+
+### 6. Evidencia de ejecución en modo Agente (corrección RC8)
+
+> **Observación del docente (RC8):** "El cierre declara uso conversacional de Claude, pero no aporta evidencia verificable de ejecución en Agent Mode para este rol."
+>
+> **Corrección:** Claude no se usó como chat. Trabajó como agente dentro del workspace de VS Code: inspeccionó el código, planificó el refactor, editó varios archivos y ejecutó la verificación. Esta sección registra esa ejecución con datos que se pueden contrastar con el registro de la sesión, el historial de la rama y el código entregado.
+
+#### 6.1 Datos de la sesión
+
+| Dato | Valor |
+| --- | --- |
+| Entorno | VS Code, extensión **Claude Code** (punto de entrada `claude-vscode`, versión 2.1.325) |
+| Modelo | `claude-opus-5-5` |
+| Identificador de sesión | `d762338c-1ee3-4b57-96f4-3c3da899f143` |
+| Registro de la sesión | `~/.claude/projects/<proyecto>/d762338c-1ee3-4b57-96f4-3c3da899f143.jsonl` (registro local que guarda Claude Code, con cada mensaje y cada llamada a herramienta con su fecha y hora) |
+| Rama de trabajo | `feature/dev-eventos-dom` (todas las entradas del registro) |
+| Período | 16/11/2026, 19:52 a 20:58 y 18/11/2026, 09:43 a 09:53 (hora de Argentina, UTC−3) |
+| Herramientas de agente usadas | `Read` (lectura de archivos del workspace), `Bash` (inspección con `grep`, `sed`, `git show`, `git ls-tree`; ejecución en Chrome headless), `Write` (archivo completo), `Edit` (reemplazo por bloques) |
+| Operaciones registradas | 16/11: 17 comandos, 4 lecturas, 2 escrituras completas y 13 ediciones por bloque. 18/11: 10 comandos, 2 lecturas y 3 ediciones por bloque |
+
+#### 6.2 Bitácora de ejecución del agente
+
+| Fecha y hora (UTC−3) | Fase | Operaciones autónomas del agente | Herramientas | Resultado |
+| --- | --- | --- | --- | --- |
+| 16/11 19:52 | Inspección inicial | Listó la estructura del repo. Buscó en `js/script.js` todas las llamadas a `prompt(`, `alert(`, `addEventListener` y las declaraciones `function`. Leyó la cabecera y las constantes de la AO3 y relevó los `id` y `<form>` de `index.html` | `Bash` (`ls`, `grep -nE`, `sed -n`) | Inventario de pop-ups y de IDs que usa la sección 1.5 |
+| 16/11 19:54 | Planificación | Redactó la sección *ANTES*: plan de migración de `prompt`/`alert` a formularios nativos, mapeo de eventos por flujo y criterio de frontera controlador/modelo | `Write` (este spec) | Secciones 1 a 4 de esta spec |
+| 16/11 20:07 a 20:09 | Inspección del codebase y del dominio | Leyó `index.html` completo, `js/test/test-runner.html` y `js/test/run-jasmine.js`. Relevó los listeners de `js/componentes-bootstrap.js`. Leyó las 8 clases de `js/models/` en la rama del PR #102 sin cambiar de rama (`git show origin/feature/dev-poo-logica-negocio:js/models/<Clase>.js`). Comprobó si `develop` ya tenía los modelos. Buscó en `css/` las reglas `is-invalid`, `invalid-feedback`, `form-group` y `data-table` | `Read`, `Bash` (`git ls-tree`, `git show`, `git merge-base`, `grep -rn`) | API real de las clases (por ejemplo, que `calcularPresupuestoTotal()` no existe). De ahí salen los ajustes 1 a 6 de la sección 3 |
+| 16/11 20:10 a 20:12 | Refactor del controlador | Leyó el `js/script.js` de la AO3 y lo reescribió como controlador: `DOMContentLoaded` → `configurarEventos()`, `obtenerReferenciasUI()`, `registrarValidacionEnVivo()`, handlers `submit` con `preventDefault()` y la guarda `obtenerModelosFaltantes()` | `Read`, `Write` (`js/script.js`) | Se eliminan el menú `while`/`switch` y los pop-ups |
+| 16/11 20:12 a 20:13 | Edición del HTML | Aplicó 8 ediciones por bloque en `index.html`: IDs del contrato (`#form-evento`, `#form-presupuesto`, `#buscar-catalogo`, `#categoria-catalogo`, `#form-invitado`, `#lista-invitados`), contenedores `aria-live`, `.invalid-feedback` con `aria-describedby`, valores de `#tipo-evento` alineados con `Evento.TIPOS` | `Edit` (`index.html`) | El HTML queda sincronizado con el modelo de dominio |
+| 16/11 20:13 | Ajuste del controlador y estilos | Hizo 1 edición en `js/script.js`. Leyó las reglas de formularios de `css/components.css` y agregó los bordes `is-valid`/`is-invalid` para `.form-group` y el ancho de `.input-cantidad` | `Edit` (`js/script.js`, `css/components.css`), `Bash` (`sed -n`) | Feedback visual de la validación en vivo |
+| 16/11 20:13 a 20:14 | Verificación en navegador | Buscó un navegador headless disponible. Armó una copia de prueba con los modelos del PR #102 y abrió `index.html` en Chrome `--headless --dump-dom` con un script de prueba de los 4 flujos. Repitió la prueba con recarga para comprobar la persistencia y corrió el `grep` de pop-ups | `Bash` (Chrome headless, `grep -nE`) | Resultados de la tabla de la sección 4 |
+| 16/11 20:14 | Corrección tras la prueba | 1 edición en `js/script.js` con lo que detectó la prueba | `Edit` (`js/script.js`) | Versión entregada en el PR #104 |
+| 16/11 20:27 a 20:29 | Documentación de cierre | Extrajo el fragmento real de `manejarSubmitInvitado` con `grep -A 30`, agregó la sección *AL CERRAR* y la revisó | `Bash`, `Read`, `Edit` (este spec) | Secciones 1 a 5 de *AL CERRAR* |
+| 16/11 20:57 a 20:58 | Registro de la entrega | Comparó el `changelog.md` de `develop` y de la rama POO y registró la entrega | `Read`, `Bash` (`git show`, `git fetch`), `Edit` (`changelog.md`) | Entrada de la AO4 en el changelog |
+| 18/11 09:43 a 09:45 | Auditoría posterior al merge de `develop` | Revisó `git status` y `git log develop..HEAD` y el merge `c3fa07e`. Corrió `git diff 6e5c64f HEAD -- js/script.js index.html css/components.css`. Buscó patrones prohibidos (`prompt(`, `alert(`, `confirm(`, `innerHTML`, `localStorage`, `onclick`, `.onX =`) e IDs duplicados. Probó en Chrome headless el caso normal y el caso sin modelos, y corrió la suite Jasmine en la rama y en `develop`. Consultó el PR con `gh pr view 104` | `Bash` (`git`, `grep`, Chrome headless, `gh`) | Detectó que el merge había vuelto a traer los arrays globales de la AO3, que provocaban un `ReferenceError` antes de que actuara la guarda defensiva |
+| 18/11 09:52 | Corrección y nueva verificación | Quitó de `js/script.js` las inicializaciones globales heredadas, actualizó esta spec (2 ediciones) y repitió los dos casos en Chrome headless | `Read`, `Edit`, `Bash` | Commit `fix(events): remover inicializaciones globales heredadas de AO3 en script.js` |
+| 18/11 09:53 | Publicación | `git push origin feature/dev-eventos-dom`, después de que la desarrolladora lo autorizara de forma explícita | `Bash` | Rama actualizada en el PR #104 |
+
+#### 6.3 Verificación de selectores DOM y propagación de eventos
+
+Las comprobaciones del agente se pueden repetir sobre el código entregado:
+
+| Aspecto | Dónde está en `js/script.js` | Cómo se verificó |
+| --- | --- | --- |
+| Punto de entrada único | `document.addEventListener("DOMContentLoaded", configurarEventos)` (línea 72) | Listado de declaraciones globales con `grep -nE "^(const\|let\|var\|class\|function) "` (18/11) |
+| `submit` con `e.preventDefault()` | `manejarSubmitEvento` (líneas 478-479), `#form-presupuesto` (líneas 558-559), `form.catalog-search` (línea 704), `manejarSubmitInvitado` (líneas 838-839) | Chrome headless: después del submit, la página no se recarga y el estado de la prueba sigue en el DOM |
+| `input` / `change` / `blur` | `registrarValidacionEnVivo()` (líneas 338-347); `#buscar-catalogo` `input` (línea 706); `#categoria-catalogo` `change` (línea 708) | Casos de la sección 4: descuento de 150 %, nombre vacío, búsquedas "flores" y "zzz" |
+| Delegación de `input` | Un único listener en `#form-presupuesto` (línea 553) para todas las cantidades y el descuento | Cantidades -1 y 200 en la prueba headless |
+| Delegación de `click` | Un único listener en `#lista-invitados` (línea 806); `manejarAccionInvitado` resuelve el destino con `evento.target.closest("button[data-accion]")` y `boton.closest("tr[data-indice]")` (líneas 872-876) | Confirmar y eliminar en filas agregadas después de la carga |
+| Coherencia de selectores | Los IDs de `obtenerReferenciasUI()` (línea 116) coinciden con los de `index.html` | Búsqueda de IDs duplicados con `grep -o 'id="[^"]*"' index.html \| sort \| uniq -d` (sin resultados) |
+| Sin pop-ups ni handlers inline | — | `grep -cE "prompt\(\|alert\(\|confirm\(" js/script.js` devuelve `0` |
+
+#### 6.4 Control humano aplicado por la desarrolladora
+
+- **Alcance por prompt:** el agente trabajó con 6 instrucciones explícitas: spec *ANTES*, implementación (prompt de la sección 1), sección *AL CERRAR*, changelog, auditoría y corrección. No inició tareas por su cuenta fuera de esas instrucciones.
+- **Permisos de la extensión:** los comandos de terminal y las ediciones de archivos se ejecutaron bajo el modo de permisos que la desarrolladora configuró en Claude Code para VS Code.
+- **Revisión de las decisiones de diseño:** los desvíos respecto del plan (sección 3) se revisaron contra la API real del PR #102 antes de aceptarse. Por ejemplo, se decidió ocultar las tarjetas del catálogo en lugar de volver a crearlas, para no romper `js/componentes-bootstrap.js`.
+- **Auditoría independiente:** el 18/11 la desarrolladora le pidió al agente una revisión con rol de auditor de cátedra sobre la rama ya integrada con `develop`. Esa revisión encontró el `ReferenceError` que había introducido el merge.
+- **Autorización de cambios publicados:** el agente hizo el commit de la corrección cuando se lo pidieron ("hacé los puntos 1 y 4") y el `git push` solo después de la autorización expresa de la desarrolladora.
+- **Criterios de aceptación:** la desarrolladora marcó los ítems de la sección 5 a partir de los resultados de la sección 4 y de los comandos de verificación de esta sección, que cualquier revisor puede volver a ejecutar.
