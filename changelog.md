@@ -27,6 +27,11 @@
 - **RC14, RC15 y RC16:** Incorporar y validar 13 specs de integración de modal, toast y recarga limpia ([#126](https://github.com/carolabenvenuto-uces/planit/pull/126)).
 - **RC20:** Des-ignorar y crear package.json, lockfile y documentar checkout limpio ([#127](https://github.com/carolabenvenuto-uces/planit/pull/127)).
 - **RC22:** Desacoplar almacenamiento del controlador mediante fachada ServicioPersistenciaEvento ([#128](https://github.com/carolabenvenuto-uces/planit/pull/128)).
+- **RC23:** Remover cierre excedente, resolver colisiones de merge y validar suite en verde ([#129](https://github.com/carolabenvenuto-uces/planit/pull/129)).
+- **RC24, RC25 y RC26:** Subsanar fallas de integración y validar 13 specs de modal, toast y persistencia ([#130](https://github.com/carolabenvenuto-uces/planit/pull/130)).
+- **RC27:** Incorporar evidencia ejecutable con servidor oficial @playwright/mcp ([#131](https://github.com/carolabenvenuto-uces/planit/pull/131)).
+- **RC28:** Registrar 330 specs verificadas en checkout limpio y resolver fallas residuales ([#132](https://github.com/carolabenvenuto-uces/planit/pull/132)).
+- **RC29:** Formalizar release Actividad Obligatoria N°4 con trazabilidad de PRs y vaciar unreleased ([#133](https://github.com/carolabenvenuto-uces/planit/pull/133)).
 
 ## [Release Tercera Entrega] - 2026-11-01
 
