@@ -195,7 +195,7 @@ function configurarEventos() {
     estadoApp.evento = estadoInicial.evento;
 
     sincronizarFormularioEvento(ui, estadoInicial.detalles);
-    renderFilasPresupuesto(ui);
+    sincronizarCantidadesPresupuesto(ui);
 
     configurarFlujoEvento(ui);
     configurarFlujoPresupuesto(ui);
@@ -1416,23 +1416,26 @@ function vincularBotonSumarEvento(boton) {
     if (!boton || botonesSumarEventoVinculados.has(boton)) return;
     botonesSumarEventoVinculados.add(boton);
 
-    document.querySelectorAll(".btn-sumar-evento").forEach((boton) => {
-        boton.addEventListener("click", () => {
-            const titulo = boton.dataset.serviceTitle || "Servicio";
-            const precio = boton.dataset.servicePrice || "";
+    boton.addEventListener("click", () => {
+        // Los nodos del Toast se resuelven en cada clic para no retener referencias desmontadas.
+        const toastConfirmacionElement = document.getElementById("toastConfirmacion");
+        if (!toastConfirmacionElement) return;
 
-            toastConfirmacionElement.dataset.serviceTitle = titulo;
-            toastConfirmacionElement.dataset.servicePrice = precio;
+        const toastConfirmacionMensaje = document.getElementById("toastConfirmacionMensaje");
+        const toastConfirmacionServicio = document.getElementById("toastConfirmacionServicio");
 
-            if (toastConfirmacionServicio) {
-                toastConfirmacionServicio.textContent = precio ? titulo + " · " + precio : titulo;
-            }
-            if (toastConfirmacionMensaje) {
-                toastConfirmacionMensaje.textContent = "Experiencia agregada a tu evento";
-            }
+        const titulo = boton.dataset.serviceTitle || "Servicio";
+        const precio = boton.dataset.servicePrice || "";
 
-        if (toastConfirmacionServicio) toastConfirmacionServicio.textContent = titulo + " · " + precio;
-        if (toastConfirmacionMensaje) toastConfirmacionMensaje.textContent = "Experiencia agregada a tu evento";
+        toastConfirmacionElement.dataset.serviceTitle = titulo;
+        toastConfirmacionElement.dataset.servicePrice = precio;
+
+        if (toastConfirmacionServicio) {
+            toastConfirmacionServicio.textContent = precio ? titulo + " · " + precio : titulo;
+        }
+        if (toastConfirmacionMensaje) {
+            toastConfirmacionMensaje.textContent = "Experiencia agregada a tu evento";
+        }
 
         mostrarToast(toastConfirmacionElement);
     });
