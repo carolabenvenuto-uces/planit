@@ -195,7 +195,7 @@ function configurarEventos() {
     estadoApp.evento = estadoInicial.evento;
 
     sincronizarFormularioEvento(ui, estadoInicial.detalles);
-    renderFilasPresupuesto(ui);
+    sincronizarCantidadesPresupuesto(ui);
 
     configurarFlujoEvento(ui);
     configurarFlujoPresupuesto(ui);
