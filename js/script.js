@@ -1417,12 +1417,11 @@ function vincularBotonSumarEvento(boton) {
     botonesSumarEventoVinculados.add(boton);
 
     boton.addEventListener("click", () => {
-        // Los nodos del Toast se resuelven en cada clic para no retener referencias desmontadas.
+        // El Toast se busca en cada clic: puede montarse después de registrar el listener.
         const toastConfirmacionElement = document.getElementById("toastConfirmacion");
         if (!toastConfirmacionElement) return;
-
-        const toastConfirmacionMensaje = document.getElementById("toastConfirmacionMensaje");
         const toastConfirmacionServicio = document.getElementById("toastConfirmacionServicio");
+        const toastConfirmacionMensaje = document.getElementById("toastConfirmacionMensaje");
 
         const titulo = boton.dataset.serviceTitle || "Servicio";
         const precio = boton.dataset.servicePrice || "";

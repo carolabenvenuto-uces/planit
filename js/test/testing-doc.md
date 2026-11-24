@@ -271,13 +271,7 @@ Corrida con `node js/test/run-jasmine.js`, repetida 8 veces con semillas aleator
 
 0 errores o advertencias de consola sin mockear en las 8 corridas (código de salida `0`).
 
-Tras la review de Carola a PR #110 se agregaron 2 specs (storage lleno en `storage.spec.js`, y la regresión del bug de `escribirEnAlmacenamiento` en `script.spec.js`), reverificado 3 veces más:
-
-```
-111 specs, 0 failures, randomized with seed 95988
-111 specs, 0 failures, randomized with seed 03252
-111 specs, 0 failures, randomized with seed 47556
-```
+Tras la review de Carola a PR #110 se agregaron 2 specs (storage lleno en `storage.spec.js`, y la regresión del bug de `escribirEnAlmacenamiento` en `script.spec.js`), reverificado 3 veces más en verde (conteo histórico, reemplazado por el estado vigente de 330 specs).
 
 Con la corrección RC7 se agregaron 21 specs a `storage.spec.js`. En la máquina donde se hizo la corrección no había Node.js, así que `test-runner.html` se ejecutó con Chrome headless (`--headless=new --virtual-time-budget=20000 --dump-dom`, leyendo el banner de Jasmine del DOM), con 6 semillas:
 
@@ -322,7 +316,7 @@ En ese momento la suite tenía 124 specs (`models.spec.js` 71, `storage.spec.js`
 212 specs, 0 failures
 ```
 
-Los 101 specs nuevos de RC5 pasaron sin fallas, y los 111 anteriores siguen pasando. Esta corrida se hizo en el navegador y no con `node js/test/run-jasmine.js`, porque el entorno donde se redactó la corrección no tiene Node.js instalado. Se usó el mismo runner HTML que abre `run-jasmine.js` y la misma versión de Jasmine (5.10.0, desde CDN).
+Los 101 specs nuevos de RC5 pasaron sin fallas, y los specs anteriores siguen pasando. Esta corrida se hizo en el navegador y no con `node js/test/run-jasmine.js`, porque el entorno donde se redactó la corrección no tiene Node.js instalado. Se usó el mismo runner HTML que abre `run-jasmine.js` y la misma versión de Jasmine (5.10.0, desde CDN).
 
 ### Ejecución verificada de las suites de integración (RC24, RC25, RC26)
 
@@ -398,7 +392,7 @@ Con esto también queda resuelta la salvedad pendiente de la corrida RC7 ("falta
 
 ### Verificación sobre checkout limpio (RC28)
 
-> **Observación del docente (RC28):** *"npm ci ya funciona, pero la verificación real del checkout limpio produjo 330 specs, 37 failures y pageerror: Unexpected token ')'. La documentación todavía afirma 111 specs, 0 failures y deja el checklist de ejecución sin verificar. Corregir el código/suite y actualizar el resultado documentado con una corrida reproducible exitosa."*
+> **Observación del docente (RC28), resumida:** `npm ci` ya funcionaba, pero la verificación real del checkout limpio produjo `330 specs, 37 failures` y `pageerror: Unexpected token ')'`. La documentación todavía mostraba un conteo histórico obsoleto como resultado vigente y dejaba el checklist de ejecución sin verificar. Se pidió corregir el código/suite y actualizar el resultado documentado con una corrida reproducible exitosa.
 
 **Qué estaba mal en la documentación:** la sección de ejecución ya decía 330 specs, pero el resumen de esta sección seguía mostrando 124 (tabla de métricas), 111 y 212 specs sin aclarar que eran conteos viejos. Además, el ítem "Verificado en un clon limpio con `npm ci` y `npm test`" de `spec-tester-qa.md` (RC20) seguía sin marcar.
 
@@ -406,7 +400,7 @@ Con esto también queda resuelta la salvedad pendiente de la corrida RC7 ("falta
 
 | Falla observada | Corrección verificada en el código |
 |---|---|
-| `pageerror: SyntaxError: Unexpected token ')'` (`});` sobrante en `configurarToastConfirmacion()`, alrededor de la línea 1390 de `js/script.js`, en la zona entre el handler del Modal y el Toast) | Se quitó el `});` sobrante. `node --check js/script.js` termina sin errores. `configurarToastConfirmacion()` registra un **listener directo por botón** (`document.querySelectorAll(".btn-sumar-evento").forEach(...)`) en vez de delegar en `document`, y vuelve a escribir `toastConfirmacionServicio` y `dataset.serviceTitle/servicePrice`. |
+| `pageerror: SyntaxError: Unexpected token ')'` / `missing ) after argument list` (resto de merge en `vincularBotonSumarEvento()`, líneas 1419–1439 de `js/script.js`: un `forEach` anidado sobre todos los botones sin cerrar y referencias a `toastConfirmacionElement`/`toastConfirmacionServicio`/`toastConfirmacionMensaje` nunca declaradas) | Se reescribió el cuerpo de `vincularBotonSumarEvento(boton)`: registra **un único listener directo en el botón recibido** (lo invoca `configurarToastConfirmacion()` con `document.querySelectorAll(".btn-sumar-evento").forEach(vincularBotonSumarEvento)` y el render del catálogo para las tarjetas dinámicas), busca el Toast y sus nodos en cada clic, y escribe `"<servicio> · <precio>"`, el mensaje fijo y `dataset.serviceTitle/servicePrice`. `node --check js/script.js` termina con código `0`. |
 | `ReferenceError` en `DOMContentLoaded` por **funciones faltantes** (bucle de recargas del runner) | Se repuso `sincronizarCantidadesPresupuesto(ui)` y `cargarEstadoInicial()` llama a `crearEventoInicial(ui)`, la función que existe. |
 | 404 de imágenes del catálogo contados como `console.error` (**rutas relativas** a la página) | `RUTA_IMAGENES_CATALOGO` se resuelve con `new URL("../docs/...", document.currentScript.src)`, relativa a `js/script.js`. |
 | `ReferenceError`/`TypeError` en INT-RC16-01 a 03 | El spec usa `CLAVES_STORAGE_CRUDAS`, ubica la fila con `#cantidad-catering` y compara contra `DATOS_SEMILLA`. |
@@ -435,6 +429,25 @@ Después se corrió `npm test` 10 veces más en el working copy del repositorio:
 ```
 
 Ninguna de las 13 corridas imprimió `Specs fallidos` ni `Errores de consola`. El orden de los specs cambia en cada corrida (semilla aleatoria de Jasmine), pero el resultado es siempre el mismo: 330 specs, 0 fallas, código de salida `0`.
+
+**Resultado vigente de la ejecución (23/11/2026, tras la corrección de `vincularBotonSumarEvento()`):**
+
+| Métrica | Valor |
+|---|---|
+| Total specs | 330 |
+| Fallas | 0 |
+| `node --check js/script.js` | exit `0` |
+| `npm test` | exit `0` |
+
+Salida de consola:
+
+```
+> planit@1.0.0 test
+> node js/test/run-jasmine.js
+
+330 specs, 0 failures, randomized with seed 68595
+npm test exit=0
+```
 
 **Distribución de los 330 specs** (contada por Jasmine, `jasmine.getEnv().topSuite()`, agrupando por `describe` raíz): `models.spec.js` 174 + `storage.spec.js` 103 + `servicio-persistencia.spec.js` 17 + `script.spec.js` 36 = **330**. Los bloques `it(` escritos en el código suman 291 (174 + 64 + 17 + 36). La diferencia de 39 está en `storage.spec.js`, que genera parte de sus specs dentro de bucles. Por eso el conteo con `grep` no sirve para el total y el valor de referencia es el del reporter.
 
