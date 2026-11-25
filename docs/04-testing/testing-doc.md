@@ -1,6 +1,6 @@
-# Informe de Testing — PWI 2026 (1er Parcial)
+# Informe de Testing — PWI 2026 (Segundo Parcial)
 
-Este archivo centraliza el estado de los 10 test cases ejecutados sobre PlanIT, cubriendo compatibilidad, responsive, performance, accesibilidad y estructura HTML semántica.
+Este archivo centraliza el estado de los 11 test cases ejecutados sobre PlanIT, cubriendo compatibilidad, responsive, performance, accesibilidad, estructura HTML semántica, componentes Bootstrap y HTML avanzados, y auditorías Lighthouse.
 
 ## Test cases
 
