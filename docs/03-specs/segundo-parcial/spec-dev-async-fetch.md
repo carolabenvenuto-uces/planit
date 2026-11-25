@@ -124,13 +124,70 @@ Además, el **Lighthouse baseline** se corre sobre `develop` antes del merge de 
 ## MOMENTO 2: Evidencia de Cierre (AL FINALIZAR)
 
 ### 1. Prompt utilizado y ajustes manuales
-*(A completar al cierre.)*
+La implementación se generó con **GitHub Copilot en modo Agente** en VS Code, con el spec, `js/script.js`, `js/models/Proveedor.js`, `js/models/CatalogoProveedores.js`, `index.html`, `js/test/test-runner.html` y `js/test/script.spec.js` como contexto.
+
+**Prompt principal:**
+
+```text
+Sos un desarrollador JS asíncrono trabajando en PlanIT. Seguí ESTRICTAMENTE el spec adjunto
+docs/03-specs/segundo-parcial/spec-dev-async-fetch.md (MOMENTO 1). No modifiques el spec.
+
+Tareas:
+1. Crear api/proveedores.json con { "version": 1, "proveedores": [...] } migrando los proveedores
+   que hoy están hardcodeados en DATOS_SEMILLA.catalogo y PRESENTACION_PROVEEDORES de js/script.js
+   (campos: nombre, categoria, precio, unidad, imagen, alt, descripcion, capacidad, zona, duracion, incluye).
+2. Crear js/api/apiService.js como script clásico (SIN import/export) que exponga un objeto global
+   ApiService con: fetchData, obtenerProveedores (con un reintento), validarProveedor, sanitizarTexto,
+   aCatalogo (map), filtrarPorCategoria y filtrarPorPrecioMaximo (filter) y resumirCatalogo (reduce).
+   El servicio NO toca el DOM. JSDoc en español.
+3. En js/script.js: carga asíncrona del catálogo con ApiService, estados de carga (spinner con
+   aria-live), éxito y error (mensaje + botón "Reintentar"), fallback a DATOS_SEMILLA y try/catch,
+   sin romper presupuesto, invitados ni persistencia.
+4. Cargar js/api/apiService.js en index.html y en js/test/test-runner.html antes de js/script.js.
+5. En js/test/script.spec.js, adaptar SOLO el beforeEach del catálogo para que espere (await)
+   a construirCatalogo.
+6. Sin librerías externas ni ES modules; no tocar ServicioPersistenciaEvento, los modelos POO,
+   plan.md ni el changelog.
+```
+
+**Prompt de corrección:**
+
+```text
+1. js/test/test-runner.html: revertí todos tus cambios. El ÚNICO cambio respecto del original debe
+   ser agregar <script src="../api/apiService.js"></script> justo antes de <script src="../script.js"></script>.
+2. js/script.js: en el estado de éxito del catálogo, mostrar un resumen breve calculado con
+   ApiService.resumirCatalogo() (cantidad y rango de precios por categoría). No mostrarlo en el
+   estado de error/fallback. No cambiar nada más del controlador.
+```
+
+**Ajustes manuales y decisiones:**
+- **Archivos descartados de la primera respuesta del agente.** Copilot modificó 13 archivos; se conservaron los 6 que corresponden a este rol (`api/proveedores.json`, `js/api/apiService.js`, `js/script.js`, `index.html`, `js/test/test-runner.html` y `js/test/script.spec.js`). Se descartaron `js/test/api.spec.js`, `js/test/servidor-local.js`, `run-jasmine.js`, `open-runner.js`, `take-screenshots.js`, `testing-doc.md` y `README.md`, porque pertenecen a los roles de Tester QA/JS y de Coordinación.
+- **`test-runner.html`.** El agente había agregado un `<base href>`, reescrito todas las rutas y cargado `api.spec.js` (descartado, lo que generaba un 404). Con el prompt de corrección quedó un único cambio: la línea de `apiService.js`.
+- **Resumen con `reduce`.** La primera versión no usaba `resumirCatalogo()` en la vista. Se agregó el resumen en el estado de éxito, como define la sección 5.
+- **Herramienta.** Una primera versión se había generado con Copilot Chat desde github.com, porque Copilot Chat no está disponible en vscode.dev y la cuota de Codespaces estaba agotada. Se descartó con `git reset` para respetar la herramienta definida en la sección 8, y se regeneró con Copilot en modo Agente en VS Code.
+- **Identidad de Git.** El primer commit local se registró con un mail asociado a otra cuenta de GitHub. Se configuró la identidad del repositorio (`git config user.name/user.email`, sin `--global`) y se corrigió el autor con `git commit --amend --reset-author`.
+- La revisión de los diffs antes de cada commit se hizo con asistencia de Claude (Anthropic).
+
+**Resultado:** test runner con **330 specs, 0 failures**. Con Live Server, el catálogo se carga desde `api/proveedores.json` y muestra el resumen y las 3 tarjetas ([captura](evidencia-fetch-catalogo.png)). Al abrir con `file://`, el `fetch` falla y se usa el fallback con el aviso y el botón Reintentar, como se anticipó en la sección 2.
 
 ### 2. Integración con clases POO y con Storage
-*(A completar al cierre.)*
+- **POO:** `ApiService.aCatalogo()` usa `map` para convertir cada registro en una instancia de `Proveedor` (cuyo constructor valida los datos) y los agrega a un `CatalogoProveedores`. Los registros que el modelo rechaza se descartan y se informan en la consola, sin cortar la carga del resto. La búsqueda por texto sigue usando `CatalogoProveedores.buscar()`, y el filtro por categoría pasa a usar `ApiService.filtrarPorCategoria()` (`filter`).
+- **Fallback:** si la carga falla después del reintento, el controlador reconstruye el catálogo con `CatalogoProveedores.fromJSON(DATOS_SEMILLA.catalogo)`.
+- **Storage:** no se modificó. El catálogo no forma parte del estado persistido del evento y no se implementó caché, así que `ServicioPersistenciaEvento` y `js/utils/storage.js` quedan sin cambios.
 
 ### 3. Issues respondidas y su resolución
-*(A completar al cierre.)*
+- [#138](https://github.com/carolabenvenuto-uces/planit/issues/138): issue principal del rol. Se resuelve con la PR de esta rama. No se recibieron consultas ni issues de otros roles durante el desarrollo.
 
 ### 4. Criterios de Aceptación al cierre
-*(A completar al cierre.)*
+- [x] `spec-dev-async-fetch.md` commiteado antes que cualquier código.
+- [x] API seleccionada (JSON estático en `api/proveedores.json`) y decisión técnica documentada.
+- [x] Funciones asíncronas con `fetch` y promesas en `js/api/apiService.js`, con JSDoc.
+- [x] Estados de carga, éxito y error con feedback visual en la sección Catálogo.
+- [x] Datos integrados dinámicamente al DOM.
+- [x] `map`, `filter` y `reduce` aplicados al procesamiento del catálogo.
+- [x] Validación y sanitización de los datos recibidos.
+- [x] `try/catch` en las operaciones asíncronas, mensajes amigables y fallback a los datos semilla.
+- [x] Datos convertidos en instancias de `Proveedor` y `CatalogoProveedores`.
+- [x] Servicio separado del controlador, sin manipulación del DOM.
+- [x] Casos de test coordinados con el Tester QA/JS (sección 7; `api.spec.js` es entregable del rol Tester).
+- [x] Contribución registrada en `changelog.md` con links a la PR y a la issue.
