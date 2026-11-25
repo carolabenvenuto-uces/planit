@@ -18,8 +18,11 @@
         Fixture de DOM para script.spec.js: subconjunto de index.html con los mismos
         id/data-* que lee js/script.js (obtenerReferenciasUI, crearEventoDesdeMarcado,
         construirCatalogoDesdeMarcado). No incluye el Modal de detalle ni el Toast de
-        confirmación (migrados en PR #109): configurarComponentesBootstrap() los omite
-        sin error si no existen (ver spec-tester-qa.md, MOMENTO 2, alcance de la suite).
+        confirmación: los specs de integración RC14/RC15 los montan en un sandbox propio
+        (copiado de index.html) y lo retiran al terminar, así configurarEventos() sigue
+        corriendo al inicio sin esos nodos. Bootstrap JS se carga igual que en index.html
+        para probar el Modal y el Toast reales; RC15 también lo quita a propósito para
+        probar la degradación (ver spec-tester-qa.md, MOMENTO 2, sección 6).
     -->
     <div id="aviso-app" hidden></div>
 
@@ -112,6 +115,9 @@
         </tbody>
     </table>
 
+    <!-- Bootstrap JS: misma versión e integridad que index.html (Modal y Toast reales para RC14/RC15) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+
     <!-- Tu código fuente -->
     <script src="../models/Validador.js"></script>
     <script src="../models/ItemContratado.js"></script>
@@ -122,11 +128,13 @@
     <script src="../models/Proveedor.js"></script>
     <script src="../models/CatalogoProveedores.js"></script>
     <script src="../utils/storage.js"></script>
+    <script src="../services/ServicioPersistenciaEvento.js"></script>
     <script src="../script.js"></script>
 
     <!-- Tus tests -->
     <script src="models.spec.js"></script>
     <script src="storage.spec.js"></script>
+    <script src="servicio-persistencia.spec.js"></script>
     <script src="script.spec.js"></script>
 </body>
 </html>

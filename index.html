@@ -108,8 +108,10 @@
                     <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
                     Presupuesto
                 </h2>
-                <!-- Flujo 2 (AO4): cada fila con data-item se convierte en un ItemContratado.
-                     Los subtotales y totales los calcula el modelo Presupuesto; script.js solo los pinta. -->
+                <!-- Flujo 2 (AO4, RC9): punto de montaje. El <tbody> queda vacío a propósito:
+                     js/script.js genera cada fila (categoría, concepto, cantidad, precio y subtotal)
+                     desde las instancias de Presupuesto / ItemContratado. Los subtotales y totales
+                     los calcula el modelo; script.js solo los pinta. -->
                 <form id="form-presupuesto" action="#" method="post" novalidate>
                 <div class="table-wrapper">
                     <table class="data-table">
@@ -125,66 +127,12 @@
                             </tr>
                         </thead>
                         <tbody id="desglose-presupuesto">
-                            <tr data-item data-categoria="Catering" data-descripcion="Finger food premium y barra libre" data-precio-unitario="3500">
-                                <th scope="row">Catering</th>
-                                <td>Finger food premium y barra libre</td>
-                                <td>Proveedor</td>
-                                <td class="num">
-                                    <input type="number" id="cantidad-catering" class="form-control form-control-sm input-cantidad" min="0" step="1" value="120" aria-label="Cantidad de Catering (pax)" aria-describedby="cantidad-catering-error"> pax
-                                    <span id="cantidad-catering-error" class="invalid-feedback"></span>
-                                </td>
-                                <td class="num">$3.500</td>
-                                <td class="num subtotal" data-subtotal>$420.000</td>
-                            </tr>
-                            <tr data-item data-categoria="Decoración" data-descripcion="Arreglos florales y ambientación luces" data-precio-unitario="70000">
-                                <th scope="row">Decoración</th>
-                                <td>Arreglos florales y ambientación luces</td>
-                                <td>Proveedor</td>
-                                <td class="num">
-                                    <input type="number" id="cantidad-decoracion" class="form-control form-control-sm input-cantidad" min="0" step="1" value="1" aria-label="Cantidad de Decoración (global)" aria-describedby="cantidad-decoracion-error"> global
-                                    <span id="cantidad-decoracion-error" class="invalid-feedback"></span>
-                                </td>
-                                <td class="num">$70.000</td>
-                                <td class="num subtotal" data-subtotal>$70.000</td>
-                            </tr>
-                            <tr data-item data-categoria="Sonido" data-descripcion="DJ set completo y sonido de pista" data-precio-unitario="8000">
-                                <th scope="row">Sonido</th>
-                                <td>DJ set completo y sonido de pista</td>
-                                <td>Proveedor</td>
-                                <td class="num">
-                                    <input type="number" id="cantidad-sonido" class="form-control form-control-sm input-cantidad" min="0" step="1" value="6" aria-label="Cantidad de Sonido (horas)" aria-describedby="cantidad-sonido-error"> horas
-                                    <span id="cantidad-sonido-error" class="invalid-feedback"></span>
-                                </td>
-                                <td class="num">$8.000</td>
-                                <td class="num subtotal" data-subtotal>$48.000</td>
-                            </tr>
-                            <tr data-item data-categoria="Fotografía" data-descripcion="Cobertura de evento y álbum digital" data-precio-unitario="32000">
-                                <th scope="row">Fotografía</th>
-                                <td>Cobertura de evento y álbum digital</td>
-                                <td>Proveedor</td>
-                                <td class="num">
-                                    <input type="number" id="cantidad-fotografia" class="form-control form-control-sm input-cantidad" min="0" step="1" value="1" aria-label="Cantidad de Fotografía (global)" aria-describedby="cantidad-fotografia-error"> global
-                                    <span id="cantidad-fotografia-error" class="invalid-feedback"></span>
-                                </td>
-                                <td class="num">$32.000</td>
-                                <td class="num subtotal" data-subtotal>$32.000</td>
-                            </tr>
-                            <tr data-item data-categoria="Transporte" data-descripcion="Traslado de materiales y coordinación" data-precio-unitario="5000">
-                                <th scope="row">Transporte</th>
-                                <td>Traslado de materiales y coordinación</td>
-                                <td>Proveedor</td>
-                                <td class="num">
-                                    <input type="number" id="cantidad-transporte" class="form-control form-control-sm input-cantidad" min="0" step="1" value="2" aria-label="Cantidad de Transporte (viajes)" aria-describedby="cantidad-transporte-error"> viajes
-                                    <span id="cantidad-transporte-error" class="invalid-feedback"></span>
-                                </td>
-                                <td class="num">$5.000</td>
-                                <td class="num subtotal" data-subtotal>$10.000</td>
-                            </tr>
+                            <!-- Filas generadas por renderFilasPresupuesto() en js/script.js -->
                         </tbody>
                         <tfoot>
                             <tr>
                                 <th scope="row" colspan="5">Subtotal</th>
-                                <td class="num" id="subtotal-presupuesto">$580.000</td>
+                                <td class="num" id="subtotal-presupuesto">—</td>
                             </tr>
                             <tr>
                                 <th scope="row" colspan="5">
@@ -197,7 +145,7 @@
                             </tr>
                             <tr>
                                 <th scope="row" colspan="5">Total Gastado Estimado</th>
-                                <td class="num"><output id="total-presupuesto" for="desglose-presupuesto descuento-presupuesto">$580.000</output></td>
+                                <td class="num"><output id="total-presupuesto" for="desglose-presupuesto descuento-presupuesto">—</output></td>
                             </tr>
                         </tfoot>
                     </table>
@@ -215,8 +163,9 @@
                     <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
                     Invitados
                 </h2>
-                <!-- Flujo 4 (AO4): alta por formulario; la tabla se re-renderiza desde ListaInvitados.
-                     Las filas iniciales (data-nombre / data-estado) son los datos de ejemplo. -->
+                <!-- Flujo 4 (AO4, RC11): alta por formulario. El <tbody> queda vacío a propósito:
+                     js/script.js construye la lista desde ListaInvitados (estado persistido en
+                     storage o datos semilla del controlador) e incluye la fila de estado vacío. -->
                 <form id="form-invitado" class="event-form" action="#" method="post" novalidate>
                     <div class="form-group">
                         <label for="nombre-invitado">Nombre del invitado</label>
@@ -251,31 +200,7 @@
                             </tr>
                         </thead>
                         <tbody id="lista-invitados">
-                            <tr data-nombre="Sofía Rodríguez" data-estado="Confirmado">
-                                <th scope="row">Sofía Rodríguez</th>
-                                <td class="center"><span class="badge badge-confirmado">Confirmado</span></td>
-                                <td class="center"></td>
-                            </tr>
-                            <tr data-nombre="Mateo González" data-estado="Confirmado">
-                                <th scope="row">Mateo González</th>
-                                <td class="center"><span class="badge badge-confirmado">Confirmado</span></td>
-                                <td class="center"></td>
-                            </tr>
-                            <tr data-nombre="Valentina Benítez" data-estado="Pendiente">
-                                <th scope="row">Valentina Benítez</th>
-                                <td class="center"><span class="badge badge-pendiente">Pendiente</span></td>
-                                <td class="center"></td>
-                            </tr>
-                            <tr data-nombre="Bautista Martínez" data-estado="Confirmado">
-                                <th scope="row">Bautista Martínez</th>
-                                <td class="center"><span class="badge badge-confirmado">Confirmado</span></td>
-                                <td class="center"></td>
-                            </tr>
-                            <tr data-nombre="Santiago Díaz" data-estado="Pendiente">
-                                <th scope="row">Santiago Díaz</th>
-                                <td class="center"><span class="badge badge-pendiente">Pendiente</span></td>
-                                <td class="center"></td>
-                            </tr>
+                            <!-- Filas generadas por renderInvitados() en js/script.js -->
                         </tbody>
                     </table>
                 </div>
@@ -296,9 +221,7 @@
                         <label for="categoria-catalogo" class="sr-only">Filtrar por categoría</label>
                         <select id="categoria-catalogo" name="categoria" class="form-select" aria-controls="contenedor-catalogo">
                             <option value="" selected>Todas</option>
-                            <option value="Catering">Catering</option>
-                            <option value="Decoración">Decoración</option>
-                            <option value="Sonido">Sonido</option>
+                            <!-- Las categorías se derivan de CatalogoProveedores en js/script.js -->
                         </select>
                     </form>
                 </div>
@@ -306,55 +229,10 @@
                 <p id="contador-catalogo" class="mb-2" role="status" aria-live="polite"></p>
                 <p id="catalogo-vacio" class="alert alert-info" hidden></p>
 
-                <!-- Cada tarjeta con data-proveedor se convierte en un Proveedor del modelo -->
+                <!-- Flujo 3 (AO4, RC10): punto de montaje. Las tarjetas se generan en js/script.js
+                     (renderCatalogo / crearTarjetaProveedor) desde las instancias de Proveedor de
+                     CatalogoProveedores; el HTML no contiene datos operativos del catálogo. -->
                 <div id="contenedor-catalogo" class="cards-grid row g-3">
-                    <div class="col-12 col-md-4" data-proveedor data-nombre="Gourmet Finger Food" data-categoria="Catering" data-precio="3500" data-unidad="pax">
-                        <article class="card">
-                            <img src="./docs/01-mockup/actividad-obligatoria-2/catalogo-gourmet-finger-food.jpg" alt="Mesa de catering con bandejas de mini sándwiches y bocados en varios niveles" width="1344" height="655" loading="lazy">
-                            <div class="card-body">
-                                <h3>Gourmet Finger Food</h3>
-                                <p>Selección premium fría y caliente para recepción. Variedad para todos los gustos.</p>
-                                <p class="card-meta">Catering · Hasta 200 pax · Zona Norte GBA</p>
-                                <p class="card-price">$3.500 / pax</p>
-                                <div class="card-actions d-grid gap-2 mt-2">
-                                    <button type="button" class="btn btn-outline-primary btn-ver-detalle" data-bs-toggle="modal" data-bs-target="#modalDetalleServicio" data-service-title="Gourmet Finger Food" data-service-image="./docs/01-mockup/actividad-obligatoria-2/catalogo-gourmet-finger-food.jpg" data-service-alt="Mesa de catering con bandejas de mini sándwiches y bocados en varios niveles" data-service-description="Selección premium fría y caliente para recepción. Variedad para todos los gustos." data-service-details="Catering · Hasta 200 pax · Zona Norte GBA" data-service-capacidad="Hasta 200 pax" data-service-duracion="4 horas" data-service-incluye="Finger food frío y caliente, montaje y reposición" data-service-price="$3.500 / pax">Ver detalle</button>
-                                    <button type="button" class="btn btn-primary btn-sumar-evento" data-service-title="Gourmet Finger Food" data-service-price="$3.500 / pax">Sumar al Evento</button>
-                                </div>
-                            </div>
-                        </article>
-                    </div>
-
-                    <div class="col-12 col-md-4" data-proveedor data-nombre="Flores Pilar" data-categoria="Decoración" data-precio="70000" data-unidad="base">
-                        <article class="card">
-                            <img src="./docs/01-mockup/actividad-obligatoria-2/catalogo-flores-pilar.jpg" alt="Centro de mesa con rosas y peonías rosadas sobre una mesa de salón de eventos" width="1344" height="655" loading="lazy">
-                            <div class="card-body">
-                                <h3>Flores Pilar</h3>
-                                <p>Centros de mesa personalizados y ramo para novias con flores naturales de estación.</p>
-                                <p class="card-meta">Decoración · 1 evento por fecha · Pilar</p>
-                                <p class="card-price">$70.000 / base</p>
-                                <div class="card-actions d-grid gap-2 mt-2">
-                                    <button type="button" class="btn btn-outline-primary btn-ver-detalle" data-bs-toggle="modal" data-bs-target="#modalDetalleServicio" data-service-title="Flores Pilar" data-service-image="./docs/01-mockup/actividad-obligatoria-2/catalogo-flores-pilar.jpg" data-service-alt="Centro de mesa con rosas y peonías rosadas sobre una mesa de salón de eventos" data-service-description="Centros de mesa personalizados y ramo para novias con flores naturales de estación." data-service-details="Decoración · 1 evento por fecha · Pilar" data-service-capacidad="1 evento por fecha" data-service-duracion="1 jornada de montaje" data-service-incluye="Centros de mesa personalizados y ramo para novias" data-service-price="$70.000 / base">Ver detalle</button>
-                                    <button type="button" class="btn btn-primary btn-sumar-evento" data-service-title="Flores Pilar" data-service-price="$70.000 / base">Sumar al Evento</button>
-                                </div>
-                            </div>
-                        </article>
-                    </div>
-
-                    <div class="col-12 col-md-4" data-proveedor data-nombre="DJ Lucas &amp; Sonido" data-categoria="Sonido" data-precio="8000" data-unidad="hora">
-                        <article class="card">
-                            <img src="./docs/01-mockup/actividad-obligatoria-2/catalogo-dj-lucas-sonido.jpg" alt="DJ con auriculares mezclando en una consola frente a una pista iluminada" width="1344" height="655" loading="lazy">
-                            <div class="card-body">
-                                <h3>DJ Lucas &amp; Sonido</h3>
-                                <p>Equipamiento de audio completo de alta fidelidad, iluminación robótica y pista de baile.</p>
-                                <p class="card-meta">Sonido · Hasta 300 personas · CABA y GBA</p>
-                                <p class="card-price">$8.000 / hora</p>
-                                <div class="card-actions d-grid gap-2 mt-2">
-                                    <button type="button" class="btn btn-outline-primary btn-ver-detalle" data-bs-toggle="modal" data-bs-target="#modalDetalleServicio" data-service-title="DJ Lucas &amp; Sonido" data-service-image="./docs/01-mockup/actividad-obligatoria-2/catalogo-dj-lucas-sonido.jpg" data-service-alt="DJ con auriculares mezclando en una consola frente a una pista iluminada" data-service-description="Equipamiento de audio completo de alta fidelidad, iluminación robótica y pista de baile." data-service-details="Sonido · Hasta 300 personas · CABA y GBA" data-service-capacidad="Hasta 300 personas" data-service-duracion="6 horas" data-service-incluye="DJ, sonido de alta fidelidad e iluminación robótica" data-service-price="$8.000 / hora">Ver detalle</button>
-                                    <button type="button" class="btn btn-primary btn-sumar-evento" data-service-title="DJ Lucas &amp; Sonido" data-service-price="$8.000 / hora">Sumar al Evento</button>
-                                </div>
-                            </div>
-                        </article>
-                    </div>
                 </div>
             </section>
 
@@ -452,24 +330,28 @@
                     <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21.2 15.9A10 10 0 1 1 8 2.8M22 12A10 10 0 0 0 12 2v10Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
                     Resumen Financiero
                 </h2>
+                <!-- Punto de montaje: js/script.js (renderResumenFinanciero) escribe los montos
+                     con los valores del modelo Evento/Presupuesto. Sin datos financieros fijos.
+                     Saldo y porcentaje quedan en "—" hasta que el modelo exponga un método
+                     para calcularlos (Regla 1: el controlador no hace cuentas). -->
                 <dl class="resumen-lista">
                     <div>
                         <dt>Presupuesto total</dt>
-                        <dd class="monto monto-total">$700.000</dd>
+                        <dd class="monto monto-total" id="resumen-presupuesto-total">—</dd>
                     </div>
                     <div>
                         <dt>Gastado estimado</dt>
-                        <dd class="monto monto-gastado">$580.000</dd>
+                        <dd class="monto monto-gastado" id="resumen-gastado">—</dd>
                     </div>
                     <div>
                         <dt>Saldo disponible</dt>
-                        <dd class="monto monto-saldo">$120.000</dd>
+                        <dd class="monto monto-saldo" id="resumen-saldo">—</dd>
                     </div>
                 </dl>
-                <div class="progress" role="progressbar" aria-label="Presupuesto utilizado" aria-valuenow="82" aria-valuemin="0" aria-valuemax="100">
-                    <span class="progress-bar" style="width: 82%;"></span>
+                <div class="progress" id="resumen-progreso" role="progressbar" aria-label="Presupuesto utilizado" aria-valuemin="0" aria-valuemax="100" hidden>
+                    <span class="progress-bar"></span>
                 </div>
-                <p class="progress-legend"><span>82% utilizado</span> <span class="progress-limit">Límite: $700.000</span></p>
+                <p class="progress-legend"><span id="resumen-porcentaje">— utilizado</span> <span class="progress-limit" id="resumen-limite">Límite: —</span></p>
             </section>
 
             <section class="panel" aria-labelledby="titulo-tareas">
@@ -486,9 +368,10 @@
                 </ul>
             </section>
 
-            <p class="alert-warning" role="status">
+            <!-- Texto escrito por renderResumenFinanciero() según Evento.superaPresupuesto() -->
+            <p id="resumen-alerta" class="alert-warning" role="status" hidden>
                 <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0M12 9v4M12 17h.01" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                Atención: Estás a $120.000 de tu límite de presupuesto.
+                <span id="resumen-alerta-texto"></span>
             </p>
 
         </aside>
@@ -560,8 +443,10 @@
     <script src="js/models/Evento.js" defer></script>
     <script src="js/models/Proveedor.js" defer></script>
     <script src="js/models/CatalogoProveedores.js" defer></script>
-    <!-- Persistencia (expone Almacenamiento.guardar / Almacenamiento.cargar) -->
+    <!-- Adaptador de storage de bajo nivel (Almacenamiento): solo lo consume la fachada -->
     <script src="js/utils/storage.js" defer></script>
+    <!-- Fachada de persistencia (RC22): única que conoce Almacenamiento, las claves y toJSON/fromJSON -->
+    <script src="js/services/ServicioPersistenciaEvento.js" defer></script>
     <!-- Controlador de UI y eventos: siempre al final -->
     <script src="js/script.js" defer></script>
 

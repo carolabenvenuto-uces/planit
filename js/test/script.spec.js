@@ -11,7 +11,190 @@
  * comparten una única carga de página, cada test restaura el estado inicial
  * exacto del fixture en beforeEach (restaurarEstadoInicial), para no depender
  * del orden real de ejecución (Jasmine randomiza el orden de los specs).
+ *
+ * El bloque "Integración - Controlador y UI (RC14, RC15, RC16)" al final del
+ * archivo agrega:
+ *   - RC14/RC15: un sandbox con el Modal de detalle, el Toast y los botones de
+ *     las tarjetas copiados de index.html, montado y desmontado en cada spec;
+ *   - RC16: una "carga nueva" de la página: se descarta el estado en memoria, se
+ *     reemplazan los nodos del fixture por su marcado original (capturado abajo,
+ *     antes de DOMContentLoaded) y se vuelve a disparar DOMContentLoaded.
  */
+
+/*
+ * Marcado original de los nodos del fixture que lee el controlador. Este archivo
+ * se ejecuta antes de DOMContentLoaded (scripts clásicos al final del <body>), así
+ * que outerHTML todavía no tiene ningún cambio hecho por configurarEventos().
+ */
+const IDS_FIXTURE_RECARGABLES = [
+    "aviso-app", "form-evento", "form-presupuesto", "form-catalogo", "contador-catalogo",
+    "catalogo-vacio", "contenedor-catalogo", "form-invitado", "feedback-invitados",
+    "metricas-invitados", "lista-invitados"
+];
+const MARCADO_INICIAL_FIXTURE = new Map(
+    IDS_FIXTURE_RECARGABLES.map(function (id) { return [id, document.getElementById(id).outerHTML]; })
+);
+
+/**
+ * Paso 3 del ciclo de vida de RC16: descarta las instancias en memoria y
+ * reemplaza cada nodo del fixture por uno nuevo, parseado desde su marcado
+ * original. Los nodos nuevos no tienen listeners ni valores modificados: el DOM
+ * queda como en una carga limpia, antes de que corra configurarEventos().
+ */
+function reiniciarMemoriaYDOM() {
+    estadoApp.evento = null;
+    estadoApp.catalogo = null;
+    estadoApp.tarjetasCatalogo.clear();
+
+    MARCADO_INICIAL_FIXTURE.forEach(function (marcado, id) {
+        const plantilla = document.createElement("template");
+        plantilla.innerHTML = marcado;
+        document.getElementById(id).replaceWith(plantilla.content.firstElementChild);
+    });
+}
+
+/**
+ * Modal de detalle, Toast y botones de las 3 tarjetas, copiados de index.html. Única
+ * diferencia: data-service-image apunta a ../../docs/ porque el runner vive en js/test/
+ * (con ./docs/ la imagen daría 404 y run-jasmine.js lo contaría como console.error).
+ */
+const MARCADO_COMPONENTES_BOOTSTRAP = `
+    <div class="tarjetas-sandbox">
+        <button type="button" class="btn btn-outline-primary btn-ver-detalle" data-bs-toggle="modal" data-bs-target="#modalDetalleServicio" data-service-title="Gourmet Finger Food" data-service-image="../../docs/01-mockup/actividad-obligatoria-2/catalogo-gourmet-finger-food.jpg" data-service-alt="Mesa de catering con bandejas de mini sándwiches y bocados en varios niveles" data-service-description="Selección premium fría y caliente para recepción. Variedad para todos los gustos." data-service-capacidad="Hasta 200 pax" data-service-duracion="4 horas" data-service-incluye="Finger food frío y caliente, montaje y reposición" data-service-price="$3.500 / pax">Ver detalle</button>
+        <button type="button" class="btn btn-primary btn-sumar-evento" data-service-title="Gourmet Finger Food" data-service-price="$3.500 / pax">Sumar al Evento</button>
+        <button type="button" class="btn btn-outline-primary btn-ver-detalle" data-bs-toggle="modal" data-bs-target="#modalDetalleServicio" data-service-title="Flores Pilar" data-service-image="../../docs/01-mockup/actividad-obligatoria-2/catalogo-flores-pilar.jpg" data-service-alt="Centro de mesa con rosas y peonías rosadas sobre una mesa de salón de eventos" data-service-description="Centros de mesa personalizados y ramo para novias con flores naturales de estación." data-service-capacidad="1 evento por fecha" data-service-duracion="1 jornada de montaje" data-service-incluye="Centros de mesa personalizados y ramo para novias" data-service-price="$70.000 / base">Ver detalle</button>
+        <button type="button" class="btn btn-primary btn-sumar-evento" data-service-title="Flores Pilar" data-service-price="$70.000 / base">Sumar al Evento</button>
+        <button type="button" class="btn btn-outline-primary btn-ver-detalle" data-bs-toggle="modal" data-bs-target="#modalDetalleServicio" data-service-title="DJ Lucas &amp; Sonido" data-service-image="../../docs/01-mockup/actividad-obligatoria-2/catalogo-dj-lucas-sonido.jpg" data-service-alt="DJ con auriculares mezclando en una consola frente a una pista iluminada" data-service-description="Equipamiento de audio completo de alta fidelidad, iluminación robótica y pista de baile." data-service-capacidad="Hasta 300 personas" data-service-duracion="6 horas" data-service-incluye="DJ, sonido de alta fidelidad e iluminación robótica" data-service-price="$8.000 / hora">Ver detalle</button>
+        <button type="button" class="btn btn-primary btn-sumar-evento" data-service-title="DJ Lucas &amp; Sonido" data-service-price="$8.000 / hora">Sumar al Evento</button>
+    </div>
+    <div class="modal fade" id="modalDetalleServicio" tabindex="-1" aria-labelledby="modalDetalleServicioTitulo" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 class="modal-title" id="modalDetalleServicioTitulo">Detalle del servicio</h2>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                    <img id="modalDetalleServicioImagen" class="img-fluid rounded" alt="">
+                    <p id="modalDetalleServicioDescripcion"></p>
+                    <ul class="list-unstyled small mb-0" aria-label="Detalles del servicio">
+                        <li><strong>Capacidad:</strong> <span id="modalDetalleServicioCapacidad"></span></li>
+                        <li><strong>Duración:</strong> <span id="modalDetalleServicioDuracion"></span></li>
+                        <li><strong>Incluye:</strong> <span id="modalDetalleServicioIncluye"></span></li>
+                        <li><span>Proveedor verificado</span></li>
+                    </ul>
+                    <p id="modalDetalleServicioPrecio" class="fw-bold"></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cerrar</button>
+                    <button type="button" class="btn btn-primary btn-sumar-evento" data-bs-dismiss="modal" data-service-title="" data-service-price="">Sumar al Evento</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="toast-container position-fixed bottom-0 end-0 p-3">
+        <div id="toastConfirmacion" class="toast" role="status" aria-live="polite" aria-atomic="true" data-bs-delay="4000">
+            <div class="toast-header">
+                <strong class="me-auto">PlanIT</strong>
+                <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Cerrar"></button>
+            </div>
+            <div class="toast-body">
+                <p id="toastConfirmacionServicio" class="mb-1"></p>
+                <p id="toastConfirmacionMensaje" class="mb-0">Experiencia agregada a tu evento</p>
+            </div>
+        </div>
+    </div>`;
+
+/**
+ * Monta el sandbox de componentes Bootstrap y registra sus listeners con la misma
+ * función que usa configurarEventos() en index.html.
+ */
+function montarComponentesBootstrap() {
+    const sandbox = document.createElement("div");
+    sandbox.id = "sandbox-componentes-bootstrap";
+    sandbox.innerHTML = MARCADO_COMPONENTES_BOOTSTRAP;
+    document.body.append(sandbox);
+    configurarComponentesBootstrap();
+    return sandbox;
+}
+
+/**
+ * Margen para que terminen las transiciones que Bootstrap deja en cola. Sin su CSS
+ * de transición, Bootstrap las emula con un setTimeout de ~5 ms (duración 0 + 5 ms
+ * de padding). 50 ms vence siempre después de todas ellas.
+ */
+const MARGEN_TRANSICIONES_BOOTSTRAP_MS = 50;
+
+/**
+ * Libera instancias de Bootstrap, restos de backdrop y el sandbox.
+ *
+ * Primero espera a que terminen las transiciones en cola. Toast.show() programa
+ * un callback que hace `this._element.classList.remove("showing")`; si dispose()
+ * corre antes (pone `_element` en null), ese callback falla más tarde con
+ * "Cannot read properties of null (reading 'classList')" y Jasmine se lo
+ * atribuye a la suite que esté corriendo en ese momento.
+ */
+async function desmontarComponentesBootstrap(sandbox) {
+    if (typeof bootstrap !== "undefined" && bootstrap) {
+        const modal = document.getElementById("modalDetalleServicio");
+        const toast = document.getElementById("toastConfirmacion");
+        const instanciaModal = modal && bootstrap.Modal.getInstance(modal);
+        const instanciaToast = toast && bootstrap.Toast.getInstance(toast);
+
+        if (instanciaModal || instanciaToast) {
+            await new Promise(function (resolve) { setTimeout(resolve, MARGEN_TRANSICIONES_BOOTSTRAP_MS); });
+        }
+        if (instanciaModal) instanciaModal.dispose();
+        if (instanciaToast) instanciaToast.dispose();
+    }
+    document.querySelectorAll(".modal-backdrop").forEach(function (nodo) { nodo.remove(); });
+    document.body.classList.remove("modal-open");
+    document.body.style.removeProperty("overflow");
+    document.body.style.removeProperty("padding-right");
+    sandbox.remove();
+}
+
+/** Promesa que se resuelve la próxima vez que `elemento` emite `tipo`. */
+function esperarEvento(elemento, tipo) {
+    return new Promise(function (resolve) {
+        elemento.addEventListener(tipo, resolve, { once: true });
+    });
+}
+
+/**
+ * Dispara `show.bs.modal` sobre el Modal tal como lo hace Bootstrap (evento
+ * cancelable con `relatedTarget` = botón que lo abrió), sin depender de su JS.
+ */
+function dispararShowModal(modal, disparador) {
+    const evento = new Event("show.bs.modal", { bubbles: true, cancelable: true });
+    evento.relatedTarget = disparador;
+    modal.dispatchEvent(evento);
+}
+
+/** Ejecuta `accion` y devuelve los errores no capturados que llegaron a window. */
+function capturarErroresNoControlados(accion) {
+    const errores = [];
+    const registrar = function (evento) { errores.push(evento.message); };
+    window.addEventListener("error", registrar);
+    try {
+        accion();
+    } finally {
+        window.removeEventListener("error", registrar);
+    }
+    return errores;
+}
+
+/**
+ * Claves crudas de localStorage que usa la fachada ServicioPersistenciaEvento.
+ * Desde RC22 el controlador ya no expone CLAVES_STORAGE (las claves son privadas
+ * de la fachada); los specs RC16 leen y siembran el storage en crudo a propósito,
+ * sin pasar por Almacenamiento ni por la fachada, para no validar el módulo con
+ * sí mismo. Si la fachada cambiara sus claves, estos specs fallarían a la vista.
+ */
+const CLAVES_STORAGE_CRUDAS = Object.freeze({
+    evento: "planit:evento",
+    detallesEvento: "planit:detalles-evento"
+});
 
 const FIXTURE_CANTIDADES = {
     "cantidad-catering": "120",
@@ -24,7 +207,8 @@ const FIXTURE_CANTIDADES = {
 function restaurarEstadoInicial() {
     const ui = obtenerReferenciasUI();
 
-    Almacenamiento.limpiar("planit:");
+    // RC22: el estado persistido se limpia a través de la fachada, igual que lo usa el controlador.
+    estadoApp.persistencia.limpiar();
 
     ui.nombreEvento.value = "Casamiento de Sofi & Mateo";
     ui.fechaEvento.value = "2026-11-14";
@@ -73,7 +257,7 @@ function restaurarEstadoInicial() {
     ui.btnCalcularPresupuesto.disabled = false;
     ui.btnAgregarInvitado.disabled = false;
 
-    construirCatalogoDesdeMarcado(ui);
+    construirCatalogo(ui);
     recalcularPresupuesto(ui);
     renderInvitados(ui);
     filtrarCatalogo(ui);
@@ -110,7 +294,7 @@ describe("Flujo 1: Crear evento", function () {
         expect(ui.btnGuardarEvento.disabled).toBe(true);
     });
 
-    it("debería guardar el evento con datos válidos, confirmar y persistir en Almacenamiento", function () {
+    it("debería guardar el evento con datos válidos, confirmar y persistir vía la fachada de persistencia", function () {
         ui.nombreEvento.value = "Cumple de Lola";
 
         ui.btnGuardarEvento.click();
@@ -119,12 +303,38 @@ describe("Flujo 1: Crear evento", function () {
         expect(ui.confirmacionEvento.textContent).toContain("Cumple de Lola");
         expect(estadoApp.evento.nombre).toBe("Cumple de Lola");
 
-        const guardado = Almacenamiento.cargar(CLAVES_STORAGE.evento);
-        expect(guardado.nombre).toBe("Cumple de Lola");
+        const guardado = estadoApp.persistencia.cargar();
+        expect(guardado.evento.nombre).toBe("Cumple de Lola");
+        expect(guardado.detalles).toEqual({
+            fecha: "2026-11-14",
+            ubicacion: "Quinta El Ombú, Pilar, Buenos Aires"
+        });
+    });
+
+    it("debería delegar el guardado en la fachada con la instancia del dominio y los detalles (RC22)", function () {
+        spyOn(estadoApp.persistencia, "guardar").and.callThrough();
+
+        ui.btnGuardarEvento.click();
+
+        expect(estadoApp.persistencia.guardar).toHaveBeenCalledWith(estadoApp.evento, {
+            fecha: "2026-11-14",
+            ubicacion: "Quinta El Ombú, Pilar, Buenos Aires"
+        });
+    });
+
+    it("debería conservar presupuesto e invitados al actualizar los datos del evento", function () {
+        const itemsAntes = estadoApp.evento.presupuesto.items.length;
+        const invitadosAntes = estadoApp.evento.invitados.invitados.length;
+        ui.nombreEvento.value = "Cumple de Lola";
+
+        ui.btnGuardarEvento.click();
+
+        expect(estadoApp.evento.presupuesto.items.length).toBe(itemsAntes);
+        expect(estadoApp.evento.invitados.invitados.length).toBe(invitadosAntes);
     });
 
     it("debería avisar al usuario cuando el guardado falla (regresión del bug corregido en PR #104, ronda 1)", function () {
-        spyOn(Almacenamiento, "guardar").and.returnValue(false);
+        spyOn(estadoApp.persistencia, "guardar").and.returnValue(false);
 
         ui.nombreEvento.value = "Cumple de Lola";
         ui.btnGuardarEvento.click();
@@ -283,14 +493,352 @@ describe("Flujo 4: Gestionar invitados", function () {
         expect(restantes[0].querySelector("button[data-accion='confirmar']")).not.toBeNull();
     });
 
-    it("debería persistir la lista de invitados en Almacenamiento al agregar uno nuevo", function () {
+    it("debería persistir la lista de invitados vía la fachada al agregar uno nuevo", function () {
         tocarYValidar(ui.nombreInvitado, "Nueva Persona");
         ui.estadoInvitado.value = "Pendiente";
 
         ui.btnAgregarInvitado.click();
 
-        const guardado = Almacenamiento.cargar(CLAVES_STORAGE.evento);
+        const guardado = estadoApp.persistencia.cargar().evento;
         expect(guardado.invitados.invitados.some(function (i) { return i.nombre === "Nueva Persona"; })).toBe(true);
+    });
+});
+
+describe("Integración - Controlador y UI (RC14, RC15, RC16)", function () {
+    let sandbox = null;
+    let bootstrapOriginal;
+
+    /** id del nodo del Modal -> clave de data-service-* del disparador. */
+    const CAMPOS_MODAL = {
+        modalDetalleServicioTitulo: "serviceTitle",
+        modalDetalleServicioDescripcion: "serviceDescription",
+        modalDetalleServicioCapacidad: "serviceCapacidad",
+        modalDetalleServicioDuracion: "serviceDuracion",
+        modalDetalleServicioIncluye: "serviceIncluye",
+        modalDetalleServicioPrecio: "servicePrice"
+    };
+
+    function disparadoresDetalle() {
+        return Array.from(sandbox.querySelectorAll(".tarjetas-sandbox .btn-ver-detalle"));
+    }
+
+    function botonesSumarTarjetas() {
+        return Array.from(sandbox.querySelectorAll(".tarjetas-sandbox .btn-sumar-evento"));
+    }
+
+    function botonSumarModal() {
+        return document.querySelector("#modalDetalleServicio .btn-sumar-evento");
+    }
+
+    function toast() {
+        return document.getElementById("toastConfirmacion");
+    }
+
+    beforeEach(function () {
+        // Referencia temporal: los specs de "Bootstrap ausente" ponen window.bootstrap
+        // en undefined, y siempre se restaura en afterEach aunque el spec falle.
+        bootstrapOriginal = window.bootstrap;
+    });
+
+    // async: espera a que terminen las transiciones de Bootstrap antes de dispose()
+    // (ver desmontarComponentesBootstrap). Jasmine corre antes el afterEach interno,
+    // que desinstala jasmine.clock(), así que este setTimeout es real.
+    afterEach(async function () {
+        window.bootstrap = bootstrapOriginal;
+        if (sandbox) {
+            await desmontarComponentesBootstrap(sandbox);
+            sandbox = null;
+        }
+    });
+
+    describe("RC14: Modal de detalle de proveedor (show.bs.modal)", function () {
+        let modal;
+
+        beforeEach(function () {
+            sandbox = montarComponentesBootstrap();
+            modal = document.getElementById("modalDetalleServicio");
+        });
+
+        it("INT-RC14-01: show.bs.modal con relatedTarget debería inyectar todos los datos del servicio en el Modal", function () {
+            const disparador = disparadoresDetalle()[1]; // Flores Pilar
+
+            dispararShowModal(modal, disparador);
+
+            Object.entries(CAMPOS_MODAL).forEach(function ([id, clave]) {
+                expect(document.getElementById(id).textContent).toBe(disparador.dataset[clave]);
+            });
+            expect(document.getElementById("modalDetalleServicioTitulo").textContent).toBe("Flores Pilar");
+            expect(document.getElementById("modalDetalleServicioPrecio").textContent).toBe("$70.000 / base");
+            const imagen = document.getElementById("modalDetalleServicioImagen");
+            expect(imagen.getAttribute("src")).toBe(disparador.dataset.serviceImage);
+            expect(imagen.alt).toBe(disparador.dataset.serviceAlt);
+            expect(imagen.alt).not.toBe("");
+        });
+
+        it("INT-RC14-02: show.bs.modal sin relatedTarget no debería modificar el contenido del Modal", function () {
+            dispararShowModal(modal, null);
+
+            expect(document.getElementById("modalDetalleServicioTitulo").textContent).toBe("Detalle del servicio");
+            expect(botonSumarModal().dataset.serviceTitle).toBe("");
+        });
+
+        it("INT-RC14-03: abrir con 'Ver detalle' (Bootstrap real) debería exponer roles ARIA, mover el foco al diálogo y devolverlo al disparador al cerrar", async function () {
+            const disparador = disparadoresDetalle()[2]; // DJ Lucas & Sonido
+            expect(modal.getAttribute("aria-hidden")).toBe("true");
+
+            disparador.focus();
+            const mostrado = esperarEvento(modal, "shown.bs.modal");
+            disparador.click();
+            await mostrado;
+
+            expect(modal.getAttribute("role")).toBe("dialog");
+            expect(modal.getAttribute("aria-modal")).toBe("true");
+            expect(modal.hasAttribute("aria-hidden")).toBe(false);
+            expect(document.getElementById(modal.getAttribute("aria-labelledby")).textContent).toBe("DJ Lucas & Sonido");
+            expect(modal.contains(document.activeElement)).toBe(true);
+
+            const oculto = esperarEvento(modal, "hidden.bs.modal");
+            bootstrap.Modal.getInstance(modal).hide();
+            await oculto;
+
+            expect(modal.getAttribute("aria-hidden")).toBe("true");
+            expect(document.activeElement).toBe(disparador);
+        });
+
+        it("INT-RC14-04: el botón 'Sumar al Evento' del Modal debería recibir los datos del último proveedor abierto, sin arrastrar los anteriores", function () {
+            const [gourmet, flores] = disparadoresDetalle();
+
+            dispararShowModal(modal, gourmet);
+            expect(botonSumarModal().dataset.serviceTitle).toBe("Gourmet Finger Food");
+            expect(botonSumarModal().dataset.servicePrice).toBe("$3.500 / pax");
+
+            dispararShowModal(modal, flores);
+            expect(botonSumarModal().dataset.serviceTitle).toBe("Flores Pilar");
+            expect(botonSumarModal().dataset.servicePrice).toBe("$70.000 / base");
+        });
+
+        it("INT-RC14-05: abrir el Modal y pulsar 'Sumar al Evento' debería propagar el proveedor al Toast y cerrar el Modal", async function () {
+            const disparador = disparadoresDetalle()[0]; // Gourmet Finger Food
+
+            const mostrado = esperarEvento(modal, "shown.bs.modal");
+            disparador.click();
+            await mostrado;
+
+            const oculto = esperarEvento(modal, "hidden.bs.modal");
+            botonSumarModal().click();
+
+            expect(document.getElementById("toastConfirmacionServicio").textContent).toBe("Gourmet Finger Food · $3.500 / pax");
+            expect(toast().dataset.serviceTitle).toBe("Gourmet Finger Food");
+            expect(toast().classList.contains("show")).toBe(true);
+
+            await oculto;
+            expect(modal.classList.contains("show")).toBe(false);
+        });
+    });
+
+    describe("RC15: Toast de 'Sumar al Evento' con Bootstrap presente", function () {
+        beforeEach(function () {
+            sandbox = montarComponentesBootstrap();
+            spyOn(bootstrap.Toast, "getOrCreateInstance").and.callThrough();
+            spyOn(bootstrap.Toast.prototype, "show").and.callThrough();
+        });
+
+        it("INT-RC15-01: cada botón .btn-sumar-evento de las tarjetas debería mostrar el Toast de Bootstrap con su servicio", function () {
+            const botones = botonesSumarTarjetas();
+            expect(botones.length).toBe(3);
+
+            botones.forEach(function (boton, posicion) {
+                boton.click();
+
+                expect(bootstrap.Toast.getOrCreateInstance).toHaveBeenCalledWith(toast());
+                expect(bootstrap.Toast.prototype.show).toHaveBeenCalledTimes(posicion + 1);
+                expect(document.getElementById("toastConfirmacionServicio").textContent)
+                    .toBe(boton.dataset.serviceTitle + " · " + boton.dataset.servicePrice);
+                expect(document.getElementById("toastConfirmacionMensaje").textContent).toBe("Experiencia agregada a tu evento");
+                expect(toast().classList.contains("show")).toBe(true);
+            });
+        });
+
+        it("INT-RC15-02: el botón .btn-sumar-evento del Modal debería mostrar el Toast de Bootstrap con el servicio abierto", function () {
+            dispararShowModal(document.getElementById("modalDetalleServicio"), disparadoresDetalle()[2]);
+
+            botonSumarModal().click();
+
+            expect(bootstrap.Toast.prototype.show).toHaveBeenCalledTimes(1);
+            expect(document.getElementById("toastConfirmacionServicio").textContent).toBe("DJ Lucas & Sonido · $8.000 / hora");
+            expect(toast().classList.contains("show")).toBe(true);
+        });
+    });
+
+    describe("RC15: Toast de 'Sumar al Evento' con Bootstrap ausente (degradación)", function () {
+        beforeEach(function () {
+            // Simula que el bundle de Bootstrap no cargó (CDN caído o bloqueado) desde el inicio.
+            window.bootstrap = undefined;
+            jasmine.clock().install();
+            sandbox = montarComponentesBootstrap();
+            // window.bootstrap = undefined no desactiva los handlers que el bundle ya
+            // registró en `document` (data-api: data-bs-dismiss, data-bs-toggle), que
+            // usan referencias internas. Para que el escenario sea "Bootstrap no cargó"
+            // de verdad, los clics del sandbox no llegan a `document`; los listeners
+            // propios de script.js están en cada botón y se ejecutan igual.
+            sandbox.addEventListener("click", function (evento) { evento.stopPropagation(); });
+            spyOn(console, "error");
+        });
+
+        afterEach(function () {
+            jasmine.clock().uninstall();
+        });
+
+        it("INT-RC15-03: cada botón .btn-sumar-evento de las tarjetas debería mostrar el Toast con la clase 'show' del CSS, sin errores, y ocultarlo tras data-bs-delay", function () {
+            expect(typeof bootstrap).toBe("undefined");
+
+            botonesSumarTarjetas().forEach(function (boton) {
+                const errores = capturarErroresNoControlados(function () { boton.click(); });
+
+                expect(errores).toEqual([]);
+                expect(toast().classList.contains("show")).toBe(true);
+                expect(document.getElementById("toastConfirmacionServicio").textContent)
+                    .toBe(boton.dataset.serviceTitle + " · " + boton.dataset.servicePrice);
+                expect(toast().getAttribute("role")).toBe("status");
+                expect(toast().getAttribute("aria-live")).toBe("polite");
+
+                jasmine.clock().tick(4000);
+                expect(toast().classList.contains("show")).toBe(false);
+            });
+            expect(console.error).not.toHaveBeenCalled();
+        });
+
+        it("INT-RC15-04: el botón .btn-sumar-evento del Modal debería mostrar el Toast degradado con el servicio abierto", function () {
+            dispararShowModal(document.getElementById("modalDetalleServicio"), disparadoresDetalle()[1]);
+
+            const errores = capturarErroresNoControlados(function () { botonSumarModal().click(); });
+
+            expect(errores).toEqual([]);
+            expect(toast().classList.contains("show")).toBe(true);
+            expect(document.getElementById("toastConfirmacionServicio").textContent).toBe("Flores Pilar · $70.000 / base");
+            expect(console.error).not.toHaveBeenCalled();
+        });
+
+        it("INT-RC15-05: un segundo clic antes de que venza la demora debería reiniciar el temporizador del Toast degradado", function () {
+            const [primero, segundo] = botonesSumarTarjetas();
+
+            primero.click();
+            jasmine.clock().tick(3000);
+            segundo.click();
+            jasmine.clock().tick(3000);
+
+            expect(toast().classList.contains("show")).toBe(true);
+            expect(document.getElementById("toastConfirmacionServicio").textContent).toContain("Flores Pilar");
+
+            jasmine.clock().tick(1000);
+            expect(toast().classList.contains("show")).toBe(false);
+        });
+    });
+
+    describe("RC16: Persistencia y restauración en una carga nueva de la página", function () {
+        // RC22: las claves son privadas de ServicioPersistenciaEvento. Estos specs leen y
+        // escriben el storage en crudo (caja negra), así que declaran las claves esperadas.
+        const CLAVES_STORAGE = Object.freeze({
+            evento: "planit:evento",
+            detallesEvento: "planit:detalles-evento"
+        });
+
+        it("INT-RC16-01: los cambios hechos en el DOM deberían persistirse y reconstruirse tras reiniciar memoria y DOM y volver a disparar DOMContentLoaded", function () {
+            // 1. Modificar el estado desde la UI (mismos eventos que un usuario real).
+            tocarYValidar(ui.nombreInvitado, "Lucía Fernández");
+            ui.estadoInvitado.value = "Confirmado";
+            ui.btnAgregarInvitado.click();
+            tocarYValidar(document.getElementById("cantidad-catering"), "150");
+            ui.ubicacion.value = "Estancia La Candelaria, Lobos";
+            ui.btnGuardarEvento.click();
+
+            // 2. Verificar lo grabado leyendo el storage en crudo (sin pasar por Almacenamiento).
+            const eventoCrudo = JSON.parse(localStorage.getItem(CLAVES_STORAGE_CRUDAS.evento));
+            const catering = eventoCrudo.presupuesto.items.find(function (item) { return item.categoria === "Catering"; });
+            expect(Number(catering.cantidad)).toBe(150);
+            expect(eventoCrudo.invitados.invitados).toContain({ nombre: "Lucía Fernández", estado: "Confirmado" });
+            expect(JSON.parse(localStorage.getItem(CLAVES_STORAGE_CRUDAS.detallesEvento)).ubicacion)
+                .toBe("Estancia La Candelaria, Lobos");
+
+            // 3. Reiniciar memoria y DOM: nada de lo anterior debe quedar fuera del storage.
+            const eventoAnterior = estadoApp.evento;
+            reiniciarMemoriaYDOM();
+            let uiNueva = obtenerReferenciasUI();
+
+            expect(estadoApp.evento).toBeNull();
+            expect(uiNueva.listaInvitados.querySelector('tr[data-nombre="Lucía Fernández"]')).toBeNull();
+            expect(document.getElementById("cantidad-catering").value).toBe("120");
+            expect(uiNueva.ubicacion.value).toBe("Quinta El Ombú, Pilar, Buenos Aires");
+            expect(uiNueva.totalPresupuesto.textContent).toBe("");
+
+            // 4. Rutina de arranque, igual que en una carga real de index.html.
+            document.dispatchEvent(new Event("DOMContentLoaded"));
+            uiNueva = obtenerReferenciasUI();
+
+            // 5. El DOM se reconstruye desde lo persistido.
+            expect(estadoApp.evento).not.toBe(eventoAnterior);
+            expect(estadoApp.evento instanceof Evento).toBe(true);
+            expect(uiNueva.avisoApp.hidden).toBe(true);
+
+            // RC9: obtenerReferenciasUI() ya no expone `filasPresupuesto`; la fila se ubica
+            // por el id estable de su input, válido tanto en el fixture como en las filas
+            // que genera renderFilasPresupuesto().
+            const filaCatering = document.getElementById("cantidad-catering").closest("tr");
+            expect(obtenerFilasPresupuesto(uiNueva)).toContain(filaCatering);
+            expect(filaCatering.querySelector(".input-cantidad").value).toBe("150");
+            expect(filaCatering.querySelector("[data-subtotal]").textContent).toBe("$525.000");
+            expect(uiNueva.subtotalPresupuesto.textContent).toBe("$685.000");
+            expect(uiNueva.totalPresupuesto.textContent).toBe("$685.000");
+            expect(uiNueva.alertaPresupuesto.textContent).toContain("dentro del presupuesto");
+
+            const filaLucia = uiNueva.listaInvitados.querySelector('tr[data-nombre="Lucía Fernández"]');
+            expect(filaLucia).not.toBeNull();
+            const badge = filaLucia.querySelector(".badge");
+            expect(badge.textContent).toBe("Confirmado");
+            expect(badge.classList.contains("badge-confirmado")).toBe(true);
+            expect(filaLucia.querySelector("button[data-accion='pendiente']")).not.toBeNull();
+            expect(uiNueva.metricasInvitados.textContent).toContain("Confirmados: 3");
+            expect(uiNueva.metricasInvitados.textContent).toContain("Pendientes: 1");
+
+            expect(uiNueva.ubicacion.value).toBe("Estancia La Candelaria, Lobos");
+            expect(uiNueva.nombreEvento.value).toBe("Casamiento de Sofi & Mateo");
+        });
+
+        it("INT-RC16-02: sin datos persistidos, una carga nueva debería mostrar los datos semilla del dominio (control)", function () {
+            Almacenamiento.limpiar("planit:");
+
+            reiniciarMemoriaYDOM();
+            document.dispatchEvent(new Event("DOMContentLoaded"));
+            const uiNueva = obtenerReferenciasUI();
+
+            // Desde RC9-RC11 los datos de ejemplo salen de DATOS_SEMILLA (no del marcado):
+            // 5 invitados (3 confirmados, 2 pendientes), distintos de los 3 del fixture
+            // que deja restaurarEstadoInicial(). Así se distingue la semilla de un resto en memoria.
+            const invitadosSemilla = DATOS_SEMILLA.invitados.invitados;
+            const confirmadosSemilla = invitadosSemilla.filter(function (inv) { return inv.estado === "Confirmado"; }).length;
+            expect(invitadosSemilla.length).toBe(5);
+            expect(estadoApp.evento.invitados.invitados.length).toBe(invitadosSemilla.length);
+            expect(document.getElementById("cantidad-catering").value).toBe("120");
+            expect(uiNueva.totalPresupuesto.textContent).toBe("$580.000");
+            expect(uiNueva.metricasInvitados.textContent).toContain("Confirmados: " + confirmadosSemilla);
+            expect(uiNueva.metricasInvitados.textContent).toContain("Pendientes: " + (invitadosSemilla.length - confirmadosSemilla));
+        });
+
+        it("INT-RC16-03: con un evento persistido inválido, una carga nueva debería avisar y caer en los datos de ejemplo sin lanzar", function () {
+            localStorage.setItem(CLAVES_STORAGE_CRUDAS.evento, JSON.stringify({ nombre: "X", tipo: "tipo-inexistente", presupuestoEstimado: 1000 }));
+
+            reiniciarMemoriaYDOM();
+            const errores = capturarErroresNoControlados(function () {
+                document.dispatchEvent(new Event("DOMContentLoaded"));
+            });
+            const uiNueva = obtenerReferenciasUI();
+
+            expect(errores).toEqual([]);
+            expect(uiNueva.avisoApp.hidden).toBe(false);
+            expect(uiNueva.avisoApp.textContent).toContain("dañados");
+            expect(estadoApp.evento.nombre).toBe("Casamiento de Sofi & Mateo");
+            expect(uiNueva.totalPresupuesto.textContent).toBe("$580.000");
+        });
     });
 });
 
