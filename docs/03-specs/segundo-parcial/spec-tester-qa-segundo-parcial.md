@@ -5,7 +5,7 @@
 - **Rol:** Tester QA/JS - Testing Avanzado (en conjunto con Coordinador/DevOps)
 - **Responsable:** Valeria Silva (@ValeriaMSilva)
 - **Rama:** `feature/tester-qa-js-testing-suite`
-- **Issue principal:** [139]
+- **Issue principal:** [#139](https://github.com/carolabenvenuto-uces/planit/issues/139)
 - **Fecha:** 25 de noviembre de 2026
 
 ---
@@ -132,12 +132,15 @@ En cada test case se registran la URL auditada, la rama de publicación, el comm
 
 Para que los tres momentos sean comparables entre sí, se fijan las mismas condiciones en todas las corridas:
 
-- **Herramienta:** Lighthouse integrado en Chrome DevTools, en modo *Navigation*, desde una ventana de incógnito y sin extensiones activas.
-- **Dispositivos:** se audita en **Mobile** (con la limitación de red y CPU que Lighthouse aplica por defecto) y en **Desktop**.
+- **Herramienta:** Lighthouse CLI (`npx lighthouse`), en modo *Navigation*, sobre Chrome headless con un perfil limpio y sin extensiones. La invocación es la misma en los tres test cases:
+  ```text
+  npx lighthouse https://carolabenvenuto-uces.github.io/planit/ --preset=desktop --only-categories=performance,accessibility,best-practices,seo --output=html --output=json
+  ```
+- **Modo:** solo **Desktop** (`--preset=desktop`, con la emulación de pantalla y la limitación de red y CPU que ese preset define).
 - **Categorías:** Performance, Accessibility, Best Practices y SEO.
-- **Repeticiones:** 3 corridas por dispositivo; se informa la **mediana** de cada categoría para reducir la variabilidad propia de Performance.
+- **Repeticiones:** 3 corridas consecutivas; se informa la **mediana** de cada categoría y de cada métrica, para reducir la variabilidad propia de Performance. La corrida cuyo puntaje de Performance coincide con la mediana se toma como **corrida mediana** y sus reportes se conservan como evidencia.
 - **Métricas registradas:** puntaje de cada categoría, *First Contentful Paint* (FCP), *Largest Contentful Paint* (LCP), *Total Blocking Time* (TBT), *Cumulative Layout Shift* (CLS) y *Speed Index*.
-- **Evidencia:** captura del resumen de cada corrida y exportación del informe en HTML o JSON, guardadas en `docs/04-testing/capturas/tc-11/`, `tc-12/` y `tc-13/`.
+- **Evidencia:** reportes HTML y JSON de la corrida mediana y capturas PNG del resumen y de cada categoría, guardados en `docs/04-testing/screenshots/` con el prefijo del momento (`lighthouse-baseline-*`, `lighthouse-post-fetch-*` y `lighthouse-post-library-*`).
 
 #### 3.3. Criterios de comparación y regresión
 
@@ -154,7 +157,7 @@ Para que los tres momentos sean comparables entre sí, se fijan las mismas condi
 
 - **Jasmine 5.10** (ya cargado en `js/test/test-runner.html`) para las suites funcionales, con `spyOn(window, "fetch")` para simular la red.
 - **Playwright** mediante `npm test` (`js/test/run-jasmine.js`), para ejecutar la suite completa en Chromium headless de forma reproducible por línea de comandos.
-- **Lighthouse** (Chrome DevTools) para las auditorías de los Test Cases 11, 12 y 13.
+- **Lighthouse CLI** (`npx lighthouse --preset=desktop`) para las auditorías de los Test Cases 11, 12 y 13, y **Playwright** para capturar los reportes HTML generados.
 - **Claude (Anthropic)** como asistente para generar borradores de los specs de Jasmine, con este documento, `js/api/apiService.js` y los modelos como contexto. Cada fragmento generado se contrasta manualmente contra la implementación antes de commitearse, con el mismo criterio adoptado en la AO4.
 
 ---
