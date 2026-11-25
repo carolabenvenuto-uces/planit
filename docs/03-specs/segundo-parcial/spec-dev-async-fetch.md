@@ -168,6 +168,25 @@ Tareas:
 - **Identidad de Git.** El primer commit local se registró con un mail asociado a otra cuenta de GitHub. Se configuró la identidad del repositorio (`git config user.name/user.email`, sin `--global`) y se corrigió el autor con `git commit --amend --reset-author`.
 - La revisión de los diffs antes de cada commit se hizo con asistencia de Claude (Anthropic).
 
+**Prompt de corrección tras la autorrevisión de la PR (rol Coordinación):**
+
+```text
+1. Reintento (alinear con el spec, sección 4): mover el reintento a fetchData; si fetch() es
+   rechazado (error de red), reintentar UNA sola vez. Los errores HTTP y de JSON inválido NO se
+   reintentan. obtenerProveedores() llama a fetchData una sola vez.
+2. JSON vacío: si no queda ningún proveedor válido, lanzar un Error para que el controlador use
+   el fallback.
+3. Timeout: abortar la solicitud a los 8 segundos con AbortController; se trata como error de red.
+4. Estabilidad visual (Lighthouse/CLS): altura mínima en el estado de carga del catálogo.
+```
+
+**Ajustes derivados de la autorrevisión:**
+- **Reintento según la sección 4.** La primera versión reintentaba en `obtenerProveedores()` ante cualquier error (incluidos HTTP 404/500 y JSON inválido). Se movió a `fetchData()` y solo se aplica a errores de red, de modo que los casos de error HTTP y de red del Tester quedan separados.
+- **Catálogo vacío.** Un JSON sin proveedores válidos lanza un `Error` y activa el fallback, para que el catálogo nunca quede vacío (sección 5).
+- **Timeout.** Cada solicitud se aborta a los 8 segundos con `AbortController` y cuenta como error de red, para que el spinner no quede indefinidamente.
+- **Estabilidad visual.** El estado de carga reserva una altura mínima (`minHeight` de 420 px) para reducir el salto de layout (CLS) en la auditoría Lighthouse post-fetch.
+- **Estados de carga en el controlador.** El ejemplo de la consigna ubica `showLoading`, `hideLoading` y `showError` dentro de `ApiService`. En PlanIT esos estados se manejan en `js/script.js` para que el servicio no dependa del DOM, siguiendo la pauta de la consigna de "mantener separación de responsabilidades (fetch en módulo dedicado)".
+
 **Resultado:** test runner con **330 specs, 0 failures**. Con Live Server, el catálogo se carga desde `api/proveedores.json` y muestra el resumen y las 3 tarjetas ([captura](evidencia-fetch-catalogo.png)). Al abrir con `file://`, el `fetch` falla y se usa el fallback con el aviso y el botón Reintentar, como se anticipó en la sección 2.
 
 ### 2. Integración con clases POO y con Storage
