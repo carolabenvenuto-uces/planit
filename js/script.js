@@ -1064,6 +1064,17 @@ function renderCatalogo(ui, resultados, texto) {
         mensaje.append(boton);
         aviso.append(mensaje);
         contenido.unshift(aviso);
+    } else {
+        const resumen = document.createElement("div");
+        resumen.className = "col-12 small text-muted";
+        Object.entries(ApiService.resumirCatalogo(resultados)).forEach(([categoria, datos]) => {
+            const linea = document.createElement("p");
+            linea.textContent = categoria + ": " + datos.cantidad +
+                (datos.cantidad === 1 ? " proveedor" : " proveedores") + " · " +
+                formatearMonto(datos.precioMinimo) + " – " + formatearMonto(datos.precioMaximo);
+            resumen.append(linea);
+        });
+        contenido.unshift(resumen);
     }
     ui.contenedorCatalogo.replaceChildren(...contenido);
 
