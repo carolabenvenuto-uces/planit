@@ -2,6 +2,7 @@
 <html>
 <head>
     <meta charset="UTF-8">
+    <base href="../../">
     <title>Prueba Jasmine</title>
     <!-- Jasmine CSS -->
     <link rel="shortcut icon" type="image/png" href="https://cdnjs.cloudflare.com/ajax/libs/jasmine/5.10.0/jasmine_favicon.png">
@@ -119,22 +120,24 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 
     <!-- Tu código fuente -->
-    <script src="../models/Validador.js"></script>
-    <script src="../models/ItemContratado.js"></script>
-    <script src="../models/Presupuesto.js"></script>
-    <script src="../models/Invitado.js"></script>
-    <script src="../models/ListaInvitados.js"></script>
-    <script src="../models/Evento.js"></script>
-    <script src="../models/Proveedor.js"></script>
-    <script src="../models/CatalogoProveedores.js"></script>
-    <script src="../utils/storage.js"></script>
-    <script src="../services/ServicioPersistenciaEvento.js"></script>
-    <script src="../script.js"></script>
+    <script src="js/models/Validador.js"></script>
+    <script src="js/models/ItemContratado.js"></script>
+    <script src="js/models/Presupuesto.js"></script>
+    <script src="js/models/Invitado.js"></script>
+    <script src="js/models/ListaInvitados.js"></script>
+    <script src="js/models/Evento.js"></script>
+    <script src="js/models/Proveedor.js"></script>
+    <script src="js/models/CatalogoProveedores.js"></script>
+    <script src="js/utils/storage.js"></script>
+    <script src="js/services/ServicioPersistenciaEvento.js"></script>
+    <script src="js/api/apiService.js"></script>
+    <script src="js/script.js"></script>
 
     <!-- Tus tests -->
-    <script src="models.spec.js"></script>
-    <script src="storage.spec.js"></script>
-    <script src="servicio-persistencia.spec.js"></script>
-    <script src="script.spec.js"></script>
+    <script src="js/test/models.spec.js"></script>
+    <script src="js/test/storage.spec.js"></script>
+    <script src="js/test/servicio-persistencia.spec.js"></script>
+    <script src="js/test/api.spec.js"></script>
+    <script src="js/test/script.spec.js"></script>
 </body>
 </html>

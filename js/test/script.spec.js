@@ -204,7 +204,7 @@ const FIXTURE_CANTIDADES = {
     "cantidad-transporte": "2"
 };
 
-function restaurarEstadoInicial() {
+async function restaurarEstadoInicial() {
     const ui = obtenerReferenciasUI();
 
     // RC22: el estado persistido se limpia a través de la fachada, igual que lo usa el controlador.
@@ -257,7 +257,7 @@ function restaurarEstadoInicial() {
     ui.btnCalcularPresupuesto.disabled = false;
     ui.btnAgregarInvitado.disabled = false;
 
-    construirCatalogo(ui);
+    await construirCatalogo(ui);
     recalcularPresupuesto(ui);
     renderInvitados(ui);
     filtrarCatalogo(ui);
@@ -281,8 +281,8 @@ describe("script.spec.js", function () {
 
 let ui;
 
-beforeEach(function () {
-    ui = restaurarEstadoInicial();
+beforeEach(async function () {
+    ui = await restaurarEstadoInicial();
 });
 
 describe("Flujo 1: Crear evento", function () {

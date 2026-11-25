@@ -58,7 +58,7 @@ const MAPA_ERRORES_INVITADO = {
 const FORMATEADOR_NUMERO = new Intl.NumberFormat("es-AR", { maximumFractionDigits: 2 });
 
 /**
- * Datos semilla del dominio, usados solo cuando no hay estado persistido.
+ * Datos semilla del dominio, usados cuando no hay estado persistido o falla el catálogo.
  * Tienen exactamente la forma que producen los toJSON() de los modelos, así que
  * se convierten en instancias con Presupuesto.fromJSON(), ListaInvitados.fromJSON()
  * (vía Evento.fromJSON) y CatalogoProveedores.fromJSON(), que además los validan.
@@ -107,9 +107,8 @@ const PRESENTACION_ITEMS = Object.freeze({
 });
 
 /**
- * Metadatos de presentación de cada proveedor, por nombre (imagen, textos del
- * modal). Proveedor modela nombre, categoría, precio y unidad; lo demás es vista.
- * Un proveedor sin entrada acá se renderiza igual, sin imagen ni descripción.
+ * Metadatos de presentación de respaldo para los proveedores de la semilla.
+ * Los datos del catálogo actualizado provienen del JSON.
  */
 // La ruta se resuelve relativa a este archivo (js/script.js) y no a la página que
 // lo carga: así sirve igual desde index.html (raíz) y desde js/test/test-runner.html.
@@ -154,6 +153,8 @@ const estadoApp = {
     evento: null,            // Instancia de Evento (incluye Presupuesto y ListaInvitados)
     catalogo: null,          // Instancia de CatalogoProveedores
     tarjetasCatalogo: new Map(), // Proveedor -> nodo de la tarjeta en el DOM
+    presentacionProveedores: null,
+    errorCatalogo: false,
     persistencia: null       // Instancia de ServicioPersistenciaEvento (fachada)
 };
 
@@ -906,8 +907,7 @@ function renderDesglosePresupuesto(ui, resultado) {
    ========================================================================== */
 
 /**
- * Arma el CatalogoProveedores desde el modelo (DATOS_SEMILLA), genera las
- * opciones del filtro y registra el filtrado en tiempo real.
+ * Carga el catálogo y registra el filtrado en tiempo real.
  */
 function configurarFlujoCatalogo(ui) {
     if (!ui.contenedorCatalogo || !ui.buscarCatalogo) return;
@@ -923,24 +923,66 @@ function configurarFlujoCatalogo(ui) {
         ui.categoriaCatalogo.addEventListener("change", () => filtrarCatalogo(ui));
     }
 
-    filtrarCatalogo(ui);
 }
 
 /**
- * RC10: crea el CatalogoProveedores con CatalogoProveedores.fromJSON(), que
- * reconstruye y valida cada Proveedor. El HTML ya no aporta tarjetas: el
- * catálogo proviene del modelo y las tarjetas se generan en renderCatalogo().
+ * Carga el catálogo remoto o usa la semilla si ambos intentos fallan.
  * @param {Object} ui - Referencias del DOM.
+ * @returns {Promise<void>} Finalización de la carga y el renderizado.
  */
-function construirCatalogo(ui) {
+let versionCargaCatalogo = 0;
+async function construirCatalogo(ui) {
+    const version = ++versionCargaCatalogo;
     estadoApp.tarjetasCatalogo.clear();
+    if (ui.buscarCatalogo) ui.buscarCatalogo.disabled = true;
+    if (ui.categoriaCatalogo) ui.categoriaCatalogo.disabled = true;
+    if (ui.contadorCatalogo) ui.contadorCatalogo.textContent = "";
+    if (ui.catalogoVacio) ui.catalogoVacio.hidden = true;
+    const carga = crearElemento("div", {
+        clase: "col-12",
+        atributos: { role: "status", "aria-live": "polite" }
+    });
+    carga.append(
+        crearElemento("span", { clase: "spinner-border spinner-border-sm me-2", atributos: { "aria-hidden": "true" } }),
+        document.createTextNode("Cargando proveedores…")
+    );
+    ui.contenedorCatalogo.replaceChildren(carga);
     try {
-        estadoApp.catalogo = CatalogoProveedores.fromJSON(DATOS_SEMILLA.catalogo);
+        const datos = await ApiService.obtenerProveedores();
+        if (version !== versionCargaCatalogo) return;
+        const catalogo = ApiService.aCatalogo(datos);
+        if (datos.length > 0 && catalogo.proveedores.length === 0) {
+            throw new Error("No se pudieron convertir los proveedores del catálogo.");
+        }
+        estadoApp.catalogo = catalogo;
+        estadoApp.presentacionProveedores = new Map();
+        const datosPendientes = datos.slice();
+        catalogo.proveedores.forEach((proveedor) => {
+            const indice = datosPendientes.findIndex((dato) =>
+                dato.nombre === proveedor.nombre && dato.categoria === proveedor.categoria &&
+                dato.precio === proveedor.precio && dato.unidad === proveedor.unidad);
+            if (indice < 0) throw new Error("Faltan datos de presentación del proveedor " + proveedor.nombre);
+            const info = datosPendientes.splice(indice, 1)[0];
+            const imagen = info.imagen && /^[a-z0-9][\w.-]*$/i.test(info.imagen)
+                ? RUTA_IMAGENES_CATALOGO + info.imagen : "";
+            if (info.imagen && !imagen) console.warn("Imagen de proveedor inválida:", info.imagen);
+            estadoApp.presentacionProveedores.set(proveedor, { ...info, imagen });
+        });
+        estadoApp.errorCatalogo = false;
     } catch (error) {
-        estadoApp.catalogo = new CatalogoProveedores();
-        renderAvisoGlobal(ui, "No se pudo cargar el catálogo de proveedores: " + error.message);
+        if (version !== versionCargaCatalogo) return;
+        console.error("No se pudo cargar el catálogo actualizado:", error);
+        estadoApp.catalogo = CatalogoProveedores.fromJSON(DATOS_SEMILLA.catalogo);
+        estadoApp.presentacionProveedores = null;
+        estadoApp.errorCatalogo = true;
+    } finally {
+        if (version === versionCargaCatalogo) {
+            if (ui.buscarCatalogo) ui.buscarCatalogo.disabled = false;
+            if (ui.categoriaCatalogo) ui.categoriaCatalogo.disabled = false;
+        }
     }
     renderOpcionesCategoria(ui);
+    filtrarCatalogo(ui);
 }
 
 /**
@@ -982,9 +1024,7 @@ function obtenerResultadosCatalogo(texto, categoria) {
 
     const categoriaBuscada = Validador.esTextoNoVacio(categoria) ? Validador.normalizarTexto(categoria) : "";
     if (categoriaBuscada !== "" && categoriaBuscada !== "todas") {
-        resultados = resultados.filter(
-            (proveedor) => Validador.normalizarTexto(proveedor.categoria) === categoriaBuscada
-        );
+        resultados = ApiService.filtrarPorCategoria(resultados, categoria);
     }
     return resultados;
 }
@@ -1007,7 +1047,25 @@ function filtrarCatalogo(ui) {
  * (contador de resultados y mensaje de catálogo vacío).
  */
 function renderCatalogo(ui, resultados, texto) {
-    ui.contenedorCatalogo.replaceChildren(...resultados.map(obtenerTarjetaProveedor));
+    const contenido = resultados.map(obtenerTarjetaProveedor);
+    if (estadoApp.errorCatalogo) {
+        const aviso = crearElemento("div", { clase: "col-12" });
+        const mensaje = crearElemento("div", {
+            clase: "alert alert-warning",
+            atributos: { role: "status" },
+            texto: "No pudimos cargar el catálogo actualizado. Te mostramos la versión guardada. "
+        });
+        const boton = crearElemento("button", {
+            clase: "btn btn-outline-primary btn-sm",
+            texto: "Reintentar",
+            atributos: { type: "button" }
+        });
+        boton.addEventListener("click", () => construirCatalogo(ui));
+        mensaje.append(boton);
+        aviso.append(mensaje);
+        contenido.unshift(aviso);
+    }
+    ui.contenedorCatalogo.replaceChildren(...contenido);
 
     if (ui.contadorCatalogo) {
         ui.contadorCatalogo.textContent = resultados.length === 1
@@ -1045,7 +1103,9 @@ function obtenerTarjetaProveedor(proveedor) {
  * @returns {HTMLElement} Columna de la grilla con la tarjeta.
  */
 function crearTarjetaProveedor(proveedor) {
-    const info = PRESENTACION_PROVEEDORES[proveedor.nombre] || {};
+    const info = estadoApp.presentacionProveedores
+        ? estadoApp.presentacionProveedores.get(proveedor) || {}
+        : PRESENTACION_PROVEEDORES[proveedor.nombre] || {};
     const precio = formatearMonto(proveedor.precio) + " / " + proveedor.unidad;
     const detalles = [proveedor.categoria, info.capacidad, info.zona].filter(Boolean).join(" · ");
 
