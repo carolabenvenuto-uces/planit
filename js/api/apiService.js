@@ -3,18 +3,35 @@
  */
 var ApiService = {
     /**
-     * Obtiene y parsea un recurso JSON.
+     * Obtiene y parsea un recurso JSON. Aborta cada solicitud a los 8 segundos
+     * y reintenta una vez si fetch falla, incluso por timeout.
      * @param {string} url Dirección del recurso.
-     * @param {Object} [opciones] Opciones de fetch.
+     * @param {Object} [opciones] Opciones de fetch; se respeta su señal de cancelación.
      * @returns {Promise<*>} Datos recibidos.
      * @throws {Error} Si falla la red, la respuesta HTTP o el JSON.
      */
     async fetchData(url, opciones) {
         let respuesta;
-        try {
-            respuesta = await fetch(url, opciones);
-        } catch (error) {
-            throw new Error("Error de red al obtener " + url + ": " + error.message);
+        for (let intento = 0; intento < 2; intento++) {
+            const controlador = new AbortController();
+            const signal = opciones && opciones.signal;
+            const cancelar = () => controlador.abort(signal.reason);
+            if (signal) {
+                if (signal.aborted) cancelar();
+                else signal.addEventListener("abort", cancelar, { once: true });
+            }
+            const timeout = setTimeout(() => controlador.abort(), 8000);
+            try {
+                respuesta = await fetch(url, { ...opciones, signal: controlador.signal });
+                break;
+            } catch (error) {
+                if (intento === 1) {
+                    throw new Error("Error de red al obtener " + url + ": " + error.message);
+                }
+            } finally {
+                clearTimeout(timeout);
+                if (signal) signal.removeEventListener("abort", cancelar);
+            }
         }
         if (!respuesta.ok) throw new Error("HTTP error! status: " + respuesta.status);
         try {
@@ -25,42 +42,36 @@ var ApiService = {
     },
 
     /**
-     * Obtiene, valida y sanitiza los proveedores. Reintenta una vez ante un fallo.
+     * Obtiene, valida y sanitiza los proveedores.
      * @returns {Promise<Object[]>} Proveedores válidos.
-     * @throws {Error} Si ambos intentos fallan.
+     * @throws {Error} Si falla la carga o el catálogo no contiene proveedores válidos.
      */
     async obtenerProveedores() {
-        for (let intento = 0; intento < 2; intento++) {
-            try {
-                const datos = await this.fetchData("api/proveedores.json");
-                if (!datos || datos.version !== 1 || !Array.isArray(datos.proveedores)) {
-                    throw new Error("La estructura del catálogo de proveedores es inválida.");
-                }
-                const proveedores = datos.proveedores.filter((dato) => {
-                    if (this.validarProveedor(dato)) return true;
-                    console.warn("Se descartó un proveedor inválido:", dato);
-                    return false;
-                }).map((dato) => ({
-                    nombre: this.sanitizarTexto(dato.nombre),
-                    categoria: this.sanitizarTexto(dato.categoria),
-                    precio: Validador.convertirANumero(dato.precio),
-                    unidad: this.sanitizarTexto(dato.unidad),
-                    imagen: this.sanitizarTexto(dato.imagen),
-                    alt: this.sanitizarTexto(dato.alt),
-                    descripcion: this.sanitizarTexto(dato.descripcion),
-                    capacidad: this.sanitizarTexto(dato.capacidad),
-                    zona: this.sanitizarTexto(dato.zona),
-                    duracion: this.sanitizarTexto(dato.duracion),
-                    incluye: this.sanitizarTexto(dato.incluye)
-                }));
-                if (datos.proveedores.length > 0 && proveedores.length === 0) {
-                    throw new Error("El catálogo no contiene proveedores válidos.");
-                }
-                return proveedores;
-            } catch (error) {
-                if (intento === 1) throw error;
-            }
+        const datos = await this.fetchData("api/proveedores.json");
+        if (!datos || datos.version !== 1 || !Array.isArray(datos.proveedores)) {
+            throw new Error("La estructura del catálogo de proveedores es inválida.");
         }
+        const proveedores = datos.proveedores.filter((dato) => {
+            if (this.validarProveedor(dato)) return true;
+            console.warn("Se descartó un proveedor inválido:", dato);
+            return false;
+        }).map((dato) => ({
+            nombre: this.sanitizarTexto(dato.nombre),
+            categoria: this.sanitizarTexto(dato.categoria),
+            precio: Validador.convertirANumero(dato.precio),
+            unidad: this.sanitizarTexto(dato.unidad),
+            imagen: this.sanitizarTexto(dato.imagen),
+            alt: this.sanitizarTexto(dato.alt),
+            descripcion: this.sanitizarTexto(dato.descripcion),
+            capacidad: this.sanitizarTexto(dato.capacidad),
+            zona: this.sanitizarTexto(dato.zona),
+            duracion: this.sanitizarTexto(dato.duracion),
+            incluye: this.sanitizarTexto(dato.incluye)
+        }));
+        if (proveedores.length === 0) {
+            throw new Error("El catálogo no contiene proveedores válidos.");
+        }
+        return proveedores;
     },
 
     /**

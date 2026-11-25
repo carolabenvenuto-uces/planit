@@ -942,6 +942,7 @@ async function construirCatalogo(ui) {
         clase: "col-12",
         atributos: { role: "status", "aria-live": "polite" }
     });
+    carga.style.minHeight = "420px";
     carga.append(
         crearElemento("span", { clase: "spinner-border spinner-border-sm me-2", atributos: { "aria-hidden": "true" } }),
         document.createTextNode("Cargando proveedores…")
