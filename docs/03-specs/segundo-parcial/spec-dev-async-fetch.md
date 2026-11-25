@@ -195,7 +195,17 @@ Tareas:
 - **Storage:** no se modificó. El catálogo no forma parte del estado persistido del evento y no se implementó caché, así que `ServicioPersistenciaEvento` y `js/utils/storage.js` quedan sin cambios.
 
 ### 3. Issues respondidas y su resolución
-- [#138](https://github.com/carolabenvenuto-uces/planit/issues/138): issue principal del rol. Se resuelve con la PR de esta rama. No se recibieron consultas ni issues de otros roles durante el desarrollo.
+- [#138](https://github.com/carolabenvenuto-uces/planit/issues/138): issue principal del rol. Se resuelve con la PR [#147](https://github.com/carolabenvenuto-uces/planit/pull/147).
+
+Issues reportadas por la Tester QA/JS a partir del Lighthouse baseline (Test Case 11, issue principal #139) y asignadas a este rol. Se resolvieron en la misma PR, en el commit [`80bfb5c`](https://github.com/carolabenvenuto-uces/planit/commit/80bfb5c5fb5d630e9571e4d3a46b796600f571f1):
+
+| Issue | Hallazgo | Resolución |
+| --- | --- | --- |
+| [#143](https://github.com/carolabenvenuto-uces/planit/issues/143) | Imágenes del catálogo de 1344×655 px (145–194 KiB) mostradas a 216×105 px. | Versiones de 450×219 px en JPEG calidad 75 (`catalogo-*-450w.jpg`, 20–25 KiB cada una, unos 430 KiB menos en total), referenciadas desde `api/proveedores.json` y desde el fallback, con `width`/`height` reales y `loading="lazy"`. Los originales del mockup no se modificaron. |
+| [#144](https://github.com/carolabenvenuto-uces/planit/issues/144) | El nombre accesible de "Sumar al Evento" no empieza con el texto visible (WCAG 2.5.3). | `aria-label="Sumar al Evento: <proveedor>"` en las tarjetas generadas desde el JSON. |
+| [#141](https://github.com/carolabenvenuto-uces/planit/issues/141) | Falta `<meta name="description">` en `index.html`. | Se agregó la meta description en el `<head>`. |
+
+La verificación final de las tres queda a cargo de la Tester en el Test Case 12 (Lighthouse post-fetch), sobre `develop` con esta PR integrada.
 
 ### 4. Criterios de Aceptación al cierre
 - [x] `spec-dev-async-fetch.md` commiteado antes que cualquier código.
