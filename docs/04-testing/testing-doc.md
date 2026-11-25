@@ -16,6 +16,7 @@ Este archivo centraliza el estado de los 10 test cases ejecutados sobre PlanIT, 
 | 8 | [test-case-8.md](test-case-8.md) | Toast Bootstrap: mensaje exacto, responsive y auto-hide | ✅ PASS en 3 dispositivos; capturas enlazadas |
 | 9 | [test-case-9.md](test-case-9.md) | Componente Iframe Multimedia (Taller Video) | ⏳ Evidencia manual pendiente en 3 dispositivos |
 | 10 | [test-case-10.md](test-case-10.md) | Componente Details/Summary (FAQ Eventos) | ✅ PASS en 3 dispositivos (iPhone 14 Pro, Galaxy S23, iPad Air) |
+| 11 | [test-case-11-lighthouse-baseline.md](test-case-11-lighthouse-baseline.md) | Lighthouse baseline del Segundo Parcial (Desktop, mediana de 3 corridas sobre GitHub Pages) | ⚠️ 95 / 97 / 92 / 91 (Perf. / Acc. / BP / SEO): Best Practices y SEO por debajo de 95 |
 
 ## Historial de ejecuciones
 
