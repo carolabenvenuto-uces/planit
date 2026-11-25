@@ -2,6 +2,39 @@
 
 ## [Unreleased]
 
+## [Release Actividad Obligatoria N°4] - 2026-11-23
+
+### Added
+- [feature/dev-eventos-dom] feature/dev-eventos-dom: [Dev Eventos + DOM] Refactorización de script.js como controlador, eventos y DOM para PlanIT PR: [#104](https://github.com/carolabenvenuto-uces/planit/pull/104) | Issue: [#103](https://github.com/carolabenvenuto-uces/planit/issues/103) - @ValeriaMSilva (Desarrolladora JS Eventos + DOM)
+- [feature/dev-poo-logica-negocio] feature/dev-poo-logica-negocio: [DEV POO] Clases del dominio en js/models/ y diagrama de clases - AO4 PR: [#102](https://github.com/carolabenvenuto-uces/planit/pull/102) | Issue: [#101](https://github.com/carolabenvenuto-uces/planit/issues/101) - @carolabenvenuto-uces (Desarrolladora JS POO - Lógica de Negocio)
+- [feature/dev-storage] feature/dev-storage: [Dev Storage] Capa de abstraccion Local/Session Storage (js/utils/storage.js) PR: [#108](https://github.com/carolabenvenuto-uces/planit/pull/108) | Issue: [#107](https://github.com/carolabenvenuto-uces/planit/issues/107) - @FacundoGuiraldes (Coordinador/DevOps + Tester QA + Desarrollador JS Storage)
+- [feature/tester-qa-specs] feature/tester-qa-specs: [Tester QA] Suites de testing para la arquitectura POO (models, storage y script) - AO4 PR: [#110](https://github.com/carolabenvenuto-uces/planit/pull/110) | Issue: [#106](https://github.com/carolabenvenuto-uces/planit/issues/106) - @FacundoGuiraldes (Coordinador/DevOps + Tester QA + Desarrollador JS Storage)
+- [feature/coord-devops-cuarta-entrega] feature/coord-devops-cuarta-entrega: [Coordinador/DevOps] Coordinación, versionado y documentación - AO4 PR: [#114](https://github.com/carolabenvenuto-uces/planit/pull/114) | Issue: [#105](https://github.com/carolabenvenuto-uces/planit/issues/105) - @FacundoGuiraldes (Coordinador/DevOps + Tester QA + Desarrollador JS Storage)
+- [fix/rc-issue68-migrar-modal-toast] fix(rc-issue68): migrar Modal de detalle y Toast a js/script.js PR: [#109](https://github.com/carolabenvenuto-uces/planit/pull/109) | Issue: [#68](https://github.com/carolabenvenuto-uces/planit/issues/68) - @FacundoGuiraldes (Coordinador / DevOps + Tester QA + Desarrollador JS Storage)
+
+### Fixed
+- **RC1:** Revisiones y roles de DevOps formalizados en especificación ([#116](https://github.com/carolabenvenuto-uces/planit/pull/116)).
+- **RC2:** Evidencia inicial de automatización con Playwright ([#117](https://github.com/carolabenvenuto-uces/planit/pull/117)).
+- **RC4 y RC5:** Cobertura de ramas y casos límite en modelos de dominio ([#118](https://github.com/carolabenvenuto-uces/planit/pull/118)).
+- **RC6:** Manejo de excepciones y errores de almacenamiento ([#119](https://github.com/carolabenvenuto-uces/planit/pull/119)).
+- **RC17, RC18 y RC19:** Trazabilidad documental y estandarización de changelog ([#120](https://github.com/carolabenvenuto-uces/planit/pull/120)).
+- **RC7:** Serialización y resiliencia de datos en almacenamiento ([#121](https://github.com/carolabenvenuto-uces/planit/pull/121)).
+- **RC8:** Evidencia de modo agente para manipulación de eventos y DOM ([#122](https://github.com/carolabenvenuto-uces/planit/pull/122)).
+- **RC9, RC10 y RC11:** Renderizado dinámico del DOM y sincronización de catálogo ([#123](https://github.com/carolabenvenuto-uces/planit/pull/123)).
+- **RC12:** Getters públicos en diagrama de clases PlantUML ([#124](https://github.com/carolabenvenuto-uces/planit/pull/124)).
+- **RC13:** Trazabilidad de persistencia y modo agente ([#125](https://github.com/carolabenvenuto-uces/planit/pull/125)).
+- **RC14, RC15 y RC16:** Suites de integración para modal, toast y recarga de página ([#126](https://github.com/carolabenvenuto-uces/planit/pull/126)).
+- **RC20:** Reproducibilidad de checkout limpio y corrección de package.json ([#127](https://github.com/carolabenvenuto-uces/planit/pull/127)).
+- **RC22:** Refactorización de persistencia hacia fachada de servicio ([#128](https://github.com/carolabenvenuto-uces/planit/pull/128)).
+- **RC23:** Corrección de SyntaxError y colisión de merge en script.js ([#129](https://github.com/carolabenvenuto-uces/planit/pull/129)).
+- **RC24, RC25 y RC26:** Validación de suites de integración en verde ([#130](https://github.com/carolabenvenuto-uces/planit/pull/130)).
+- **RC27:** Evidencia ejecutable con servidor oficial @playwright/mcp ([#131](https://github.com/carolabenvenuto-uces/planit/pull/131)).
+- **RC28:** Registro y validación de 330 specs en checkout limpio ([#132](https://github.com/carolabenvenuto-uces/planit/pull/132)).
+- **RC29:** Formalización de estructura de release y limpieza de unreleased ([#133](https://github.com/carolabenvenuto-uces/planit/pull/133)).
+- **RC23, RC24, RC25 y RC26:** Subsanación definitiva de SyntaxError en `vincularBotonSumarEvento()` de `script.js` y validación en verde de las suites de integración de Modal, Toast y Persistencia ([#134](https://github.com/carolabenvenuto-uces/planit/pull/134)).
+- **RC28:** Corrección de SyntaxError en script y actualización de evidencia reproducible de 330 specs en checkout limpio en `testing-doc.md` ([#135](https://github.com/carolabenvenuto-uces/planit/pull/135)).
+- **RC29:** Formalización de release de Actividad Obligatoria N°4 con trazabilidad completa de PRs fundacionales y vaciado de Unreleased ([#136](https://github.com/carolabenvenuto-uces/planit/pull/136)).
+
 ## [Release Tercera Entrega] - 2026-11-01
 
 ### Added

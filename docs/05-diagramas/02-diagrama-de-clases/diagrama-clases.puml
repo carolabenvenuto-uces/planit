@@ -1,0 +1,159 @@
+@startuml diagrama-clases
+title Diagrama de Clases - PlanIT (Actividad Obligatoria N° 4)
+
+skinparam classAttributeIconSize 0
+skinparam linetype ortho
+hide empty members
+
+' Convención (RC12): el diagrama refleja la interfaz pública real de js/models/.
+'   - Atributo privado (#campo en JS)      -> "- campo : Tipo"
+'   - Getter público (get campo() {...})   -> "+ get campo() : Tipo"
+'   - Getter estático (static get X() {}) -> "{static} + get X() : Tipo"
+'   - Las clases no declaran setters: el estado cambia solo con métodos que validan.
+
+class Validador <<utilidad>> {
+  {static} + esTextoNoVacio(valor : any) : boolean
+  {static} + convertirANumero(valor : any) : number
+  {static} + normalizarTexto(texto : any) : string
+  {static} + buscarOpcion(opciones : string[], valor : any) : string
+}
+
+class Evento {
+  - nombre : string
+  - tipo : string
+  - presupuestoEstimado : number
+  - presupuesto : Presupuesto
+  - invitados : ListaInvitados
+  + Evento(nombre : string, tipo : string, presupuestoEstimado : number)
+  {static} + get TIPOS() : string[]
+  + get nombre() : string
+  + get tipo() : string
+  + get presupuestoEstimado() : number
+  + get presupuesto() : Presupuesto
+  + get invitados() : ListaInvitados
+  {static} + validarDatos(nombre : any, tipo : any, presupuesto : any) : string[]
+  + superaPresupuesto(porcentajeDescuento : number = 0) : boolean
+  + toJSON() : Object
+  {static} + fromJSON(json : Object) : Evento
+}
+
+class Presupuesto {
+  - items : ItemContratado[]
+  + Presupuesto()
+  + get items() : ItemContratado[]
+  + agregarItem(item : ItemContratado) : ItemContratado
+  + eliminarItem(indice : number) : ItemContratado
+  + calcularTotal() : number
+  + aplicarDescuento(porcentaje : number) : number
+  + superaLimite(limite : number) : boolean
+  + toJSON() : Object
+  {static} + fromJSON(json : Object) : Presupuesto
+}
+
+class ItemContratado {
+  - categoria : string
+  - descripcion : string
+  - cantidad : number
+  - precioUnitario : number
+  + ItemContratado(categoria : string, descripcion : string, cantidad : number, precioUnitario : number)
+  + get categoria() : string
+  + get descripcion() : string
+  + get cantidad() : number
+  + get precioUnitario() : number
+  + calcularSubtotal() : number
+  + toJSON() : Object
+  {static} + fromJSON(json : Object) : ItemContratado
+}
+
+class ListaInvitados {
+  - invitados : Invitado[]
+  + ListaInvitados()
+  + get invitados() : Invitado[]
+  + agregar(nombre : string, estado : string) : Invitado
+  + eliminar(nombre : string) : boolean
+  + contarAsistencia() : Object
+  + toJSON() : Object
+  {static} + fromJSON(json : Object) : ListaInvitados
+}
+
+class Invitado {
+  - nombre : string
+  - estado : string
+  + Invitado(nombre : string, estado : string)
+  {static} + get ESTADOS() : string[]
+  + get nombre() : string
+  + get estado() : string
+  {static} + validar(nombre : any, estado : any) : string[]
+  + esConfirmado() : boolean
+  + cambiarEstado(estado : string) : void
+  + toJSON() : Object
+  {static} + fromJSON(json : Object) : Invitado
+}
+
+class CatalogoProveedores {
+  - proveedores : Proveedor[]
+  + CatalogoProveedores()
+  + get proveedores() : Proveedor[]
+  + agregarProveedor(proveedor : Proveedor) : Proveedor
+  + buscar(criterio : string) : Proveedor[]
+  + toJSON() : Object
+  {static} + fromJSON(json : Object) : CatalogoProveedores
+}
+
+class Proveedor {
+  - nombre : string
+  - categoria : string
+  - precio : number
+  - unidad : string
+  + Proveedor(nombre : string, categoria : string, precio : number, unidad : string)
+  + get nombre() : string
+  + get categoria() : string
+  + get precio() : number
+  + get unidad() : string
+  + coincideCon(criterio : string) : boolean
+  + toJSON() : Object
+  {static} + fromJSON(json : Object) : Proveedor
+}
+
+Evento "1" *-- "1" Presupuesto : compone
+Evento "1" *-- "1" ListaInvitados : compone
+Presupuesto "1" *-- "0..*" ItemContratado : contiene
+ListaInvitados "1" *-- "0..*" Invitado : contiene
+CatalogoProveedores "1" o-- "0..*" Proveedor : agrupa
+
+Evento ..> Validador : usa
+Invitado ..> Validador : usa
+ItemContratado ..> Validador : usa
+Presupuesto ..> Validador : usa
+ListaInvitados ..> Validador : usa
+Proveedor ..> Validador : usa
+CatalogoProveedores ..> Validador : usa
+
+note "Encapsulamiento: los atributos privados (-)\nson campos #privados de JS y se leen solo con\nlos getters públicos (+ get campo() : Tipo).\nNo hay setters: el estado cambia con métodos\nque validan (agregarItem(), cambiarEstado(), ...)." as N1
+
+note right of Presupuesto
+  <b>get items()</b> devuelve una copia
+  (<i>this.#items.slice()</i>): modificar el
+  array devuelto no altera el presupuesto.
+end note
+
+note right of ListaInvitados
+  <b>get invitados()</b> devuelve una copia
+  (<i>this.#invitados.slice()</i>).
+end note
+
+note right of CatalogoProveedores
+  <b>get proveedores()</b> devuelve una copia
+  (<i>this.#proveedores.slice()</i>).
+end note
+
+note left of Evento
+  <b>get presupuesto()</b> y <b>get invitados()</b>
+  devuelven el componente (composición), no una
+  copia: sus cambios pasan por los métodos de
+  Presupuesto y ListaInvitados, que validan.
+  <b>get TIPOS()</b> e <b>Invitado.get ESTADOS()</b>
+  devuelven un array nuevo en cada llamada.
+end note
+
+@enduml

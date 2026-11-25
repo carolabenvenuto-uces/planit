@@ -1,0 +1,329 @@
+- generic [ref=e1]:
+  - banner [ref=e2]:
+    - navigation "Navegación principal" [ref=e3]:
+      - link "PlanIT" [ref=e4] [cursor=pointer]:
+        - /url: "#mi-evento"
+      - generic [ref=e6]:
+        - list [ref=e7]:
+          - listitem [ref=e8]:
+            - link "Mi Evento" [ref=e9] [cursor=pointer]:
+              - /url: "#mi-evento"
+          - listitem [ref=e10]:
+            - link "Presupuesto" [ref=e11] [cursor=pointer]:
+              - /url: "#presupuesto"
+          - listitem [ref=e12]:
+            - link "Invitados" [ref=e13] [cursor=pointer]:
+              - /url: "#invitados"
+          - listitem [ref=e14]:
+            - link "Catálogo" [ref=e15] [cursor=pointer]:
+              - /url: "#catalogo"
+          - listitem [ref=e16]:
+            - link "Taller" [ref=e17] [cursor=pointer]:
+              - /url: "#taller-video"
+          - listitem [ref=e18]:
+            - link "FAQ" [ref=e19] [cursor=pointer]:
+              - /url: "#faq-section"
+        - generic [ref=e20]:
+          - button "Notificaciones" [ref=e21] [cursor=pointer]
+          - img "Foto de perfil de la usuaria" [ref=e24]
+          - link "Nuevo Evento" [ref=e25] [cursor=pointer]:
+            - /url: "#mi-evento"
+            - generic [aria-hidden] [ref=e26]: +
+            - text: Nuevo Evento
+  - generic [ref=e28]:
+    - main [ref=e29]:
+      - heading "Panel de organización de eventos de PlanIT" [level=1] [ref=e30]
+      - region "Mi Evento" [ref=e31]:
+        - heading "Mi Evento" [level=2] [ref=e32]
+        - generic [ref=e35]:
+          - generic [ref=e36]:
+            - generic [ref=e37]: Nombre del evento
+            - textbox "Nombre del evento" [ref=e38]: Casamiento de Sofi & Mateo
+          - generic [ref=e39]:
+            - generic [ref=e40]: Fecha
+            - textbox "Fecha" [ref=e41]: 2026-11-14
+          - generic [ref=e42]:
+            - generic [ref=e43]: Tipo de evento
+            - combobox "Tipo de evento" [ref=e44]:
+              - option "Seleccionar tipo de evento"
+              - option "Cumpleaños"
+              - option "Casamiento / Boda" [selected]
+              - option "Salida casual"
+          - generic [ref=e45]:
+            - generic [ref=e46]: Presupuesto estimado
+            - spinbutton "Presupuesto estimado" [ref=e47]: "700000"
+          - generic [ref=e48]:
+            - generic [ref=e49]: Ubicación
+            - textbox "Ubicación" [ref=e50]: Quinta El Ombú, Pilar, Buenos Aires
+          - button "Guardar Cambios" [ref=e52] [cursor=pointer]
+      - region "Presupuesto" [ref=e53]:
+        - heading "Presupuesto" [level=2] [ref=e54]
+        - generic [ref=e57]:
+          - table "Desglose del presupuesto estimado del evento" [ref=e59]:
+            - caption [ref=e60]: Desglose del presupuesto estimado del evento
+            - rowgroup [ref=e61]:
+              - row [ref=e62]:
+                - columnheader "Categoría" [ref=e63]
+                - columnheader "Concepto" [ref=e64]
+                - columnheader "Tipo" [ref=e65]
+                - columnheader "Cantidad" [ref=e66]
+                - columnheader "Precio unitario" [ref=e67]
+                - columnheader "Subtotal" [ref=e68]
+            - rowgroup [ref=e69]:
+              - row [ref=e70]:
+                - rowheader "Catering" [ref=e71]
+                - cell "Finger food premium y barra libre" [ref=e72]
+                - cell "Proveedor" [ref=e73]
+                - cell [ref=e74]:
+                  - spinbutton "Cantidad de Catering (pax)" [ref=e75]: "120"
+                  - text: pax
+                - cell "$3.500" [ref=e76]
+                - cell "$420.000" [ref=e77]
+              - row [ref=e78]:
+                - rowheader "Decoración" [ref=e79]
+                - cell "Arreglos florales y ambientación luces" [ref=e80]
+                - cell "Proveedor" [ref=e81]
+                - cell [ref=e82]:
+                  - spinbutton "Cantidad de Decoración (global)" [ref=e83]: "1"
+                  - text: global
+                - cell "$70.000" [ref=e84]
+                - cell "$70.000" [ref=e85]
+              - row [ref=e86]:
+                - rowheader "Sonido" [ref=e87]
+                - cell "DJ set completo y sonido de pista" [ref=e88]
+                - cell "Proveedor" [ref=e89]
+                - cell [ref=e90]:
+                  - spinbutton "Cantidad de Sonido (horas)" [ref=e91]: "6"
+                  - text: horas
+                - cell "$8.000" [ref=e92]
+                - cell "$48.000" [ref=e93]
+              - row [ref=e94]:
+                - rowheader "Fotografía" [ref=e95]
+                - cell "Cobertura de evento y álbum digital" [ref=e96]
+                - cell "Proveedor" [ref=e97]
+                - cell [ref=e98]:
+                  - spinbutton "Cantidad de Fotografía (global)" [ref=e99]: "1"
+                  - text: global
+                - cell "$32.000" [ref=e100]
+                - cell "$32.000" [ref=e101]
+              - row [ref=e102]:
+                - rowheader "Transporte" [ref=e103]
+                - cell "Traslado de materiales y coordinación" [ref=e104]
+                - cell "Proveedor" [ref=e105]
+                - cell [ref=e106]:
+                  - spinbutton "Cantidad de Transporte (viajes)" [ref=e107]: "2"
+                  - text: viajes
+                - cell "$5.000" [ref=e108]
+                - cell "$10.000" [ref=e109]
+            - rowgroup [ref=e110]:
+              - row [ref=e111]:
+                - rowheader "Subtotal" [ref=e112]
+                - cell "$580.000" [ref=e113]
+              - row [ref=e114]:
+                - rowheader "Descuento (%)" [ref=e115]
+                - cell [ref=e117]:
+                  - spinbutton "Descuento (%)" [ref=e118]: "0"
+              - row [ref=e119]:
+                - rowheader "Total Gastado Estimado" [ref=e120]
+                - cell [ref=e121]:
+                  - status [ref=e122]: $580.000
+          - status [ref=e123]: El total está dentro del presupuesto estimado de $700.000.
+          - button "Calcular presupuesto" [ref=e125] [cursor=pointer]
+      - region "Invitados" [ref=e126]:
+        - heading "Invitados" [level=2] [ref=e127]
+        - generic [ref=e130]:
+          - generic [ref=e131]:
+            - generic [ref=e132]: Nombre del invitado
+            - textbox "Nombre del invitado" [ref=e133]
+          - generic [ref=e134]:
+            - generic [ref=e135]: Estado de asistencia
+            - combobox "Estado de asistencia" [ref=e136]:
+              - option "Pendiente" [selected]
+              - option "Confirmado"
+          - button "Agregar invitado" [disabled] [ref=e138]
+        - paragraph [ref=e139]:
+          - generic [ref=e140]: "Confirmados: 3"
+          - generic [ref=e141]: "Pendientes: 2"
+        - table "Lista de invitados con estado de confirmación y acciones" [ref=e143]:
+          - caption [ref=e144]: Lista de invitados con estado de confirmación y acciones
+          - rowgroup [ref=e145]:
+            - row [ref=e146]:
+              - columnheader "Nombre" [ref=e147]
+              - columnheader "Estado" [ref=e148]
+              - columnheader "Acciones" [ref=e149]
+          - rowgroup [ref=e150]:
+            - row [ref=e151]:
+              - rowheader "Sofía Rodríguez" [ref=e152]
+              - cell "Confirmado" [ref=e153]
+              - cell [ref=e155]:
+                - generic [ref=e156]:
+                  - 'button "Marcar pendiente: Sofía Rodríguez" [ref=e157] [cursor=pointer]': Marcar pendiente
+                  - 'button "Eliminar: Sofía Rodríguez" [ref=e158] [cursor=pointer]': Eliminar
+            - row [ref=e159]:
+              - rowheader "Mateo González" [ref=e160]
+              - cell "Confirmado" [ref=e161]
+              - cell [ref=e163]:
+                - generic [ref=e164]:
+                  - 'button "Marcar pendiente: Mateo González" [ref=e165] [cursor=pointer]': Marcar pendiente
+                  - 'button "Eliminar: Mateo González" [ref=e166] [cursor=pointer]': Eliminar
+            - row [ref=e167]:
+              - rowheader "Valentina Benítez" [ref=e168]
+              - cell "Pendiente" [ref=e169]
+              - cell [ref=e171]:
+                - generic [ref=e172]:
+                  - 'button "Confirmar: Valentina Benítez" [ref=e173] [cursor=pointer]': Confirmar
+                  - 'button "Eliminar: Valentina Benítez" [ref=e174] [cursor=pointer]': Eliminar
+            - row [ref=e175]:
+              - rowheader "Bautista Martínez" [ref=e176]
+              - cell "Confirmado" [ref=e177]
+              - cell [ref=e179]:
+                - generic [ref=e180]:
+                  - 'button "Marcar pendiente: Bautista Martínez" [ref=e181] [cursor=pointer]': Marcar pendiente
+                  - 'button "Eliminar: Bautista Martínez" [ref=e182] [cursor=pointer]': Eliminar
+            - row [ref=e183]:
+              - rowheader "Santiago Díaz" [ref=e184]
+              - cell "Pendiente" [ref=e185]
+              - cell [ref=e187]:
+                - generic [ref=e188]:
+                  - 'button "Confirmar: Santiago Díaz" [ref=e189] [cursor=pointer]': Confirmar
+                  - 'button "Eliminar: Santiago Díaz" [ref=e190] [cursor=pointer]': Eliminar
+      - region "Catálogo de Plancitos recomendados" [ref=e191]:
+        - generic [ref=e192]:
+          - heading "Catálogo de Plancitos recomendados" [level=2] [ref=e193]
+          - search [ref=e196]:
+            - generic [ref=e197]: Buscar en el catálogo
+            - searchbox "Buscar en el catálogo" [ref=e198]
+            - generic [ref=e199]: Filtrar por categoría
+            - combobox "Filtrar por categoría" [ref=e200]:
+              - option "Todas" [selected]
+              - option "Catering"
+              - option "Decoración"
+              - option "Sonido"
+        - status [ref=e201]: 3 proveedores encontrados
+        - generic [ref=e202]:
+          - article [ref=e204]:
+            - img "Mesa de catering con bandejas de mini sándwiches y bocados en varios niveles" [ref=e205]
+            - generic [ref=e206]:
+              - heading "Gourmet Finger Food" [level=3] [ref=e207]
+              - paragraph [ref=e208]: Selección premium fría y caliente para recepción. Variedad para todos los gustos.
+              - paragraph [ref=e209]: Catering · Hasta 200 pax · Zona Norte GBA
+              - paragraph [ref=e210]: $3.500 / pax
+              - generic [ref=e211]:
+                - button "Ver detalle" [ref=e212] [cursor=pointer]
+                - button "Sumar al Evento" [active] [ref=e213] [cursor=pointer]
+          - article [ref=e215]:
+            - img "Centro de mesa con rosas y peonías rosadas sobre una mesa de salón de eventos" [ref=e216]
+            - generic [ref=e217]:
+              - heading "Flores Pilar" [level=3] [ref=e218]
+              - paragraph [ref=e219]: Centros de mesa personalizados y ramo para novias con flores naturales de estación.
+              - paragraph [ref=e220]: Decoración · 1 evento por fecha · Pilar
+              - paragraph [ref=e221]: $70.000 / base
+              - generic [ref=e222]:
+                - button "Ver detalle" [ref=e223] [cursor=pointer]
+                - button "Sumar al Evento" [ref=e224] [cursor=pointer]
+          - article [ref=e226]:
+            - img "DJ con auriculares mezclando en una consola frente a una pista iluminada" [ref=e227]
+            - generic [ref=e228]:
+              - heading "DJ Lucas & Sonido" [level=3] [ref=e229]
+              - paragraph [ref=e230]: Equipamiento de audio completo de alta fidelidad, iluminación robótica y pista de baile.
+              - paragraph [ref=e231]: Sonido · Hasta 300 personas · CABA y GBA
+              - paragraph [ref=e232]: $8.000 / hora
+              - generic [ref=e233]:
+                - button "Ver detalle" [ref=e234] [cursor=pointer]
+                - button "Sumar al Evento" [ref=e235] [cursor=pointer]
+      - 'region "Taller en Acción: Cerámica & Chardonnay" [ref=e236]':
+        - 'heading "Taller en Acción: Cerámica & Chardonnay" [level=2] [ref=e238]'
+        - paragraph [ref=e241]: "Descubrí cómo se vive la experiencia en directo: técnicas de modelado en torno artesanal, maridaje guiado y ambiente exclusivo."
+        - iframe [ref=e243]:
+          - generic [ref=f1e1]:
+            - generic "Reproductor de video de YouTube" [ref=f1e3]
+            - generic [ref=f1e5]:
+              - generic:
+                - generic:
+                  - generic [ref=f1e6] [cursor=pointer]
+                  - button "Reproducir video" [ref=f1e10] [cursor=pointer]
+                  - button "Ocultar controles del reproductor" [ref=f1e12] [cursor=pointer]
+                  - generic [ref=f1e14]:
+                    - generic [ref=f1e21]:
+                      - generic [ref=f1e22]:
+                        - 'link "Visita al taller: La Cacharra Cerámica" [ref=f1e23] [cursor=pointer]':
+                          - /url: https://www.youtube.com/watch?v=5vi0UQDYNCw
+                        - link "Cultura Cba" [ref=f1e24] [cursor=pointer]:
+                          - /url: /channel/UCjGebyMuHkU2CuD0vfdluMQ
+                      - generic [ref=f1e26]:
+                        - button [ref=f1e57] [cursor=pointer]:
+                          - img "thumbnail-image" [ref=f1e58]
+                        - generic [ref=f1e29]:
+                          - generic: Cultura Cba
+                          - generic: 17.8 k suscriptores
+                    - generic [ref=f1e30]:
+                      - button "Copiar vínculo" [ref=f1e33] [cursor=pointer]
+                      - link "Mirar en YouTube" [ref=f1e44] [cursor=pointer]:
+                        - /url: https://www.youtube.com/watch?v=5vi0UQDYNCw
+                        - generic [ref=f1e45]: Mirar en
+      - region "Preguntas Frecuentes" [ref=e244]:
+        - heading "Preguntas Frecuentes" [level=2] [ref=e246]
+        - paragraph [ref=e250]: Resolvemos tus dudas principales sobre la organización de eventos y reservas de experiencias en PlanIT.
+        - generic [ref=e251]:
+          - group [ref=e252]:
+            - generic "¿Cómo funciona la reserva de una experiencia en PlanIT? +" [ref=e253] [cursor=pointer]:
+              - generic [ref=e254]: ¿Cómo funciona la reserva de una experiencia en PlanIT?
+              - text: +
+          - group [ref=e255]:
+            - generic "¿Se pueden personalizar los servicios del catálogo para un evento privado? +" [ref=e256] [cursor=pointer]:
+              - generic [ref=e257]: ¿Se pueden personalizar los servicios del catálogo para un evento privado?
+              - text: +
+          - group [ref=e258]:
+            - generic "¿Con cuánta anticipación debo confirmar el presupuesto estimado? +" [ref=e259] [cursor=pointer]:
+              - generic [ref=e260]: ¿Con cuánta anticipación debo confirmar el presupuesto estimado?
+              - text: +
+          - group [ref=e261]:
+            - generic "¿Qué políticas de cancelación se aplican a los proveedores de la plataforma? +" [ref=e262] [cursor=pointer]:
+              - generic [ref=e263]: ¿Qué políticas de cancelación se aplican a los proveedores de la plataforma?
+              - text: +
+    - complementary "Resumen del evento" [ref=e264]:
+      - region "Resumen Financiero" [ref=e265]:
+        - heading "Resumen Financiero" [level=2] [ref=e266]
+        - generic [ref=e269]:
+          - generic [ref=e270]:
+            - term [ref=e271]: Presupuesto total
+            - definition [ref=e272]: $700.000
+          - generic [ref=e273]:
+            - term [ref=e274]: Gastado estimado
+            - definition [ref=e275]: $580.000
+          - generic [ref=e276]:
+            - term [ref=e277]: Saldo disponible
+            - definition [ref=e278]: $120.000
+        - progressbar "Presupuesto utilizado" [ref=e279]
+        - paragraph [ref=e281]:
+          - generic [ref=e282]: 82% utilizado
+          - generic [ref=e283]: "Límite: $700.000"
+      - region "Tareas Pendientes" [ref=e284]:
+        - heading "Tareas Pendientes" [level=2] [ref=e285]
+        - list [ref=e288]:
+          - listitem [ref=e289]:
+            - checkbox "Confirmar salón" [checked] [ref=e290]
+            - generic [ref=e291] [cursor=pointer]: Confirmar salón
+          - listitem [ref=e292]:
+            - checkbox "Enviar invitaciones" [checked] [ref=e293]
+            - generic [ref=e294] [cursor=pointer]: Enviar invitaciones
+          - listitem [ref=e295]:
+            - checkbox "Contratar DJ" [ref=e296]
+            - generic [ref=e297] [cursor=pointer]: Contratar DJ
+          - listitem [ref=e298]:
+            - checkbox "Revisar menú" [ref=e299]
+            - generic [ref=e300] [cursor=pointer]: Revisar menú
+          - listitem [ref=e301]:
+            - checkbox "Confirmar fotógrafo" [ref=e302]
+            - generic [ref=e303] [cursor=pointer]: Confirmar fotógrafo
+      - status [ref=e304]: "Atención: Estás a $120.000 de tu límite de presupuesto."
+  - contentinfo [ref=e307]:
+    - paragraph [ref=e309]: PlanIT © 2026 — Proyecto universitario de organización de eventos
+  - status [ref=e310]:
+    - generic [ref=e311]:
+      - strong [ref=e312]: PlanIT
+      - generic [ref=e313]: · ahora
+      - button "Cerrar" [ref=e314] [cursor=pointer]
+    - generic [ref=e315]:
+      - paragraph [ref=e316]: Gourmet Finger Food · $3.500 / pax
+      - paragraph [ref=e317]: Experiencia agregada a tu evento

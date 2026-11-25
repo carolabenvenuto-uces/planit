@@ -1,698 +1,845 @@
-describe("Flujo 1: Crear evento", function () {
-    describe("validarDatosEvento", function () {
-        it("debería aceptar nombre, tipo 'boda' y presupuesto '50000' como texto crudo de prompt()", function () {
-            expect(validarDatosEvento("Boda de Ana", "boda", "50000")).toBe(true);
-        });
+/*
+ * Suite de integración del controlador (js/script.js) contra el fixture de DOM
+ * de test-runner.html. Las funciones del controlador (obtenerReferenciasUI,
+ * recalcularPresupuesto, renderInvitados, filtrarCatalogo, etc.) son accesibles
+ * acá como globales porque script.js es un script clásico, no un módulo: todas
+ * las declaraciones de nivel superior comparten el mismo scope global que esta
+ * suite, igual que ya ocurría en la versión AO3 de este archivo.
+ *
+ * configurarEventos() ya corrió una vez (vía DOMContentLoaded) antes de que
+ * Jasmine empiece a ejecutar specs. Como todas las specs de este archivo
+ * comparten una única carga de página, cada test restaura el estado inicial
+ * exacto del fixture en beforeEach (restaurarEstadoInicial), para no depender
+ * del orden real de ejecución (Jasmine randomiza el orden de los specs).
+ *
+ * El bloque "Integración - Controlador y UI (RC14, RC15, RC16)" al final del
+ * archivo agrega:
+ *   - RC14/RC15: un sandbox con el Modal de detalle, el Toast y los botones de
+ *     las tarjetas copiados de index.html, montado y desmontado en cada spec;
+ *   - RC16: una "carga nueva" de la página: se descarta el estado en memoria, se
+ *     reemplazan los nodos del fixture por su marcado original (capturado abajo,
+ *     antes de DOMContentLoaded) y se vuelve a disparar DOMContentLoaded.
+ */
 
-        it("debería rechazar un nombre vacío o solo con espacios", function () {
-            expect(validarDatosEvento("", "boda", "50000")).toBe(false);
-            expect(validarDatosEvento(" ", "boda", "50000")).toBeFalsy();
-        });
+/*
+ * Marcado original de los nodos del fixture que lee el controlador. Este archivo
+ * se ejecuta antes de DOMContentLoaded (scripts clásicos al final del <body>), así
+ * que outerHTML todavía no tiene ningún cambio hecho por configurarEventos().
+ */
+const IDS_FIXTURE_RECARGABLES = [
+    "aviso-app", "form-evento", "form-presupuesto", "form-catalogo", "contador-catalogo",
+    "catalogo-vacio", "contenedor-catalogo", "form-invitado", "feedback-invitados",
+    "metricas-invitados", "lista-invitados"
+];
+const MARCADO_INICIAL_FIXTURE = new Map(
+    IDS_FIXTURE_RECARGABLES.map(function (id) { return [id, document.getElementById(id).outerHTML]; })
+);
 
-        it("debería rechazar un tipo fuera de la lista permitida", function () {
-            expect(validarDatosEvento("Evento", "congreso", "50000")).toBe(false);
-        });
+/**
+ * Paso 3 del ciclo de vida de RC16: descarta las instancias en memoria y
+ * reemplaza cada nodo del fixture por uno nuevo, parseado desde su marcado
+ * original. Los nodos nuevos no tienen listeners ni valores modificados: el DOM
+ * queda como en una carga limpia, antes de que corra configurarEventos().
+ */
+function reiniciarMemoriaYDOM() {
+    estadoApp.evento = null;
+    estadoApp.catalogo = null;
+    estadoApp.tarjetasCatalogo.clear();
 
-        it("debería rechazar un presupuesto de 0", function () {
-            expect(validarDatosEvento("Evento", "boda", 0)).toBe(false);
-            expect(validarDatosEvento("Evento", "boda", "0")).toBe(false);
-        });
-
-        it("debería rechazar un presupuesto negativo", function () {
-            expect(validarDatosEvento("Evento", "boda", -100)).toBe(false);
-        });
-
-        it("debería rechazar un presupuesto no numérico", function () {
-            expect(validarDatosEvento("Evento", "boda", "abc")).toBe(false);
-        });
-
-        it("debería rechazar datos null o undefined (prompt() cancelado)", function () {
-            expect(validarDatosEvento(null, null, null)).toBe(false);
-            expect(validarDatosEvento("Evento", "boda", undefined)).toBe(false);
-        });
-
-        it("debería rechazar un nombre que no es texto", function () {
-            expect(validarDatosEvento(123, "boda", "50000")).toBe(false);
-        });
-
-        it("debería rechazar un presupuesto infinito y aceptar uno muy grande pero finito", function () {
-            expect(validarDatosEvento("Evento", "boda", "1e309")).toBe(false);
-            expect(validarDatosEvento("Evento", "boda", Number.MAX_SAFE_INTEGER)).toBe(true);
-        });
+    MARCADO_INICIAL_FIXTURE.forEach(function (marcado, id) {
+        const plantilla = document.createElement("template");
+        plantilla.innerHTML = marcado;
+        document.getElementById(id).replaceWith(plantilla.content.firstElementChild);
     });
+}
 
-    describe("crearEvento", function () {
-        it("debería devolver un objeto con las propiedades nombre, tipo y presupuesto", function () {
-            const evento = crearEvento(" Cumple de Sofía ", "Cumpleaños", "50000");
+/**
+ * Modal de detalle, Toast y botones de las 3 tarjetas, copiados de index.html. Única
+ * diferencia: data-service-image apunta a ../../docs/ porque el runner vive en js/test/
+ * (con ./docs/ la imagen daría 404 y run-jasmine.js lo contaría como console.error).
+ */
+const MARCADO_COMPONENTES_BOOTSTRAP = `
+    <div class="tarjetas-sandbox">
+        <button type="button" class="btn btn-outline-primary btn-ver-detalle" data-bs-toggle="modal" data-bs-target="#modalDetalleServicio" data-service-title="Gourmet Finger Food" data-service-image="../../docs/01-mockup/actividad-obligatoria-2/catalogo-gourmet-finger-food.jpg" data-service-alt="Mesa de catering con bandejas de mini sándwiches y bocados en varios niveles" data-service-description="Selección premium fría y caliente para recepción. Variedad para todos los gustos." data-service-capacidad="Hasta 200 pax" data-service-duracion="4 horas" data-service-incluye="Finger food frío y caliente, montaje y reposición" data-service-price="$3.500 / pax">Ver detalle</button>
+        <button type="button" class="btn btn-primary btn-sumar-evento" data-service-title="Gourmet Finger Food" data-service-price="$3.500 / pax">Sumar al Evento</button>
+        <button type="button" class="btn btn-outline-primary btn-ver-detalle" data-bs-toggle="modal" data-bs-target="#modalDetalleServicio" data-service-title="Flores Pilar" data-service-image="../../docs/01-mockup/actividad-obligatoria-2/catalogo-flores-pilar.jpg" data-service-alt="Centro de mesa con rosas y peonías rosadas sobre una mesa de salón de eventos" data-service-description="Centros de mesa personalizados y ramo para novias con flores naturales de estación." data-service-capacidad="1 evento por fecha" data-service-duracion="1 jornada de montaje" data-service-incluye="Centros de mesa personalizados y ramo para novias" data-service-price="$70.000 / base">Ver detalle</button>
+        <button type="button" class="btn btn-primary btn-sumar-evento" data-service-title="Flores Pilar" data-service-price="$70.000 / base">Sumar al Evento</button>
+        <button type="button" class="btn btn-outline-primary btn-ver-detalle" data-bs-toggle="modal" data-bs-target="#modalDetalleServicio" data-service-title="DJ Lucas &amp; Sonido" data-service-image="../../docs/01-mockup/actividad-obligatoria-2/catalogo-dj-lucas-sonido.jpg" data-service-alt="DJ con auriculares mezclando en una consola frente a una pista iluminada" data-service-description="Equipamiento de audio completo de alta fidelidad, iluminación robótica y pista de baile." data-service-capacidad="Hasta 300 personas" data-service-duracion="6 horas" data-service-incluye="DJ, sonido de alta fidelidad e iluminación robótica" data-service-price="$8.000 / hora">Ver detalle</button>
+        <button type="button" class="btn btn-primary btn-sumar-evento" data-service-title="DJ Lucas &amp; Sonido" data-service-price="$8.000 / hora">Sumar al Evento</button>
+    </div>
+    <div class="modal fade" id="modalDetalleServicio" tabindex="-1" aria-labelledby="modalDetalleServicioTitulo" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 class="modal-title" id="modalDetalleServicioTitulo">Detalle del servicio</h2>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                    <img id="modalDetalleServicioImagen" class="img-fluid rounded" alt="">
+                    <p id="modalDetalleServicioDescripcion"></p>
+                    <ul class="list-unstyled small mb-0" aria-label="Detalles del servicio">
+                        <li><strong>Capacidad:</strong> <span id="modalDetalleServicioCapacidad"></span></li>
+                        <li><strong>Duración:</strong> <span id="modalDetalleServicioDuracion"></span></li>
+                        <li><strong>Incluye:</strong> <span id="modalDetalleServicioIncluye"></span></li>
+                        <li><span>Proveedor verificado</span></li>
+                    </ul>
+                    <p id="modalDetalleServicioPrecio" class="fw-bold"></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cerrar</button>
+                    <button type="button" class="btn btn-primary btn-sumar-evento" data-bs-dismiss="modal" data-service-title="" data-service-price="">Sumar al Evento</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="toast-container position-fixed bottom-0 end-0 p-3">
+        <div id="toastConfirmacion" class="toast" role="status" aria-live="polite" aria-atomic="true" data-bs-delay="4000">
+            <div class="toast-header">
+                <strong class="me-auto">PlanIT</strong>
+                <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Cerrar"></button>
+            </div>
+            <div class="toast-body">
+                <p id="toastConfirmacionServicio" class="mb-1"></p>
+                <p id="toastConfirmacionMensaje" class="mb-0">Experiencia agregada a tu evento</p>
+            </div>
+        </div>
+    </div>`;
 
-            expect(evento).toEqual({ nombre: "Cumple de Sofía", tipo: "cumpleaños", presupuesto: 50000 });
-            expect(Object.keys(evento)).toContain("nombre");
-            expect(Object.keys(evento)).toContain("tipo");
-            expect(Object.keys(evento)).toContain("presupuesto");
-        });
+/**
+ * Monta el sandbox de componentes Bootstrap y registra sus listeners con la misma
+ * función que usa configurarEventos() en index.html.
+ */
+function montarComponentesBootstrap() {
+    const sandbox = document.createElement("div");
+    sandbox.id = "sandbox-componentes-bootstrap";
+    sandbox.innerHTML = MARCADO_COMPONENTES_BOOTSTRAP;
+    document.body.append(sandbox);
+    configurarComponentesBootstrap();
+    return sandbox;
+}
+
+/**
+ * Margen para que terminen las transiciones que Bootstrap deja en cola. Sin su CSS
+ * de transición, Bootstrap las emula con un setTimeout de ~5 ms (duración 0 + 5 ms
+ * de padding). 50 ms vence siempre después de todas ellas.
+ */
+const MARGEN_TRANSICIONES_BOOTSTRAP_MS = 50;
+
+/**
+ * Libera instancias de Bootstrap, restos de backdrop y el sandbox.
+ *
+ * Primero espera a que terminen las transiciones en cola. Toast.show() programa
+ * un callback que hace `this._element.classList.remove("showing")`; si dispose()
+ * corre antes (pone `_element` en null), ese callback falla más tarde con
+ * "Cannot read properties of null (reading 'classList')" y Jasmine se lo
+ * atribuye a la suite que esté corriendo en ese momento.
+ */
+async function desmontarComponentesBootstrap(sandbox) {
+    if (typeof bootstrap !== "undefined" && bootstrap) {
+        const modal = document.getElementById("modalDetalleServicio");
+        const toast = document.getElementById("toastConfirmacion");
+        const instanciaModal = modal && bootstrap.Modal.getInstance(modal);
+        const instanciaToast = toast && bootstrap.Toast.getInstance(toast);
+
+        if (instanciaModal || instanciaToast) {
+            await new Promise(function (resolve) { setTimeout(resolve, MARGEN_TRANSICIONES_BOOTSTRAP_MS); });
+        }
+        if (instanciaModal) instanciaModal.dispose();
+        if (instanciaToast) instanciaToast.dispose();
+    }
+    document.querySelectorAll(".modal-backdrop").forEach(function (nodo) { nodo.remove(); });
+    document.body.classList.remove("modal-open");
+    document.body.style.removeProperty("overflow");
+    document.body.style.removeProperty("padding-right");
+    sandbox.remove();
+}
+
+/** Promesa que se resuelve la próxima vez que `elemento` emite `tipo`. */
+function esperarEvento(elemento, tipo) {
+    return new Promise(function (resolve) {
+        elemento.addEventListener(tipo, resolve, { once: true });
     });
+}
 
-    describe("agregarEvento", function () {
-        it("debería devolver un array nuevo que contiene el evento sin modificar el original", function () {
-            const original = [{ nombre: "Uno", tipo: "boda", presupuesto: 1000 }];
-            const copiaAntes = JSON.parse(JSON.stringify(original));
-            const nuevo = { nombre: "Dos", tipo: "salida casual", presupuesto: 2000 };
+/**
+ * Dispara `show.bs.modal` sobre el Modal tal como lo hace Bootstrap (evento
+ * cancelable con `relatedTarget` = botón que lo abrió), sin depender de su JS.
+ */
+function dispararShowModal(modal, disparador) {
+    const evento = new Event("show.bs.modal", { bubbles: true, cancelable: true });
+    evento.relatedTarget = disparador;
+    modal.dispatchEvent(evento);
+}
 
-            const resultado = agregarEvento(original, nuevo);
+/** Ejecuta `accion` y devuelve los errores no capturados que llegaron a window. */
+function capturarErroresNoControlados(accion) {
+    const errores = [];
+    const registrar = function (evento) { errores.push(evento.message); };
+    window.addEventListener("error", registrar);
+    try {
+        accion();
+    } finally {
+        window.removeEventListener("error", registrar);
+    }
+    return errores;
+}
 
-            expect(resultado).not.toBe(original);
-            expect(resultado.length).toBe(2);
-            expect(resultado).toContain(nuevo);
-            expect(original.length).toBe(1);
-            expect(original).toEqual(copiaAntes);
-        });
-    });
+/**
+ * Claves crudas de localStorage que usa la fachada ServicioPersistenciaEvento.
+ * Desde RC22 el controlador ya no expone CLAVES_STORAGE (las claves son privadas
+ * de la fachada); los specs RC16 leen y siembran el storage en crudo a propósito,
+ * sin pasar por Almacenamiento ni por la fachada, para no validar el módulo con
+ * sí mismo. Si la fachada cambiara sus claves, estos specs fallarían a la vista.
+ */
+const CLAVES_STORAGE_CRUDAS = Object.freeze({
+    evento: "planit:evento",
+    detallesEvento: "planit:detalles-evento"
 });
 
-describe("Flujo 1: Crear evento (interacción con prompt/alert) - RC8", function () {
-    let eventosOriginales;
+const FIXTURE_CANTIDADES = {
+    "cantidad-catering": "120",
+    "cantidad-decoracion": "1",
+    "cantidad-sonido": "6",
+    "cantidad-fotografia": "1",
+    "cantidad-transporte": "2"
+};
 
-    beforeEach(function () {
-        eventosOriginales = eventos.slice();
+function restaurarEstadoInicial() {
+    const ui = obtenerReferenciasUI();
+
+    // RC22: el estado persistido se limpia a través de la fachada, igual que lo usa el controlador.
+    estadoApp.persistencia.limpiar();
+
+    ui.nombreEvento.value = "Casamiento de Sofi & Mateo";
+    ui.fechaEvento.value = "2026-11-14";
+    ui.tipoEvento.value = "boda";
+    ui.presupuestoEstimado.value = "700000";
+    ui.ubicacion.value = "Quinta El Ombú, Pilar, Buenos Aires";
+    ui.descuentoPresupuesto.value = "0";
+    ui.buscarCatalogo.value = "";
+    ui.categoriaCatalogo.value = "";
+    ui.nombreInvitado.value = "";
+    ui.estadoInvitado.value = "Pendiente";
+
+    Object.entries(FIXTURE_CANTIDADES).forEach(function ([id, valor]) {
+        document.getElementById(id).value = valor;
     });
 
-    afterEach(function () {
-        eventos = eventosOriginales;
+    estadoApp.evento = new Evento("Casamiento de Sofi & Mateo", "boda", "700000");
+    [
+        ["Catering", "Finger food premium y barra libre", 120, 3500],
+        ["Decoración", "Arreglos florales y ambientación luces", 1, 70000],
+        ["Sonido", "DJ set completo y sonido de pista", 6, 8000],
+        ["Fotografía", "Cobertura de evento y álbum digital", 1, 32000],
+        ["Transporte", "Traslado de materiales y coordinación", 2, 5000]
+    ].forEach(function ([categoria, descripcion, cantidad, precio]) {
+        estadoApp.evento.presupuesto.agregarItem(new ItemContratado(categoria, descripcion, cantidad, precio));
+    });
+    estadoApp.evento.invitados.agregar("Sofía Rodríguez", "Confirmado");
+    estadoApp.evento.invitados.agregar("Mateo González", "Confirmado");
+    estadoApp.evento.invitados.agregar("Valentina Benítez", "Pendiente");
+
+    [ui.nombreEvento, ui.fechaEvento, ui.tipoEvento, ui.presupuestoEstimado, ui.ubicacion,
+        ui.descuentoPresupuesto, ui.nombreInvitado, ui.estadoInvitado]
+        .filter(Boolean).forEach(limpiarCampo);
+    document.querySelectorAll(".input-cantidad").forEach(limpiarCampo);
+
+    ui.confirmacionEvento.hidden = true;
+    ui.confirmacionEvento.textContent = "";
+    ui.avisoApp.hidden = true;
+    ui.feedbackInvitados.hidden = true;
+
+    // Un test anterior puede haber dejado estos botones deshabilitados (p. ej. tras
+    // invalidar un formulario a propósito). Sin este reset, un click() posterior en
+    // el mismo botón no dispara submit y el test que lo sigue falla de forma
+    // intermitente según el orden aleatorio de Jasmine.
+    ui.btnGuardarEvento.disabled = false;
+    ui.btnCalcularPresupuesto.disabled = false;
+    ui.btnAgregarInvitado.disabled = false;
+
+    construirCatalogo(ui);
+    recalcularPresupuesto(ui);
+    renderInvitados(ui);
+    filtrarCatalogo(ui);
+
+    return ui;
+}
+
+/** Dispara un evento nativo sobre un elemento (bubbles: true, como un evento real de usuario). */
+function emitir(elemento, tipoEvento) {
+    elemento.dispatchEvent(new Event(tipoEvento, { bubbles: true }));
+}
+
+/** Simula que el usuario completa un campo y lo abandona (dispara input/change + blur). */
+function tocarYValidar(elemento, valor) {
+    elemento.value = valor;
+    emitir(elemento, elemento.tagName === "SELECT" ? "change" : "input");
+    emitir(elemento, "blur");
+}
+
+describe("script.spec.js", function () {
+
+let ui;
+
+beforeEach(function () {
+    ui = restaurarEstadoInicial();
+});
+
+describe("Flujo 1: Crear evento", function () {
+    it("debería marcar el nombre como inválido y deshabilitar 'Guardar' cuando queda vacío", function () {
+        tocarYValidar(ui.nombreEvento, "");
+
+        expect(ui.nombreEvento.classList.contains("is-invalid")).toBe(true);
+        expect(document.getElementById("nombre-evento-error").textContent).not.toBe("");
+        expect(ui.btnGuardarEvento.disabled).toBe(true);
     });
 
-    it("debería crear el evento con una secuencia válida en el primer intento", function () {
-        spyOn(window, "prompt").and.returnValues("Cumple de Lea", "boda", "50000");
-        spyOn(window, "alert");
+    it("debería guardar el evento con datos válidos, confirmar y persistir vía la fachada de persistencia", function () {
+        ui.nombreEvento.value = "Cumple de Lola";
 
-        const resultado = flujoCrearEvento();
+        ui.btnGuardarEvento.click();
 
-        expect(prompt.calls.count()).toBe(3);
-        expect(alert.calls.count()).toBe(1);
-        expect(alert).toHaveBeenCalledWith(
-            "Evento creado con éxito:\nNombre: Cumple de Lea\nTipo: boda\nPresupuesto estimado: $50.000"
-        );
-        expect(resultado).toEqual({ nombre: "Cumple de Lea", tipo: "boda", presupuesto: 50000 });
-        expect(eventos).toContain(resultado);
+        expect(ui.confirmacionEvento.hidden).toBe(false);
+        expect(ui.confirmacionEvento.textContent).toContain("Cumple de Lola");
+        expect(estadoApp.evento.nombre).toBe("Cumple de Lola");
+
+        const guardado = estadoApp.persistencia.cargar();
+        expect(guardado.evento.nombre).toBe("Cumple de Lola");
+        expect(guardado.detalles).toEqual({
+            fecha: "2026-11-14",
+            ubicacion: "Quinta El Ombú, Pilar, Buenos Aires"
+        });
     });
 
-    it("debería reintentar cuando el usuario responde 'si' tras datos inválidos y crear el evento en el segundo intento", function () {
-        spyOn(window, "prompt").and.returnValues(
-            "Cumple de Lea", "mena", "50000",
-            "si",
-            "Cumple de Lea", "boda", "50000"
-        );
-        spyOn(window, "alert");
+    it("debería delegar el guardado en la fachada con la instancia del dominio y los detalles (RC22)", function () {
+        spyOn(estadoApp.persistencia, "guardar").and.callThrough();
 
-        const resultado = flujoCrearEvento();
+        ui.btnGuardarEvento.click();
 
-        expect(prompt.calls.count()).toBe(7);
-        expect(alert.calls.count()).toBe(2);
-        expect(alert.calls.argsFor(0)[0]).toContain("Datos inválidos:");
-        expect(alert.calls.argsFor(1)[0]).toBe(
-            "Evento creado con éxito:\nNombre: Cumple de Lea\nTipo: boda\nPresupuesto estimado: $50.000"
-        );
-        expect(resultado).toEqual({ nombre: "Cumple de Lea", tipo: "boda", presupuesto: 50000 });
+        expect(estadoApp.persistencia.guardar).toHaveBeenCalledWith(estadoApp.evento, {
+            fecha: "2026-11-14",
+            ubicacion: "Quinta El Ombú, Pilar, Buenos Aires"
+        });
     });
 
-    it("debería cancelar la creación cuando el usuario responde 'no' reintentar tras datos inválidos", function () {
-        spyOn(window, "prompt").and.returnValues("", "boda", "50000", "no");
-        spyOn(window, "alert");
+    it("debería conservar presupuesto e invitados al actualizar los datos del evento", function () {
+        const itemsAntes = estadoApp.evento.presupuesto.items.length;
+        const invitadosAntes = estadoApp.evento.invitados.invitados.length;
+        ui.nombreEvento.value = "Cumple de Lola";
 
-        const resultado = flujoCrearEvento();
+        ui.btnGuardarEvento.click();
 
-        expect(prompt.calls.count()).toBe(4);
-        expect(alert.calls.count()).toBe(2);
-        expect(alert.calls.argsFor(1)[0]).toBe("Se canceló la creación del evento.");
-        expect(resultado).toBeNull();
+        expect(estadoApp.evento.presupuesto.items.length).toBe(itemsAntes);
+        expect(estadoApp.evento.invitados.invitados.length).toBe(invitadosAntes);
     });
 
-    it("debería cancelar sin crear el evento cuando se cancela el nombre (prompt devuelve null)", function () {
-        spyOn(window, "prompt").and.returnValues(null, "no");
-        spyOn(window, "alert");
-        const antes = eventos.length;
+    it("debería avisar al usuario cuando el guardado falla (regresión del bug corregido en PR #104, ronda 1)", function () {
+        spyOn(estadoApp.persistencia, "guardar").and.returnValue(false);
 
-        const resultado = flujoCrearEvento();
+        ui.nombreEvento.value = "Cumple de Lola";
+        ui.btnGuardarEvento.click();
 
-        expect(prompt.calls.count()).toBe(2);
-        expect(alert.calls.argsFor(1)[0]).toBe("Se canceló la creación del evento.");
-        expect(resultado).toBeNull();
-        expect(eventos.length).toBe(antes);
+        expect(ui.avisoApp.hidden).toBe(false);
+        expect(ui.avisoApp.textContent).toContain("No se pudieron guardar los cambios");
     });
 
-    it("debería cancelar sin pedir el presupuesto cuando se cancela el tipo (prompt devuelve null)", function () {
-        spyOn(window, "prompt").and.returnValues("Compromiso", null, "no");
-        spyOn(window, "alert");
+    it("no debería guardar ni actualizar el evento si los datos son inválidos", function () {
+        ui.nombreEvento.value = "";
 
-        const resultado = flujoCrearEvento();
+        ui.btnGuardarEvento.click();
 
-        expect(prompt.calls.count()).toBe(3);
-        expect(resultado).toBeNull();
+        expect(ui.confirmacionEvento.hidden).toBe(false);
+        expect(ui.confirmacionEvento.textContent).toContain("Revisá los campos marcados");
+        expect(estadoApp.evento.nombre).toBe("Casamiento de Sofi & Mateo");
     });
 
-    it("debería cancelar cuando se cancela el presupuesto (prompt devuelve null)", function () {
-        spyOn(window, "prompt").and.returnValues("Compromiso", "boda", null, "no");
-        spyOn(window, "alert");
+    it("debería recalcular el Flujo 2 al guardar un presupuesto estimado menor al total contratado", function () {
+        ui.presupuestoEstimado.value = "1000";
 
-        const resultado = flujoCrearEvento();
+        ui.btnGuardarEvento.click();
 
-        expect(prompt.calls.count()).toBe(4);
-        expect(resultado).toBeNull();
+        expect(ui.alertaPresupuesto.textContent).toContain("supera");
     });
 });
 
 describe("Flujo 2: Calcular presupuesto", function () {
-    describe("calcularTotalItems", function () {
-        it("debería devolver 580000 para itemsContratados", function () {
-            expect(calcularTotalItems(itemsContratados)).toBe(580000);
-        });
-
-        it("debería devolver 0 con un array vacío", function () {
-            expect(calcularTotalItems([])).toBe(0);
-        });
+    it("debería calcular el total sin descuento y marcarlo dentro del presupuesto estimado", function () {
+        expect(ui.totalPresupuesto.textContent).toBe("$580.000");
+        expect(ui.alertaPresupuesto.textContent).toContain("dentro del presupuesto");
     });
 
-    describe("aplicarDescuento", function () {
-        it("debería devolver 90000 al aplicar 10% a 100000", function () {
-            expect(aplicarDescuento(100000, 10)).toBe(90000);
-        });
+    it("debería aplicar un descuento del 10% sobre el total", function () {
+        tocarYValidar(ui.descuentoPresupuesto, "10");
 
-        it("debería dejar el total sin cambios con 0% y devolver 0 con 100%", function () {
-            expect(aplicarDescuento(100000, 0)).toBe(100000);
-            expect(aplicarDescuento(100000, 100)).toBe(0);
-        });
-
-        it("debería lanzar un error con un porcentaje negativo", function () {
-            expect(function () { aplicarDescuento(100000, -5); }).toThrow();
-        });
-
-        it("debería lanzar un error con un porcentaje mayor a 100", function () {
-            expect(function () { aplicarDescuento(100000, 101); }).toThrow();
-        });
-
-        it("debería lanzar un error con un porcentaje no numérico", function () {
-            expect(function () { aplicarDescuento(100000, "abc"); }).toThrow();
-        });
-
-        it("debería lanzar un error con un porcentaje null o undefined", function () {
-            expect(function () { aplicarDescuento(100000, null); }).toThrow();
-            expect(function () { aplicarDescuento(100000, undefined); }).toThrow();
-        });
+        expect(ui.totalPresupuesto.textContent).toBe("$522.000");
     });
 
-    describe("superaPresupuesto", function () {
-        it("debería devolver true cuando el total es mayor al presupuesto estimado", function () {
-            expect(superaPresupuesto(PRESUPUESTO_EJEMPLO + 1, PRESUPUESTO_EJEMPLO)).toBe(true);
-        });
+    it("debería mostrar la alerta de excedido cuando el total supera el presupuesto estimado", function () {
+        tocarYValidar(document.getElementById("cantidad-catering"), "200");
 
-        it("debería devolver false cuando el total es igual al presupuesto estimado", function () {
-            expect(superaPresupuesto(PRESUPUESTO_EJEMPLO, PRESUPUESTO_EJEMPLO)).toBe(false);
-        });
-
-        it("debería devolver false cuando el total es menor al presupuesto estimado", function () {
-            expect(superaPresupuesto(580000, PRESUPUESTO_EJEMPLO)).toBeFalsy();
-        });
+        expect(ui.alertaPresupuesto.textContent).toContain("supera");
     });
 
-    describe("obtenerPresupuestoEstimado", function () {
-        it("debería devolver PRESUPUESTO_EJEMPLO cuando no hay eventos creados", function () {
-            expect(obtenerPresupuestoEstimado([])).toBe(PRESUPUESTO_EJEMPLO);
-        });
+    it("debería bloquear el resultado con una cantidad negativa y recuperarlo al corregirla", function () {
+        const inputCantidad = document.getElementById("cantidad-catering");
 
-        it("debería devolver el presupuesto del último evento creado", function () {
-            const listaEventos = [
-                { nombre: "Uno", tipo: "boda", presupuesto: 300000 },
-                { nombre: "Dos", tipo: "cumpleaños", presupuesto: 450000 }
-            ];
+        tocarYValidar(inputCantidad, "-5");
+        expect(ui.totalPresupuesto.textContent).toBe("—");
+        expect(ui.btnCalcularPresupuesto.disabled).toBe(true);
+        expect(inputCantidad.classList.contains("is-invalid")).toBe(true);
 
-            expect(obtenerPresupuestoEstimado(listaEventos)).toBe(450000);
-        });
-    });
-});
-
-describe("Flujo 2: Calcular presupuesto (interacción con prompt/alert) - RC9", function () {
-    let eventosOriginales;
-
-    beforeEach(function () {
-        eventosOriginales = eventos.slice();
+        tocarYValidar(inputCantidad, "120");
+        expect(ui.totalPresupuesto.textContent).toBe("$580.000");
+        expect(ui.btnCalcularPresupuesto.disabled).toBe(false);
     });
 
-    afterEach(function () {
-        eventos = eventosOriginales;
-    });
+    it("debería bloquear el resultado con un descuento fuera de 0-100", function () {
+        tocarYValidar(ui.descuentoPresupuesto, "150");
 
-    it("debería aplicar un descuento normal y mostrar el presupuesto disponible cuando no se excede", function () {
-        eventos = [{ nombre: "Evento grande", tipo: "boda", presupuesto: 900000 }];
-        spyOn(window, "prompt").and.returnValue("10");
-        spyOn(window, "alert");
-
-        const resultado = flujoCalcularPresupuesto();
-
-        expect(resultado).toBe(522000);
-        expect(alert).toHaveBeenCalledWith("Total final: $522.000.\nPresupuesto disponible: $378.000.");
-    });
-
-    it("debería aplicar 0% de descuento sin cambiar el total", function () {
-        eventos = [];
-        spyOn(window, "prompt").and.returnValue("0");
-        spyOn(window, "alert");
-
-        expect(flujoCalcularPresupuesto()).toBe(580000);
-    });
-
-    it("debería aplicar 100% de descuento y devolver 0", function () {
-        eventos = [];
-        spyOn(window, "prompt").and.returnValue("100");
-        spyOn(window, "alert");
-
-        expect(flujoCalcularPresupuesto()).toBe(0);
-    });
-
-    it("debería mostrar alerta de presupuesto excedido cuando el total final supera el estimado", function () {
-        eventos = [{ nombre: "Evento chico", tipo: "cumpleaños", presupuesto: 100000 }];
-        spyOn(window, "prompt").and.returnValue("0");
-        spyOn(window, "alert");
-
-        flujoCalcularPresupuesto();
-
-        expect(alert).toHaveBeenCalledWith(
-            "Atención: el total de $580.000 supera el presupuesto estimado de $100.000 por $480.000."
-        );
-    });
-
-    it("debería devolver null y alertar el mensaje de error con un porcentaje negativo", function () {
-        spyOn(window, "prompt").and.returnValue("-5");
-        spyOn(window, "alert");
-
-        const resultado = flujoCalcularPresupuesto();
-
-        expect(resultado).toBeNull();
-        expect(alert).toHaveBeenCalledWith("El porcentaje de descuento debe ser un número entre 0 y 100.");
-    });
-
-    it("debería devolver null con un porcentaje mayor a 100", function () {
-        spyOn(window, "prompt").and.returnValue("101");
-        spyOn(window, "alert");
-
-        expect(flujoCalcularPresupuesto()).toBeNull();
-    });
-
-    it("debería devolver null con un porcentaje no numérico", function () {
-        spyOn(window, "prompt").and.returnValue("abc");
-        spyOn(window, "alert");
-
-        expect(flujoCalcularPresupuesto()).toBeNull();
-    });
-
-    it("debería devolver null cuando se cancela el porcentaje (prompt devuelve null)", function () {
-        spyOn(window, "prompt").and.returnValue(null);
-        spyOn(window, "alert");
-
-        const resultado = flujoCalcularPresupuesto();
-
-        expect(resultado).toBeNull();
-        expect(alert).toHaveBeenCalledWith("El porcentaje de descuento debe ser un número entre 0 y 100.");
+        expect(ui.totalPresupuesto.textContent).toBe("—");
+        expect(ui.descuentoPresupuesto.classList.contains("is-invalid")).toBe(true);
     });
 });
 
 describe("Flujo 3: Buscar en catálogo", function () {
-    describe("buscarEnCatalogo", function () {
-        it("debería devolver un array con 'Flores Pilar' al buscar ese nombre", function () {
-            const resultados = buscarEnCatalogo(catalogoProveedores, "Flores Pilar");
-
-            expect(resultados.length).toBe(1);
-            expect(resultados[0].nombre).toBe("Flores Pilar");
-        });
-
-        it("debería devolver los proveedores de la categoría 'Catering'", function () {
-            const resultados = buscarEnCatalogo(catalogoProveedores, "Catering");
-
-            expect(resultados.length).toBe(1);
-            expect(resultados).toContain(catalogoProveedores[0]);
-            expect(resultados[0].categoria).toBe("Catering");
-        });
-
-        it("debería encontrar 'DJ Lucas & Sonido' sin distinguir mayúsculas de minúsculas", function () {
-            const resultados = buscarEnCatalogo(catalogoProveedores, "dj lucas");
-
-            expect(resultados.length).toBe(1);
-            expect(resultados[0].nombre).toBe("DJ Lucas & Sonido");
-        });
-
-        it("debería devolver un array vacío cuando no hay coincidencias", function () {
-            expect(buscarEnCatalogo(catalogoProveedores, "inexistente")).toEqual([]);
-        });
-
-        it("debería lanzar un error con un criterio vacío", function () {
-            expect(function () { buscarEnCatalogo(catalogoProveedores, ""); }).toThrow();
-            expect(function () { buscarEnCatalogo(catalogoProveedores, " "); }).toThrow();
-        });
-
-        it("debería lanzar un error con un criterio null o undefined", function () {
-            expect(function () { buscarEnCatalogo(catalogoProveedores, null); }).toThrow();
-            expect(function () { buscarEnCatalogo(catalogoProveedores, undefined); }).toThrow();
-        });
-
-        it("no debería modificar el catálogo original después de buscar", function () {
-            const largoAntes = catalogoProveedores.length;
-            const fotoAntes = JSON.stringify(catalogoProveedores);
-
-            buscarEnCatalogo(catalogoProveedores, "Sonido");
-
-            expect(catalogoProveedores.length).toBe(largoAntes);
-            expect(JSON.stringify(catalogoProveedores)).toBe(fotoAntes);
-        });
+    it("debería mostrar los 3 proveedores del catálogo sin ningún filtro", function () {
+        expect(ui.contadorCatalogo.textContent).toBe("3 proveedores encontrados");
     });
 
-    describe("coincideCon", function () {
-        it("debería existir en cada proveedor y devolver true con su propio nombre", function () {
-            catalogoProveedores.forEach(function (proveedor) {
-                expect(typeof proveedor.coincideCon).toBe("function");
-                expect(proveedor.coincideCon(proveedor.nombre)).toBe(true);
-            });
-        });
+    it("debería filtrar por texto (nombre)", function () {
+        tocarYValidar(ui.buscarCatalogo, "flores");
 
-        it("debería devolver false con un criterio que no es texto", function () {
-            expect(catalogoProveedores[0].coincideCon(null)).toBe(false);
-        });
-    });
-});
-
-describe("Flujo 3: Buscar en catálogo (interacción con prompt/alert) - RC10", function () {
-    it("debería mostrar los proveedores encontrados cuando hay coincidencias", function () {
-        spyOn(window, "prompt").and.returnValue("Flores Pilar");
-        spyOn(window, "alert");
-
-        const resultado = flujoBuscarEnCatalogo();
-
-        expect(resultado.length).toBe(1);
-        expect(alert).toHaveBeenCalledWith("Proveedores encontrados:\n" + formatearListaProveedores(resultado));
+        expect(ui.contadorCatalogo.textContent).toBe("1 proveedor encontrado");
     });
 
-    it("debería mostrar un aviso de ausencia de resultados cuando no hay coincidencias", function () {
-        spyOn(window, "prompt").and.returnValue("inexistente");
-        spyOn(window, "alert");
+    it("debería filtrar por categoría usando el valor exacto de la opción seleccionada", function () {
+        tocarYValidar(ui.categoriaCatalogo, "Decoración");
 
-        const resultado = flujoBuscarEnCatalogo();
-
-        expect(resultado).toEqual([]);
-        expect(alert).toHaveBeenCalledWith("Sin coincidencias para \"inexistente\".");
+        expect(ui.contadorCatalogo.textContent).toBe("1 proveedor encontrado");
     });
 
-    it("debería alertar el error y devolver null con una búsqueda vacía", function () {
-        spyOn(window, "prompt").and.returnValue("");
-        spyOn(window, "alert");
+    it("no debería incluir un proveedor cuyo NOMBRE contiene el texto de otra categoría al filtrar por categoría (regresión del bug corregido en PR #104, ronda 3)", function () {
+        estadoApp.catalogo.agregarProveedor(new Proveedor("Catering Beats Sonido Móvil", "Sonido", 9000, "hora"));
 
-        const resultado = flujoBuscarEnCatalogo();
+        tocarYValidar(ui.categoriaCatalogo, "Catering");
 
-        expect(resultado).toBeNull();
-        expect(alert).toHaveBeenCalledWith("El criterio de búsqueda no puede estar vacío.");
+        expect(ui.contadorCatalogo.textContent).toBe("1 proveedor encontrado");
     });
 
-    it("debería alertar el error y devolver null cuando se cancela la búsqueda (prompt devuelve null)", function () {
-        spyOn(window, "prompt").and.returnValue(null);
-        spyOn(window, "alert");
+    it("debería combinar texto y categoría", function () {
+        tocarYValidar(ui.buscarCatalogo, "lucas");
+        tocarYValidar(ui.categoriaCatalogo, "Sonido");
+        expect(ui.contadorCatalogo.textContent).toBe("1 proveedor encontrado");
 
-        const resultado = flujoBuscarEnCatalogo();
+        tocarYValidar(ui.categoriaCatalogo, "Decoración");
+        expect(ui.contadorCatalogo.textContent).toBe("0 proveedores encontrados");
+        expect(ui.catalogoVacio.hidden).toBe(false);
+    });
 
-        expect(resultado).toBeNull();
-        expect(alert).toHaveBeenCalledWith("El criterio de búsqueda no puede estar vacío.");
+    it("debería mostrar el aviso de sin coincidencias con un texto que no matchea nada", function () {
+        tocarYValidar(ui.buscarCatalogo, "zzz");
+
+        expect(ui.catalogoVacio.hidden).toBe(false);
+        expect(ui.catalogoVacio.textContent).toContain("zzz");
     });
 });
 
 describe("Flujo 4: Gestionar invitados", function () {
-    describe("validarInvitado", function () {
-        it("debería aceptar un nombre válido con estado 'Confirmado' o 'Pendiente'", function () {
-            expect(validarInvitado("Lucía Pérez", "Confirmado")).toBe(true);
-            expect(validarInvitado("Lucía Pérez", "Pendiente")).toBeTruthy();
-        });
+    it("debería agregar un invitado válido, mostrar el feedback y actualizar las métricas", function () {
+        tocarYValidar(ui.nombreInvitado, "Juan Pérez");
+        ui.estadoInvitado.value = "Confirmado";
 
-        it("debería devolver false con un nombre vacío", function () {
-            expect(validarInvitado("", "Confirmado")).toBe(false);
-            expect(validarInvitado(" ", "Pendiente")).toBeFalsy();
-        });
+        ui.btnAgregarInvitado.click();
 
-        it("debería devolver false con un estado inválido", function () {
-            expect(validarInvitado("Lucía Pérez", "Declinado")).toBe(false);
-        });
-
-        it("debería devolver false con nombre o estado null/undefined", function () {
-            expect(validarInvitado("Lucía Pérez", null)).toBe(false);
-            expect(validarInvitado(undefined, "Confirmado")).toBe(false);
-        });
+        expect(ui.feedbackInvitados.hidden).toBe(false);
+        expect(ui.feedbackInvitados.textContent).toContain("Juan Pérez");
+        expect(ui.metricasInvitados.textContent).toContain("Confirmados: 3");
+        expect(ui.metricasInvitados.textContent).toContain("Pendientes: 1");
     });
 
-    describe("agregarInvitado", function () {
-        it("debería devolver un array nuevo con el invitado como objeto sin modificar el original", function () {
-            const original = [{ nombre: "Ana", estado: "Confirmado" }];
-            const copiaAntes = JSON.parse(JSON.stringify(original));
+    it("no debería habilitar 'Agregar invitado' con el nombre vacío", function () {
+        tocarYValidar(ui.nombreInvitado, "");
 
-            const resultado = agregarInvitado(original, "Lucía Pérez", "Pendiente");
-
-            expect(resultado).not.toBe(original);
-            expect(resultado.length).toBe(2);
-            expect(resultado[1]).toEqual({ nombre: "Lucía Pérez", estado: "Pendiente" });
-            expect(original.length).toBe(1);
-            expect(original).toEqual(copiaAntes);
-        });
-
-        it("debería lanzar un error con un nombre vacío", function () {
-            expect(function () { agregarInvitado([], "", "Confirmado"); }).toThrow();
-        });
-
-        it("debería lanzar un error con un estado inválido", function () {
-            expect(function () { agregarInvitado([], "Lucía Pérez", "Declinado"); }).toThrow();
-        });
-
-        it("debería lanzar un error con un nombre null", function () {
-            expect(function () { agregarInvitado([], null, "Confirmado"); }).toThrow();
-        });
+        expect(ui.btnAgregarInvitado.disabled).toBe(true);
     });
 
-    describe("contarAsistencia", function () {
-        it("debería devolver { confirmados: 3, pendientes: 2 } con los invitados de ejemplo", function () {
-            expect(contarAsistencia(invitados)).toEqual({ confirmados: 3, pendientes: 2 });
-        });
+    it("debería recalcular las métricas al eliminar un invitado", function () {
+        const fila = ui.listaInvitados.querySelector('tr[data-nombre="Sofía Rodríguez"]');
+        fila.querySelector("button[data-accion='eliminar']").click();
 
-        it("debería devolver { confirmados: 0, pendientes: 0 } con una lista vacía", function () {
-            expect(contarAsistencia([])).toEqual({ confirmados: 0, pendientes: 0 });
+        expect(ui.metricasInvitados.textContent).toContain("Confirmados: 1");
+        expect(ui.metricasInvitados.textContent).toContain("Pendientes: 1");
+    });
+
+    it("debería distinguir por posición entre dos invitados con el mismo nombre al eliminar (regresión del bug corregido en PR #104, ronda 2)", function () {
+        tocarYValidar(ui.nombreInvitado, "Juan Perez");
+        ui.estadoInvitado.value = "Pendiente";
+        ui.btnAgregarInvitado.click();
+
+        tocarYValidar(ui.nombreInvitado, "Juan Perez");
+        ui.estadoInvitado.value = "Confirmado";
+        ui.btnAgregarInvitado.click();
+
+        const filas = Array.from(ui.listaInvitados.querySelectorAll('tr[data-nombre="Juan Perez"]'));
+        expect(filas.length).toBe(2);
+
+        const filaConfirmada = filas.find(function (fila) {
+            return fila.querySelector("button[data-accion='pendiente']") !== null;
         });
+        filaConfirmada.querySelector("button[data-accion='eliminar']").click();
+
+        const restantes = Array.from(ui.listaInvitados.querySelectorAll('tr[data-nombre="Juan Perez"]'));
+        expect(restantes.length).toBe(1);
+        expect(restantes[0].querySelector("button[data-accion='confirmar']")).not.toBeNull();
+    });
+
+    it("debería persistir la lista de invitados vía la fachada al agregar uno nuevo", function () {
+        tocarYValidar(ui.nombreInvitado, "Nueva Persona");
+        ui.estadoInvitado.value = "Pendiente";
+
+        ui.btnAgregarInvitado.click();
+
+        const guardado = estadoApp.persistencia.cargar().evento;
+        expect(guardado.invitados.invitados.some(function (i) { return i.nombre === "Nueva Persona"; })).toBe(true);
     });
 });
 
-describe("Flujo 4: Gestionar invitados (interacción con prompt/alert) - RC11", function () {
-    let invitadosOriginales;
+describe("Integración - Controlador y UI (RC14, RC15, RC16)", function () {
+    let sandbox = null;
+    let bootstrapOriginal;
+
+    /** id del nodo del Modal -> clave de data-service-* del disparador. */
+    const CAMPOS_MODAL = {
+        modalDetalleServicioTitulo: "serviceTitle",
+        modalDetalleServicioDescripcion: "serviceDescription",
+        modalDetalleServicioCapacidad: "serviceCapacidad",
+        modalDetalleServicioDuracion: "serviceDuracion",
+        modalDetalleServicioIncluye: "serviceIncluye",
+        modalDetalleServicioPrecio: "servicePrice"
+    };
+
+    function disparadoresDetalle() {
+        return Array.from(sandbox.querySelectorAll(".tarjetas-sandbox .btn-ver-detalle"));
+    }
+
+    function botonesSumarTarjetas() {
+        return Array.from(sandbox.querySelectorAll(".tarjetas-sandbox .btn-sumar-evento"));
+    }
+
+    function botonSumarModal() {
+        return document.querySelector("#modalDetalleServicio .btn-sumar-evento");
+    }
+
+    function toast() {
+        return document.getElementById("toastConfirmacion");
+    }
 
     beforeEach(function () {
-        invitadosOriginales = invitados.slice();
+        // Referencia temporal: los specs de "Bootstrap ausente" ponen window.bootstrap
+        // en undefined, y siempre se restaura en afterEach aunque el spec falle.
+        bootstrapOriginal = window.bootstrap;
     });
 
-    afterEach(function () {
-        invitados = invitadosOriginales;
+    // async: espera a que terminen las transiciones de Bootstrap antes de dispose()
+    // (ver desmontarComponentesBootstrap). Jasmine corre antes el afterEach interno,
+    // que desinstala jasmine.clock(), así que este setTimeout es real.
+    afterEach(async function () {
+        window.bootstrap = bootstrapOriginal;
+        if (sandbox) {
+            await desmontarComponentesBootstrap(sandbox);
+            sandbox = null;
+        }
     });
 
-    it("debería agregar el invitado y mostrar las métricas actualizadas con datos válidos", function () {
-        invitados = [{ nombre: "Ana", estado: "Confirmado" }];
-        spyOn(window, "prompt").and.returnValues("Lucía Pérez", "Pendiente");
-        spyOn(window, "alert");
+    describe("RC14: Modal de detalle de proveedor (show.bs.modal)", function () {
+        let modal;
 
-        const resultado = flujoGestionarInvitados();
+        beforeEach(function () {
+            sandbox = montarComponentesBootstrap();
+            modal = document.getElementById("modalDetalleServicio");
+        });
 
-        expect(resultado).toEqual({ confirmados: 1, pendientes: 1 });
-        expect(alert).toHaveBeenCalledWith("Invitado agregado.\nConfirmados: 1\nPendientes: 1");
-        expect(invitados.length).toBe(2);
+        it("INT-RC14-01: show.bs.modal con relatedTarget debería inyectar todos los datos del servicio en el Modal", function () {
+            const disparador = disparadoresDetalle()[1]; // Flores Pilar
+
+            dispararShowModal(modal, disparador);
+
+            Object.entries(CAMPOS_MODAL).forEach(function ([id, clave]) {
+                expect(document.getElementById(id).textContent).toBe(disparador.dataset[clave]);
+            });
+            expect(document.getElementById("modalDetalleServicioTitulo").textContent).toBe("Flores Pilar");
+            expect(document.getElementById("modalDetalleServicioPrecio").textContent).toBe("$70.000 / base");
+            const imagen = document.getElementById("modalDetalleServicioImagen");
+            expect(imagen.getAttribute("src")).toBe(disparador.dataset.serviceImage);
+            expect(imagen.alt).toBe(disparador.dataset.serviceAlt);
+            expect(imagen.alt).not.toBe("");
+        });
+
+        it("INT-RC14-02: show.bs.modal sin relatedTarget no debería modificar el contenido del Modal", function () {
+            dispararShowModal(modal, null);
+
+            expect(document.getElementById("modalDetalleServicioTitulo").textContent).toBe("Detalle del servicio");
+            expect(botonSumarModal().dataset.serviceTitle).toBe("");
+        });
+
+        it("INT-RC14-03: abrir con 'Ver detalle' (Bootstrap real) debería exponer roles ARIA, mover el foco al diálogo y devolverlo al disparador al cerrar", async function () {
+            const disparador = disparadoresDetalle()[2]; // DJ Lucas & Sonido
+            expect(modal.getAttribute("aria-hidden")).toBe("true");
+
+            disparador.focus();
+            const mostrado = esperarEvento(modal, "shown.bs.modal");
+            disparador.click();
+            await mostrado;
+
+            expect(modal.getAttribute("role")).toBe("dialog");
+            expect(modal.getAttribute("aria-modal")).toBe("true");
+            expect(modal.hasAttribute("aria-hidden")).toBe(false);
+            expect(document.getElementById(modal.getAttribute("aria-labelledby")).textContent).toBe("DJ Lucas & Sonido");
+            expect(modal.contains(document.activeElement)).toBe(true);
+
+            const oculto = esperarEvento(modal, "hidden.bs.modal");
+            bootstrap.Modal.getInstance(modal).hide();
+            await oculto;
+
+            expect(modal.getAttribute("aria-hidden")).toBe("true");
+            expect(document.activeElement).toBe(disparador);
+        });
+
+        it("INT-RC14-04: el botón 'Sumar al Evento' del Modal debería recibir los datos del último proveedor abierto, sin arrastrar los anteriores", function () {
+            const [gourmet, flores] = disparadoresDetalle();
+
+            dispararShowModal(modal, gourmet);
+            expect(botonSumarModal().dataset.serviceTitle).toBe("Gourmet Finger Food");
+            expect(botonSumarModal().dataset.servicePrice).toBe("$3.500 / pax");
+
+            dispararShowModal(modal, flores);
+            expect(botonSumarModal().dataset.serviceTitle).toBe("Flores Pilar");
+            expect(botonSumarModal().dataset.servicePrice).toBe("$70.000 / base");
+        });
+
+        it("INT-RC14-05: abrir el Modal y pulsar 'Sumar al Evento' debería propagar el proveedor al Toast y cerrar el Modal", async function () {
+            const disparador = disparadoresDetalle()[0]; // Gourmet Finger Food
+
+            const mostrado = esperarEvento(modal, "shown.bs.modal");
+            disparador.click();
+            await mostrado;
+
+            const oculto = esperarEvento(modal, "hidden.bs.modal");
+            botonSumarModal().click();
+
+            expect(document.getElementById("toastConfirmacionServicio").textContent).toBe("Gourmet Finger Food · $3.500 / pax");
+            expect(toast().dataset.serviceTitle).toBe("Gourmet Finger Food");
+            expect(toast().classList.contains("show")).toBe(true);
+
+            await oculto;
+            expect(modal.classList.contains("show")).toBe(false);
+        });
     });
 
-    it("debería alertar el error y no agregar el invitado con un nombre vacío", function () {
-        invitados = [];
-        spyOn(window, "prompt").and.returnValues("", "Confirmado");
-        spyOn(window, "alert");
+    describe("RC15: Toast de 'Sumar al Evento' con Bootstrap presente", function () {
+        beforeEach(function () {
+            sandbox = montarComponentesBootstrap();
+            spyOn(bootstrap.Toast, "getOrCreateInstance").and.callThrough();
+            spyOn(bootstrap.Toast.prototype, "show").and.callThrough();
+        });
 
-        const resultado = flujoGestionarInvitados();
+        it("INT-RC15-01: cada botón .btn-sumar-evento de las tarjetas debería mostrar el Toast de Bootstrap con su servicio", function () {
+            const botones = botonesSumarTarjetas();
+            expect(botones.length).toBe(3);
 
-        expect(resultado).toBeNull();
-        expect(invitados.length).toBe(0);
-        expect(alert).toHaveBeenCalledWith(
-            "Faltan datos: ingrese un nombre y un estado válido (Confirmado o Pendiente)."
-        );
+            botones.forEach(function (boton, posicion) {
+                boton.click();
+
+                expect(bootstrap.Toast.getOrCreateInstance).toHaveBeenCalledWith(toast());
+                expect(bootstrap.Toast.prototype.show).toHaveBeenCalledTimes(posicion + 1);
+                expect(document.getElementById("toastConfirmacionServicio").textContent)
+                    .toBe(boton.dataset.serviceTitle + " · " + boton.dataset.servicePrice);
+                expect(document.getElementById("toastConfirmacionMensaje").textContent).toBe("Experiencia agregada a tu evento");
+                expect(toast().classList.contains("show")).toBe(true);
+            });
+        });
+
+        it("INT-RC15-02: el botón .btn-sumar-evento del Modal debería mostrar el Toast de Bootstrap con el servicio abierto", function () {
+            dispararShowModal(document.getElementById("modalDetalleServicio"), disparadoresDetalle()[2]);
+
+            botonSumarModal().click();
+
+            expect(bootstrap.Toast.prototype.show).toHaveBeenCalledTimes(1);
+            expect(document.getElementById("toastConfirmacionServicio").textContent).toBe("DJ Lucas & Sonido · $8.000 / hora");
+            expect(toast().classList.contains("show")).toBe(true);
+        });
     });
 
-    it("debería alertar el error y no agregar el invitado con un estado inválido", function () {
-        invitados = [];
-        spyOn(window, "prompt").and.returnValues("Lucía Pérez", "Declinado");
-        spyOn(window, "alert");
+    describe("RC15: Toast de 'Sumar al Evento' con Bootstrap ausente (degradación)", function () {
+        beforeEach(function () {
+            // Simula que el bundle de Bootstrap no cargó (CDN caído o bloqueado) desde el inicio.
+            window.bootstrap = undefined;
+            jasmine.clock().install();
+            sandbox = montarComponentesBootstrap();
+            // window.bootstrap = undefined no desactiva los handlers que el bundle ya
+            // registró en `document` (data-api: data-bs-dismiss, data-bs-toggle), que
+            // usan referencias internas. Para que el escenario sea "Bootstrap no cargó"
+            // de verdad, los clics del sandbox no llegan a `document`; los listeners
+            // propios de script.js están en cada botón y se ejecutan igual.
+            sandbox.addEventListener("click", function (evento) { evento.stopPropagation(); });
+            spyOn(console, "error");
+        });
 
-        const resultado = flujoGestionarInvitados();
+        afterEach(function () {
+            jasmine.clock().uninstall();
+        });
 
-        expect(resultado).toBeNull();
-        expect(invitados.length).toBe(0);
+        it("INT-RC15-03: cada botón .btn-sumar-evento de las tarjetas debería mostrar el Toast con la clase 'show' del CSS, sin errores, y ocultarlo tras data-bs-delay", function () {
+            expect(typeof bootstrap).toBe("undefined");
+
+            botonesSumarTarjetas().forEach(function (boton) {
+                const errores = capturarErroresNoControlados(function () { boton.click(); });
+
+                expect(errores).toEqual([]);
+                expect(toast().classList.contains("show")).toBe(true);
+                expect(document.getElementById("toastConfirmacionServicio").textContent)
+                    .toBe(boton.dataset.serviceTitle + " · " + boton.dataset.servicePrice);
+                expect(toast().getAttribute("role")).toBe("status");
+                expect(toast().getAttribute("aria-live")).toBe("polite");
+
+                jasmine.clock().tick(4000);
+                expect(toast().classList.contains("show")).toBe(false);
+            });
+            expect(console.error).not.toHaveBeenCalled();
+        });
+
+        it("INT-RC15-04: el botón .btn-sumar-evento del Modal debería mostrar el Toast degradado con el servicio abierto", function () {
+            dispararShowModal(document.getElementById("modalDetalleServicio"), disparadoresDetalle()[1]);
+
+            const errores = capturarErroresNoControlados(function () { botonSumarModal().click(); });
+
+            expect(errores).toEqual([]);
+            expect(toast().classList.contains("show")).toBe(true);
+            expect(document.getElementById("toastConfirmacionServicio").textContent).toBe("Flores Pilar · $70.000 / base");
+            expect(console.error).not.toHaveBeenCalled();
+        });
+
+        it("INT-RC15-05: un segundo clic antes de que venza la demora debería reiniciar el temporizador del Toast degradado", function () {
+            const [primero, segundo] = botonesSumarTarjetas();
+
+            primero.click();
+            jasmine.clock().tick(3000);
+            segundo.click();
+            jasmine.clock().tick(3000);
+
+            expect(toast().classList.contains("show")).toBe(true);
+            expect(document.getElementById("toastConfirmacionServicio").textContent).toContain("Flores Pilar");
+
+            jasmine.clock().tick(1000);
+            expect(toast().classList.contains("show")).toBe(false);
+        });
     });
 
-    it("debería alertar el error y no agregar el invitado cuando se cancela el nombre (prompt devuelve null)", function () {
-        invitados = [];
-        spyOn(window, "prompt").and.returnValues(null, "Confirmado");
-        spyOn(window, "alert");
+    describe("RC16: Persistencia y restauración en una carga nueva de la página", function () {
+        // RC22: las claves son privadas de ServicioPersistenciaEvento. Estos specs leen y
+        // escriben el storage en crudo (caja negra), así que declaran las claves esperadas.
+        const CLAVES_STORAGE = Object.freeze({
+            evento: "planit:evento",
+            detallesEvento: "planit:detalles-evento"
+        });
 
-        const resultado = flujoGestionarInvitados();
+        it("INT-RC16-01: los cambios hechos en el DOM deberían persistirse y reconstruirse tras reiniciar memoria y DOM y volver a disparar DOMContentLoaded", function () {
+            // 1. Modificar el estado desde la UI (mismos eventos que un usuario real).
+            tocarYValidar(ui.nombreInvitado, "Lucía Fernández");
+            ui.estadoInvitado.value = "Confirmado";
+            ui.btnAgregarInvitado.click();
+            tocarYValidar(document.getElementById("cantidad-catering"), "150");
+            ui.ubicacion.value = "Estancia La Candelaria, Lobos";
+            ui.btnGuardarEvento.click();
 
-        expect(resultado).toBeNull();
-        expect(invitados.length).toBe(0);
-    });
+            // 2. Verificar lo grabado leyendo el storage en crudo (sin pasar por Almacenamiento).
+            const eventoCrudo = JSON.parse(localStorage.getItem(CLAVES_STORAGE_CRUDAS.evento));
+            const catering = eventoCrudo.presupuesto.items.find(function (item) { return item.categoria === "Catering"; });
+            expect(Number(catering.cantidad)).toBe(150);
+            expect(eventoCrudo.invitados.invitados).toContain({ nombre: "Lucía Fernández", estado: "Confirmado" });
+            expect(JSON.parse(localStorage.getItem(CLAVES_STORAGE_CRUDAS.detallesEvento)).ubicacion)
+                .toBe("Estancia La Candelaria, Lobos");
 
-    it("debería alertar el error y no agregar el invitado cuando se cancela el estado (prompt devuelve null)", function () {
-        invitados = [];
-        spyOn(window, "prompt").and.returnValues("Lucía Pérez", null);
-        spyOn(window, "alert");
+            // 3. Reiniciar memoria y DOM: nada de lo anterior debe quedar fuera del storage.
+            const eventoAnterior = estadoApp.evento;
+            reiniciarMemoriaYDOM();
+            let uiNueva = obtenerReferenciasUI();
 
-        const resultado = flujoGestionarInvitados();
+            expect(estadoApp.evento).toBeNull();
+            expect(uiNueva.listaInvitados.querySelector('tr[data-nombre="Lucía Fernández"]')).toBeNull();
+            expect(document.getElementById("cantidad-catering").value).toBe("120");
+            expect(uiNueva.ubicacion.value).toBe("Quinta El Ombú, Pilar, Buenos Aires");
+            expect(uiNueva.totalPresupuesto.textContent).toBe("");
 
-        expect(resultado).toBeNull();
-        expect(invitados.length).toBe(0);
+            // 4. Rutina de arranque, igual que en una carga real de index.html.
+            document.dispatchEvent(new Event("DOMContentLoaded"));
+            uiNueva = obtenerReferenciasUI();
+
+            // 5. El DOM se reconstruye desde lo persistido.
+            expect(estadoApp.evento).not.toBe(eventoAnterior);
+            expect(estadoApp.evento instanceof Evento).toBe(true);
+            expect(uiNueva.avisoApp.hidden).toBe(true);
+
+            // RC9: obtenerReferenciasUI() ya no expone `filasPresupuesto`; la fila se ubica
+            // por el id estable de su input, válido tanto en el fixture como en las filas
+            // que genera renderFilasPresupuesto().
+            const filaCatering = document.getElementById("cantidad-catering").closest("tr");
+            expect(obtenerFilasPresupuesto(uiNueva)).toContain(filaCatering);
+            expect(filaCatering.querySelector(".input-cantidad").value).toBe("150");
+            expect(filaCatering.querySelector("[data-subtotal]").textContent).toBe("$525.000");
+            expect(uiNueva.subtotalPresupuesto.textContent).toBe("$685.000");
+            expect(uiNueva.totalPresupuesto.textContent).toBe("$685.000");
+            expect(uiNueva.alertaPresupuesto.textContent).toContain("dentro del presupuesto");
+
+            const filaLucia = uiNueva.listaInvitados.querySelector('tr[data-nombre="Lucía Fernández"]');
+            expect(filaLucia).not.toBeNull();
+            const badge = filaLucia.querySelector(".badge");
+            expect(badge.textContent).toBe("Confirmado");
+            expect(badge.classList.contains("badge-confirmado")).toBe(true);
+            expect(filaLucia.querySelector("button[data-accion='pendiente']")).not.toBeNull();
+            expect(uiNueva.metricasInvitados.textContent).toContain("Confirmados: 3");
+            expect(uiNueva.metricasInvitados.textContent).toContain("Pendientes: 1");
+
+            expect(uiNueva.ubicacion.value).toBe("Estancia La Candelaria, Lobos");
+            expect(uiNueva.nombreEvento.value).toBe("Casamiento de Sofi & Mateo");
+        });
+
+        it("INT-RC16-02: sin datos persistidos, una carga nueva debería mostrar los datos semilla del dominio (control)", function () {
+            Almacenamiento.limpiar("planit:");
+
+            reiniciarMemoriaYDOM();
+            document.dispatchEvent(new Event("DOMContentLoaded"));
+            const uiNueva = obtenerReferenciasUI();
+
+            // Desde RC9-RC11 los datos de ejemplo salen de DATOS_SEMILLA (no del marcado):
+            // 5 invitados (3 confirmados, 2 pendientes), distintos de los 3 del fixture
+            // que deja restaurarEstadoInicial(). Así se distingue la semilla de un resto en memoria.
+            const invitadosSemilla = DATOS_SEMILLA.invitados.invitados;
+            const confirmadosSemilla = invitadosSemilla.filter(function (inv) { return inv.estado === "Confirmado"; }).length;
+            expect(invitadosSemilla.length).toBe(5);
+            expect(estadoApp.evento.invitados.invitados.length).toBe(invitadosSemilla.length);
+            expect(document.getElementById("cantidad-catering").value).toBe("120");
+            expect(uiNueva.totalPresupuesto.textContent).toBe("$580.000");
+            expect(uiNueva.metricasInvitados.textContent).toContain("Confirmados: " + confirmadosSemilla);
+            expect(uiNueva.metricasInvitados.textContent).toContain("Pendientes: " + (invitadosSemilla.length - confirmadosSemilla));
+        });
+
+        it("INT-RC16-03: con un evento persistido inválido, una carga nueva debería avisar y caer en los datos de ejemplo sin lanzar", function () {
+            localStorage.setItem(CLAVES_STORAGE_CRUDAS.evento, JSON.stringify({ nombre: "X", tipo: "tipo-inexistente", presupuestoEstimado: 1000 }));
+
+            reiniciarMemoriaYDOM();
+            const errores = capturarErroresNoControlados(function () {
+                document.dispatchEvent(new Event("DOMContentLoaded"));
+            });
+            const uiNueva = obtenerReferenciasUI();
+
+            expect(errores).toEqual([]);
+            expect(uiNueva.avisoApp.hidden).toBe(false);
+            expect(uiNueva.avisoApp.textContent).toContain("dañados");
+            expect(estadoApp.evento.nombre).toBe("Casamiento de Sofi & Mateo");
+            expect(uiNueva.totalPresupuesto.textContent).toBe("$580.000");
+        });
     });
 });
 
-describe("Menú principal (interacción con prompt/alert) - RC12", function () {
-    it("debería despachar flujoCrearEvento con la opción 1 y salir con la opción 0", function () {
-        spyOn(window, "flujoCrearEvento");
-        spyOn(window, "flujoCalcularPresupuesto");
-        spyOn(window, "flujoBuscarEnCatalogo");
-        spyOn(window, "flujoGestionarInvitados");
-        spyOn(window, "prompt").and.returnValues("1", "0");
-        spyOn(window, "alert");
-
-        iniciarMenuPrincipal();
-
-        expect(flujoCrearEvento).toHaveBeenCalledTimes(1);
-        expect(flujoCalcularPresupuesto).not.toHaveBeenCalled();
-        expect(flujoBuscarEnCatalogo).not.toHaveBeenCalled();
-        expect(flujoGestionarInvitados).not.toHaveBeenCalled();
-        expect(alert).toHaveBeenCalledWith("¡Gracias por usar PlanIT!");
-    });
-
-    it("debería despachar flujoCalcularPresupuesto con la opción 2", function () {
-        spyOn(window, "flujoCrearEvento");
-        spyOn(window, "flujoCalcularPresupuesto");
-        spyOn(window, "flujoBuscarEnCatalogo");
-        spyOn(window, "flujoGestionarInvitados");
-        spyOn(window, "prompt").and.returnValues("2", "0");
-        spyOn(window, "alert");
-
-        iniciarMenuPrincipal();
-
-        expect(flujoCalcularPresupuesto).toHaveBeenCalledTimes(1);
-    });
-
-    it("debería despachar flujoBuscarEnCatalogo con la opción 3", function () {
-        spyOn(window, "flujoCrearEvento");
-        spyOn(window, "flujoCalcularPresupuesto");
-        spyOn(window, "flujoBuscarEnCatalogo");
-        spyOn(window, "flujoGestionarInvitados");
-        spyOn(window, "prompt").and.returnValues("3", "0");
-        spyOn(window, "alert");
-
-        iniciarMenuPrincipal();
-
-        expect(flujoBuscarEnCatalogo).toHaveBeenCalledTimes(1);
-    });
-
-    it("debería despachar flujoGestionarInvitados con la opción 4", function () {
-        spyOn(window, "flujoCrearEvento");
-        spyOn(window, "flujoCalcularPresupuesto");
-        spyOn(window, "flujoBuscarEnCatalogo");
-        spyOn(window, "flujoGestionarInvitados");
-        spyOn(window, "prompt").and.returnValues("4", "0");
-        spyOn(window, "alert");
-
-        iniciarMenuPrincipal();
-
-        expect(flujoGestionarInvitados).toHaveBeenCalledTimes(1);
-    });
-
-    it("debería alertar opción inválida y seguir mostrando el menú hasta elegir una opción correcta", function () {
-        spyOn(window, "flujoCrearEvento");
-        spyOn(window, "prompt").and.returnValues("9", "1", "0");
-        spyOn(window, "alert");
-
-        iniciarMenuPrincipal();
-
-        expect(alert).toHaveBeenCalledWith("Opción inválida. Ingrese un número del 0 al 4.");
-        expect(flujoCrearEvento).toHaveBeenCalledTimes(1);
-    });
-
-    it("debería salir inmediatamente y mostrar el mensaje final cuando se cancela el menú (prompt devuelve null)", function () {
-        spyOn(window, "flujoCrearEvento");
-        spyOn(window, "prompt").and.returnValue(null);
-        spyOn(window, "alert");
-
-        iniciarMenuPrincipal();
-
-        expect(prompt.calls.count()).toBe(1);
-        expect(flujoCrearEvento).not.toHaveBeenCalled();
-        expect(alert).toHaveBeenCalledWith("¡Gracias por usar PlanIT!");
-    });
-
-    it("debería salir con la opción 0 sin despachar ningún flujo", function () {
-        spyOn(window, "flujoCrearEvento");
-        spyOn(window, "prompt").and.returnValue("0");
-        spyOn(window, "alert");
-
-        iniciarMenuPrincipal();
-
-        expect(flujoCrearEvento).not.toHaveBeenCalled();
-        expect(alert).toHaveBeenCalledWith("¡Gracias por usar PlanIT!");
-    });
-});
-
-describe("Helpers de formato e interacción - RC13", function () {
-    describe("quiereReintentar", function () {
-        it("debería devolver true con 's' o 'si', sin distinguir mayúsculas de minúsculas", function () {
-            expect(quiereReintentar("s")).toBe(true);
-            expect(quiereReintentar("SI")).toBe(true);
-            expect(quiereReintentar("Si")).toBe(true);
-        });
-
-        it("debería devolver false con 'no', vacío, null o undefined", function () {
-            expect(quiereReintentar("no")).toBe(false);
-            expect(quiereReintentar("")).toBe(false);
-            expect(quiereReintentar(null)).toBe(false);
-            expect(quiereReintentar(undefined)).toBe(false);
-        });
-    });
-
-    describe("describirIngreso", function () {
-        it("debería devolver '(cancelado)' con null", function () {
-            expect(describirIngreso(null)).toBe("(cancelado)");
-        });
-
-        it("debería devolver '(vacío)' con una cadena vacía o solo espacios", function () {
-            expect(describirIngreso("")).toBe("(vacío)");
-            expect(describirIngreso("   ")).toBe("(vacío)");
-        });
-
-        it("debería devolver el valor entre comillas cuando tiene contenido", function () {
-            expect(describirIngreso("boda")).toBe("\"boda\"");
-        });
-    });
-
-    describe("formatearMoneda", function () {
-        it("debería formatear un monto con separador de miles al estilo es-AR", function () {
-            expect(formatearMoneda(580000)).toBe("$580.000");
-        });
-
-        it("debería formatear 0 como '$0'", function () {
-            expect(formatearMoneda(0)).toBe("$0");
-        });
-    });
-
-    describe("formatearListaProveedores", function () {
-        it("debería devolver una línea por proveedor con nombre, categoría y precio", function () {
-            const resultado = formatearListaProveedores(catalogoProveedores);
-
-            expect(resultado.split("\n").length).toBe(catalogoProveedores.length);
-            expect(resultado).toContain("Flores Pilar (Decoración): $70.000 / base");
-        });
-
-        it("debería devolver una cadena vacía con un array vacío", function () {
-            expect(formatearListaProveedores([])).toBe("");
-        });
-    });
 });
