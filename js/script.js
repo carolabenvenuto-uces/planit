@@ -117,7 +117,7 @@ const RUTA_IMAGENES_CATALOGO = document.currentScript && document.currentScript.
     : "./docs/01-mockup/actividad-obligatoria-2/";
 const PRESENTACION_PROVEEDORES = Object.freeze({
     "Gourmet Finger Food": {
-        imagen: RUTA_IMAGENES_CATALOGO + "catalogo-gourmet-finger-food.jpg",
+        imagen: RUTA_IMAGENES_CATALOGO + "catalogo-gourmet-finger-food-450w.jpg",
         alt: "Mesa de catering con bandejas de mini sándwiches y bocados en varios niveles",
         descripcion: "Selección premium fría y caliente para recepción. Variedad para todos los gustos.",
         capacidad: "Hasta 200 pax",
@@ -126,7 +126,7 @@ const PRESENTACION_PROVEEDORES = Object.freeze({
         incluye: "Finger food frío y caliente, montaje y reposición"
     },
     "Flores Pilar": {
-        imagen: RUTA_IMAGENES_CATALOGO + "catalogo-flores-pilar.jpg",
+        imagen: RUTA_IMAGENES_CATALOGO + "catalogo-flores-pilar-450w.jpg",
         alt: "Centro de mesa con rosas y peonías rosadas sobre una mesa de salón de eventos",
         descripcion: "Centros de mesa personalizados y ramo para novias con flores naturales de estación.",
         capacidad: "1 evento por fecha",
@@ -135,7 +135,7 @@ const PRESENTACION_PROVEEDORES = Object.freeze({
         incluye: "Centros de mesa personalizados y ramo para novias"
     },
     "DJ Lucas & Sonido": {
-        imagen: RUTA_IMAGENES_CATALOGO + "catalogo-dj-lucas-sonido.jpg",
+        imagen: RUTA_IMAGENES_CATALOGO + "catalogo-dj-lucas-sonido-450w.jpg",
         alt: "DJ con auriculares mezclando en una consola frente a una pista iluminada",
         descripcion: "Equipamiento de audio completo de alta fidelidad, iluminación robótica y pista de baile.",
         capacidad: "Hasta 300 personas",
@@ -1133,7 +1133,7 @@ function crearTarjetaProveedor(proveedor) {
 
     if (info.imagen) {
         tarjeta.append(crearElemento("img", {
-            atributos: { src: info.imagen, alt: info.alt || "", width: "1344", height: "655", loading: "lazy" }
+            atributos: { src: info.imagen, alt: info.alt || "", width: "450", height: "219", loading: "lazy" }
         }));
     }
 
@@ -1153,7 +1153,7 @@ function crearTarjetaProveedor(proveedor) {
         texto: "Sumar al Evento",
         atributos: {
             type: "button",
-            "aria-label": "Sumar " + proveedor.nombre + " al evento",
+            "aria-label": "Sumar al Evento: " + proveedor.nombre,
             "data-service-title": proveedor.nombre,
             "data-service-price": precio
         }
