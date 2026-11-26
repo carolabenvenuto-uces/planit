@@ -912,7 +912,7 @@ function renderDesglosePresupuesto(ui, resultado) {
 function configurarFlujoCatalogo(ui) {
     if (!ui.contenedorCatalogo || !ui.buscarCatalogo) return;
 
-    construirCatalogo(ui);
+    iniciarCargaCatalogo(ui);
 
     // La búsqueda es en vivo: el submit (tecla Enter) no debe recargar la página.
     if (ui.formCatalogo) {
@@ -922,15 +922,27 @@ function configurarFlujoCatalogo(ui) {
     if (ui.categoriaCatalogo) {
         ui.categoriaCatalogo.addEventListener("change", () => filtrarCatalogo(ui));
     }
-
 }
+
+/**
+ * Inicia la carga del catálogo sin dejar promesas rechazadas sin manejar: si
+ * fallara también el fallback, el error se informa en el aviso general.
+ * @param {Object} ui - Referencias del DOM.
+ */
+function iniciarCargaCatalogo(ui) {
+    construirCatalogo(ui).catch((error) => {
+        renderAvisoGlobal(ui, "No se pudo cargar el catálogo: " + error.message);
+    });
+}
+
+/** Versión de la última carga del catálogo: permite descartar respuestas de cargas anteriores. */
+let versionCargaCatalogo = 0;
 
 /**
  * Carga el catálogo remoto o usa la semilla si ambos intentos fallan.
  * @param {Object} ui - Referencias del DOM.
  * @returns {Promise<void>} Finalización de la carga y el renderizado.
  */
-let versionCargaCatalogo = 0;
 async function construirCatalogo(ui) {
     const version = ++versionCargaCatalogo;
     estadoApp.tarjetasCatalogo.clear();
@@ -1061,7 +1073,7 @@ function renderCatalogo(ui, resultados, texto) {
             texto: "Reintentar",
             atributos: { type: "button" }
         });
-        boton.addEventListener("click", () => construirCatalogo(ui));
+        boton.addEventListener("click", () => iniciarCargaCatalogo(ui));
         mensaje.append(boton);
         aviso.append(mensaje);
         contenido.unshift(aviso);
@@ -1104,6 +1116,17 @@ function obtenerTarjetaProveedor(proveedor) {
         estadoApp.tarjetasCatalogo.set(proveedor, crearTarjetaProveedor(proveedor));
     }
     return estadoApp.tarjetasCatalogo.get(proveedor);
+}
+
+/**
+ * Devuelve la imagen en resolución original para el modal de detalle: las tarjetas
+ * usan la versión de 450 px ("-450w"), que en pantallas de alta densidad se ve
+ * borrosa al ampliarse en el modal.
+ * @param {string} [imagen] - Ruta de la imagen de la tarjeta.
+ * @returns {string} Ruta de la imagen original, o cadena vacía si no hay imagen.
+ */
+function obtenerImagenModal(imagen) {
+    return imagen ? imagen.replace(/-450w(\.[a-z]+)$/i, "$1") : "";
 }
 
 /**
@@ -1171,7 +1194,7 @@ function crearTarjetaProveedor(proveedor) {
                 "data-bs-toggle": "modal",
                 "data-bs-target": "#modalDetalleServicio",
                 "data-service-title": proveedor.nombre,
-                "data-service-image": info.imagen || "",
+                "data-service-image": obtenerImagenModal(info.imagen),
                 "data-service-alt": info.alt || "",
                 "data-service-description": info.descripcion || "",
                 "data-service-details": detalles,
