@@ -189,6 +189,24 @@ Tareas:
 
 **Resultado:** test runner con **330 specs, 0 failures**. Con Live Server, el catálogo se carga desde `api/proveedores.json` y muestra el resumen y las 3 tarjetas ([captura](evidencia-fetch-catalogo.png)). Al abrir con `file://`, el `fetch` falla y se usa el fallback con el aviso y el botón Reintentar, como se anticipó en la sección 2.
 
+**Ajustes manuales derivados de la review de la Coordinadora (PR #147):**
+
+La review de la Coordinadora/DevOps verificó la implementación con 13 escenarios E2E (respuesta correcta, vacía, 404, 500, sin red, lenta, timeout, JSON malformado, HTML inyectado, doble clic en Reintentar, cargas concurrentes y recarga) y marcó un solo cambio bloqueante. Las correcciones se hicieron como ajustes manuales en el editor web de GitHub, con asistencia de Claude (Anthropic), sin un nuevo prompt de Copilot:
+
+- **B1 (bloqueante): stub de `fetch` en el test runner.** `run-jasmine.js` abre `test-runner.html` con `file://`, donde `fetch` no funciona: cada carga del catálogo caía al fallback y dejaba errores en la consola, por lo que `npm test` terminaba con exit 1. Se agregó en `js/test/test-runner.html`, antes de `apiService.js`, un stub que responde `api/proveedores.json` con un fixture igual al archivo real y deja pasar el resto de las solicitudes. Así los specs del catálogo recorren el camino de éxito y `api.spec.js` puede reemplazarlo con `spyOn(window, "fetch")`. El archivo es del rol Tester: el cambio se limitó al stub, con el OK explícito de la Coordinadora en la review.
+- **JSDoc de `construirCatalogo`.** `let versionCargaCatalogo` quedaba entre el bloque JSDoc y la función. Se movió arriba, con su propio comentario.
+- **Promesas sin manejar.** Las dos llamadas a `construirCatalogo` (carga inicial y botón Reintentar) pasan por `iniciarCargaCatalogo()`, que agrega un `.catch` y muestra el error en el aviso general si fallara también el fallback.
+- **Imagen del modal en pantallas de alta densidad.** Las tarjetas usan la versión de 450 px (#143), pero el modal ahora recibe la imagen original mediante `obtenerImagenModal()`, que quita el sufijo `-450w`.
+- **Sanitización.** `sanitizarTexto` elimina primero los bloques `<script>` y `<style>` completos, para que su contenido no quede visible como texto.
+- **Timeout.** Se redujo de 8 a 5 segundos por intento (10 s como máximo antes del fallback, en lugar de 16 s).
+- **Formato.** Se quitó una línea en blanco sobrante en `configurarFlujoCatalogo`.
+
+**Mejoras sugeridas que no se aplicaron:** el mensaje del catálogo vacío se mantiene porque es el comportamiento definido en la sección 5; `validarProveedor` se mantiene separado del constructor de `Proveedor` porque valida antes de sanitizar y de construir el modelo; y `precioPromedio` se conserva en `resumirCatalogo()` porque puede usarlo el rol de Librerías Externas.
+
+**Deuda técnica registrada:** los datos de presentación de los proveedores están en `api/proveedores.json` y también en `PRESENTACION_PROVEEDORES` (`js/script.js`), que se usa como fallback. Cualquier cambio de presentación (por ejemplo, los nombres de imagen de #143) debe hacerse en los dos lugares.
+
+**Verificación:** el test runner servido por HTTP da **330 specs, 0 failures**, sin errores de `fetch` en la consola y con el catálogo cargado por el camino de éxito (resumen y 3 tarjetas). Las dos excepciones de Bootstrap que aparecen en la consola (`Cannot read properties of null (reading 'classList')` en el Toast) se reproducen igual en `develop` con la misma semilla, así que no las introduce esta PR.
+
 ### 2. Integración con clases POO y con Storage
 - **POO:** `ApiService.aCatalogo()` usa `map` para convertir cada registro en una instancia de `Proveedor` (cuyo constructor valida los datos) y los agrega a un `CatalogoProveedores`. Los registros que el modelo rechaza se descartan y se informan en la consola, sin cortar la carga del resto. La búsqueda por texto sigue usando `CatalogoProveedores.buscar()`, y el filtro por categoría pasa a usar `ApiService.filtrarPorCategoria()` (`filter`).
 - **Fallback:** si la carga falla después del reintento, el controlador reconstruye el catálogo con `CatalogoProveedores.fromJSON(DATOS_SEMILLA.catalogo)`.
