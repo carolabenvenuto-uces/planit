@@ -3,7 +3,7 @@
  */
 var ApiService = {
     /**
-     * Obtiene y parsea un recurso JSON. Aborta cada solicitud a los 8 segundos
+     * Obtiene y parsea un recurso JSON. Aborta cada solicitud a los 5 segundos
      * y reintenta una vez si fetch falla, incluso por timeout.
      * @param {string} url Dirección del recurso.
      * @param {Object} [opciones] Opciones de fetch; se respeta su señal de cancelación.
@@ -20,7 +20,7 @@ var ApiService = {
                 if (signal.aborted) cancelar();
                 else signal.addEventListener("abort", cancelar, { once: true });
             }
-            const timeout = setTimeout(() => controlador.abort(), 8000);
+            const timeout = setTimeout(() => controlador.abort(), 5000);
             try {
                 respuesta = await fetch(url, { ...opciones, signal: controlador.signal });
                 break;
@@ -87,13 +87,14 @@ var ApiService = {
     },
 
     /**
-     * Limpia etiquetas, caracteres de control y espacios de un texto.
+     * Limpia bloques de script y style completos, etiquetas, caracteres de control
+     * y espacios de un texto.
      * @param {*} texto Valor recibido.
      * @returns {string} Texto limpio o vacío si no es texto.
      */
     sanitizarTexto(texto) {
         return typeof texto === "string"
-            ? texto.replace(/<[^>]*>/g, "").replace(/[\u0000-\u001f\u007f]/g, " ").trim()
+            ? texto.replace(/<(script|style)[^>]*>[\s\S]*?<\/\1>/gi, "").replace(/<[^>]*>/g, "").replace(/[\u0000-\u001f\u007f]/g, " ").trim()
             : "";
     },
 
