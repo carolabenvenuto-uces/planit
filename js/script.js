@@ -232,6 +232,7 @@ function obtenerReferenciasUI() {
         totalPresupuesto: porId("total-presupuesto"),
         btnCalcularPresupuesto: porId("btn-calcular-presupuesto"),
         alertaPresupuesto: porId("alerta-presupuesto"),
+        graficoPresupuesto: porId("grafico-presupuesto"),
 
         // Resumen Financiero (barra lateral), sincronizado con el Flujo 2
         resumenPresupuestoTotal: porId("resumen-presupuesto-total"),
@@ -247,6 +248,7 @@ function obtenerReferenciasUI() {
         contenedorCatalogo: porId("contenedor-catalogo"),
         contadorCatalogo: porId("contador-catalogo"),
         catalogoVacio: porId("catalogo-vacio"),
+        graficoCatalogo: porId("grafico-catalogo"),
 
         // Flujo 4: Gestionar invitados
         formInvitado: porId("form-invitado"),
@@ -826,7 +828,33 @@ function recalcularPresupuesto(ui) {
 
     // 4. Render y persistencia.
     renderDesglosePresupuesto(ui, resultado);
+    actualizarGraficoPresupuesto(ui);
     persistirEvento(ui);
+}
+
+/**
+ * Chart.js (Dev Librerías Externas): gráfico de gasto por categoría, agregando
+ * los ítems actuales del Presupuesto. Complementa la tabla, no la reemplaza.
+ * @param {Object} ui - Referencias del DOM.
+ */
+function actualizarGraficoPresupuesto(ui) {
+    if (!ui.graficoPresupuesto) return;
+    const porCategoria = estadoApp.evento.presupuesto.items.reduce((acumulado, item) => {
+        acumulado[item.categoria] = (acumulado[item.categoria] || 0) + item.calcularSubtotal();
+        return acumulado;
+    }, Object.create(null));
+
+    GraficoService.renderizar(ui.graficoPresupuesto, {
+        type: "doughnut",
+        data: {
+            labels: Object.keys(porCategoria),
+            datasets: [{ data: Object.values(porCategoria) }]
+        },
+        options: {
+            responsive: true,
+            plugins: { title: { display: true, text: "Gasto por categoría" } }
+        }
+    });
 }
 
 /**
@@ -1077,10 +1105,12 @@ function renderCatalogo(ui, resultados, texto) {
         mensaje.append(boton);
         aviso.append(mensaje);
         contenido.unshift(aviso);
+        GraficoService.destruir(ui.graficoCatalogo);
     } else {
+        const resumenPorCategoria = ApiService.resumirCatalogo(resultados);
         const resumen = document.createElement("div");
         resumen.className = "col-12 small text-muted";
-        Object.entries(ApiService.resumirCatalogo(resultados)).forEach(([categoria, datos]) => {
+        Object.entries(resumenPorCategoria).forEach(([categoria, datos]) => {
             const linea = document.createElement("p");
             linea.textContent = categoria + ": " + datos.cantidad +
                 (datos.cantidad === 1 ? " proveedor" : " proveedores") + " · " +
@@ -1088,6 +1118,7 @@ function renderCatalogo(ui, resultados, texto) {
             resumen.append(linea);
         });
         contenido.unshift(resumen);
+        actualizarGraficoCatalogo(ui, resumenPorCategoria);
     }
     ui.contenedorCatalogo.replaceChildren(...contenido);
 
@@ -1103,6 +1134,32 @@ function renderCatalogo(ui, resultados, texto) {
             ? "Sin coincidencias para “" + texto.trim() + "”."
             : "No hay proveedores en esta categoría.";
     }
+}
+
+/**
+ * Chart.js (Dev Librerías Externas): gráfico de proveedores por categoría, a
+ * partir del mismo resumen (reduce de ApiService.resumirCatalogo()) que ya
+ * muestra el texto de arriba. Complementa el resumen, no lo reemplaza.
+ * @param {Object} ui - Referencias del DOM.
+ * @param {Object} resumenPorCategoria - Salida de ApiService.resumirCatalogo().
+ */
+function actualizarGraficoCatalogo(ui, resumenPorCategoria) {
+    if (!ui.graficoCatalogo) return;
+    GraficoService.renderizar(ui.graficoCatalogo, {
+        type: "bar",
+        data: {
+            labels: Object.keys(resumenPorCategoria),
+            datasets: [{
+                label: "Proveedores",
+                data: Object.values(resumenPorCategoria).map((datos) => datos.cantidad)
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: { y: { beginAtZero: true, ticks: { precision: 0 } } },
+            plugins: { title: { display: true, text: "Proveedores por categoría" } }
+        }
+    });
 }
 
 /**

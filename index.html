@@ -152,6 +152,10 @@
                     </table>
                 </div>
                 <div id="alerta-presupuesto" class="mt-3" role="status" aria-live="polite" hidden></div>
+                <!-- Chart.js (Dev Librerías Externas, Segundo Parcial): gráfico de gasto por categoría,
+                     generado en actualizarGraficoPresupuesto() (js/script.js) a partir de Presupuesto/
+                     ItemContratado. Complementa la tabla, no la reemplaza (accesibilidad). -->
+                <canvas id="grafico-presupuesto" class="mt-3" height="220" role="img" aria-label="Gasto por categoría del presupuesto"></canvas>
                 <div class="form-actions">
                     <button type="submit" id="btn-calcular-presupuesto" class="btn-primary">Calcular presupuesto</button>
                 </div>
@@ -229,6 +233,11 @@
 
                 <p id="contador-catalogo" class="mb-2" role="status" aria-live="polite"></p>
                 <p id="catalogo-vacio" class="alert alert-info" hidden></p>
+
+                <!-- Chart.js (Dev Librerías Externas, Segundo Parcial): proveedores por categoría,
+                     generado en actualizarGraficoCatalogo() (js/script.js) desde ApiService.resumirCatalogo()
+                     (Dev Async Fetch). Complementa el resumen de texto, no lo reemplaza (accesibilidad). -->
+                <canvas id="grafico-catalogo" class="mb-3" height="180" role="img" aria-label="Proveedores por categoría del catálogo"></canvas>
 
                 <!-- Flujo 3 (AO4, RC10): punto de montaje. Las tarjetas se generan en js/script.js
                      (renderCatalogo / crearTarjetaProveedor) desde las instancias de Proveedor de
@@ -449,6 +458,9 @@
     <!-- Fachada de persistencia (RC22): única que conoce Almacenamiento, las claves y toJSON/fromJSON -->
     <script src="js/services/ServicioPersistenciaEvento.js" defer></script>
     <script src="js/api/apiService.js" defer></script>
+    <!-- Chart.js (CDN): gráficos de Presupuesto y Catálogo -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js" defer></script>
+    <script src="js/charts/graficoService.js" defer></script>
     <!-- Controlador de UI y eventos: siempre al final -->
     <script src="js/script.js" defer></script>
 

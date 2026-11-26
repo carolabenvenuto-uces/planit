@@ -76,6 +76,7 @@
         <output id="total-presupuesto"></output>
         <button type="submit" id="btn-calcular-presupuesto">Calcular presupuesto</button>
         <div id="alerta-presupuesto" hidden></div>
+        <canvas id="grafico-presupuesto"></canvas>
     </form>
 
     <form id="form-catalogo" action="#">
@@ -89,6 +90,7 @@
     </form>
     <p id="contador-catalogo"></p>
     <p id="catalogo-vacio" hidden></p>
+    <canvas id="grafico-catalogo"></canvas>
     <div id="contenedor-catalogo">
         <div data-proveedor data-nombre="Gourmet Finger Food" data-categoria="Catering" data-precio="3500" data-unidad="pax"></div>
         <div data-proveedor data-nombre="Flores Pilar" data-categoria="Decoración" data-precio="70000" data-unidad="base"></div>
@@ -188,6 +190,9 @@
     })();
     </script>
     <script src="../api/apiService.js"></script>
+    <!-- Chart.js (CDN), igual que en index.html -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+    <script src="../charts/graficoService.js"></script>
     <script src="../script.js"></script>
 
     <!-- Tus tests -->
