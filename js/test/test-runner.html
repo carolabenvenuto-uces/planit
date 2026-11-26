@@ -129,6 +129,65 @@
     <script src="../models/CatalogoProveedores.js"></script>
     <script src="../utils/storage.js"></script>
     <script src="../services/ServicioPersistenciaEvento.js"></script>
+    <!-- Stub de fetch para el runner (PR #147, review B1): en file:// fetch no funciona,
+         así que api/proveedores.json se responde con un fixture igual al archivo real.
+         Los specs que necesiten otro comportamiento pueden usar spyOn(window, "fetch"). -->
+    <script>
+    (function () {
+      const fetchOriginal = window.fetch.bind(window);
+      const fixture = {
+        "version": 1,
+        "proveedores": [
+          {
+            "nombre": "Gourmet Finger Food",
+            "categoria": "Catering",
+            "precio": 3500,
+            "unidad": "pax",
+            "imagen": "catalogo-gourmet-finger-food-450w.jpg",
+            "alt": "Mesa de catering con bandejas de mini sándwiches y bocados en varios niveles",
+            "descripcion": "Selección premium fría y caliente para recepción. Variedad para todos los gustos.",
+            "capacidad": "Hasta 200 pax",
+            "zona": "Zona Norte GBA",
+            "duracion": "4 horas",
+            "incluye": "Finger food frío y caliente, montaje y reposición"
+          },
+          {
+            "nombre": "Flores Pilar",
+            "categoria": "Decoración",
+            "precio": 70000,
+            "unidad": "base",
+            "imagen": "catalogo-flores-pilar-450w.jpg",
+            "alt": "Centro de mesa con rosas y peonías rosadas sobre una mesa de salón de eventos",
+            "descripcion": "Centros de mesa personalizados y ramo para novias con flores naturales de estación.",
+            "capacidad": "1 evento por fecha",
+            "zona": "Pilar",
+            "duracion": "1 jornada de montaje",
+            "incluye": "Centros de mesa personalizados y ramo para novias"
+          },
+          {
+            "nombre": "DJ Lucas & Sonido",
+            "categoria": "Sonido",
+            "precio": 8000,
+            "unidad": "hora",
+            "imagen": "catalogo-dj-lucas-sonido-450w.jpg",
+            "alt": "DJ con auriculares mezclando en una consola frente a una pista iluminada",
+            "descripcion": "Equipamiento de audio completo de alta fidelidad, iluminación robótica y pista de baile.",
+            "capacidad": "Hasta 300 personas",
+            "zona": "CABA y GBA",
+            "duracion": "6 horas",
+            "incluye": "DJ, sonido de alta fidelidad e iluminación robótica"
+          }
+        ]
+      };
+      window.fetch = (url, opciones) => String(url).endsWith("api/proveedores.json")
+        ? Promise.resolve(new Response(JSON.stringify(fixture), {
+            status: 200,
+            headers: { "Content-Type": "application/json" }
+          }))
+        : fetchOriginal(url, opciones);
+    })();
+    </script>
+    <script src="../api/apiService.js"></script>
     <script src="../script.js"></script>
 
     <!-- Tus tests -->
