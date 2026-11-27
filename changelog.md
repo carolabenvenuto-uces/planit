@@ -2,6 +2,9 @@
 
 ## [Unreleased]
 
+### Added
+- [feature/dev-async-fetch-api] feature/dev-async-fetch-api: [Dev Async Fetch] Consumo asíncrono del catálogo de proveedores con fetch - Segundo Parcial PR: [#147](https://github.com/carolabenvenuto-uces/planit/pull/147) | Issue: [#138](https://github.com/carolabenvenuto-uces/planit/issues/138) - @carolabenvenuto-uces (Desarrolladora JS Asíncrono - Fetch & APIs)
+
 ## [Release Actividad Obligatoria N°4] - 2026-11-23
 
 ### Added
