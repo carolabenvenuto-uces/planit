@@ -233,6 +233,7 @@ function obtenerReferenciasUI() {
         btnCalcularPresupuesto: porId("btn-calcular-presupuesto"),
         alertaPresupuesto: porId("alerta-presupuesto"),
         graficoPresupuesto: porId("grafico-presupuesto"),
+        avisoGraficoPresupuesto: porId("aviso-grafico-presupuesto"),
 
         // Resumen Financiero (barra lateral), sincronizado con el Flujo 2
         resumenPresupuestoTotal: porId("resumen-presupuesto-total"),
@@ -249,6 +250,7 @@ function obtenerReferenciasUI() {
         contadorCatalogo: porId("contador-catalogo"),
         catalogoVacio: porId("catalogo-vacio"),
         graficoCatalogo: porId("grafico-catalogo"),
+        avisoGraficoCatalogo: porId("aviso-grafico-catalogo"),
 
         // Flujo 4: Gestionar invitados
         formInvitado: porId("form-invitado"),
@@ -828,33 +830,64 @@ function recalcularPresupuesto(ui) {
 
     // 4. Render y persistencia.
     renderDesglosePresupuesto(ui, resultado);
-    actualizarGraficoPresupuesto(ui);
+    actualizarGraficoPresupuesto(ui, resultado);
     persistirEvento(ui);
 }
 
-/**
- * Chart.js (Dev Librerías Externas): gráfico de gasto por categoría, agregando
- * los ítems actuales del Presupuesto. Complementa la tabla, no la reemplaza.
- * @param {Object} ui - Referencias del DOM.
- */
-function actualizarGraficoPresupuesto(ui) {
-    if (!ui.graficoPresupuesto) return;
-    const porCategoria = estadoApp.evento.presupuesto.items.reduce((acumulado, item) => {
-        acumulado[item.categoria] = (acumulado[item.categoria] || 0) + item.calcularSubtotal();
-        return acumulado;
-    }, Object.create(null));
+/** Aviso del gráfico cuando Chart.js no se pudo cargar (CDN caído o archivo rechazado por el SRI). */
+const MENSAJE_GRAFICO_NO_DISPONIBLE = "El gráfico no está disponible: no se pudo cargar la librería Chart.js.";
 
-    GraficoService.renderizar(ui.graficoPresupuesto, {
+/**
+ * Chart.js (Dev Librerías Externas): muestra el gráfico de un canvas o, si no hay datos
+ * que graficar, lo destruye y explica el motivo en el aviso. Así nunca queda en pantalla
+ * un canvas en blanco ni un gráfico con datos de un cálculo anterior. El contenedor
+ * [data-grafico-contenedor] mantiene su alto fijo en ambos casos, sin mover el layout.
+ * @param {HTMLCanvasElement|null} canvas - Canvas destino.
+ * @param {HTMLElement|null} aviso - Párrafo que explica por qué no hay gráfico.
+ * @param {Object|null} config - Configuración de Chart.js (se ignora si hayDatos es false).
+ * @param {boolean} hayDatos - true si hay datos válidos para graficar.
+ * @param {string} mensajeVacio - Texto del aviso cuando no hay datos que graficar.
+ */
+function pintarGrafico(canvas, aviso, config, hayDatos, mensajeVacio) {
+    if (!canvas) return;
+    let mensaje = hayDatos ? "" : mensajeVacio;
+    if (hayDatos) {
+        // El canvas debe estar visible antes de crear el gráfico para que Chart.js mida el contenedor.
+        canvas.hidden = false;
+        if (!GraficoService.renderizar(canvas, config)) mensaje = MENSAJE_GRAFICO_NO_DISPONIBLE;
+    } else {
+        GraficoService.destruir(canvas);
+    }
+    canvas.hidden = mensaje !== "";
+    if (aviso) {
+        aviso.textContent = mensaje;
+        aviso.hidden = mensaje === "";
+    }
+}
+
+/**
+ * Chart.js (Dev Librerías Externas): gráfico de gasto de los ítems del Presupuesto,
+ * etiquetado con la categoría de cada ítem. Usa los subtotales que ya calculó el
+ * modelo (`resultado.subtotales`), sin hacer cuentas en el controlador (Regla 1).
+ * Complementa la tabla, no la reemplaza. Los valores son subtotales sin descuento.
+ * @param {Object} ui - Referencias del DOM.
+ * @param {{subtotales: number[], subtotal: number}} resultado - Cálculo del modelo para el estado actual.
+ */
+function actualizarGraficoPresupuesto(ui, resultado) {
+    if (!ui.graficoPresupuesto) return;
+    const items = estadoApp.evento.presupuesto.items;
+    pintarGrafico(ui.graficoPresupuesto, ui.avisoGraficoPresupuesto, {
         type: "doughnut",
         data: {
-            labels: Object.keys(porCategoria),
-            datasets: [{ data: Object.values(porCategoria) }]
+            labels: items.map((item) => item.categoria),
+            datasets: [{ data: resultado.subtotales }]
         },
         options: {
             responsive: true,
+            maintainAspectRatio: false,
             plugins: { title: { display: true, text: "Gasto por categoría" } }
         }
-    });
+    }, resultado.subtotal > 0, "Todavía no hay gasto para mostrar en el gráfico.");
 }
 
 /**
@@ -872,6 +905,9 @@ function reemplazarItemsPresupuesto(presupuesto, items) {
 function bloquearResultadoPresupuesto(ui, mensaje) {
     if (ui.btnCalcularPresupuesto) ui.btnCalcularPresupuesto.disabled = true;
     if (ui.totalPresupuesto) ui.totalPresupuesto.textContent = "—";
+    // El gráfico no puede quedar con los datos del último cálculo válido mientras el total muestra "—".
+    pintarGrafico(ui.graficoPresupuesto, ui.avisoGraficoPresupuesto, null, false,
+        "El gráfico se muestra cuando las cantidades y el descuento son válidos.");
     renderResumenFinanciero(ui, null);
     renderMensaje(ui.alertaPresupuesto, "error", mensaje);
 }
@@ -978,6 +1014,8 @@ async function construirCatalogo(ui) {
     if (ui.categoriaCatalogo) ui.categoriaCatalogo.disabled = true;
     if (ui.contadorCatalogo) ui.contadorCatalogo.textContent = "";
     if (ui.catalogoVacio) ui.catalogoVacio.hidden = true;
+    // Mientras carga (p. ej. al reintentar) no debe verse el gráfico de la carga anterior.
+    pintarGrafico(ui.graficoCatalogo, ui.avisoGraficoCatalogo, null, false, "Cargando el gráfico del catálogo…");
     const carga = crearElemento("div", {
         clase: "col-12",
         atributos: { role: "status", "aria-live": "polite" }
@@ -1105,7 +1143,9 @@ function renderCatalogo(ui, resultados, texto) {
         mensaje.append(boton);
         aviso.append(mensaje);
         contenido.unshift(aviso);
-        GraficoService.destruir(ui.graficoCatalogo);
+        // Sin carga exitosa no hay resumen: se explica la ausencia del gráfico en vez de dejar un hueco.
+        pintarGrafico(ui.graficoCatalogo, ui.avisoGraficoCatalogo, null, false,
+            "El gráfico estará disponible cuando se cargue el catálogo actualizado.");
     } else {
         const resumenPorCategoria = ApiService.resumirCatalogo(resultados);
         const resumen = document.createElement("div");
@@ -1145,10 +1185,11 @@ function renderCatalogo(ui, resultados, texto) {
  */
 function actualizarGraficoCatalogo(ui, resumenPorCategoria) {
     if (!ui.graficoCatalogo) return;
-    GraficoService.renderizar(ui.graficoCatalogo, {
+    const categorias = Object.keys(resumenPorCategoria);
+    pintarGrafico(ui.graficoCatalogo, ui.avisoGraficoCatalogo, {
         type: "bar",
         data: {
-            labels: Object.keys(resumenPorCategoria),
+            labels: categorias,
             datasets: [{
                 label: "Proveedores",
                 data: Object.values(resumenPorCategoria).map((datos) => datos.cantidad)
@@ -1156,10 +1197,11 @@ function actualizarGraficoCatalogo(ui, resumenPorCategoria) {
         },
         options: {
             responsive: true,
+            maintainAspectRatio: false,
             scales: { y: { beginAtZero: true, ticks: { precision: 0 } } },
             plugins: { title: { display: true, text: "Proveedores por categoría" } }
         }
-    });
+    }, categorias.length > 0, "No hay proveedores para graficar con este filtro.");
 }
 
 /**

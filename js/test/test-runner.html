@@ -76,7 +76,10 @@
         <output id="total-presupuesto"></output>
         <button type="submit" id="btn-calcular-presupuesto">Calcular presupuesto</button>
         <div id="alerta-presupuesto" hidden></div>
-        <canvas id="grafico-presupuesto"></canvas>
+        <div data-grafico-contenedor style="height: 220px;">
+            <canvas id="grafico-presupuesto"></canvas>
+            <p id="aviso-grafico-presupuesto" hidden></p>
+        </div>
     </form>
 
     <form id="form-catalogo" action="#">
@@ -90,7 +93,10 @@
     </form>
     <p id="contador-catalogo"></p>
     <p id="catalogo-vacio" hidden></p>
-    <canvas id="grafico-catalogo"></canvas>
+    <div data-grafico-contenedor style="height: 180px;">
+        <canvas id="grafico-catalogo"></canvas>
+        <p id="aviso-grafico-catalogo" hidden></p>
+    </div>
     <div id="contenedor-catalogo">
         <div data-proveedor data-nombre="Gourmet Finger Food" data-categoria="Catering" data-precio="3500" data-unidad="pax"></div>
         <div data-proveedor data-nombre="Flores Pilar" data-categoria="Decoración" data-precio="70000" data-unidad="base"></div>
@@ -190,8 +196,10 @@
     })();
     </script>
     <script src="../api/apiService.js"></script>
-    <!-- Chart.js (CDN), igual que en index.html -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+    <!-- Chart.js (CDN), igual que en index.html (mismo archivo y mismo SRI) -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.js"
+            integrity="sha384-zYPBGXwO4633CABX/5Spf6emCKUJCfoOkhOMYyxMsatqQZPnDblmmOewfjsIVWCM"
+            crossorigin="anonymous"></script>
     <script src="../charts/graficoService.js"></script>
     <script src="../script.js"></script>
 

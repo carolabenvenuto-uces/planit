@@ -21,7 +21,7 @@ Dos secciones de la app ya calculan datos agregados y hoy solo los muestran como
 Ninguna de las dos tiene representación visual. No se resuelve con código propio porque dibujar gráficos interactivos y accesibles (leyenda, tooltips, animación, responsive) a mano es exactamente el tipo de problema ya resuelto por una librería de visualización.
 
 ### 2. Librería seleccionada
-**Chart.js 4.4.7**, vía CDN (jsDelivr): `https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js`.
+**Chart.js 4.4.7**, vía CDN (jsDelivr): `https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.js`, con SRI (`integrity` + `crossorigin="anonymous"`).
 
 | Alternativa descartada | Motivo |
 | --- | --- |
@@ -29,7 +29,7 @@ Ninguna de las dos tiene representación visual. No se resuelve con código prop
 | JustValidate | La validación de formularios ya está resuelta por `Validador` y los modelos de `js/models/`, con su propia suite de tests; una librería de validación pisaría ese trabajo. |
 | AOS (Animate on Scroll) | Puramente decorativa: no consume datos de ningún otro rol, así que no demuestra integración con la arquitectura (POO / Async Fetch). |
 
-**Método de integración:** CDN, build UMD (`chart.umd.min.js`), sin bundler ni ES modules — mismo criterio que Bootstrap y Chart.js en el resto del proyecto (scripts clásicos).
+**Método de integración:** CDN, build UMD (`chart.umd.js`, que ya viene minificado), sin bundler ni ES modules — mismo criterio que Bootstrap en el resto del proyecto (scripts clásicos), incluido el SRI.
 
 ### 3. Puntos de integración (mínimo 2 requeridos por la consigna)
 1. **Presupuesto** (`index.html`, sección `#presupuesto`): gráfico de dona con el gasto por categoría, calculado en `js/script.js` a partir de `estadoApp.evento.presupuesto.items`.
@@ -69,7 +69,7 @@ Implementación hecha en la misma sesión de coordinación de la AO4/Segundo Par
 
 **Ajustes manuales y decisiones:**
 - **Reuso del resumen ya calculado.** La primera versión de `renderCatalogo()` llamaba a `ApiService.resumirCatalogo(resultados)` dos veces (una para el texto, otra para el gráfico). Se guardó el resultado en una variable (`resumenPorCategoria`) y se reusa en ambos lugares, para no ejecutar el `reduce` dos veces por cada filtrado.
-- **Limpieza del gráfico en el estado de error del catálogo.** Si `ApiService.obtenerProveedores()` falla y se usa el fallback (`DATOS_SEMILLA`), `renderCatalogo()` no recalcula el resumen por categoría; se agregó `GraficoService.destruir(ui.graficoCatalogo)` en esa rama para no dejar en pantalla un gráfico con datos de una carga anterior.
+- **Limpieza del gráfico en el estado de error del catálogo.** Si `ApiService.obtenerProveedores()` falla y se usa el fallback (`DATOS_SEMILLA`), `renderCatalogo()` no recalcula el resumen por categoría, así que no debe quedar en pantalla un gráfico con datos de una carga anterior. La primera versión llamaba a `GraficoService.destruir()` en esa rama; tras la review pasó a `pintarGrafico()`, que además explica la ausencia del gráfico (ver los ajustes derivados de la review de la PR #149).
 - **`destroy()` antes de recrear.** Sin este paso, Chart.js lanza `"Canvas is already in use. Chart with ID '…' must be destroyed before the canvas with ID '…' can be reused."` cada vez que se recalcula el presupuesto o se refiltra el catálogo. `GraficoService.renderizar()` llama a `destruir()` internamente antes de cada `new Chart(...)`.
 - **Accesibilidad.** Los `<canvas>` tienen `role="img"` y `aria-label` describiendo el gráfico, porque Chart.js no genera ninguna alternativa textual por sí solo; el texto/tabla existente al lado de cada gráfico queda como la alternativa accesible real.
 
@@ -98,10 +98,10 @@ var GraficoService = {
 };
 ```
 
-Hooks en `js/script.js`: `actualizarGraficoPresupuesto(ui)` se llama al final de `recalcularPresupuesto(ui)`; `actualizarGraficoCatalogo(ui, resumenPorCategoria)` se llama desde `renderCatalogo()`, en la misma rama que ya arma el texto del resumen.
+Hooks en `js/script.js`: `actualizarGraficoPresupuesto(ui, resultado)` se llama al final de `recalcularPresupuesto(ui)` con el `resultado` que ya calculó el modelo; `actualizarGraficoCatalogo(ui, resumenPorCategoria)` se llama desde `renderCatalogo()`, en la misma rama que ya arma el texto del resumen. Los dos pasan por `pintarGrafico(canvas, aviso, config, hayDatos, mensajeVacio)`, que decide entre dibujar el gráfico o mostrar un aviso.
 
 ### 3. Resumen de los 2 puntos de integración
-1. **Presupuesto:** gráfico de dona (`#grafico-presupuesto`) con el gasto por categoría del evento activo. Se actualiza en vivo al cambiar cantidades o el descuento. Mejora la experiencia porque permite ver de un vistazo qué categoría concentra el gasto, algo que la tabla (ordenada por categoría, no por monto) no transmite de forma inmediata.
+1. **Presupuesto:** gráfico de dona (`#grafico-presupuesto`) con el gasto por categoría del evento activo. Se redibuja en vivo al cambiar las cantidades o el descuento y muestra los subtotales sin descuento. Mejora la experiencia porque permite ver de un vistazo qué categoría concentra el gasto, algo que la tabla (ordenada por categoría, no por monto) no transmite de forma inmediata.
 2. **Catálogo:** gráfico de barras (`#grafico-catalogo`) con la cantidad de proveedores por categoría, sobre el resultado filtrado vigente (se actualiza al buscar por texto o cambiar la categoría). Mejora la experiencia dando una lectura rápida de cuántas opciones hay por categoría antes de scrollear las tarjetas.
 
 Capturas con datos reales (servidor local, catálogo cargado desde `api/proveedores.json`): [`grafico-presupuesto.png`](../../06-librerias/screenshots/grafico-presupuesto.png), [`grafico-catalogo.png`](../../06-librerias/screenshots/grafico-catalogo.png). Verificado con `node js/test/run-jasmine.js`: **330 specs, 0 failures**, sin errores nuevos de consola, en 3 corridas con semillas distintas.
@@ -110,7 +110,26 @@ Capturas con datos reales (servidor local, catálogo cargado desde `api/proveedo
 - El gráfico de Catálogo consume `ApiService.resumirCatalogo()` tal cual la expone la PR #147, sin tocar ese archivo ni duplicar el `reduce` — coordinación explícita con @carolabenvenuto-uces, confirmada por lectura del código antes de integrar.
 - No se abrieron issues nuevas; no se encontraron bugs durante la integración.
 
-### 5. Criterios de Aceptación al cierre
+### 5. Ajustes derivados de la review de la Coordinadora (PR #149)
+
+La review de la Coordinadora/DevOps (Valeria) pidió cambios en cinco puntos (B1 a B5). Se resolvieron con asistencia de Claude Code (Anthropic) sobre la rama de la PR. Pedido usado, tal cual:
+
+```text
+necesito que, con todo el contexto del repositorio, resuelvas todos los request changes que me hizo valeria https://github.com/carolabenvenuto-uces/planit/pull/149
+```
+
+**Ajustes realizados y su justificación:**
+- **B1: alto reservado para los gráficos.** Con `responsive: true` y sin `maintainAspectRatio: false`, Chart.js ignoraba el `height` del `<canvas>` y la dona tomaba proporción 1:1 (686×686 px a 1280 px de ancho, 806×806 a 1920 y 317×317 a 375), lo que duplicaba el alto de la sección Presupuesto y desplazaba el contenido de abajo (CLS). Cada canvas quedó dentro de un contenedor `[data-grafico-contenedor]` de alto fijo (220 px la dona, 180 px las barras) y ambas configuraciones usan `maintainAspectRatio: false`. Se aplicó también al gráfico de barras, que tenía la misma configuración (411 px de alto a 1280 px).
+- **B2: sin datos desactualizados.** Si una cantidad o el descuento eran inválidos, `bloquearResultadoPresupuesto()` mostraba "—" en el total pero dejaba la dona con los datos del último cálculo válido. Ahora destruye el gráfico y muestra un aviso en el mismo espacio. Lo mismo pasa en el catálogo mientras se vuelve a cargar (por ejemplo, al pulsar Reintentar): ya no se ve el gráfico de la carga anterior.
+- **B3: canvas en blanco sin aviso.** Nuevo `pintarGrafico(canvas, aviso, config, hayDatos, mensajeVacio)`: si no hay datos, destruye la instancia, oculta el canvas y escribe el motivo en `#aviso-grafico-presupuesto` / `#aviso-grafico-catalogo` (`role="status"`), dentro del contenedor de alto fijo, así que el aviso no mueve el layout. Casos cubiertos: presupuesto sin gasto, cálculo inválido, catálogo en fallback (se mantiene el criterio del resumen de texto: sin gráfico, con el mensaje "El gráfico estará disponible cuando se cargue el catálogo actualizado."), filtro sin resultados, carga en curso y Chart.js no disponible.
+- **B4: sin aritmética de negocio en el controlador.** `actualizarGraficoPresupuesto()` sumaba subtotales por categoría con un `reduce` en `js/script.js`, contra la Regla 1 (el controlador solo maneja eventos y DOM). Ahora recibe el `resultado` que ya calculó el modelo y grafica `resultado.subtotales` con la categoría de cada ítem como etiqueta, sin cuentas propias. Limitación: si dos ítems compartieran categoría, aparecerían como porciones separadas. Agruparlos corresponde a un método del modelo (por ejemplo, `Presupuesto.subtotalesPorCategoria()`, a cargo del Dev POO), no al controlador.
+- **B5: Chart.js con SRI y archivo estable.** `chart.umd.min.js` no existe en el paquete npm de Chart.js 4.4.7 (el paquete trae `chart.umd.js`, que ya está minificado); jsDelivr genera ese `.min.js` al vuelo y advierte en el propio archivo que no se debe usar SRI con archivos generados dinámicamente (https://www.jsdelivr.com/using-sri-with-dynamic-files), así que no sirve para fijar un hash. Se pasó a `dist/chart.umd.js` con `integrity="sha384-zYPBGXwO4633CABX/5Spf6emCKUJCfoOkhOMYyxMsatqQZPnDblmmOewfjsIVWCM"` y `crossorigin="anonymous"`, en `index.html` y en `js/test/test-runner.html`. El hash se calculó sobre el archivo del paquete npm; el mismo método reproduce el SRI de Bootstrap 5.3.3 que ya usa el proyecto. Con el archivo alterado a propósito, el navegador lo rechaza, la app sigue calculando y el gráfico muestra el aviso de que Chart.js no está disponible.
+
+**Mejoras sugeridas que no se aplicaron en esta PR:** `chart.update()` en vez de recrear el gráfico en cada tecla, `locale: "es-AR"` en los tooltips, `aria-label` dinámico, paleta con mejor contraste, sección de licencia y de limitaciones en `libreria-doc.md`, template y label de la PR, y las issues #140, #142 y #145. Quedan para decidirlas con la Coordinadora.
+
+**Verificación:** test runner con **330 specs, 0 failures** en 3 corridas con semillas distintas (Chrome headless, con Chart.js, Bootstrap y Jasmine servidos en local), y también con Chart.js bloqueado. Comprobaciones en la app real a 375, 1280 y 1920 px: dona de 220 px y barras de 180 px de alto; datos de la dona iguales a los subtotales del modelo; aviso en cálculo inválido, fallback, filtro vacío y carga; una sola instancia por canvas tras varios cambios; sin errores de página.
+
+### 6. Criterios de Aceptación al cierre
 - [x] `spec-dev-libreria-externa.md` commiteado antes que el código de integración.
 - [x] Chart.js integrado vía CDN y funcionando.
 - [x] Implementado en los 2 puntos de la aplicación (Presupuesto y Catálogo).
