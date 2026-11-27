@@ -19,7 +19,7 @@
 El Segundo Parcial incorpora a PlanIT dos capacidades nuevas sobre la arquitectura consolidada en la Actividad Obligatoria N° 4 (clases de dominio en `js/models/`, controlador en `js/script.js`, capa de almacenamiento en `js/utils/storage.js` y fachada de persistencia en `js/services/ServicioPersistenciaEvento.js`):
 
 1. **Consumo asíncrono de datos** mediante `fetch` y promesas, encapsulado en `js/api/apiService.js` (rama `feature/dev-async-fetch-api`).
-2. **Integración de una librería externa** de JavaScript. [Librería a definir]
+2. **Integración de una librería externa** de JavaScript: **Chart.js 4.4.7**, encapsulada en `js/charts/graficoService.js` (`GraficoService`) (rama `feature/dev-libreria-externa-chartjs`, PR #149).
 
 Este spec define, **antes** de que exista cualquier test nuevo y antes de la primera auditoría, qué se va a probar, con qué criterios y en qué momentos. Se commitea primero para que la planificación quede trazable en el historial de git, con el mismo criterio de las entregas anteriores (ver `docs/03-specs/actividad-obligatoria-4/spec-tester-qa.md`).
 
@@ -62,7 +62,7 @@ Cubre el servicio de datos de forma unitaria (sin DOM) y su integración con el 
 
 #### 2.3. `js/test/library.spec.js` — tests de la librería externa
 
-La librería todavía no fue elegida por el equipo. [Librería a definir] Los casos se plantean de forma genérica, con independencia de la librería concreta, y se instanciarán cuando se defina:
+La librería elegida es **Chart.js 4.4.7**, encapsulada en `GraficoService` (`js/charts/graficoService.js`: `renderizar()` y `destruir()`) y usada por el controlador mediante `pintarGrafico()`, `actualizarGraficoPresupuesto()` y `actualizarGraficoCatalogo()` (`js/script.js`) en dos puntos: la dona de gasto por categoría (Presupuesto) y las barras de proveedores por categoría (Catálogo). Los casos se plantearon de forma genérica antes de elegir la librería y se instancian sobre Chart.js y `GraficoService`:
 
 - **Inicialización:** la librería está disponible en el ámbito global (o en el módulo que corresponda) y se inicializa sin errores sobre su contenedor.
 - **Configuración:** las opciones que define el proyecto (idioma, formato, tema, accesibilidad, etc.) quedan aplicadas tal como se especificaron.
@@ -96,7 +96,7 @@ Si las PR del parcial modifican las clases POO o el controlador, las suites exis
 | API-12 | `api.spec.js` | Estado `loading` en el DOM mientras la promesa de `fetch` está pendiente. | Éxito | Se muestra el indicador de carga, anunciado de forma accesible (`aria-live`), y los controles dependientes quedan deshabilitados. |
 | API-13 | `api.spec.js` | Estado `success` en el DOM tras una respuesta válida. | Éxito | Se renderizan los datos recibidos y desaparece el indicador de carga. |
 | API-14 | `api.spec.js` | Estado `error` en el DOM tras una falla HTTP o de red. | Error | Se muestra un mensaje amigable sin detalles técnicos, junto con la acción de reintento y el *fallback* definido. |
-| LIB-01 | `library.spec.js` | Inicialización de la librería sobre su contenedor. [Librería a definir] | Éxito | La librería está disponible y se inicializa sin errores. |
+| LIB-01 | `library.spec.js` | Inicialización de la librería sobre su contenedor (Chart.js 4.4.7 mediante `GraficoService.renderizar()` sobre un `<canvas>`). | Éxito | La librería está disponible y se inicializa sin errores. |
 | LIB-02 | `library.spec.js` | Configuración aplicada según lo especificado por el proyecto. | Éxito | Las opciones configuradas se reflejan en la instancia o en el DOM generado. |
 | LIB-03 | `library.spec.js` | Funcionalidad principal con datos del dominio de PlanIT. | Éxito | El resultado visible o el valor devuelto coincide con el esperado. |
 | LIB-04 | `library.spec.js` | Datos de entrada inválidos o contenedor inexistente. | Error | La aplicación no lanza excepciones no controladas y muestra o registra el error de forma controlada. |
@@ -119,7 +119,7 @@ Las auditorías se ejecutan en tres momentos, ligados al orden de merge que defi
 |---|---|---|---|
 | **11 – Baseline** | Antes de mergear cualquier feature del parcial. | GitHub Pages publicando desde `master` (idéntica a `develop` tras el backport de la AO4). | `docs/04-testing/test-case-11-lighthouse-baseline.md` |
 | **12 – Post-fetch** | Después del merge de `feature/dev-async-fetch-api`. | GitHub Pages publicando desde `develop`, con `ApiService` integrado. | `docs/04-testing/test-case-12-lighthouse-post-fetch.md` |
-| **13 – Post-librería** | Después del merge de la rama de la librería externa. [Librería a definir] Se compara contra el Test Case 12 (post-fetch). | GitHub Pages publicando desde `develop`, con todas las features del parcial integradas. | `docs/04-testing/test-case-13-lighthouse-post-library.md` |
+| **13 – Post-librería** | Después del merge de la rama de la librería externa (`feature/dev-libreria-externa-chartjs`, Chart.js 4.4.7 y `GraficoService`, PR #149). Se compara contra el Test Case 12 (post-fetch). | GitHub Pages publicando desde `develop`, con todas las features del parcial integradas. | `docs/04-testing/test-case-13-lighthouse-post-library.md` |
 
 Las tres auditorías se ejecutan sobre la misma URL pública de GitHub Pages ([carolabenvenuto-uces.github.io/planit](https://carolabenvenuto-uces.github.io/planit/)), de modo que el entorno de red y de servidor es idéntico en los tres momentos y las métricas resultan comparables:
 
@@ -247,6 +247,75 @@ AL FINAL
 - **REG-03 con los mismos proveedores.** El `beforeEach` del Flujo 3 espía `fetch` con los mismos tres proveedores del fixture, para que los seis casos existentes no cambien sus expectativas; el primer caso comprueba además que el catálogo vino de ese `fetch` (`toHaveBeenCalledOnceWith`) y que no se usó el fallback.
 - **`test-runner.html`.** El único cambio es la línea `<script src="api.spec.js"></script>` después de `script.spec.js`. No se tocaron el stub de `fetch` ni las líneas de Bootstrap.
 
+#### 1.2. Runner sin red, `library.spec.js` y evidencia del Test Case 13
+
+El cambio del runner a copias locales, `js/test/library.spec.js` (LIB-01 a LIB-06), las corridas, capturas y el documento del Test Case 13, y los borradores de issues se generaron con **Claude Code (modelo Claude Opus 5.5, Anthropic)** en VS Code, sobre la rama `feature/tester-qa-js-testing-suite` actualizada con `develop` (PR #147 y PR #149 incluidas). Claude tuvo como contexto este spec, `spec-dev-libreria-externa.md`, `docs/06-librerias/libreria-doc.md`, `js/charts/graficoService.js`, las funciones de gráficos de `js/script.js`, `js/test/test-runner.html`, `js/test/api.spec.js`, `js/test/script.spec.js` y el Test Case 12. Esta vez Claude ejecutó también las corridas de Lighthouse y la verificación del despliegue.
+
+**Prompt principal:**
+
+```text
+Soy la Tester QA/JS (y coordinadora). Estoy en mi rama `feature/tester-qa-js-testing-suite`, que ya actualice con develop: tiene la #147 (fetch) y la #149 (Chart.js, GraficoService y pintarGrafico).
+
+REGLAS
+- Podes crear y modificar archivos SOLO de mi rol: js/test/, docs/04-testing/ y docs/03-specs/segundo-parcial/spec-tester-qa-segundo-parcial.md.
+- NO hagas NINGUNA operacion de git que escriba (commit, push, merge, stash, add, switch, checkout, reset, rebase). Solo lectura. Los commits los hago yo.
+- NO toques archivos de otros roles (js/script.js, js/api/, js/models/, js/utils/, js/charts/, index.html, css/, specs ajenos). Si algo de la app no cumple un caso, no lo arregles: anotalo como borrador de issue.
+- Todo lo que afirmes tiene que salir de algo que leiste o ejecutaste.
+
+TAREA 1 - Runner sin dependencia de red
+1. Hoy js/test/test-runner.html carga Bootstrap y Chart.js desde jsDelivr. Si el CDN falla, run-jasmine.js termina con exit 1 por console.error, y eso contradice "Ningun test depende de la red" (mi spec, linea ~47).
+2. Descarga las MISMAS versiones que usa index.html (Chart.js 4.4.7 dist/chart.umd.js y el bootstrap.bundle.min.js de la version de index.html) a js/test/vendor/, conservando el aviso de licencia de cada archivo. Verifica que el sha384 de cada archivo descargado coincida con el integrity de index.html.
+3. Cambia test-runner.html para cargar esas copias locales en el mismo orden que ahora. Si conservas integrity, tiene que coincidir; para archivos locales no hace falta crossorigin.
+4. Corregi el comentario desactualizado de test-runner.html:18-20 (nombra construirCatalogoDesdeMarcado, que ya no existe).
+5. Verifica que el runner no haga ninguna request a internet: grep de "http" en test-runner.html y una corrida con la red bloqueada (Playwright con route.abort para todo lo que no sea file:// o localhost). Tiene que dar 0 failures, 0 console.error y exit 0.
+
+TAREA 2 - library.spec.js
+1. Lee en mi spec los casos LIB-01 a LIB-06 y reemplaza los "[Libreria a definir]" (lineas ~22, 65, 99 y 122) por Chart.js 4.4.7 y GraficoService, sin cambiar el sentido de cada caso.
+2. Lee spec-dev-libreria-externa.md, libreria-doc.md, js/charts/graficoService.js y las funciones pintarGrafico, actualizarGraficoPresupuesto y actualizarGraficoCatalogo de js/script.js para conocer el contrato real.
+3. Crea js/test/library.spec.js con LIB-01 a LIB-06, un `it` por caso, con el ID en el nombre. Cubri como minimo:
+   - GraficoService.renderizar crea el grafico y destruye el anterior (no se acumulan instancias en el mismo canvas);
+   - GraficoService.destruir;
+   - los datos de la dona coinciden con los subtotales del modelo y los de las barras con ApiService.resumirCatalogo;
+   - pintarGrafico en los 4 estados (Chart.js no disponible, calculo invalido, gasto en cero, catalogo en fallback o filtro vacio): canvas oculto, aviso #aviso-grafico-* visible con el texto correcto, y al volver a tener datos el grafico reaparece y el aviso se oculta;
+   - LIB-05: sin window.Chart, renderizar no lanza, devuelve null y la app muestra el aviso (guarda y restaura window.Chart en try/finally).
+   Usa los ids del fixture que ya agrego Facundo en test-runner.html. Si necesitas un sandbox sin id para no duplicar ids, hacelo como en api.spec.js.
+4. Agrega `<script src="library.spec.js"></script>` en test-runner.html junto a los otros specs.
+5. Corre `npm test` 3 veces: specs, failures, errores de consola y exit code. Tiene que dar 0 failures y exit 0. Si un caso no se puede cumplir porque la app se comporta distinto, dejalo con pending("...") explicando por que y arma el borrador de issue.
+
+TAREA 3 - TC13 (Lighthouse post-libreria)
+1. Lee en mi spec que pide el TC13 (criterios, nombres de la evidencia, prefijo de los archivos). Si no lo define, usa el mismo criterio que el TC12: solo Desktop, 3 corridas, mediana; hay regresion si una categoria cae 5 puntos o mas, o si LCP/TBT/CLS cambian de calificacion.
+2. Verifica que GitHub Pages (https://carolabenvenuto-uces.github.io/planit/) publique develop con la #149: compara el SHA-256 de index.html, js/script.js y js/charts/graficoService.js publicados contra origin/develop, y confirma que api/proveedores.json responda 200. Si no coinciden, frena y avisame.
+3. Corre Lighthouse 13.6.0 (npx lighthouse@13.6.0 --preset=desktop, Chrome headless en incognito), 3 corridas sobre la URL raiz, sin #. Guarda HTML y JSON.
+4. Compara la mediana contra el TC12 (Performance 96, Accessibility 97, Best Practices 92, SEO 100, LCP 1,14 s, CLS 0,071, TBT 0 ms, FCP 0,80 s, SI 1,07 s). Detalla cuanto agrega Chart.js (bytes transferidos y tiempo), el elemento LCP, el origen del CLS y los audits que fallan.
+5. Genera las capturas PNG desde el HTML de la corrida mediana, como en el TC12.
+6. Pone la evidencia en docs/04-testing/screenshots/ con el prefijo que pida el spec (si no dice, lighthouse-post-libreria-*), y crea docs/04-testing/test-case-13-... con el mismo formato que el test-case-12. Veredicto: PASA / PASA CON OBSERVACIONES / NO PASA, con la justificacion.
+
+TAREA 4 - Spec
+En el MOMENTO 2 de mi spec, registra el estado de LIB-01 a LIB-06 y del TC13, el cambio del runner a copias locales y el prompt usado, igual que en la entrega anterior.
+
+AL FINAL
+- `git status` y `git diff --stat`.
+- Resultado de npm test (3 corridas y la corrida con la red bloqueada).
+- Resumen del TC13 con su veredicto.
+- Casos pending, si hay, y borradores de issues en C:\Users\valer\OneDrive\Escritorio\issues-borradores-2.md (fuera del repo, no crees ninguna).
+- 3 mensajes de commit sugeridos (runner sin red, library.spec.js y TC13), con los archivos de cada uno y los comandos git add / git commit -m listos para que los ejecute yo.
+```
+
+**Ajustes y decisiones sobre el borrador:**
+- **Jasmine también salía del CDN.** El prompt nombraba Bootstrap y Chart.js, pero `test-runner.html` cargaba además Jasmine 5.10.0 (CSS, los dos scripts del núcleo y los dos *boot*) desde cdnjs. Sin Jasmine local, el runner no arranca con la red bloqueada, así que se agregó a `js/test/vendor/` desde el paquete npm `jasmine-core@5.10.0`. Su tarball coincide con el `dist.integrity` (sha512) del registro npm. No se usaron los `.min` de cdnjs: coinciden con el SRI que publica cdnjs, pero no traen el aviso de licencia, y `jasmine_favicon.png` da 404 en cdnjs, así que el runner anterior ya pedía un recurso inexistente. Los archivos de npm traen el encabezado MIT y el favicon; se copió también el `LICENSE` del paquete, porque `jasmine.css` no tiene encabezado.
+- **Bootstrap y Chart.js: los mismos archivos de `index.html`.** Se descargaron de las mismas URL de jsDelivr que usa `index.html`. Su sha384 coincide con el `integrity` de `index.html` (`sha384-YvpcrYf0…` y `sha384-zYPBGXwO…`) y ambos conservan su encabezado de licencia MIT. El origen, el hash y la licencia de cada archivo quedan en `js/test/vendor/LEEME.md`.
+- **Sin atributo `integrity` en las copias locales.** La primera versión lo conservaba. Con `file://`, Chrome no puede verificar SRI y bloquea el script ("…has an integrity attribute, but the resource requires the request to be CORS enabled to check the integrity, and it is not. The resource has been blocked…"), lo que hizo fallar RC14/RC15 por falta de Bootstrap. Por eso se quitó el atributo y la verificación pasa a hacerse sobre el archivo, con los comandos de `LEEME.md`. Tampoco se usa `crossorigin`.
+- **Comentario del fixture.** Además de `construirCatalogoDesdeMarcado`, el comentario nombraba `crearEventoDesdeMarcado`, que tampoco existe: el evento inicial lo arma `crearEventoInicial()` con los datos del formulario y `DATOS_SEMILLA`. El comentario ahora describe el flujo real (incluido `construirCatalogo()` con el stub de `fetch`) y los canvas de Chart.js.
+- **Verificación sin red.** Se usó un script de Playwright fuera del repositorio, equivalente a `run-jasmine.js`, con `context.route("**/*")` que aborta todo lo que no sea `file://`, `localhost`, `data:` o `blob:` y registra cada request. Como control, el mismo script sobre el `test-runner.html` anterior (HEAD) abortó 7 requests (5 de cdnjs y 2 de jsDelivr), dio 12 `console.error` y Jasmine no llegó a cargarse.
+- **Estado compartido.** `library.spec.js` usa los canvas y avisos del fixture (`#grafico-presupuesto`, `#grafico-catalogo`, `#aviso-grafico-*`) y vuelve al estado inicial antes y después de cada caso con `restaurarEstadoInicial()`, que define `script.spec.js` y el runner carga antes. Así el orden aleatorio no afecta el resultado y ninguna otra suite hereda un gráfico oculto o un catálogo en fallback.
+- **Sandbox con `id` propio.** Los casos unitarios de `GraficoService` dibujan en un canvas montado en un sandbox (`data-sandbox="library-spec"`) que se retira en `afterEach`. A diferencia de `api.spec.js`, ese canvas necesita un `id`, porque `GraficoService` guarda cada gráfico por `canvas.id`. Se le dio uno que no existe en el fixture (`library-spec-canvas`), así que no se duplican `id`.
+- **Conteo de instancias.** Para comprobar que no se acumulan gráficos en un canvas se usa el registro de la librería (`Chart.instances` y `Chart.getChart()`), no el estado interno `_graficos` del wrapper.
+- **Los 4 estados de `pintarGrafico()`.** Se repartieron según el sentido de cada caso: cálculo inválido (cantidad negativa y descuento fuera de 0–100) y gasto en cero en LIB-04; Chart.js no disponible en LIB-05; filtro sin resultados, carga en curso y fallback del catálogo en LIB-06. En todos se verifica canvas oculto, ninguna instancia viva, aviso visible con el texto exacto y, al volver a tener datos, gráfico visible con el aviso oculto y vacío.
+- **LIB-05 sin gráficos previos.** Antes de borrar `window.Chart`, el caso destruye los dos gráficos de la app para reproducir una carga en la que Chart.js nunca llegó. Sin ese paso, `renderizar()` devuelve `null` antes de llamar a `destruir()` y la instancia anterior seguiría registrada. En la app real eso no ocurre, porque `Chart` no puede desaparecer después de cargarse. `window.Chart` se restaura en un `finally`.
+- **Corrección de un valor esperado.** En la primera corrida, LIB-05 falló porque el borrador esperaba un total de $530.000 con Catering en 100. El valor correcto es $510.000 (100 × 3.500 + 70.000 + 6 × 8.000 + 32.000 + 2 × 5.000). Se corrigió el test (no la app) y ahora también comprueba `calcularTotal()` del modelo.
+- **Hallazgo latente.** Al leer `GraficoService` se comprobó en el navegador que dos canvas **sin `id`** comparten la clave `""`: el segundo `renderizar()` destruye el gráfico del primero. No afecta a la app (los dos canvas tienen `id`), así que no se dejó un caso en `pending`: quedó como borrador de issue de prioridad baja para el rol Dev Librerías Externas.
+- **TC13: corrida mediana.** Dos corridas empataron en el puntaje de Performance de la mediana (96). Se tomó la que además coincide con la mediana de FCP, CLS y SI (corrida 3).
+
 ### 2. Resultados de ejecución de la suite Jasmine
 
 #### 2.1. Ejecución de `npm test` con `api.spec.js` y REG-03
@@ -283,8 +352,49 @@ Los 14 specs nuevos son API-01 a API-14. REG-03 no suma specs: adapta los seis d
 
 Ningún caso quedó en `pending`.
 
+#### 2.3. Runner sin dependencia de red
+
+`js/test/test-runner.html` ya no hace requests a internet: Jasmine 5.10.0, Bootstrap 5.3.3 y Chart.js 4.4.7 se cargan desde `js/test/vendor/` (ver la sección 1.2 y `js/test/vendor/LEEME.md`). `grep "http" js/test/test-runner.html` no devuelve ninguna línea. Con las copias locales, antes de agregar `library.spec.js`, `npm test` dio **344 specs, 0 failures** (exit 0), los mismos specs que la sección 2.1.
+
+| Corrida con la red bloqueada | Semilla | Specs | Failures | Errores de consola | Requests a internet | Exit code |
+|---|---|---|---|---|---|---|
+| Runner anterior (HEAD, CDN) | — | Jasmine no cargó | — | 12 | 7 abortadas | 1 |
+| Runner con `vendor/` | 35588 | 350 | 0 | 0 | 0 (33 requests locales) | 0 |
+
+#### 2.4. Ejecución de `npm test` con `library.spec.js`
+
+| Ejecución | Semilla | Specs | Failures | Errores de consola | Exit code |
+|---|---|---|---|---|---|
+| 1 | 05168 | 350 | 0 | 0 | 0 |
+| 2 | 15896 | 350 | 0 | 0 | 0 |
+| 3 | 65032 | 350 | 0 | 0 | 0 |
+
+Los 6 specs nuevos son LIB-01 a LIB-06. Además, `library.spec.js` se ejecutó 5 veces por separado (`?spec=library.spec.js`, con semillas aleatorias): 6 specs, 0 failures y 0 errores de consola en todas.
+
+#### 2.5. Estado de los casos de la librería
+
+| ID | Estado | Observación |
+|---|---|---|
+| LIB-01 | ✅ Pasa | `Chart.version` es `4.4.7`. `GraficoService.renderizar()` devuelve una instancia de `Chart` asociada al canvas (`Chart.getChart(canvas)`). `destruir()` llama una vez a `destroy()` y libera el canvas; repetirlo o llamarlo con `null` no lanza, y después se puede volver a crear un gráfico en el mismo canvas. Al iniciar la app, los dos canvas del fixture ya tienen gráfico. |
+| LIB-02 | ✅ Pasa | Dona: `type: "doughnut"`, una categoría por etiqueta, `responsive: true`, `maintainAspectRatio: false` y el título "Gasto por categoría". Barras: `type: "bar"`, el dataset "Proveedores", `beginAtZero`, `ticks.precision: 0` y el título "Proveedores por categoría". En el DOM, cada gráfico ocupa el alto fijo de su contenedor: 220 px y 180 px. |
+| LIB-03 | ✅ Pasa | Los datos de la dona son los subtotales del modelo (`[420000, 70000, 48000, 32000, 10000]`). Al cambiar una cantidad, el gráfico anterior se destruye y el nuevo tiene los subtotales recalculados. Tras 6 recálculos sigue habiendo una sola instancia en el canvas. El descuento no cambia la dona, como documenta `libreria-doc.md`. `renderizar()` sobre un canvas propio destruye el gráfico anterior. |
+| LIB-04 | ✅ Pasa | `renderizar(null)` devuelve `null`; `pintarGrafico(null, …)`, `actualizarGraficoPresupuesto({}, …)` y `actualizarGraficoCatalogo({}, …)` no lanzan. Con una cantidad negativa o un descuento de 150: total "—", canvas oculto y aviso "El gráfico se muestra cuando las cantidades y el descuento son válidos.". Con todas las cantidades en 0: "Todavía no hay gasto para mostrar en el gráfico.". Al corregir los datos, el gráfico reaparece y el aviso se oculta. |
+| LIB-05 | ✅ Pasa | Sin `window.Chart`, `renderizar()` devuelve `null` sin lanzar. El presupuesto sigue calculando ($510.000) y la búsqueda del catálogo sigue funcionando ("1 proveedor encontrado"). Los dos gráficos muestran "El gráfico no está disponible: no se pudo cargar la librería Chart.js." y `#aviso-app` no aparece. Con `Chart` restaurado, el siguiente recálculo vuelve a dibujar. |
+| LIB-06 | ✅ Pasa | Las barras reciben exactamente la salida de `ApiService.resumirCatalogo()` (espiada con `callThrough`): las etiquetas son `Object.keys(resumen)` y los datos, las cantidades, sin transformar. También siguen el filtro por categoría. Con un filtro sin resultados muestran "No hay proveedores para graficar con este filtro."; mientras carga, "Cargando el gráfico del catálogo…"; y en el fallback tras un HTTP 500, "El gráfico estará disponible cuando se cargue el catálogo actualizado.", también al buscar. Una carga exitosa posterior vuelve a mostrar el gráfico. |
+
+Ningún caso quedó en `pending`. El único hallazgo, latente (dos canvas sin `id` en `GraficoService`), no afecta a la app y quedó como borrador de issue (sección 1.2).
+
 ### 3. Resultados de las auditorías Lighthouse (Test Cases 11, 12 y 13)
-*(A completar al cierre.)*
+
+Medianas de 3 corridas en modo Desktop, sobre [carolabenvenuto-uces.github.io/planit](https://carolabenvenuto-uces.github.io/planit/), con Lighthouse 13.6.0:
+
+| Test Case | Estado auditado | Perf. | Acc. | BP | SEO | FCP | LCP | TBT | CLS | SI | Veredicto |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| [11 – Baseline](../../04-testing/test-case-11-lighthouse-baseline.md) | `master` (= `develop` tras la AO4) | 95 | 97 | 92 | 91 | 0,89 s | 0,96 s | 0 ms | 0,071 | 1,42 s | Línea base (sin veredicto) |
+| [12 – Post-fetch](../../04-testing/test-case-12-lighthouse-post-fetch.md) | `develop` @ `6aae3d8` (PR #147) | 96 | 97 | 92 | 100 | 0,80 s | 1,14 s | 0 ms | 0,071 | 1,07 s | ✅ Pasa con observaciones |
+| [13 – Post-librería](../../04-testing/test-case-13-lighthouse-post-library.md) | `develop` @ `c8d7338` (PR #149) | 96 | 97 | 92 | 100 | 0,84 s | 1,15 s | 0 ms | 0,061 | 0,98 s | ✅ Pasa con observaciones |
+
+**Test Case 13:** ejecutado el 27/11/2026, después de verificar que Pages servía `develop` @ `c8d7338`: el SHA-256 de `index.html`, `js/script.js`, `js/charts/graficoService.js` y `api/proveedores.json` coincide con el de `origin/develop`, y `api/proveedores.json` responde 200. **No hay regresión** respecto del TC12: las cuatro categorías quedan igual, y LCP (+0,01 s), TBT y CLS (−0,010) conservan su calificación. Chart.js agrega 59,0 KiB transferidos (el 96 % del aumento de peso de la página) y unos 190 ms de CPU, sin bloquear el renderizado y con TBT de 0 ms. El elemento LCP sigue siendo `span#resumen-alerta-texto`. El CLS sale del `<tfoot>` del presupuesto (#150) y de `header-actions`, no de los gráficos. Las auditorías que fallan son las mismas del TC12: `color-contrast` (#140), `errors-in-console` por el favicon (#142) e `inspector-issues` por el iframe de YouTube. Se suma una observación sin peso en el puntaje: 25,8 KiB de JavaScript sin usar en `chart.umd.js`, en una de las tres corridas. Veredicto: **PASA CON OBSERVACIONES**, porque Best Practices (92) sigue por debajo del umbral de 95 y el LCP sigue en el límite de "buena".
 
 ### 4. Bugs y regresiones reportados
 *(A completar al cierre.)*
