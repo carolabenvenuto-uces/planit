@@ -3,26 +3,38 @@
 <head>
     <meta charset="UTF-8">
     <title>Prueba Jasmine</title>
-    <!-- Jasmine CSS -->
-    <link rel="shortcut icon" type="image/png" href="https://cdnjs.cloudflare.com/ajax/libs/jasmine/5.10.0/jasmine_favicon.png">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jasmine/5.10.0/jasmine.min.css">
+    <!--
+        El runner no hace ninguna request a internet: Jasmine, Bootstrap y Chart.js se
+        cargan desde copias locales en vendor/ (ver vendor/LEEME.md: origen, versión,
+        hash y licencia de cada archivo). Así un CDN caído no rompe `npm test`.
+    -->
+    <!-- Jasmine 5.10.0 (paquete npm jasmine-core@5.10.0) -->
+    <link rel="shortcut icon" type="image/png" href="vendor/jasmine-5.10.0/jasmine_favicon.png">
+    <link rel="stylesheet" href="vendor/jasmine-5.10.0/jasmine.css">
 
     <!-- Jasmine Core JavaScript -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jasmine/5.10.0/jasmine.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jasmine/5.10.0/jasmine-html.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jasmine/5.10.0/boot0.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jasmine/5.10.0/boot1.min.js"></script>
+    <script src="vendor/jasmine-5.10.0/jasmine.js"></script>
+    <script src="vendor/jasmine-5.10.0/jasmine-html.js"></script>
+    <script src="vendor/jasmine-5.10.0/boot0.js"></script>
+    <script src="vendor/jasmine-5.10.0/boot1.js"></script>
 </head>
 <body>
     <!--
-        Fixture de DOM para script.spec.js: subconjunto de index.html con los mismos
-        id/data-* que lee js/script.js (obtenerReferenciasUI, crearEventoDesdeMarcado,
-        construirCatalogoDesdeMarcado). No incluye el Modal de detalle ni el Toast de
+        Fixture de DOM para script.spec.js, api.spec.js y library.spec.js: subconjunto de
+        index.html con los mismos id que lee js/script.js en obtenerReferenciasUI().
+        Ya nada se arma desde el marcado: crearEventoInicial() toma los datos generales
+        del #form-evento y el presupuesto y los invitados de DATOS_SEMILLA, y
+        construirCatalogo() pide el catálogo a ApiService (fetch de api/proveedores.json,
+        respondido por el stub de más abajo). Las filas data-item, las tarjetas
+        data-proveedor y las filas de #lista-invitados solo son el estado previo a esa
+        carga: el controlador las reemplaza al renderizar. Los canvas #grafico-presupuesto
+        y #grafico-catalogo, con sus avisos #aviso-grafico-*, son los de Chart.js (PR #149).
+        No incluye el Modal de detalle ni el Toast de
         confirmación: los specs de integración RC14/RC15 los montan en un sandbox propio
         (copiado de index.html) y lo retiran al terminar, así configurarEventos() sigue
-        corriendo al inicio sin esos nodos. Bootstrap JS se carga igual que en index.html
-        para probar el Modal y el Toast reales; RC15 también lo quita a propósito para
-        probar la degradación (ver spec-tester-qa.md, MOMENTO 2, sección 6).
+        corriendo al inicio sin esos nodos. Bootstrap JS es el mismo archivo que usa
+        index.html, para probar el Modal y el Toast reales; RC15 también lo quita a
+        propósito para probar la degradación (ver spec-tester-qa.md, MOMENTO 2, sección 6).
     -->
     <div id="aviso-app" hidden></div>
 
@@ -123,8 +135,10 @@
         </tbody>
     </table>
 
-    <!-- Bootstrap JS: misma versión e integridad que index.html (Modal y Toast reales para RC14/RC15) -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <!-- Bootstrap JS 5.3.3: copia local del mismo archivo que index.html (Modal y Toast reales para RC14/RC15).
+         Sin atributo integrity: en file:// Chrome no puede verificar SRI (no hay CORS) y bloquea el
+         archivo. El sha384 coincide con el integrity de index.html; ver vendor/LEEME.md. -->
+    <script src="vendor/bootstrap-5.3.3/bootstrap.bundle.min.js"></script>
 
     <!-- Tu código fuente -->
     <script src="../models/Validador.js"></script>
@@ -196,10 +210,9 @@
     })();
     </script>
     <script src="../api/apiService.js"></script>
-    <!-- Chart.js (CDN), igual que en index.html (mismo archivo y mismo SRI) -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.js"
-            integrity="sha384-zYPBGXwO4633CABX/5Spf6emCKUJCfoOkhOMYyxMsatqQZPnDblmmOewfjsIVWCM"
-            crossorigin="anonymous"></script>
+    <!-- Chart.js 4.4.7: copia local del mismo archivo que index.html (dist/chart.umd.js). Sin integrity
+         por el mismo motivo que Bootstrap; el sha384 coincide con el de index.html (vendor/LEEME.md). -->
+    <script src="vendor/chartjs-4.4.7/chart.umd.js"></script>
     <script src="../charts/graficoService.js"></script>
     <script src="../script.js"></script>
 
@@ -209,5 +222,6 @@
     <script src="servicio-persistencia.spec.js"></script>
     <script src="script.spec.js"></script>
     <script src="api.spec.js"></script>
+    <script src="library.spec.js"></script>
 </body>
 </html>
