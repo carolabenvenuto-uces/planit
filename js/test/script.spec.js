@@ -401,8 +401,29 @@ describe("Flujo 2: Calcular presupuesto", function () {
     });
 });
 
-describe("Flujo 3: Buscar en catálogo", function () {
+describe("Flujo 3: Buscar en catálogo (REG-03: catálogo cargado por ApiService con fetch mockeado)", function () {
+    // REG-03: el catálogo de este flujo llega por ApiService.obtenerProveedores() con un
+    // fetch mockeado en el propio spec (spyOn pisa el stub de test-runner.html).
+    const CATALOGO_API_FLUJO_3 = {
+        version: 1,
+        proveedores: [
+            { nombre: "Gourmet Finger Food", categoria: "Catering", precio: 3500, unidad: "pax" },
+            { nombre: "Flores Pilar", categoria: "Decoración", precio: 70000, unidad: "base" },
+            { nombre: "DJ Lucas & Sonido", categoria: "Sonido", precio: 8000, unidad: "hora" }
+        ]
+    };
+
+    beforeEach(async function () {
+        spyOn(window, "fetch").and.callFake(() => Promise.resolve(new Response(
+            JSON.stringify(CATALOGO_API_FLUJO_3),
+            { status: 200, headers: { "Content-Type": "application/json" } }
+        )));
+        await construirCatalogo(ui);
+    });
+
     it("debería mostrar los 3 proveedores del catálogo sin ningún filtro", function () {
+        expect(window.fetch).toHaveBeenCalledOnceWith("api/proveedores.json", jasmine.any(Object));
+        expect(estadoApp.errorCatalogo).toBe(false);
         expect(ui.contadorCatalogo.textContent).toBe("3 proveedores encontrados");
     });
 

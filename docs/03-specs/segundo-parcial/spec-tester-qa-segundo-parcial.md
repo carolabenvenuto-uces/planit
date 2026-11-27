@@ -182,10 +182,106 @@ Para que los tres momentos sean comparables entre sí, se fijan las mismas condi
 ## MOMENTO 2: Evidencia de Cierre (AL CERRAR la tarea)
 
 ### 1. Prompt utilizado y ajustes manuales
-*(A completar al cierre.)*
+
+#### 1.1. `api.spec.js`, REG-03 y evidencia del Test Case 12
+
+El borrador de `js/test/api.spec.js`, la adaptación del Flujo 3 de `js/test/script.spec.js` (REG-03), las capturas y el documento del Test Case 12 y los borradores de issues se generaron con **Claude Code (modelo Claude Opus 5.5, Anthropic)** en VS Code, sobre la rama `feature/tester-qa-js-testing-suite` actualizada con `develop` (PR #147 incluida). Claude tuvo como contexto este spec, `spec-dev-async-fetch.md`, `js/api/apiService.js`, `js/script.js`, los modelos `Proveedor` y `CatalogoProveedores`, `js/test/test-runner.html`, `js/test/script.spec.js`, el Test Case 11 y los resultados crudos de las tres corridas de Lighthouse del Test Case 12.
+
+**Prompt principal:**
+
+```text
+Soy la Tester QA/JS (y coordinadora) del proyecto. Estoy en mi rama `feature/tester-qa-js-testing-suite`, que ya actualice con develop (tiene la #147, el fetch de Caro). La #149 (Chart.js) todavia no se mergeo: no dependas de ella.
+
+REGLAS
+- Podes crear y modificar archivos del repo, pero SOLO de mi rol: js/test/ y docs/04-testing/, y mi spec docs/03-specs/segundo-parcial/spec-tester-qa-segundo-parcial.md.
+- NO hagas NINGUNA operacion de git que escriba: nada de commit, push, merge, stash, add, switch, checkout, reset ni rebase. Solo podes leer (git status, log, diff, show, fetch). Los commits los hago yo.
+- NO toques archivos de otros roles: js/script.js, js/api/, js/models/, js/utils/, js/charts/, index.html, css/ ni specs ajenos. Si para un test hace falta cambiar codigo de la app, no lo cambies: anotalo como issue.
+- En js/test/test-runner.html solo podes agregar la etiqueta <script> de los specs nuevos, junto a los otros specs. NO toques el stub de fetch ni las lineas que cargan librerias (Chart.js/Bootstrap): la #149 cambia esas lineas y no quiero conflictos.
+- Todo lo que afirmes tiene que salir de algo que leiste o ejecutaste.
+
+TAREA 1 - Evidencia del TC12
+1. Lee la seccion 3 de mi spec (que evidencia pide el TC12 y con que nombres) y el documento del test-case-11 en docs/04-testing/ (formato a copiar).
+2. Los resultados estan en C:\Users\valer\OneDrive\Escritorio\TC12\: reportes HTML y JSON lighthouse-post-fetch-run-1 a run-3, resumen-tc12.md, verificacion-pages.txt y lighthouse-log.txt. La corrida mediana es la run-3.
+3. Genera las capturas PNG que pide el spec a partir del HTML de la run-3 (Playwright: vista de los 4 puntajes, Metrics y lo que pida el spec).
+4. Copia a docs/04-testing/screenshots/ las PNG y los reportes que pida el spec, con el prefijo lighthouse-post-fetch-*.
+5. Crea el documento del TC12 en docs/04-testing/, con el mismo formato que el TC11. Datos:
+   - Lighthouse 13.6.0, Chrome headless/incognito, Desktop, 3 corridas, mediana = run-3, URL de Pages, develop en 6aae3d8 (merge de la #147).
+   - Mediana: Performance 96, Accessibility 97, Best Practices 92, SEO 100, LCP 1,14 s, CLS 0,071, TBT 0 ms, FCP 0,80 s, SI 1,07 s.
+   - Contra el TC11: sin regresion (ninguna categoria cae 5 puntos o mas y LCP/TBT/CLS no cambian de calificacion). SEO sube de 91 a 100 (#141).
+   - Veredicto: PASA CON OBSERVACIONES. Best Practices 92 igual que en el TC11 (favicon 404 en la raiz del dominio y cookies del iframe de YouTube); LCP en "buena" pero cerca del limite, a re-medir en el TC13; el CLS viene del tfoot de la tabla de presupuesto (0,068) y de header-actions (0,002), no del catalogo; Accessibility con color-contrast.
+
+TAREA 2 - api.spec.js y REG-03
+1. Lee de mi spec los casos API-01 a API-14 y REG-03 (entrada, accion y resultado esperado). Lee spec-dev-async-fetch.md y js/api/apiService.js para conocer el contrato real: fetchData, obtenerProveedores, validarProveedor, sanitizarTexto, aCatalogo, filtrarPorCategoria, filtrarPorPrecioMaximo y resumirCatalogo; timeout de 5000 ms con AbortController; reintento solo ante error de red; errores HTTP/red/JSON distinguibles; fallback a DATOS_SEMILLA.
+2. Crea js/test/api.spec.js con API-01 a API-14, un `it` por caso, con el ID en el nombre ("API-01: ...").
+   - Mockea con `spyOn(window, "fetch")`: test-runner.html tiene un stub de fetch para api/proveedores.json y spyOn lo pisa.
+   - Usa async/await. Para el timeout no esperes 5 segundos reales: usa jasmine.clock() o una promesa que no resuelve con la senal de abort, segun lo que permita apiService.js. Si no se puede, explicamelo.
+   - Cubri: respuesta OK, 404/500 sin reintento, error de red con 1 reintento, JSON invalido, estructura invalida, proveedores invalidos descartados, sanitizacion (incluidos bloques <script>/<style>), resumirCatalogo sin prototipo y los filtros, ajustado a lo que diga exactamente cada caso del spec.
+3. REG-03: adapta el Flujo 3 de js/test/script.spec.js para que el catalogo venga de un fetch mockeado. Cambia solo lo necesario.
+4. Agrega `<script src="api.spec.js"></script>` en test-runner.html junto a los otros specs, y nada mas en ese archivo.
+5. Corre `npm test` 3 veces: specs, failures, errores de consola y exit code. Tiene que dar 0 failures y exit 0. Si un caso no se puede cumplir porque la app se comporta distinto, dejalo con pending("...") explicando por que.
+6. Actualiza en mi spec el estado de API-01 a API-14 y REG-03, si tiene una tabla de estado, y registra en la seccion correspondiente que use Claude y con que prompt, igual que hicieron los otros roles.
+
+TAREA 3 - Issues
+1. Lee las issues abiertas de carolabenvenuto-uces/planit (con gh si esta autenticado o con la API publica, solo lectura). Ya existen al menos #140, #142 y #145 (color-contrast y 404 del favicon).
+2. Arma borradores SOLO de lo que no tenga issue. Candidatas:
+   - CLS del tfoot de la tabla de presupuesto (0,068 en el TC12).
+   - Spinner del catalogo que queda girando si falla el fallback (mejora pendiente de la #147, rol Dev Async).
+   - Validacion duplicada entre validarProveedor y el constructor de Proveedor (#147, opcional).
+   - Lo que encuentres al escribir api.spec.js.
+   Si algo ya tiene issue, propone un comentario para esa issue en lugar de una nueva.
+3. Para cada borrador: titulo, descripcion con evidencia, criterio de aceptacion, rol responsable segun los specs y labels sugeridos.
+4. Guardalos en C:\Users\valer\OneDrive\Escritorio\issues-borradores.md (fuera del repo). NO crees ninguna issue.
+
+AL FINAL
+- Mostrame `git status` y `git diff --stat` para que vea todo lo que cambio.
+- Resultado de npm test, casos API que quedaron pending y por que, y la lista de issues propuestas.
+- Proponeme 2 mensajes de commit (uno para el TC12 y otro para api.spec.js + REG-03), con que archivos va cada uno, para que los haga yo.
+```
+
+**Ajustes y decisiones sobre el borrador:**
+- **Nombres de la API confirmados.** Los nombres tentativos de la sección 2.2 se reemplazaron por los de la implementación mergeada (`fetchData`, `obtenerProveedores`, `validarProveedor`, `sanitizarTexto`, `aCatalogo`, `filtrarPorCategoria`, `filtrarPorPrecioMaximo` y `resumirCatalogo`). No hizo falta modificar código de la aplicación ni dejar casos en `pending`.
+- **Un `it` por caso.** Las verificaciones que la consigna pedía cubrir y que no tienen un ID propio en la tabla 2.5 se ubicaron dentro del caso más cercano: la sanitización (incluidos los bloques `<script>`/`<style>`) en API-02, el timeout en API-05, la estructura inválida y el catálogo sin proveedores válidos en API-06, y el objeto sin prototipo de `resumirCatalogo` en API-11.
+- **Timeout sin esperas reales.** `fetchData` programa el abort con `setTimeout(…, 5000)`, así que API-05 instala `jasmine.clock()` y usa un `fetch` simulado que solo se rechaza cuando llega la señal de abort. Con `tick(4999)` se comprueba que todavía no abortó; con `tick(1)`, que aborta y reintenta; y con otro `tick(5000)`, que propaga el error de red tras dos llamadas.
+- **Sandbox de DOM sin `id`.** La sección 2.1 prevé un sandbox "con los mismos `id`/`data-*` que `index.html`". Como el fixture de `test-runner.html` ya tiene `#contenedor-catalogo`, `#buscar-catalogo`, etc., repetirlos duplicaría `id` en la página. `construirCatalogo(ui)` recibe las referencias por parámetro, así que API-12 a API-14 le pasan un objeto `ui` armado con nodos del sandbox marcados con `data-ui`. En `afterEach` se retira el sandbox y se vuelve a cargar el catálogo del fixture con el stub, para no dejar `estadoApp` con datos de `api.spec.js`.
+- **Errores de consola esperados.** API-14 espía `console.error` (el controlador registra ahí el detalle técnico del fallo) y verifica que se llame; así el caso de error no deja errores reales en la consola, que `run-jasmine.js` cuenta como falla. API-02 y API-07 espían `console.warn` para verificar los descartes.
+- **REG-03 con los mismos proveedores.** El `beforeEach` del Flujo 3 espía `fetch` con los mismos tres proveedores del fixture, para que los seis casos existentes no cambien sus expectativas; el primer caso comprueba además que el catálogo vino de ese `fetch` (`toHaveBeenCalledOnceWith`) y que no se usó el fallback.
+- **`test-runner.html`.** El único cambio es la línea `<script src="api.spec.js"></script>` después de `script.spec.js`. No se tocaron el stub de `fetch` ni las líneas de Bootstrap.
 
 ### 2. Resultados de ejecución de la suite Jasmine
-*(A completar al cierre.)*
+
+#### 2.1. Ejecución de `npm test` con `api.spec.js` y REG-03
+
+Antes de los cambios, la suite daba **330 specs, 0 failures** (exit 0). Con `api.spec.js` y REG-03 se ejecutó `npm test` tres veces, con orden aleatorio:
+
+| Ejecución | Semilla | Specs | Failures | Errores de consola | Exit code |
+|---|---|---|---|---|---|
+| 1 | 99406 | 344 | 0 | 0 | 0 |
+| 2 | 10592 | 344 | 0 | 0 | 0 |
+| 3 | 75674 | 344 | 0 | 0 | 0 |
+
+Los 14 specs nuevos son API-01 a API-14. REG-03 no suma specs: adapta los seis del Flujo 3.
+
+#### 2.2. Estado de los casos
+
+| ID | Estado | Observación |
+|---|---|---|
+| API-01 | ✅ Pasa | `obtenerProveedores()` devuelve los 3 proveedores; `fetch` se llama una vez con `api/proveedores.json` y una señal de `AbortController`. |
+| API-02 | ✅ Pasa | Se descartan 12 registros inválidos (incluidos un nombre que solo tiene un bloque `<script>` y una categoría que solo tiene un bloque `<style>`), con un `console.warn` por cada uno; los 3 válidos se devuelven sin cambios. |
+| API-03 | ✅ Pasa | `Error` con "404" y una sola llamada a `fetch` (sin reintento). |
+| API-04 | ✅ Pasa | `Error` con "500" y una sola llamada a `fetch` (sin reintento). |
+| API-05 | ✅ Pasa | Error de red: 2 llamadas y luego "Error de red al obtener…". Si el segundo intento responde, la carga se recupera. Timeout de 5 s simulado con `jasmine.clock()`: aborta, reintenta y propaga el error. |
+| API-06 | ✅ Pasa | Cuerpo no JSON: "JSON inválido en…"; estructura inesperada: "La estructura del catálogo de proveedores es inválida."; sin proveedores válidos: "El catálogo no contiene proveedores válidos.". Ninguno se confunde con un error HTTP o de red ni se reintenta. |
+| API-07 | ✅ Pasa | `aCatalogo()` devuelve un `CatalogoProveedores` con instancias de `Proveedor` que conservan sus valores. |
+| API-08 | ✅ Pasa | Filtros por categoría (sin mayúsculas ni tildes) y por precio máximo inclusivo. |
+| API-09 | ✅ Pasa | Sin coincidencias, los filtros devuelven `[]` sin lanzar errores. |
+| API-10 | ✅ Pasa | `resumirCatalogo()` coincide con el cálculo a mano (cantidad, promedio, mínimo y máximo por categoría). |
+| API-11 | ✅ Pasa | Con `[]` devuelve el valor inicial: un objeto sin prototipo y sin claves. |
+| API-12 | ✅ Pasa | Con `fetch` pendiente: indicador con `role="status"`, `aria-live="polite"` y spinner; búsqueda y filtro deshabilitados. |
+| API-13 | ✅ Pasa | Se renderizan los proveedores recibidos y el resumen por categoría, desaparece el indicador de carga y el filtro de categoría se arma con los datos recibidos. |
+| API-14 | ✅ Pasa | Tras HTTP 500 o error de red: aviso amigable sin detalles técnicos, botón "Reintentar" y fallback con los 3 proveedores de `DATOS_SEMILLA`; "Reintentar" vuelve a cargar el catálogo. |
+| REG-03 | ✅ Pasa | Los seis casos del Flujo 3 (búsqueda por texto, filtro por categoría y combinaciones) pasan con el catálogo cargado desde un `fetch` mockeado. |
+
+Ningún caso quedó en `pending`.
 
 ### 3. Resultados de las auditorías Lighthouse (Test Cases 11, 12 y 13)
 *(A completar al cierre.)*
