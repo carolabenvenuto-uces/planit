@@ -63,6 +63,15 @@ Cada `<canvas>` está dentro de un contenedor `[data-grafico-contenedor]` con al
 - **No hay datos** (presupuesto sin gasto, cantidad o descuento inválidos, catálogo cargando, en fallback o con un filtro sin resultados): se destruye el gráfico, se oculta el canvas y el aviso explica el motivo. Nunca queda un canvas en blanco ni un gráfico con datos de un cálculo anterior.
 - **Chart.js no disponible** (CDN caído o archivo rechazado por el SRI): `GraficoService.renderizar()` devuelve `null` y se muestra el aviso correspondiente.
 
+## Licencia
+Chart.js 4.4.7 se distribuye bajo **licencia MIT**: [LICENSE.md](https://github.com/chartjs/Chart.js/blob/master/LICENSE.md) en el repositorio oficial. El archivo que sirve el CDN (`chart.umd.js` de jsDelivr) conserva el banner de copyright MIT intacto en su cabecera; no se modificó ni se re-empaquetó el archivo.
+
+## Limitaciones y fallback
+- **Chart.js no disponible** (CDN caído, bloqueado por red, o el archivo no coincide con el `integrity` del SRI): `GraficoService.renderizar()` devuelve `null` sin lanzar, y `pintarGrafico()` muestra el aviso correspondiente en `#aviso-grafico-presupuesto` / `#aviso-grafico-catalogo`. El resto de la app (presupuesto, catálogo, invitados, persistencia) sigue funcionando sin cambios.
+- **La dona de Presupuesto grafica subtotales sin descuento** (`resultado.subtotales`, igual que la tabla de desglose): el descuento solo afecta al total final, no a la distribución por categoría, así que el gráfico no cambia de forma al modificar el campo de descuento.
+- **Categorías repetidas no se agrupan:** si dos ítems del presupuesto comparten categoría, la dona muestra una porción por ítem (no una sumada), igual que la tabla muestra una fila por ítem. Agruparlas por categoría requeriría un método propio del modelo (por ejemplo, `Presupuesto.subtotalesPorCategoria()`), fuera del alcance de este rol.
+- **El catálogo no se grafica en modo fallback:** si `ApiService.obtenerProveedores()` falla y se usan los datos semilla (`DATOS_SEMILLA`), el gráfico de barras se oculta con el aviso "El gráfico estará disponible cuando se cargue el catálogo actualizado.", siguiendo el mismo criterio que el resumen de texto (`spec-dev-async-fetch.md`): ninguno de los dos se arma a partir de datos de respaldo.
+
 ## Capturas de Pantalla
 ![Gasto por categoría](./screenshots/grafico-presupuesto.png)
 ![Proveedores por categoría](./screenshots/grafico-catalogo.png)
