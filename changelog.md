@@ -4,6 +4,7 @@
 
 ### Added
 - [feature/dev-async-fetch-api] feature/dev-async-fetch-api: [Dev Async Fetch] Consumo asíncrono del catálogo de proveedores con fetch - Segundo Parcial PR: [#147](https://github.com/carolabenvenuto-uces/planit/pull/147) | Issue: [#138](https://github.com/carolabenvenuto-uces/planit/issues/138) - @carolabenvenuto-uces (Desarrolladora JS Asíncrono - Fetch & APIs)
+- [feature/dev-libreria-externa-chartjs] feature/dev-libreria-externa-chartjs: [Dev Librerías Externas] Integrar Chart.js para visualizar presupuesto y catálogo - Segundo Parcial PR: [#149](https://github.com/carolabenvenuto-uces/planit/pull/149) | Issue: [#148](https://github.com/carolabenvenuto-uces/planit/issues/148) - @FacundoGuiraldes (Desarrollador JS Librerías Externas)
 
 ## [Release Actividad Obligatoria N°4] - 2026-11-23
 
