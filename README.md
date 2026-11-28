@@ -109,7 +109,7 @@ Requisitos: un navegador actual y, para correr los tests desde la terminal, [Nod
 - 🧪 [Índice de Testing (Test Cases 1 a 13)](docs/04-testing/testing-doc.md)
 - 📦 [Documentación de Storage (`storage-doc.md`)](docs/06-storage/storage-doc.md)
 - 🧩 Diagramas: [Diagramas de Actividades](docs/05-diagramas/01-diagrama-de-actividades/diagramas-doc.md) · [Diagrama de Clases](docs/05-diagramas/02-diagrama-de-clases/diagrama-clases-doc.md)
-- 📋 Tablero Kanban del Segundo Parcial (GitHub Projects): [COMPLETAR: link al tablero "PlanIT - Segundo Parcial"]
+- 📋 [Tablero Kanban del Segundo Parcial (GitHub Projects)](https://github.com/users/carolabenvenuto-uces/projects/3)
 - 🔀 Plantillas de Pull Request: [feature](.github/PULL_REQUEST_TEMPLATE/feature-template.md) · [release](.github/PULL_REQUEST_TEMPLATE/release-template.md)
 
 **Actividad Obligatoria N°4**
