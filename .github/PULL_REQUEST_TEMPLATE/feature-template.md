@@ -1,4 +1,4 @@
-# 🟣 PULL REQUEST – Actividad Obligatoria N.º 1 – Programación Web I
+# 🟣 PULL REQUEST – Segundo Parcial – Programación Web I
 
 ---
 
@@ -10,7 +10,7 @@
 - **Materia:** Programación Web I
 - **Profesor:** Lic. Matías Velasquez
 - **Cuatrimestre/Año:** 2º Cuatrimestre / 2026
-- **Rol asignado para esta entrega:** _(Ej.: Coordinador/DevOps, Desarrollador Frontend, Documentador/UX, Especialista en IA)_
+- **Rol asignado para esta entrega:** _(Ej.: Coordinador/DevOps, Desarrollador JS Asíncrono – Fetch & APIs, Desarrollador JS Librerías Externas, Tester QA/JS)_
 
 ---
 
@@ -18,7 +18,7 @@
 
 - **Nombre de la rama:** `feature/<rol>-<descripcion>`
 - **Issue vinculada:** Closes #<!-- Número de Issue -->
-- **Spec asociado:** `docs/03-specs/actividad-obligatoria-1/spec-[rol].md`
+- **Spec asociado:** `docs/03-specs/segundo-parcial/spec-[rol].md`
 
 ---
 
@@ -30,10 +30,8 @@ _Describir brevemente qué tareas se llevaron a cabo en esta rama, qué archivos
 
 ## 📄 Archivos modificados / agregados
 
-- `README.md`  
-- `index.html`  
-- `docs/01-mockup/actividad-obligatoria-1/diseño-inicial.png`
-- `docs/02-prompts/prompts-1.md`
+- `docs/03-specs/segundo-parcial/spec-[rol].md`
+- `changelog.md`
 _(Agregar o eliminar según corresponda)_
 
 ---
@@ -47,6 +45,7 @@ _(Agregar o eliminar según corresponda)_
 - [ ] Actualicé el archivo `changelog.md` con el resumen de esta PR
 - [ ] Solicité revisión al Coordinador/DevOps
 - [ ] La PR incluye solo cambios relacionados con mi tarea asignada
+- [ ] `npm test` termina con 0 failures y exit code 0
 
 ---
 
