@@ -2,14 +2,17 @@
 
 > Reemplaza íntegramente a la versión de la AO3: con el controlador de eventos/DOM (PR #104), las clases de dominio (PR #102) y la capa de persistencia (PR #108) ya integradas en `develop`, la suite de testing se reorganiza en 3 archivos. El contenido anterior (specs de las funciones `flujo*()`/`prompt()`/`alert()` de la AO3) queda disponible en el historial de git; las funciones que testeaba ya no existen en `js/script.js`.
 
+> **Actualización del Segundo Parcial (PR #152, 27/11/2026):** la suite suma `api.spec.js` (API-01 a API-14) y `library.spec.js` (LIB-01 a LIB-06), adapta el Flujo 3 de `script.spec.js` al catálogo cargado con `fetch` (REG-03) y corre sin red, con Jasmine, Bootstrap y Chart.js en `js/test/vendor/`. **Estado vigente: 350 specs, 0 failures, código de salida `0`.** Detalle en [Segundo Parcial: API, librería y runner sin red](#segundo-parcial-api-librería-y-runner-sin-red). El plan y la evidencia de cierre están en `docs/03-specs/segundo-parcial/spec-tester-qa-segundo-parcial.md`.
+
 ## Índice
 1. [Qué cambió respecto de la AO3](#qué-cambió-respecto-de-la-ao3)
 2. [Ejecución de Tests](#ejecución-de-tests)
 3. [Suites de Tests](#suites-de-tests)
-4. [Métricas de Cobertura](#métricas-de-cobertura)
-5. [Cobertura de líneas y ramas de los modelos (RC4 y RC5)](#cobertura-de-líneas-y-ramas-de-los-modelos-rc4-y-rc5)
-6. [Alcance y Limitaciones](#alcance-y-limitaciones)
-7. [Issues Conocidos](#issues-conocidos)
+4. [Segundo Parcial: API, librería y runner sin red](#segundo-parcial-api-librería-y-runner-sin-red)
+5. [Métricas de Cobertura](#métricas-de-cobertura)
+6. [Cobertura de líneas y ramas de los modelos (RC4 y RC5)](#cobertura-de-líneas-y-ramas-de-los-modelos-rc4-y-rc5)
+7. [Alcance y Limitaciones](#alcance-y-limitaciones)
+8. [Issues Conocidos](#issues-conocidos)
 
 ---
 
@@ -28,6 +31,9 @@ Como consecuencia, la suite se divide en 3 archivos con responsabilidades distin
 | `js/test/models.spec.js` | Las 8 clases de dominio: constructores, validaciones, métodos de negocio, `toJSON()`/`fromJSON()`. | Tests unitarios puros, sin DOM: se instancian las clases directamente. |
 | `js/test/storage.spec.js` | El CRUD de `Almacenamiento` (`js/utils/storage.js`). | Tests unitarios contra `localStorage`/`sessionStorage` reales del navegador (Chromium headless vía Playwright), con limpieza de claves de prueba en `afterEach`. |
 | `js/test/script.spec.js` | El controlador: los 4 flujos de UI (crear evento, calcular presupuesto, buscar en catálogo, gestionar invitados) contra un fixture de DOM. | Tests de integración: se simulan interacciones reales (cambiar inputs, clicks) sobre un fragmento de HTML con los mismos `id`/`data-*` que `index.html`, y se verifica el DOM resultante. |
+| `js/test/servicio-persistencia.spec.js` | La fachada `ServicioPersistenciaEvento` (RC22). | Tests unitarios contra el storage real del navegador. |
+| `js/test/api.spec.js` *(Segundo Parcial)* | `ApiService` (`js/api/apiService.js`): carga con `fetch`, errores HTTP/red/JSON, reintento, timeout, sanitización, `map`/`filter`/`reduce` y los estados de carga del catálogo en el DOM (API-01 a API-14). | `spyOn(window, "fetch")` con respuestas construidas en el test; `jasmine.clock()` para el timeout; sandbox de DOM sin `id` para los estados `loading`/`success`/`error`. |
+| `js/test/library.spec.js` *(Segundo Parcial)* | Chart.js 4.4.7 y `GraficoService` (`js/charts/graficoService.js`) y su uso desde el controlador (LIB-01 a LIB-06). | Canvas del fixture y un canvas propio en sandbox; registro de la librería (`Chart.getChart()`, `Chart.instances`); `window.Chart` borrado y restaurado en `finally` para simular la falla del CDN. |
 
 ---
 
@@ -35,7 +41,7 @@ Como consecuencia, la suite se divide en 3 archivos con responsabilidades distin
 
 ### Pasos para Ejecutar
 1. Abrir `js/test/test-runner.html` en el navegador (doble clic o arrastrándolo). Si el navegador bloquea archivos locales, levantar un servidor desde la raíz del repositorio con `npx http-server -p 8080` y abrir `http://localhost:8080/js/test/test-runner.html`.
-2. El runner carga, en orden: el bundle de Bootstrap 5.3.3 (misma URL e integridad que `index.html`, necesario para los specs de integración RC14/RC15), `js/models/*.js`, `js/utils/storage.js`, `js/script.js` (código a testear), y luego `models.spec.js`, `storage.spec.js`, `script.spec.js` (las 3 suites). `script.js` arranca automáticamente al cargar la página (`DOMContentLoaded`) contra el fixture de DOM embebido en el propio `test-runner.html`; cada test de `script.spec.js` restaura ese fixture a un estado conocido en su `beforeEach` (función `restaurarEstadoInicial()`), así el orden aleatorio de Jasmine no afecta el resultado.
+2. El runner carga, en orden: Jasmine 5.10.0, el bundle de Bootstrap 5.3.3 (necesario para los specs de integración RC14/RC15), `js/models/*.js`, `js/utils/storage.js`, `js/services/ServicioPersistenciaEvento.js`, el stub de `fetch` para `api/proveedores.json`, `js/api/apiService.js`, Chart.js 4.4.7, `js/charts/graficoService.js`, `js/script.js` (código a testear), y luego las 6 suites: `models.spec.js`, `storage.spec.js`, `servicio-persistencia.spec.js`, `script.spec.js`, `api.spec.js` y `library.spec.js`. Desde el Segundo Parcial, Jasmine, Bootstrap y Chart.js se cargan desde copias locales en `js/test/vendor/` (ver [Runner sin red](#runner-sin-red-con-vendor)), así que el runner no hace ninguna request a internet. `script.js` arranca automáticamente al cargar la página (`DOMContentLoaded`) contra el fixture de DOM embebido en el propio `test-runner.html`; cada test de `script.spec.js` restaura ese fixture a un estado conocido en su `beforeEach` (función `restaurarEstadoInicial()`), así el orden aleatorio de Jasmine no afecta el resultado.
 3. Verificar resultados en la interfaz de Jasmine (verde = pasando, rojo = fallando).
 
 ### Ejecución reproducible por línea de comandos
@@ -64,21 +70,23 @@ Como consecuencia, la suite se divide en 3 archivos con responsabilidades distin
    ```
    npm test
    ```
-   Salida esperada (la semilla cambia en cada corrida porque Jasmine aleatoriza el orden; conteo vigente desde RC24–RC26, ver [Ejecución verificada de las suites de integración](#ejecución-verificada-de-las-suites-de-integración-rc24-rc25-rc26)):
+   Salida esperada (la semilla cambia en cada corrida porque Jasmine aleatoriza el orden; conteo vigente desde el Segundo Parcial, ver [Segundo Parcial: API, librería y runner sin red](#segundo-parcial-api-librería-y-runner-sin-red)):
    ```
-   330 specs, 0 failures, randomized with seed 12345
+   350 specs, 0 failures, randomized with seed 12345
    ```
 
 **Scripts disponibles en `package.json`:**
 
 | Script | Comando | Para qué sirve |
 |---|---|---|
-| `npm test` | `node js/test/run-jasmine.js` | Corre la suite en Chromium headless e imprime el resumen. Código de salida `0` si todo pasa, `1` si hay fallas. |
+| `npm test` | `node js/test/run-jasmine.js` | Corre la suite en Chromium headless e imprime el resumen. Código de salida `0` solo si Jasmine cargó y ejecutó al menos un spec sin fallas; `1` en cualquier otro caso (ver abajo). |
 | `npm run test:browser` | `node js/test/open-runner.js` | Abre `test-runner.html` en un Chromium con ventana visible para inspeccionar el reporter HTML de Jasmine. Equivale a abrir el archivo a mano (ver "Pasos para Ejecutar"). |
 | `npm run test:install-browsers` | `playwright install chromium` | Descarga el Chromium de la versión de Playwright fijada en el lockfile. |
 | `npm run test:screenshots` | `node js/test/take-screenshots.js` | Regenera las capturas de evidencia (ver abajo). |
 
 `run-jasmine.js` (commiteado desde la corrección de AO3, RC13, PR #99) abre `test-runner.html` en Chromium headless con Playwright, espera el resumen de Jasmine y lo imprime. Termina con código de salida `1` si hay specs fallidos o si se registró algún `console.error`/`pageerror` durante la corrida (por eso los tests que ejercitan una ruta de error esperada de `Almacenamiento`, que loguea con `console.error` por diseño, usan `spyOn(console, "error")`).
+
+**Corrección del falso verde (Segundo Parcial, PR #152):** hasta esta PR, si Jasmine no llegaba a cargarse o no ejecutaba ningún spec, `run-jasmine.js` imprimía `null` (o "No specs found") y terminaba con código `0`. Ahora lee el resultado de `jsApiReporter` (lo crea `boot0.js` de Jasmine) y termina con `1` también si Jasmine no se cargó, si la corrida no terminó en 60 s, si no se ejecutó ningún spec, si la corrida quedó incompleta (por ejemplo, un `fit` olvidado) o si Jasmine informó errores globales (por ejemplo, en un `afterAll`). En cada caso imprime una línea `ERROR: …` con el motivo. La verificación está en [Runner sin red](#runner-sin-red-con-vendor).
 
 ### Capturas de pantalla (evidencia visual)
 ```
@@ -217,7 +225,7 @@ Bloque `describe("Integración - Controlador y UI (RC14, RC15, RC16)")` agregado
 | INT-RC14-03 | RC14 | Accesibilidad y foco (Bootstrap real) | clic en "Ver detalle" (data-api de Bootstrap) → `shown.bs.modal` → `hide()` → `hidden.bs.modal` | `role="dialog"`, `aria-modal="true"`, sin `aria-hidden` mientras está abierto; `aria-labelledby` apunta al título con el servicio; foco dentro del Modal; al cerrar vuelve `aria-hidden="true"` y el foco regresa al disparador. |
 | INT-RC14-04 | RC14 | Propagación al botón del Modal | dos `show.bs.modal` seguidos (Gourmet → Flores) | El `.btn-sumar-evento` del Modal tiene título y precio del último proveedor abierto, sin arrastrar datos del anterior. |
 | INT-RC14-05 | RC14 | Propagación de punta a punta | abrir con Bootstrap real → clic en "Sumar al Evento" del Modal | El Toast muestra "Gourmet Finger Food · $3.500 / pax" y el Modal se cierra (`data-bs-dismiss`). |
-| INT-RC15-01 | RC15 | Bootstrap presente, tarjetas | clic en cada uno de los 3 `.btn-sumar-evento` de las tarjetas | `bootstrap.Toast.getOrCreateInstance(#toastConfirmacion)` y `Toast.prototype.show` invocados (1, 2, 3 veces); texto del servicio y mensaje de éxito; clase `show`. |
+| INT-RC15-01 | RC15 | Bootstrap presente, tarjetas | clic en cada uno de los 3 `.btn-sumar-evento` de las tarjetas | `bootstrap.Toast.getOrCreateInstance(#toastConfirmacion)` y `Toast.prototype.show` invocados (1, 2, 3 veces); texto del servicio y mensaje de éxito; clase `show`. Entre clic y clic espera `shown.bs.toast` (ver la segunda falla más abajo). |
 | INT-RC15-02 | RC15 | Bootstrap presente, Modal | `show.bs.modal` (DJ Lucas) → clic en el `.btn-sumar-evento` del Modal | `Toast.show` invocado una vez con "DJ Lucas & Sonido · $8.000 / hora". |
 | INT-RC15-03 | RC15 | Bootstrap ausente, tarjetas | `window.bootstrap = undefined` **antes** de montar los componentes → clic en cada botón | Sin errores en `window` ni `console.error`; Toast con clase `show`, texto correcto y `role="status"`/`aria-live="polite"`; se oculta al vencer `data-bs-delay` (4000 ms, con `jasmine.clock()`). |
 | INT-RC15-04 | RC15 | Bootstrap ausente, Modal | `show.bs.modal` (Flores Pilar) → clic en el botón del Modal | Sin errores; Toast degradado con "Flores Pilar · $70.000 / base". |
@@ -244,9 +252,85 @@ Bloque `describe("Integración - Controlador y UI (RC14, RC15, RC16)")` agregado
 - **Lo que no era:** el `#toastConfirmacion` existe en el sandbox con el mismo `id`, clases y atributos que `index.html`.
 - **Causa:** `Toast.show()` deja en cola un callback de fin de transición que Bootstrap emula con un `setTimeout` de ~5 ms, porque el runner no carga su CSS. Ese callback hace `this._element.classList.remove("showing")`. El `afterEach` llamaba a `dispose()` en el mismo tick, y `dispose()` pone `_element` en `null`. Unos milisegundos después el callback fallaba, y Jasmine le atribuía el error a la suite que estuviera corriendo en ese momento.
 - **Corrección:** el desmontaje espera esas transiciones antes de llamar a `dispose()`. Como defensa adicional, `mostrarToast()` en `js/script.js` sale sin hacer nada si recibe un elemento nulo.
+
+**Segunda falla con el mismo mensaje (review de la PR #152, 27/11/2026):** con la semilla 95398, servida por HTTP y esperando 8 s después del fin de la corrida, aparecían 2 `TypeError: Cannot read properties of null (reading 'classList')`, esta vez en `Toast.hide()` → `isShown()`.
+- **Causa:** INT-RC15-01 hacía los 3 clics seguidos. Cada `show()`, al terminar su transición, programa el autohide (`data-bs-delay`, 4000 ms), y Bootstrap guarda solo el último temporizador. Los 2 primeros quedaban huérfanos: `dispose()` no los cancelaba y, 4 s después, llamaban a `hide()` sobre la instancia ya liberada. Aislado con `?spec=INT-RC15-01`: 2 errores; INT-RC15-02 e INT-RC14-05 (un solo `show()`): 0.
+- **Por qué no se veía:** la corrida completa termina antes de esos 4 s y `run-jasmine.js` cierra la página a los 300 ms, así que el error ocurría fuera de la corrida. No depende de la semilla: con cualquier orden que deje a INT-RC15-01 en los últimos 4 s de la corrida, el error queda después del final.
+- **Corrección (solo en el spec):** INT-RC15-01 es `async` y espera `shown.bs.toast` entre clic y clic; el `show()` siguiente cancela el temporizador anterior. Verificado por HTTP esperando 6–8 s después del fin: semilla 95398 × 3 y 5 semillas aleatorias, 350 specs, 0 failures y 0 errores.
 - **Por qué no se agregó el Toast al fixture base de `test-runner.html`:** `configurarEventos()` registraría listeners sobre ese Toast al cargar la página y habría `id` duplicados con el sandbox. Las rutas de imagen del sandbox apuntan a `../../docs/...` (relativas a `js/test/`), porque con `./docs/...` la imagen daría 404 y `run-jasmine.js` lo contaría como `console.error`. Los nodos que RC16 reemplaza quedan con sus listeners registrados por el `DOMContentLoaded` del propio test, así que los specs que corren después siguen funcionando igual con `restaurarEstadoInicial()`.
 
-**Fuera de alcance de INT-RC14-01:** la observación menciona "categoría" y "badge" del servicio, pero el Modal de `index.html` no tiene esos campos (solo título, imagen, descripción, capacidad, duración, incluye, precio y el texto fijo "Proveedor verificado"), y el handler de `show.bs.modal` no los inyecta. El test verifica todos los campos que existen. Agregar categoría/badge al Modal sería un cambio de UI que le corresponde al rol Eventos + DOM, no a la suite.
+**Fuera de alcance de INT-RC14-01 (AO4):** la observación menciona "categoría" y "badge" del servicio, pero el Modal de `index.html` no tiene esos campos (solo título, imagen, descripción, capacidad, duración, incluye, precio y el texto fijo "Proveedor verificado"), y el handler de `show.bs.modal` no los inyecta. El test verifica todos los campos que existen. Agregar categoría/badge al Modal sería un cambio de UI que le corresponde al rol Eventos + DOM, no a la suite.
+
+---
+
+## Segundo Parcial: API, librería y runner sin red
+
+Plan (casos API-01 a API-14, LIB-01 a LIB-06 y REG-01 a REG-04) y evidencia de cierre: `docs/03-specs/segundo-parcial/spec-tester-qa-segundo-parcial.md`. Allí está también el estado caso por caso (MOMENTO 2, secciones 2.2 y 2.5).
+
+### `api.spec.js` — `ApiService` (PR #147): API-01 a API-14
+
+| ID | Qué verifica |
+|---|---|
+| API-01 | Respuesta 200 con JSON válido: 3 proveedores; `fetch` se llama una vez con `api/proveedores.json` y una señal de `AbortController`. |
+| API-02 | Registros inválidos mezclados con válidos: se descartan solo los inválidos (con `console.warn`), incluida la sanitización de bloques `<script>`/`<style>`. |
+| API-03 / API-04 | HTTP 404 / 500: `Error` con el código y una sola llamada (sin reintento). |
+| API-05 | Error de red: 1 reintento y después se propaga el error. Timeout de 5 s simulado con `jasmine.clock()`. |
+| API-06 | Cuerpo no JSON, estructura inesperada o sin proveedores válidos: errores de formato distinguibles de HTTP y de red. |
+| API-07 | `aCatalogo()`: instancias de `Proveedor` dentro de un `CatalogoProveedores`. |
+| API-08 / API-09 | `filtrarPorCategoria` y `filtrarPorPrecioMaximo`, con y sin coincidencias. |
+| API-10 / API-11 | `resumirCatalogo()` con datos conocidos y con `[]` (objeto sin prototipo). |
+| API-12 / API-13 / API-14 | Estados `loading`, `success` y `error` del catálogo en el DOM, incluidos el aviso amigable, "Reintentar" y el fallback a `DATOS_SEMILLA`. |
+
+**14 specs**, ninguno en `pending`.
+
+### REG-03 — Flujo 3 de `script.spec.js` con `fetch` mockeado
+
+El catálogo ya no se arma desde el marcado: `construirCatalogo()` lo pide a `ApiService`. El `beforeEach` del Flujo 3 espía `fetch` con los mismos 3 proveedores del fixture, y el primer caso comprueba que el catálogo vino de ese `fetch` y no del fallback. Los 6 casos del Flujo 3 (búsqueda por texto, filtro por categoría y combinaciones) pasan sin cambiar sus expectativas. REG-03 no suma specs.
+
+### `library.spec.js` — Chart.js 4.4.7 y `GraficoService` (PR #149): LIB-01 a LIB-06
+
+| ID | Qué verifica |
+|---|---|
+| LIB-01 | Inicialización: `Chart.version` 4.4.7, `renderizar()` devuelve una instancia asociada al canvas, `destruir()` la libera. |
+| LIB-02 | Configuración: tipo, títulos, `responsive`, `maintainAspectRatio`, ejes y alto fijo de cada contenedor. |
+| LIB-03 | Dona con los subtotales del modelo; al recalcular se destruye el gráfico anterior (1 sola instancia tras 6 recálculos). |
+| LIB-04 | Datos inválidos, contenedor inexistente y gasto en cero: sin excepciones, canvas oculto y aviso con el texto exacto. |
+| LIB-05 | Sin `window.Chart` (falla del CDN): `renderizar()` devuelve `null`, la app sigue funcionando y muestra el aviso. |
+| LIB-06 | Barras con la salida exacta de `ApiService.resumirCatalogo()`, filtro, carga en curso y fallback. |
+
+**6 specs**, ninguno en `pending`.
+
+### Runner sin red con `vendor/`
+
+`test-runner.html` cargaba Jasmine desde cdnjs y Bootstrap y Chart.js desde jsDelivr: con el CDN caído, `npm test` fallaba aunque el código estuviera bien. Ahora carga copias locales en `js/test/vendor/`: Jasmine 5.10.0 (paquete npm `jasmine-core@5.10.0`), Bootstrap 5.3.3 y Chart.js 4.4.7 (los mismos archivos que `index.html`, con el mismo sha384). El origen, el hash, la licencia y los comandos para verificarlos están en `js/test/vendor/LEEME.md`. Las copias no llevan atributo `integrity`, porque con `file://` Chrome no puede verificar SRI y bloquea el script.
+
+| Corrida con la red bloqueada (Playwright, `route.abort` para todo lo que no sea local) | Specs | Failures | Errores de consola | Requests a internet | Exit |
+|---|---|---|---|---|---|
+| Runner anterior (CDN) | Jasmine no cargó | — | 12 | 7 abortadas | 1 |
+| Runner con `vendor/` | 350 | 0 | 0 | 0 | 0 |
+
+**Prueba del fix de `run-jasmine.js`** (27/11/2026, copias temporales del repositorio fuera de la carpeta del proyecto, sin `node_modules` ni `.git`; cada copia rompe una sola cosa):
+
+| Escenario | `run-jasmine.js` anterior | `run-jasmine.js` corregido |
+|---|---|---|
+| Copia sin cambios | `350 specs, 0 failures` · exit 0 | `350 specs, 0 failures` · exit 0 |
+| Sin ningún `<script>` de spec | "No specs found" · **exit 0 (falso verde)** | `ERROR: No se ejecutó ningún spec.` · exit 1 |
+| `boot1.js` vacío (Jasmine carga pero no arranca) | `null` · **exit 0 (falso verde)** | `ERROR: La corrida de Jasmine no terminó en 60 s.` · exit 1 |
+| Sin `jasmine.js` | `null` · exit 1 (solo por los errores de consola) | `ERROR: Jasmine no se cargó…` · exit 1, sin esperar el timeout |
+
+### Ejecuciones y distribución
+
+`npm test` después de los cambios de la review de la PR #152: `350 specs, 0 failures` con exit 0 en todas las corridas (semillas 47243 y 34125, más las de la sección anterior). Distribución contada por Jasmine (`jasmine.getEnv().topSuite()`, por archivo):
+
+| Archivo | Specs |
+|---|---|
+| `models.spec.js` | 174 |
+| `storage.spec.js` | 103 |
+| `servicio-persistencia.spec.js` | 17 |
+| `script.spec.js` (incluye REG-03 y la integración RC14–RC16) | 36 |
+| `api.spec.js` | 14 |
+| `library.spec.js` | 6 |
+| **Total** | **350** |
 
 ---
 
@@ -254,7 +338,9 @@ Bloque `describe("Integración - Controlador y UI (RC14, RC15, RC16)")` agregado
 
 ### Resumen General
 
-> **Estado vigente (RC28, 23/11/2026): 330 specs, 0 failures, código de salida `0`** con `npm test`, reproducible desde un checkout limpio con `npm ci`. Distribución y evidencia en [Verificación sobre checkout limpio (RC28)](#verificación-sobre-checkout-limpio-rc28). Las corridas que siguen (109, 111, 124, 132 y 212 specs) son **registro histórico** de estados anteriores de la suite y no describen el estado actual.
+> **Estado vigente (Segundo Parcial, 27/11/2026): 350 specs, 0 failures, código de salida `0`**, con la distribución de [Ejecuciones y distribución](#ejecuciones-y-distribución). Lo que sigue en esta sección documenta el estado de la AO4.
+>
+> **Estado AO4 (RC28, 23/11/2026): 330 specs, 0 failures, código de salida `0`** con `npm test`, reproducible desde un checkout limpio con `npm ci`. Distribución y evidencia en [Verificación sobre checkout limpio (RC28)](#verificación-sobre-checkout-limpio-rc28). Las corridas que siguen (109, 111, 124, 132 y 212 specs) son **registro histórico** de estados anteriores de la suite y no describen el estado actual.
 
 Corrida con `node js/test/run-jasmine.js`, repetida 8 veces con semillas aleatorias distintas para descartar dependencia de orden entre specs (cada spec de `script.spec.js` restaura el fixture completo en su `beforeEach`):
 
@@ -689,10 +775,10 @@ Para comprobar que cada spec ataca la rama que dice la matriz se puede hacer una
 ## Alcance y Limitaciones
 
 - **Sin cobertura automatizada de código (Istanbul/nyc):** igual que en la AO3, la cobertura se estima revisando manualmente qué comportamiento ejercita cada test.
-- **Requiere conexión a internet** para cargar Jasmine (y, si se agregara en el futuro, Bootstrap) desde CDN.
+- **Ya no requiere conexión a internet** (Segundo Parcial): Jasmine, Bootstrap y Chart.js se cargan desde `js/test/vendor/` y `fetch` de `api/proveedores.json` se responde con un stub. Hasta la AO4, el runner cargaba Jasmine y Bootstrap desde CDN.
 - **El Modal de detalle de servicio y el Toast de confirmación** (migrados de `js/componentes-bootstrap.js` a `js/script.js` en PR #109, Issue #68) **no están en el fixture de `script.spec.js`**: `configurarComponentesBootstrap()` los omite sin error si no existen en el DOM, así que su ausencia no rompe la suite. Se decidió no agregarlos a la suite automatizada porque dependen del bundle de Bootstrap (animaciones de modal/toast con temporización propia, difícil de testear de forma determinística en Jasmine sin agregar esperas artificiales) y porque ya se verificaron manualmente con Playwright antes de abrir la PR #109 (ver esa PR para la evidencia: completado de datos del Modal desde `data-service-*`, Toast con el servicio correcto desde el Modal y desde una tarjeta directa). Esos mismos tres comportamientos quedan cubiertos por la sesión con el servidor `@playwright/mcp` (ver "Prueba interactiva con el servidor oficial `@playwright/mcp`"), que se corre aparte de `run-jasmine.js`. Dentro de la suite Jasmine siguen siendo deuda de testing documentada.
 - **El catálogo del fixture tiene 3 proveedores fijos** (los del mockup real). El caso de un catálogo extendido con nombres que colisionan entre categorías se prueba agregando un 4° proveedor hipotético dentro del test de regresión correspondiente, no como parte del fixture base.
-- Los tests son síncronos salvo INT-RC14-03 e INT-RC14-05, que son `async` porque esperan las transiciones del Modal de Bootstrap (`shown.bs.modal`/`hidden.bs.modal`). Ni los modelos ni el controlador son asíncronos.
+- En la AO4 los tests eran síncronos salvo INT-RC14-03 e INT-RC14-05, que esperan las transiciones del Modal de Bootstrap. Desde el Segundo Parcial también son `async` INT-RC15-01 (espera `shown.bs.toast`), los casos de `api.spec.js` y los de `library.spec.js` y REG-03 que esperan la carga del catálogo: `construirCatalogo()` es asíncrona.
 
 ---
 
@@ -718,9 +804,16 @@ Hallazgos al ejecutar las suites de integración con `npm test` (RC24–RC26, 23
 9. **Imágenes del catálogo con ruta relativa a la página** (`./docs/...`): 404 fuera de la raíz del sitio. Corregido resolviéndola relativa a `js/script.js`.
 10. **Specs RC16 desactualizados respecto de RC9–RC11 y RC22** (`CLAVES_STORAGE`, `ui.filasPresupuesto` y los "3 invitados del marcado"). Actualizados sin debilitar lo que verifican.
 
+Hallazgos del Segundo Parcial (PR #152). Las issues, su asignación y su estado están en la sección 4 del MOMENTO 2 de `spec-tester-qa-segundo-parcial.md`:
+
+11. **Falso verde de `run-jasmine.js`** si Jasmine no cargaba o no ejecutaba ningún spec ([#155](https://github.com/carolabenvenuto-uces/planit/issues/155)). Corregido en esta PR.
+12. **`TypeError` sin capturar en `Toast.hide()`** por temporizadores de autohide huérfanos en INT-RC15-01 ([#157](https://github.com/carolabenvenuto-uces/planit/issues/157)). Corregido en el spec, en esta PR.
+13. **`GraficoService` con canvas sin `id`:** dos canvas sin `id` comparten la clave `""` y el segundo gráfico destruye al primero ([#154](https://github.com/carolabenvenuto-uces/planit/issues/154)). Latente: los canvas de la app tienen `id`. Asignada a Dev Librerías Externas.
+14. **El spinner del catálogo queda girando si también falla el fallback** ([#151](https://github.com/carolabenvenuto-uces/planit/issues/151)). Re-verificado el 27/11/2026 sobre `develop` @ `c8d7338`: se sigue reproduciendo.
+
 ---
 
-**Última actualización:** 23/11/2026 — RC28: suite verificada sobre checkout limpio (`npm ci` + `npm test`), 330 specs, 0 fallas, código de salida `0`; tabla de distribución y total global actualizados. Anterior: 23/11/2026, RC24–RC26: ejecución verificada con `npm test` de las suites de integración (Modal, Toast, Persistencia), 330 specs, 0 fallas, código de salida `0`. Anterior: 23/11/2026, integración RC14–RC16; 22/11/2026, reescritura completa para la AO4.
+**Última actualización:** 27/11/2026 — Segundo Parcial (PR #152): `api.spec.js`, `library.spec.js`, REG-03, runner sin red con `vendor/`, corrección del falso verde de `run-jasmine.js` y de INT-RC15-01; 350 specs, 0 fallas, código de salida `0`. Anterior: 23/11/2026 — RC28: suite verificada sobre checkout limpio (`npm ci` + `npm test`), 330 specs, 0 fallas, código de salida `0`; tabla de distribución y total global actualizados. Anterior: 23/11/2026, RC24–RC26: ejecución verificada con `npm test` de las suites de integración (Modal, Toast, Persistencia), 330 specs, 0 fallas, código de salida `0`. Anterior: 23/11/2026, integración RC14–RC16; 22/11/2026, reescritura completa para la AO4.
 **Tester QA (AO4):** Facundo Guiraldes (@FacundoGuiraldes).
 **Colaboración con:** Desarrolladora JS POO - Carola Benvenuto (@carolabenvenuto-uces) · Desarrolladora JS Eventos + DOM - Valeria Silva (@ValeriaMSilva).
 **Versión AO3 (funciones `flujo*()` basadas en `prompt()`/`alert()`):** disponible en el historial de git de este archivo.

@@ -19,7 +19,7 @@
 El Segundo Parcial incorpora a PlanIT dos capacidades nuevas sobre la arquitectura consolidada en la Actividad Obligatoria N° 4 (clases de dominio en `js/models/`, controlador en `js/script.js`, capa de almacenamiento en `js/utils/storage.js` y fachada de persistencia en `js/services/ServicioPersistenciaEvento.js`):
 
 1. **Consumo asíncrono de datos** mediante `fetch` y promesas, encapsulado en `js/api/apiService.js` (rama `feature/dev-async-fetch-api`).
-2. **Integración de una librería externa** de JavaScript: **Chart.js 4.4.7**, encapsulada en `js/charts/graficoService.js` (`GraficoService`) (rama `feature/dev-libreria-externa-chartjs`, PR #149).
+2. **Integración de una librería externa** de JavaScript. [Librería a definir]
 
 Este spec define, **antes** de que exista cualquier test nuevo y antes de la primera auditoría, qué se va a probar, con qué criterios y en qué momentos. Se commitea primero para que la planificación quede trazable en el historial de git, con el mismo criterio de las entregas anteriores (ver `docs/03-specs/actividad-obligatoria-4/spec-tester-qa.md`).
 
@@ -62,7 +62,7 @@ Cubre el servicio de datos de forma unitaria (sin DOM) y su integración con el 
 
 #### 2.3. `js/test/library.spec.js` — tests de la librería externa
 
-La librería elegida es **Chart.js 4.4.7**, encapsulada en `GraficoService` (`js/charts/graficoService.js`: `renderizar()` y `destruir()`) y usada por el controlador mediante `pintarGrafico()`, `actualizarGraficoPresupuesto()` y `actualizarGraficoCatalogo()` (`js/script.js`) en dos puntos: la dona de gasto por categoría (Presupuesto) y las barras de proveedores por categoría (Catálogo). Los casos se plantearon de forma genérica antes de elegir la librería y se instancian sobre Chart.js y `GraficoService`:
+La librería todavía no fue elegida por el equipo. [Librería a definir] Los casos se plantean de forma genérica, con independencia de la librería concreta, y se instanciarán cuando se defina:
 
 - **Inicialización:** la librería está disponible en el ámbito global (o en el módulo que corresponda) y se inicializa sin errores sobre su contenedor.
 - **Configuración:** las opciones que define el proyecto (idioma, formato, tema, accesibilidad, etc.) quedan aplicadas tal como se especificaron.
@@ -96,7 +96,7 @@ Si las PR del parcial modifican las clases POO o el controlador, las suites exis
 | API-12 | `api.spec.js` | Estado `loading` en el DOM mientras la promesa de `fetch` está pendiente. | Éxito | Se muestra el indicador de carga, anunciado de forma accesible (`aria-live`), y los controles dependientes quedan deshabilitados. |
 | API-13 | `api.spec.js` | Estado `success` en el DOM tras una respuesta válida. | Éxito | Se renderizan los datos recibidos y desaparece el indicador de carga. |
 | API-14 | `api.spec.js` | Estado `error` en el DOM tras una falla HTTP o de red. | Error | Se muestra un mensaje amigable sin detalles técnicos, junto con la acción de reintento y el *fallback* definido. |
-| LIB-01 | `library.spec.js` | Inicialización de la librería sobre su contenedor (Chart.js 4.4.7 mediante `GraficoService.renderizar()` sobre un `<canvas>`). | Éxito | La librería está disponible y se inicializa sin errores. |
+| LIB-01 | `library.spec.js` | Inicialización de la librería sobre su contenedor. [Librería a definir] | Éxito | La librería está disponible y se inicializa sin errores. |
 | LIB-02 | `library.spec.js` | Configuración aplicada según lo especificado por el proyecto. | Éxito | Las opciones configuradas se reflejan en la instancia o en el DOM generado. |
 | LIB-03 | `library.spec.js` | Funcionalidad principal con datos del dominio de PlanIT. | Éxito | El resultado visible o el valor devuelto coincide con el esperado. |
 | LIB-04 | `library.spec.js` | Datos de entrada inválidos o contenedor inexistente. | Error | La aplicación no lanza excepciones no controladas y muestra o registra el error de forma controlada. |
@@ -119,7 +119,7 @@ Las auditorías se ejecutan en tres momentos, ligados al orden de merge que defi
 |---|---|---|---|
 | **11 – Baseline** | Antes de mergear cualquier feature del parcial. | GitHub Pages publicando desde `master` (idéntica a `develop` tras el backport de la AO4). | `docs/04-testing/test-case-11-lighthouse-baseline.md` |
 | **12 – Post-fetch** | Después del merge de `feature/dev-async-fetch-api`. | GitHub Pages publicando desde `develop`, con `ApiService` integrado. | `docs/04-testing/test-case-12-lighthouse-post-fetch.md` |
-| **13 – Post-librería** | Después del merge de la rama de la librería externa (`feature/dev-libreria-externa-chartjs`, Chart.js 4.4.7 y `GraficoService`, PR #149). Se compara contra el Test Case 12 (post-fetch). | GitHub Pages publicando desde `develop`, con todas las features del parcial integradas. | `docs/04-testing/test-case-13-lighthouse-post-library.md` |
+| **13 – Post-librería** | Después del merge de la rama de la librería externa. [Librería a definir] Se compara contra el Test Case 12 (post-fetch). | GitHub Pages publicando desde `develop`, con todas las features del parcial integradas. | `docs/04-testing/test-case-13-lighthouse-post-library.md` |
 
 Las tres auditorías se ejecutan sobre la misma URL pública de GitHub Pages ([carolabenvenuto-uces.github.io/planit](https://carolabenvenuto-uces.github.io/planit/)), de modo que el entorno de red y de servidor es idéntico en los tres momentos y las métricas resultan comparables:
 
@@ -316,6 +316,45 @@ AL FINAL
 - **Hallazgo latente.** Al leer `GraficoService` se comprobó en el navegador que dos canvas **sin `id`** comparten la clave `""`: el segundo `renderizar()` destruye el gráfico del primero. No afecta a la app (los dos canvas tienen `id`), así que no se dejó un caso en `pending`: quedó como borrador de issue de prioridad baja para el rol Dev Librerías Externas.
 - **TC13: corrida mediana.** Dos corridas empataron en el puntaje de Performance de la mediana (96). Se tomó la que además coincide con la mediana de FCP, CLS y SI (corrida 3).
 
+#### 1.3. Correcciones de la review de la PR #152
+
+Carola Benvenuto (@carolabenvenuto-uces) dejó *Request Changes* en la PR #152 con 6 bloqueantes. Las correcciones se hicieron con **Claude Code (modelo Claude Opus 5.5, Anthropic)** en VS Code, sobre la misma rama, con las mismas reglas de las rondas anteriores (solo archivos del rol, ninguna operación de git que escriba y ninguna issue creada por Claude).
+
+**Prompt principal** (resumido; las reglas son las de los prompts de las secciones 1.1 y 1.2):
+
+```text
+Resolve los 6 bloqueantes de la review de la PR #152 y las mejoras rapidas.
+1. changelog.md: entrada de la #152 con el MISMO texto y la MISMA seccion que la rama de coordinacion (PR #153), mas las issues nuevas como [COMPLETAR #].
+2. testing-doc.md: TC12 y TC13 en docs/04-testing/ (y el total de test cases); api.spec.js, library.spec.js, REG-03, el runner sin red y los 350 specs en js/test/.
+3. MOMENTO 2: seccion 4 (issues, asignacion y estado) y seccion 5 (checklist con evidencia).
+4. Volver el MOMENTO 1 exactamente a 2d987a9 y explicar en el MOMENTO 2 como se instanciaron los casos LIB y API.
+5. Issues nuevas: cookies del iframe de YouTube y canvas sin id en GraficoService (Facundo); falso verde de run-jasmine.js (corregirlo en esta PR); TypeError "reading 'classList'" con la semilla 95398 por HTTP (corregirlo en los specs si se puede).
+6. Veredicto del TC12 y del TC13: "NO PASA en Best Practices – sin regresion" (BP 92 contra un umbral de 95), y aclarar de donde sale el umbral.
+Mejoras: justificar Claude Code frente a Copilot Agent, dejar escrita la decision de docs/04-testing/, incrustar las capturas *-summary.png y re-verificar la #151 contra develop.
+Verificacion: npm test 2 veces y prueba del fix de run-jasmine.js en una copia temporal fuera del repo.
+```
+
+**Ajustes y decisiones:**
+- **MOMENTO 1 restaurado.** Las rondas anteriores habían reemplazado en el MOMENTO 1 los "[Librería a definir]" por Chart.js y `GraficoService`. Eso reescribía la planificación después de ejecutarla. Se volvió el MOMENTO 1 (líneas 13 a 181) byte a byte a su estado en `2d987a9`, comprobado con `diff` contra `git show 2d987a9:…`, y la instanciación quedó documentada en la sección 1.4.
+- **`run-jasmine.js` con falso verde.** Si Jasmine no cargaba o no ejecutaba ningún spec, el script imprimía `null` o "No specs found" y terminaba con 0. Ahora consulta `jsApiReporter` y termina con 1 si Jasmine no se cargó, si la corrida no terminó en 60 s, si no se ejecutó ningún spec, si quedó incompleta o si Jasmine informó errores globales. Si Jasmine no se cargó, falla en el acto, sin esperar el timeout. Evidencia en la sección 2.6.
+- **`TypeError` de Bootstrap.** Se reprodujo por HTTP con la semilla 95398, pero recién esperando 8 s después del fin de la corrida: 2 errores en `Toast.hide()`. Aislando specs con `?spec=` se identificó la causa en INT-RC15-01: los 3 clics seguidos dejaban 2 temporizadores de autohide huérfanos que `dispose()` no cancela. Se corrigió en el spec, sin tocar código de la app (sección 2.6).
+- **Issues nuevas.** Claude no crea issues: entregó los textos y la tester las creó en GitHub como #154 (canvas sin `id` en `GraficoService`), #155 (falso verde de `run-jasmine.js`), #156 (cookies del iframe de YouTube) y #157 (`TypeError` del Toast). Esos números figuran en este spec, en `changelog.md`, en los TC12/TC13 y en los dos `testing-doc.md`.
+
+#### 1.4. Instanciación de los casos
+
+El MOMENTO 1 se commiteó el 25/11/2026 (`09ba53e` y `2d987a9`), antes de que se mergearan la API y la librería. Por eso nombra la API de forma tentativa ("[API a definir]") y deja la librería sin definir ("[Librería a definir]"). Esos marcadores se conservan: muestran qué se sabía al planificar. La instanciación quedó registrada acá, con fecha y motivo.
+
+| Casos | Instanciados sobre | Fecha | Motivo |
+|---|---|---|---|
+| API-01 a API-14 y REG-03 | `api/proveedores.json` (catálogo de 3 proveedores, `version: 1`) y `ApiService` (`js/api/apiService.js`): `fetchData`, `obtenerProveedores`, `validarProveedor`, `sanitizarTexto`, `aCatalogo`, `filtrarPorCategoria`, `filtrarPorPrecioMaximo` y `resumirCatalogo`. Integración con el DOM mediante `construirCatalogo()` de `js/script.js`. | 27/11/2026 (`e1b4726`) | La PR #147 (`feature/dev-async-fetch-api`) se mergeó con esos nombres, que reemplazan a los tentativos de `spec-dev-async-fetch.md`. El "recurso" de la API es el JSON estático servido por GitHub Pages, así que en los tests `fetch` se mockea siempre y nunca se llama a la red. |
+| LIB-01 a LIB-06 | **Chart.js 4.4.7** (`dist/chart.umd.js`) mediante `GraficoService` (`js/charts/graficoService.js`: `renderizar()` y `destruir()`) y las funciones del controlador `pintarGrafico()`, `actualizarGraficoPresupuesto()` y `actualizarGraficoCatalogo()`: dona de gasto por categoría (Presupuesto) y barras de proveedores por categoría (Catálogo). | 27/11/2026 (`07fdf36`) | El equipo eligió Chart.js en la PR #149 (`feature/dev-libreria-externa-chartjs`, issue #148), mergeada en `develop` @ `c8d7338`. Los 6 casos genéricos se instanciaron sin cambiar su sentido: el contenedor es un `<canvas>`, la "falla del CDN" es `window.Chart` ausente y la interacción con el sistema es la salida de `ApiService.resumirCatalogo()`. |
+| TC13 (post-librería) | Merge de la PR #149 en `develop` @ `c8d7338`. | 27/11/2026 (`7ece489`) | La fila del TC13 del MOMENTO 1 dice "después del merge de la rama de la librería externa"; esa rama resultó ser `feature/dev-libreria-externa-chartjs`. |
+
+#### 1.5. Decisiones de herramienta y de ubicación
+
+- **Claude Code y no Copilot Agent.** La tarea no era solo escribir código: había que ejecutar la suite y verificar empíricamente cada afirmación. Claude Code corre comandos en la terminal del proyecto, así que pudo ejecutar `npm test` varias veces con semillas distintas, levantar Playwright para las capturas, la corrida con la red bloqueada y las reproducciones de los bugs, correr las tres corridas de Lighthouse CLI del TC13 y comparar hashes del sitio publicado contra `origin/develop`. Cada número de este spec sale de esas ejecuciones. Con un asistente que solo propone código, esas verificaciones habrían quedado manuales. Además, se pudo restringir por prompt a solo lectura en git, lo que mantuvo los commits en manos de la tester.
+- **`docs/04-testing/` y no `/docs/03-testing/`.** La consigna nombra `/docs/03-testing/`, pero en este repositorio `docs/03-specs/` ya ocupa el prefijo 03 y los Test Cases 1 a 10 de las entregas anteriores están en `docs/04-testing/`, junto con su `testing-doc.md` y sus capturas. Los TC11, TC12 y TC13 se guardaron en la misma carpeta, para mantener la numeración y los enlaces de los test cases anteriores en un único lugar.
+
 ### 2. Resultados de ejecución de la suite Jasmine
 
 #### 2.1. Ejecución de `npm test` con `api.spec.js` y REG-03
@@ -382,22 +421,105 @@ Los 6 specs nuevos son LIB-01 a LIB-06. Además, `library.spec.js` se ejecutó 5
 | LIB-05 | ✅ Pasa | Sin `window.Chart`, `renderizar()` devuelve `null` sin lanzar. El presupuesto sigue calculando ($510.000) y la búsqueda del catálogo sigue funcionando ("1 proveedor encontrado"). Los dos gráficos muestran "El gráfico no está disponible: no se pudo cargar la librería Chart.js." y `#aviso-app` no aparece. Con `Chart` restaurado, el siguiente recálculo vuelve a dibujar. |
 | LIB-06 | ✅ Pasa | Las barras reciben exactamente la salida de `ApiService.resumirCatalogo()` (espiada con `callThrough`): las etiquetas son `Object.keys(resumen)` y los datos, las cantidades, sin transformar. También siguen el filtro por categoría. Con un filtro sin resultados muestran "No hay proveedores para graficar con este filtro."; mientras carga, "Cargando el gráfico del catálogo…"; y en el fallback tras un HTTP 500, "El gráfico estará disponible cuando se cargue el catálogo actualizado.", también al buscar. Una carga exitosa posterior vuelve a mostrar el gráfico. |
 
-Ningún caso quedó en `pending`. El único hallazgo, latente (dos canvas sin `id` en `GraficoService`), no afecta a la app y quedó como borrador de issue (sección 1.2).
+Ningún caso quedó en `pending`. El único hallazgo, latente (dos canvas sin `id` en `GraficoService`), no afecta a la app y quedó como issue [#154](https://github.com/carolabenvenuto-uces/planit/issues/154) (sección 4).
+
+#### 2.6. Correcciones de la review: `run-jasmine.js` e INT-RC15-01
+
+**Falso verde de `run-jasmine.js`.** Se probó en copias temporales del repositorio, fuera de la carpeta del proyecto (sin `node_modules` ni `.git`), cada una con una sola cosa rota, comparando el script de HEAD con el corregido:
+
+| Escenario | `run-jasmine.js` anterior (HEAD `7ece489`) | `run-jasmine.js` corregido |
+|---|---|---|
+| Copia sin cambios | `350 specs, 0 failures` · exit 0 | `350 specs, 0 failures` · exit 0 |
+| Sin ningún `<script>` de spec en `test-runner.html` | "Incomplete: No specs found" · **exit 0 (falso verde)** | `ERROR: No se ejecutó ningún spec.` · exit 1 |
+| `vendor/jasmine-5.10.0/boot1.js` vacío (Jasmine carga pero no arranca) | `null` · **exit 0 (falso verde)** | `ERROR: La corrida de Jasmine no terminó en 60 s.` · exit 1 |
+| Sin `vendor/jasmine-5.10.0/jasmine.js` | `null` · exit 1, solo porque hubo errores de consola | `ERROR: Jasmine no se cargó…` · exit 1 en 1 s, sin esperar el timeout |
+
+**`TypeError` en `Toast.hide()`.** Por HTTP, con la semilla 95398 y esperando 8 s después del fin de la corrida, aparecían 2 `TypeError: Cannot read properties of null (reading 'classList')` en `Toast.hide()` → `isShown()`, en 5 de 5 corridas. Con `?spec=` se aisló el origen: INT-RC15-01 daba 2 errores; INT-RC15-02 e INT-RC14-05, que muestran el Toast una sola vez, 0. Los 3 clics seguidos de INT-RC15-01 programaban 3 autohide de 4000 ms y Bootstrap solo guarda el último, así que `dispose()` dejaba 2 huérfanos. Como la corrida termina antes de esos 4 s y `run-jasmine.js` cierra la página a los 300 ms, el error quedaba fuera de la corrida y no lo veía nadie. INT-RC15-01 ahora espera `shown.bs.toast` entre clic y clic, y cada `show()` cancela el temporizador anterior. No se tocó código de la app.
+
+| Verificación después de la corrección (por HTTP, esperando 6–8 s tras el fin) | Specs | Failures | Errores |
+|---|---|---|---|
+| Solo INT-RC15-01, semilla 95398 | 1 | 0 | 0 |
+| Suite completa, semilla 95398 (3 corridas) | 350 | 0 | 0 |
+| Suite completa, 5 semillas aleatorias (69524, 46092, 58756, 18785 y 45787) | 350 | 0 | 0 |
+
+**`npm test` con todos los cambios de la review:**
+
+| Ejecución | Semilla | Specs | Failures | Errores de consola | Exit code |
+|---|---|---|---|---|---|
+| 1 | 47243 | 350 | 0 | 0 | 0 |
+| 2 | 34125 | 350 | 0 | 0 | 0 |
+| 3 (archivos finales) | 06068 | 350 | 0 | 0 | 0 |
+| 4 (archivos finales) | 92483 | 350 | 0 | 0 | 0 |
 
 ### 3. Resultados de las auditorías Lighthouse (Test Cases 11, 12 y 13)
+
+**Umbral de aceptación: ≥ 95 en cada categoría.** Lo pide la consigna del Segundo Parcial para las cuatro categorías auditadas, y se fijó como umbral de aceptación en la sección 2 del TC11, que los TC12 y TC13 mantienen sin cambios. Es independiente del criterio de **regresión** del MOMENTO 1 (sección 3.3: caída de 5 puntos o más, o cambio de calificación de LCP, TBT o CLS). Por eso un test case puede no pasar el umbral sin tener regresión: es lo que ocurre con Best Practices.
 
 Medianas de 3 corridas en modo Desktop, sobre [carolabenvenuto-uces.github.io/planit](https://carolabenvenuto-uces.github.io/planit/), con Lighthouse 13.6.0:
 
 | Test Case | Estado auditado | Perf. | Acc. | BP | SEO | FCP | LCP | TBT | CLS | SI | Veredicto |
 |---|---|---|---|---|---|---|---|---|---|---|---|
 | [11 – Baseline](../../04-testing/test-case-11-lighthouse-baseline.md) | `master` (= `develop` tras la AO4) | 95 | 97 | 92 | 91 | 0,89 s | 0,96 s | 0 ms | 0,071 | 1,42 s | Línea base (sin veredicto) |
-| [12 – Post-fetch](../../04-testing/test-case-12-lighthouse-post-fetch.md) | `develop` @ `6aae3d8` (PR #147) | 96 | 97 | 92 | 100 | 0,80 s | 1,14 s | 0 ms | 0,071 | 1,07 s | ✅ Pasa con observaciones |
-| [13 – Post-librería](../../04-testing/test-case-13-lighthouse-post-library.md) | `develop` @ `c8d7338` (PR #149) | 96 | 97 | 92 | 100 | 0,84 s | 1,15 s | 0 ms | 0,061 | 0,98 s | ✅ Pasa con observaciones |
+| [12 – Post-fetch](../../04-testing/test-case-12-lighthouse-post-fetch.md) | `develop` @ `6aae3d8` (PR #147) | 96 | 97 | 92 | 100 | 0,80 s | 1,14 s | 0 ms | 0,071 | 1,07 s | ❌ NO PASA en Best Practices – sin regresión |
+| [13 – Post-librería](../../04-testing/test-case-13-lighthouse-post-library.md) | `develop` @ `c8d7338` (PR #149) | 96 | 97 | 92 | 100 | 0,84 s | 1,15 s | 0 ms | 0,061 | 0,98 s | ❌ NO PASA en Best Practices – sin regresión |
 
-**Test Case 13:** ejecutado el 27/11/2026, después de verificar que Pages servía `develop` @ `c8d7338`: el SHA-256 de `index.html`, `js/script.js`, `js/charts/graficoService.js` y `api/proveedores.json` coincide con el de `origin/develop`, y `api/proveedores.json` responde 200. **No hay regresión** respecto del TC12: las cuatro categorías quedan igual, y LCP (+0,01 s), TBT y CLS (−0,010) conservan su calificación. Chart.js agrega 59,0 KiB transferidos (el 96 % del aumento de peso de la página) y unos 190 ms de CPU, sin bloquear el renderizado y con TBT de 0 ms. El elemento LCP sigue siendo `span#resumen-alerta-texto`. El CLS sale del `<tfoot>` del presupuesto (#150) y de `header-actions`, no de los gráficos. Las auditorías que fallan son las mismas del TC12: `color-contrast` (#140), `errors-in-console` por el favicon (#142) e `inspector-issues` por el iframe de YouTube. Se suma una observación sin peso en el puntaje: 25,8 KiB de JavaScript sin usar en `chart.umd.js`, en una de las tres corridas. Veredicto: **PASA CON OBSERVACIONES**, porque Best Practices (92) sigue por debajo del umbral de 95 y el LCP sigue en el límite de "buena".
+**Test Case 13:** ejecutado el 27/11/2026, después de verificar que Pages servía `develop` @ `c8d7338`: el SHA-256 de `index.html`, `js/script.js`, `js/charts/graficoService.js` y `api/proveedores.json` coincide con el de `origin/develop`, y `api/proveedores.json` responde 200. **No hay regresión** respecto del TC12: las cuatro categorías quedan igual, y LCP (+0,01 s), TBT y CLS (−0,010) conservan su calificación. Chart.js agrega 59,0 KiB transferidos (el 96 % del aumento de peso de la página) y unos 190 ms de CPU, sin bloquear el renderizado y con TBT de 0 ms. El elemento LCP sigue siendo `span#resumen-alerta-texto`. El CLS sale del `<tfoot>` del presupuesto (#150) y de `header-actions`, no de los gráficos. Las auditorías que fallan son las mismas del TC12: `color-contrast` (#140), `errors-in-console` por el favicon (#142) e `inspector-issues` por el iframe de YouTube ([#156](https://github.com/carolabenvenuto-uces/planit/issues/156)). Se suma una observación sin peso en el puntaje: 25,8 KiB de JavaScript sin usar en `chart.umd.js`, en una de las tres corridas.
+
+**Veredicto del TC12 y del TC13: NO PASA en Best Practices – sin regresión.** Performance, Accessibility y SEO superan el umbral de 95, pero Best Practices queda en **92** en los tres momentos del parcial. Según el reporte JSON de la corrida mediana, la categoría promedia 26 auditorías con peso 1 y fallan 2: `errors-in-console`, por el 404 de `favicon.ico` en la raíz del dominio ([#142](https://github.com/carolabenvenuto-uces/planit/issues/142)), e `inspector-issues`, por el aviso de cookies del iframe de `youtube-nocookie.com` ([#156](https://github.com/carolabenvenuto-uces/planit/issues/156)). 24/26 = 0,92. Corregir cualquiera de las dos lleva la categoría a 96 (25/26) y corregir ambas, a 100. Las dos causas ya estaban en la línea base del TC11, así que ninguna PR del parcial introdujo una regresión. En el TC13, el LCP sigue además en el límite de "buena".
+
+**Capturas del resumen de cada auditoría** (corrida mediana; el resto de las capturas está en cada test case):
+
+| TC11 – Baseline | TC12 – Post-fetch | TC13 – Post-librería |
+|---|---|---|
+| ![TC11: Performance 95, Accessibility 97, Best Practices 92, SEO 91](../../04-testing/screenshots/lighthouse-baseline-summary.png) | ![TC12: Performance 96, Accessibility 97, Best Practices 92, SEO 100](../../04-testing/screenshots/lighthouse-post-fetch-summary.png) | ![TC13: Performance 96, Accessibility 97, Best Practices 92, SEO 100](../../04-testing/screenshots/lighthouse-post-library-summary.png) |
 
 ### 4. Bugs y regresiones reportados
-*(A completar al cierre.)*
+
+**Regresiones: ninguna.** Ni la PR #147 ni la PR #149 hicieron caer una categoría de Lighthouse 5 puntos o más ni cambiaron la calificación de LCP, TBT o CLS (sección 3), y la suite completa siguió en verde después de cada merge (REG-04).
+
+**Issues reportadas por QA en el Segundo Parcial: 12.** 6 salieron del TC11 (#140 a #145), 2 del TC12 y de la review de la PR #147 (#150 y #151) y 4 de la review de la PR #152. Estado al 27/11/2026, leído de la API pública de GitHub; las 4 nuevas (#154 a #157) se crearon a partir de los textos entregados con esta corrección.
+
+| Issue | Título | Origen | Asignada a | Estado |
+|---|---|---|---|---|
+| [#140](https://github.com/carolabenvenuto-uces/planit/issues/140) | [A11y] Contraste insuficiente en botones "Marcar pendiente" y "Eliminar" de la tabla de invitados | TC11 (A1) | @FacundoGuiraldes (Dev Librerías Externas) | Abierta. Sigue fallando `color-contrast` en el TC12 y el TC13. |
+| [#141](https://github.com/carolabenvenuto-uces/planit/issues/141) | [SEO] Agregar meta description a index.html | TC11 (S1) | @carolabenvenuto-uces (Dev Async) | Abierta. **Verificada en el TC12** (SEO 91 → 100): puede cerrarse. |
+| [#142](https://github.com/carolabenvenuto-uces/planit/issues/142) | [Best Practices] Error 404 en consola por falta de favicon | TC11 (B1) | @FacundoGuiraldes (Dev Librerías Externas) | Abierta. Una de las 2 causas de Best Practices 92 en el TC12 y el TC13. |
+| [#143](https://github.com/carolabenvenuto-uces/planit/issues/143) | [Performance] Imágenes del catálogo sobredimensionadas | TC11 (P1) | @carolabenvenuto-uces (Dev Async) | Abierta. **Verificada en el TC12** (ahorro de 485 → 55 KiB; página de 1731 → 1305 KiB): puede cerrarse. |
+| [#144](https://github.com/carolabenvenuto-uces/planit/issues/144) | [A11y] El nombre accesible de "Sumar al Evento" no incluye el texto visible | TC11 (A2) | @carolabenvenuto-uces (Dev Async) | Abierta. **Verificada en el TC12** (`label-content-name-mismatch` aprobada): puede cerrarse. |
+| [#145](https://github.com/carolabenvenuto-uces/planit/issues/145) | [Performance] Cadena de CSS que bloquea el renderizado (@import de Google Fonts) | TC11 (P3) | @FacundoGuiraldes (Dev Librerías Externas) | Abierta. Sigue siendo el principal riesgo para el LCP en el TC13. |
+| [#150](https://github.com/carolabenvenuto-uces/planit/issues/150) | [Dev Eventos+DOM] CLS de 0,068 por el tfoot de la tabla de presupuesto | TC12 (P2) | @FacundoGuiraldes | Abierta. En el TC13 el `<tfoot>` aporta 0,059. |
+| [#151](https://github.com/carolabenvenuto-uces/planit/issues/151) | [Dev Async] El spinner del catálogo queda girando si también falla el fallback | Review de la PR #147 | @carolabenvenuto-uces (Dev Async) | Abierta. **Re-verificada el 27/11/2026: se sigue reproduciendo** (ver abajo). |
+| [#156](https://github.com/carolabenvenuto-uces/planit/issues/156) | [Best Practices] Aviso de cookies del iframe de YouTube en el panel Issues | TC11 a TC13 (B2) | @FacundoGuiraldes (Dev Librerías Externas) | Nueva. La otra causa de Best Practices 92. |
+| [#154](https://github.com/carolabenvenuto-uces/planit/issues/154) | [Dev Librerías Externas] GraficoService: dos canvas sin id comparten la clave y el segundo gráfico destruye al primero | `library.spec.js` (sección 1.2) | @FacundoGuiraldes (Dev Librerías Externas) | Nueva. Latente, prioridad baja: los canvas de la app tienen `id`. |
+| [#155](https://github.com/carolabenvenuto-uces/planit/issues/155) | [Tester QA] run-jasmine.js termina con exit 0 si Jasmine no carga o no ejecuta specs | Review de la PR #152 | @ValeriaMSilva (Tester QA/JS) | Nueva. **Corregida en esta PR** (sección 2.6); se cierra con el merge de la #152. |
+| [#157](https://github.com/carolabenvenuto-uces/planit/issues/157) | [Tester QA] TypeError "reading 'classList'" sin capturar por temporizadores huérfanos del Toast en INT-RC15-01 | Review de la PR #152 | @ValeriaMSilva (Tester QA/JS) | Nueva. **Corregida en esta PR** (sección 2.6); se cierra con el merge de la #152. |
+
+**Re-verificación de la #151 sobre `develop` @ `c8d7338` (27/11/2026).** `js/script.js` de `develop` es idéntico al de esta rama, y el `.catch` de `iniciarCargaCatalogo()` sigue igual: solo llama a `renderAvisoGlobal()` con `error.message`. Se reprodujo con Playwright sobre `index.html` servido en `localhost`, sin modificar el repositorio: `api/proveedores.json` respondiendo HTTP 500 y `CatalogoProveedores.fromJSON` reemplazado en la página por una función que lanza, para simular que también falla el fallback.
+
+| Criterio de aceptación de la #151 | Resultado a los 15 s | ¿Cumple? |
+|---|---|---|
+| No queda el spinner | `#contenedor-catalogo` sigue con el spinner y "Cargando proveedores…", 0 tarjetas | ❌ |
+| Mensaje amigable, sin el texto técnico | `#aviso-app` muestra "No se pudo cargar el catálogo: fallo simulado del fallback"; `#catalogo-vacio` sigue oculto | ❌ |
+| Controles habilitados | Búsqueda y filtro de categoría habilitados (los rehabilita el `finally` de `construirCatalogo()`) | ✅ |
+| 0 Uncaught y 0 `unhandledrejection` | 0 `pageerror` y 0 `unhandledrejection` | ✅ |
+
+La issue sigue abierta y vigente: faltan los dos primeros criterios.
 
 ### 5. Checklist de cierre
-*(A completar al cierre.)*
+
+Ítems de la sección 5 del MOMENTO 1, con su evidencia:
+
+- [x] `spec-tester-qa-segundo-parcial.md` commiteado antes que cualquier test nuevo y antes de la primera auditoría: `09ba53e` (25/11, 11:22), antes de la corrida del TC11 (25/11, 11:38) y de `api.spec.js` (`e1b4726`, 27/11). El MOMENTO 1 sigue igual que en `2d987a9` (sección 1.3).
+- [x] Test Case 11 (baseline) ejecutado y documentado antes del merge de cualquier feature del parcial: corrida del 25/11 sobre `master` @ `62e7e33`, antes del merge de la PR #147 (`6aae3d8`, 26/11); commit `ae59112`.
+- [x] `js/test/api.spec.js` con casos de éxito, error HTTP, error de red, procesamiento con `map`/`filter`/`reduce` e integración con el DOM, sin dependencia de la red: API-01 a API-14, todos con `fetch` mockeado (sección 2.2).
+- [x] `js/test/library.spec.js` con casos de inicialización, configuración, funcionalidad principal, manejo de errores e interacción con el sistema: LIB-01 a LIB-06 (sección 2.5).
+- [x] `script.spec.js` y `models.spec.js` actualizados si cambian el controlador o las clases POO: el Flujo 3 de `script.spec.js` se adaptó al catálogo cargado con `fetch` (REG-03). Las clases POO no cambiaron en el parcial (`git diff fe2a056 c8d7338 -- js/models` vacío), así que REG-01 y REG-02 no aplican y `models.spec.js` no se modificó. INT-RC15-01 se corrigió en la review (sección 2.6).
+- [x] `js/test/test-runner.html` actualizado con los nuevos scripts y specs: `api.spec.js`, `library.spec.js`, `apiService.js`, `graficoService.js`, Chart.js y el stub de `fetch`, y las librerías en `vendor/` (sección 2.3).
+- [x] Suite completa ejecutada con `npm test`, con 0 fallas y el resultado documentado: 350 specs, 0 failures, exit 0 (secciones 2.4 y 2.6), también con la red bloqueada (sección 2.3). `run-jasmine.js` ya no puede dar un falso verde (sección 2.6).
+- [x] Test Case 12 (post-fetch) ejecutado y documentado después del merge de `feature/dev-async-fetch-api`: corrida del 26/11, 12:41, sobre `develop` @ `6aae3d8` (merge de las 12:12) — [test-case-12-lighthouse-post-fetch.md](../../04-testing/test-case-12-lighthouse-post-fetch.md).
+- [x] Test Case 13 (post-librería) ejecutado y documentado después del merge de la librería: corrida del 27/11, 20:02, sobre `develop` @ `c8d7338` (merge de las 19:42) — [test-case-13-lighthouse-post-library.md](../../04-testing/test-case-13-lighthouse-post-library.md).
+- [x] `js/test/testing-doc.md` y `docs/04-testing/testing-doc.md` actualizados con las suites y auditorías nuevas: suites API y LIB, REG-03, runner sin red y 350 specs; TC12 y TC13 en la tabla de 13 test cases, con su veredicto.
+- [x] Bugs y regresiones reportados como issues en GitHub, asignados al rol correspondiente: 12 issues, sin regresiones (sección 4). Las 4 nuevas son #154 a #157.
+- [x] Contribución registrada en `changelog.md` con enlaces a la PR y a la issue: entrada de la #152 en "[Release Segundo Parcial] - 2026-11-27", con el mismo texto que la PR #153 más las 4 issues nuevas.
+
+**Pendiente fuera de esta rama:** Best Practices no alcanza el umbral de 95 hasta que se corrija #142 o #156 (cualquiera de las dos alcanza), y #141, #143 y #144 pueden cerrarse por la verificación del TC12.

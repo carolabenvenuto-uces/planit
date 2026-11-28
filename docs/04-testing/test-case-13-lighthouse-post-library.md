@@ -21,7 +21,7 @@ Medir con Lighthouse el sitio publicado de PlanIT **después del merge de `featu
 | **Modo** | Desktop (`--preset=desktop`): pantalla emulada de 1350 px de ancho, limitación simulada de red (RTT 40 ms, 10 Mbps) y sin limitación de CPU |
 | **Método** | 3 corridas consecutivas con Lighthouse CLI; se informa la mediana de cada categoría y de cada métrica |
 | **Corrida mediana** | Corrida 3 (ver la nota de la sección 3.3) |
-| **Resultado** | ✅ **PASA CON OBSERVACIONES** (sin regresión respecto del TC12; ver sección 7) |
+| **Resultado** | ❌ **NO PASA en Best Practices – sin regresión** (Best Practices 92 contra un umbral de 95; ninguna regresión respecto del TC12 ni del TC11; ver sección 7) |
 
 ### Comando ejecutado
 
@@ -172,9 +172,11 @@ Reportes completos de la corrida mediana: [lighthouse-post-library-report.html](
 | # | Hallazgo | Detalle | Impacto | Issue |
 |---|---|---|---|---|
 | B1 | **Error 404 en la consola por `favicon.ico`** | Sin cambios: el navegador pide `https://carolabenvenuto-uces.github.io/favicon.ico` (raíz del dominio) y recibe 404. | Hace fallar `errors-in-console`. | [#142](https://github.com/carolabenvenuto-uces/planit/issues/142) |
-| B2 | Aviso de cookies en el panel *Issues* | Sin cambios: lo genera el iframe de `www.youtube-nocookie.com/embed/5vi0UQDYNCw`. | Hace fallar `inspector-issues`. Proviene de un tercero. | Sin issue (observación) |
+| B2 | Aviso de cookies en el panel *Issues* | Sin cambios: lo genera el iframe de `www.youtube-nocookie.com/embed/5vi0UQDYNCw`. | Hace fallar `inspector-issues`. Proviene de un tercero. | [#156](https://github.com/carolabenvenuto-uces/planit/issues/156) |
 
 > Best Practices obtiene el mismo puntaje que en el TC11 y el TC12 (92), por los mismos dos motivos. **Chart.js no agrega errores de consola** en ninguna de las tres corridas: el único error es el 404 del favicon.
+>
+> **Cálculo del puntaje** (reporte JSON de la corrida mediana): la categoría promedia 26 auditorías con peso 1 y fallan 2, `errors-in-console` (B1) e `inspector-issues` (B2): 24/26 = 0,92. Corregir cualquiera de las dos deja 25/26 ≈ 0,96, por encima del umbral de 95; corregir las dos, 100.
 
 ### 5.4. SEO (100 · cumple)
 
@@ -190,6 +192,7 @@ Sin auditorías fallidas.
 | [#142](https://github.com/carolabenvenuto-uces/planit/issues/142) | [Best Practices] Error 404 en consola por falta de favicon | Best Practices | Sigue abierta: el 404 persiste. | Desarrollador/a JS Librerías Externas |
 | [#145](https://github.com/carolabenvenuto-uces/planit/issues/145) | [Performance] Cadena de CSS que bloquea el renderizado (@import de Google Fonts) | Performance | Sigue abierta: el `@import` persiste y sigue siendo el principal riesgo para el LCP. | Desarrollador/a JS Librerías Externas |
 | [#150](https://github.com/carolabenvenuto-uces/planit/issues/150) | [Dev Eventos+DOM] CLS de 0,068 por el tfoot de la tabla de presupuesto | Performance | Sigue abierta: el `<tfoot>` aporta 0,059 (TC12: 0,068). | Dev Eventos+DOM |
+| [#156](https://github.com/carolabenvenuto-uces/planit/issues/156) | [Best Practices] Aviso de cookies del iframe de YouTube en el panel Issues | Best Practices | Abierta: el aviso persiste (hallazgo B2). Creada en la review de la PR #152. | Desarrollador/a JS Librerías Externas |
 
 Las issues #141, #143 y #144, verificadas en el TC12, no cambian: SEO sigue en 100, el ahorro en imágenes sigue en 55 KiB y `label-content-name-mismatch` sigue aprobada.
 
@@ -197,10 +200,10 @@ Las issues #141, #143 y #144, verificadas en el TC12, no cambian: SEO sigue en 1
 
 ## 7. Conclusiones
 
-1. **Veredicto: PASA CON OBSERVACIONES.** Con todas las features del parcial integradas, el sitio obtiene medianas de **96 / 97 / 92 / 100** (Performance / Accessibility / Best Practices / SEO) en modo Desktop, **las mismas que en el TC12**. Ninguna categoría baja y LCP, TBT y CLS mantienen su calificación, así que **no hay regresión** respecto del TC12 ni de la línea base del TC11. No es un PASA sin observaciones porque Best Practices (92) sigue por debajo del umbral de 95 y el LCP sigue en el límite de "buena".
+1. **Veredicto: NO PASA en Best Practices – sin regresión.** Con todas las features del parcial integradas, el sitio obtiene medianas de **96 / 97 / 92 / 100** (Performance / Accessibility / Best Practices / SEO) en modo Desktop, **las mismas que en el TC12**. Performance, Accessibility y SEO alcanzan el umbral de 95 (sección 2); **Best Practices (92) no lo alcanza**, por el 404 de `favicon.ico` (#142) y el aviso de cookies del iframe de YouTube ([#156](https://github.com/carolabenvenuto-uces/planit/issues/156)). Ninguna categoría baja y LCP, TBT y CLS mantienen su calificación, así que **no hay regresión** respecto del TC12 ni de la línea base del TC11: las dos causas ya estaban en el TC11 y Chart.js no agrega ninguna. Además, el LCP sigue en el límite de "buena".
 2. **Costo de Chart.js:** suma 59,0 KiB transferidos (el 96 % del aumento de peso de la página, de 1305 a 1367 KiB) y unos 190 ms de CPU, pero se descarga con `defer` y en paralelo, no bloquea el renderizado y no genera tareas largas (TBT 0 ms). El LCP sube solo 0,01 s y el CLS baja de 0,071 a 0,061: el alto fijo de los gráficos evitó los desplazamientos que preveía el spec como riesgo post-librería.
 3. **Observaciones:**
-   - **Best Practices 92, igual que en el TC11 y el TC12:** el 404 de `favicon.ico` (#142) y el aviso de cookies del iframe de YouTube. Chart.js no agrega errores de consola.
+   - **Best Practices 92, igual que en el TC11 y el TC12:** el 404 de `favicon.ico` (#142) y el aviso de cookies del iframe de YouTube ([#156](https://github.com/carolabenvenuto-uces/planit/issues/156)). Chart.js no agrega errores de consola. Corregir cualquiera de las dos causas lleva la categoría a 96 (sección 5.3).
    - **LCP en el límite de "buena":** 1,15 s de mediana, con la corrida mediana en un puntaje de 0,90. El elemento LCP sigue siendo el texto de la alerta del resumen de presupuesto, no un gráfico; la causa principal sigue siendo la cadena de CSS de #145.
    - **JavaScript sin usar en `chart.umd.js`** (25,8 KiB, solo en una corrida): es el costo del build UMD completo por CDN que eligió la PR #149. No tiene peso en el puntaje.
    - **Accessibility 97 con `color-contrast`** fallando en los mismos botones que en el TC11 y el TC12 (#140).

@@ -2,9 +2,12 @@
 
 ## [Unreleased]
 
+## [Release Segundo Parcial] - 2026-11-27
+
 ### Added
 - [feature/dev-async-fetch-api] feature/dev-async-fetch-api: [Dev Async Fetch] Consumo asíncrono del catálogo de proveedores con fetch - Segundo Parcial PR: [#147](https://github.com/carolabenvenuto-uces/planit/pull/147) | Issue: [#138](https://github.com/carolabenvenuto-uces/planit/issues/138) - @carolabenvenuto-uces (Desarrolladora JS Asíncrono - Fetch & APIs)
 - [feature/dev-libreria-externa-chartjs] feature/dev-libreria-externa-chartjs: [Dev Librerías Externas] Integrar Chart.js para visualizar presupuesto y catálogo - Segundo Parcial PR: [#149](https://github.com/carolabenvenuto-uces/planit/pull/149) | Issue: [#148](https://github.com/carolabenvenuto-uces/planit/issues/148) - @FacundoGuiraldes (Desarrollador JS Librerías Externas)
+- [feature/tester-qa-js-testing-suite] feature/tester-qa-js-testing-suite: test(qa): suite del segundo parcial — api.spec, library.spec, runner sin red, TC12 y TC13 PR: [#152](https://github.com/carolabenvenuto-uces/planit/pull/152) | Issue: [#139](https://github.com/carolabenvenuto-uces/planit/issues/139) | Issues de QA creados: [#140](https://github.com/carolabenvenuto-uces/planit/issues/140), [#141](https://github.com/carolabenvenuto-uces/planit/issues/141), [#142](https://github.com/carolabenvenuto-uces/planit/issues/142), [#143](https://github.com/carolabenvenuto-uces/planit/issues/143), [#144](https://github.com/carolabenvenuto-uces/planit/issues/144), [#145](https://github.com/carolabenvenuto-uces/planit/issues/145), [#150](https://github.com/carolabenvenuto-uces/planit/issues/150), [#151](https://github.com/carolabenvenuto-uces/planit/issues/151), [#156](https://github.com/carolabenvenuto-uces/planit/issues/156), [#154](https://github.com/carolabenvenuto-uces/planit/issues/154), [#155](https://github.com/carolabenvenuto-uces/planit/issues/155), [#157](https://github.com/carolabenvenuto-uces/planit/issues/157) - @ValeriaMSilva (Coordinadora/DevOps + Tester QA/JS - Testing Avanzado)
 
 ## [Release Actividad Obligatoria N°4] - 2026-11-23
 

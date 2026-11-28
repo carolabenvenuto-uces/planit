@@ -21,7 +21,7 @@ Medir con Lighthouse el sitio publicado de PlanIT **después del merge de `featu
 | **Modo** | Desktop (`--preset=desktop`): pantalla emulada de 1350 px de ancho, limitación simulada de red (RTT 40 ms, 10 Mbps) y sin limitación de CPU |
 | **Método** | 3 corridas consecutivas con Lighthouse CLI; se informa la mediana de cada categoría y de cada métrica |
 | **Corrida mediana** | Corrida 3 (su puntaje de Performance, 96, coincide con la mediana) |
-| **Resultado** | ✅ **PASA CON OBSERVACIONES** (sin regresión respecto del TC11; ver sección 7) |
+| **Resultado** | ❌ **NO PASA en Best Practices – sin regresión** (Best Practices 92 contra un umbral de 95; ninguna regresión respecto del TC11; ver sección 7) |
 
 ### Comando ejecutado
 
@@ -159,9 +159,11 @@ Reportes completos de la corrida mediana: [lighthouse-post-fetch-report.html](sc
 | # | Hallazgo | Detalle | Impacto | Issue |
 |---|---|---|---|---|
 | B1 | **Error 404 en la consola por `favicon.ico`** | Sin cambios: el navegador pide `https://carolabenvenuto-uces.github.io/favicon.ico` (raíz del dominio) y recibe 404. | Hace fallar `errors-in-console`. | [#142](https://github.com/carolabenvenuto-uces/planit/issues/142) |
-| B2 | Aviso de cookies en el panel *Issues* | Sin cambios: lo genera el iframe de `www.youtube-nocookie.com/embed/5vi0UQDYNCw`. | Hace fallar `inspector-issues`. Proviene de un tercero. | Sin issue (observación) |
+| B2 | Aviso de cookies en el panel *Issues* | Sin cambios: lo genera el iframe de `www.youtube-nocookie.com/embed/5vi0UQDYNCw`. | Hace fallar `inspector-issues`. Proviene de un tercero. | [#156](https://github.com/carolabenvenuto-uces/planit/issues/156) |
 
 > Best Practices obtiene exactamente el mismo puntaje que en el TC11 (92) por los mismos dos motivos. La PR #147 no agrega errores de consola: la carga del catálogo con `fetch` no generó ningún error en las tres corridas.
+>
+> **Cálculo del puntaje** (reporte JSON de la corrida mediana): la categoría promedia 26 auditorías con peso 1 y fallan 2, `errors-in-console` (B1) e `inspector-issues` (B2): 24/26 = 0,92. Corregir cualquiera de las dos deja 25/26 ≈ 0,96, por encima del umbral de 95; corregir las dos, 100.
 
 ### 5.4. SEO (100 · cumple)
 
@@ -179,16 +181,17 @@ Sin auditorías fallidas. La meta description agregada en la PR #147 (#141) resu
 | [#143](https://github.com/carolabenvenuto-uces/planit/issues/143) | [Performance] Imágenes del catálogo sobredimensionadas (485 KiB de ahorro estimado) | Performance | Verificada: 1305 KiB totales, ahorro residual de 55 KiB y Performance 96. Puede cerrarse. | Desarrolladora JS Asíncrono |
 | [#144](https://github.com/carolabenvenuto-uces/planit/issues/144) | [A11y] El nombre accesible de "Sumar al Evento" no incluye el texto visible | Accessibility | Verificada: `label-content-name-mismatch` aprobada. Puede cerrarse. | Desarrolladora JS Asíncrono |
 | [#145](https://github.com/carolabenvenuto-uces/planit/issues/145) | [Performance] Cadena de CSS que bloquea el renderizado (@import de Google Fonts) | Performance | Sigue abierta: el `@import` persiste y es el principal riesgo para el LCP. | Desarrollador/a JS Librerías Externas |
-| Pendiente | [Performance] CLS de 0,068 por el `<tfoot>` de la tabla de presupuesto | Performance | Borrador de issue nueva (hallazgo P2). El número se completará cuando se cree en GitHub. | A definir por Coordinación |
+| [#150](https://github.com/carolabenvenuto-uces/planit/issues/150) | [Dev Eventos+DOM] CLS de 0,068 por el tfoot de la tabla de presupuesto | Performance | Abierta (hallazgo P2). Creada después de este test case. | Dev Eventos+DOM |
+| [#156](https://github.com/carolabenvenuto-uces/planit/issues/156) | [Best Practices] Aviso de cookies del iframe de YouTube en el panel Issues | Best Practices | Abierta (hallazgo B2). Creada en la review de la PR #152. | Desarrollador/a JS Librerías Externas |
 
 ---
 
 ## 7. Conclusiones
 
-1. **Veredicto: PASA CON OBSERVACIONES.** El sitio con el catálogo asíncrono obtiene medianas de **96 / 97 / 92 / 100** (Performance / Accessibility / Best Practices / SEO) en modo Desktop. Ninguna categoría cae 5 puntos o más y LCP, TBT y CLS mantienen su calificación, así que **no hay regresión** respecto del TC11. Estos valores son la referencia para el TC13.
+1. **Veredicto: NO PASA en Best Practices – sin regresión.** El sitio con el catálogo asíncrono obtiene medianas de **96 / 97 / 92 / 100** (Performance / Accessibility / Best Practices / SEO) en modo Desktop. Performance, Accessibility y SEO alcanzan el umbral de 95 (sección 2); **Best Practices (92) no lo alcanza**, por el 404 de `favicon.ico` (#142) y el aviso de cookies del iframe de YouTube ([#156](https://github.com/carolabenvenuto-uces/planit/issues/156)). Ninguna categoría cae 5 puntos o más y LCP, TBT y CLS mantienen su calificación, así que **no hay regresión** respecto del TC11: Best Practices ya estaba en 92 en la línea base y la PR #147 no lo empeora. Estos valores son la referencia para el TC13.
 2. **Mejoras verificadas:** SEO sube de 91 a 100 (#141); el peso de la página baja de 1731 KiB a 1305 KiB y el Speed Index pasa de 1,42 s ("necesita mejoras") a 1,07 s ("buena") (#143); y el nombre accesible de "Sumar al Evento" ya cumple WCAG 2.5.3 (#144).
 3. **Observaciones:**
-   - **Best Practices 92, igual que en el TC11:** el 404 de `favicon.ico` en la raíz del dominio (#142) y el aviso de cookies del iframe de YouTube. Aunque se corrija #142, puede no llegar a 95 mientras siga el aviso del iframe.
+   - **Best Practices 92, igual que en el TC11:** el 404 de `favicon.ico` en la raíz del dominio (#142) y el aviso de cookies del iframe de YouTube ([#156](https://github.com/carolabenvenuto-uces/planit/issues/156)). Cada una resta una de las 26 auditorías con peso: corregir cualquiera de las dos lleva la categoría a 96 y corregir ambas, a 100 (sección 5.3).
    - **LCP en "buena", pero cerca del límite:** 1,14 s de mediana, con una corrida en naranja (1,21 s). El elemento LCP no es el catálogo sino el texto de la alerta del resumen de presupuesto. **Se vuelve a medir en el TC13**, donde el riesgo principal es que la librería externa sume recursos a la cadena de bloqueo de #145.
    - **El CLS (0,071) no proviene del catálogo:** 0,068 lo produce el `<tfoot>` de la tabla de presupuesto y 0,002 `header-actions`. La altura mínima del estado de carga evitó que la carga asíncrona sumara desplazamientos, que era el riesgo post-fetch previsto en el spec.
    - **Accessibility 97 con `color-contrast`** fallando en los mismos botones que en el TC11 (#140).
