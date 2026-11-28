@@ -664,11 +664,18 @@ describe("Integración - Controlador y UI (RC14, RC15, RC16)", function () {
             spyOn(bootstrap.Toast.prototype, "show").and.callThrough();
         });
 
-        it("INT-RC15-01: cada botón .btn-sumar-evento de las tarjetas debería mostrar el Toast de Bootstrap con su servicio", function () {
+        // async: entre clic y clic se espera `shown.bs.toast`. Cada show() que termina su
+        // transición programa el autohide (data-bs-delay, 4 s) y Bootstrap solo guarda el
+        // último temporizador. Con los 3 clics seguidos, los 2 primeros quedaban huérfanos:
+        // dispose() no los limpiaba y, 4 s después, hide() sobre la instancia ya liberada
+        // lanzaba "Cannot read properties of null (reading 'classList')" fuera de la
+        // corrida. Esperando `shown`, el show() siguiente cancela el temporizador anterior.
+        it("INT-RC15-01: cada botón .btn-sumar-evento de las tarjetas debería mostrar el Toast de Bootstrap con su servicio", async function () {
             const botones = botonesSumarTarjetas();
             expect(botones.length).toBe(3);
 
-            botones.forEach(function (boton, posicion) {
+            for (const [posicion, boton] of botones.entries()) {
+                const mostrado = esperarEvento(toast(), "shown.bs.toast");
                 boton.click();
 
                 expect(bootstrap.Toast.getOrCreateInstance).toHaveBeenCalledWith(toast());
@@ -677,7 +684,8 @@ describe("Integración - Controlador y UI (RC14, RC15, RC16)", function () {
                     .toBe(boton.dataset.serviceTitle + " · " + boton.dataset.servicePrice);
                 expect(document.getElementById("toastConfirmacionMensaje").textContent).toBe("Experiencia agregada a tu evento");
                 expect(toast().classList.contains("show")).toBe(true);
-            });
+                await mostrado;
+            }
         });
 
         it("INT-RC15-02: el botón .btn-sumar-evento del Modal debería mostrar el Toast de Bootstrap con el servicio abierto", function () {
