@@ -58,7 +58,7 @@ const MAPA_ERRORES_INVITADO = {
 const FORMATEADOR_NUMERO = new Intl.NumberFormat("es-AR", { maximumFractionDigits: 2 });
 
 /**
- * Datos semilla del dominio, usados solo cuando no hay estado persistido.
+ * Datos semilla del dominio, usados cuando no hay estado persistido o falla el catálogo.
  * Tienen exactamente la forma que producen los toJSON() de los modelos, así que
  * se convierten en instancias con Presupuesto.fromJSON(), ListaInvitados.fromJSON()
  * (vía Evento.fromJSON) y CatalogoProveedores.fromJSON(), que además los validan.
@@ -107,9 +107,8 @@ const PRESENTACION_ITEMS = Object.freeze({
 });
 
 /**
- * Metadatos de presentación de cada proveedor, por nombre (imagen, textos del
- * modal). Proveedor modela nombre, categoría, precio y unidad; lo demás es vista.
- * Un proveedor sin entrada acá se renderiza igual, sin imagen ni descripción.
+ * Metadatos de presentación de respaldo para los proveedores de la semilla.
+ * Los datos del catálogo actualizado provienen del JSON.
  */
 // La ruta se resuelve relativa a este archivo (js/script.js) y no a la página que
 // lo carga: así sirve igual desde index.html (raíz) y desde js/test/test-runner.html.
@@ -118,7 +117,7 @@ const RUTA_IMAGENES_CATALOGO = document.currentScript && document.currentScript.
     : "./docs/01-mockup/actividad-obligatoria-2/";
 const PRESENTACION_PROVEEDORES = Object.freeze({
     "Gourmet Finger Food": {
-        imagen: RUTA_IMAGENES_CATALOGO + "catalogo-gourmet-finger-food.jpg",
+        imagen: RUTA_IMAGENES_CATALOGO + "catalogo-gourmet-finger-food-450w.jpg",
         alt: "Mesa de catering con bandejas de mini sándwiches y bocados en varios niveles",
         descripcion: "Selección premium fría y caliente para recepción. Variedad para todos los gustos.",
         capacidad: "Hasta 200 pax",
@@ -127,7 +126,7 @@ const PRESENTACION_PROVEEDORES = Object.freeze({
         incluye: "Finger food frío y caliente, montaje y reposición"
     },
     "Flores Pilar": {
-        imagen: RUTA_IMAGENES_CATALOGO + "catalogo-flores-pilar.jpg",
+        imagen: RUTA_IMAGENES_CATALOGO + "catalogo-flores-pilar-450w.jpg",
         alt: "Centro de mesa con rosas y peonías rosadas sobre una mesa de salón de eventos",
         descripcion: "Centros de mesa personalizados y ramo para novias con flores naturales de estación.",
         capacidad: "1 evento por fecha",
@@ -136,7 +135,7 @@ const PRESENTACION_PROVEEDORES = Object.freeze({
         incluye: "Centros de mesa personalizados y ramo para novias"
     },
     "DJ Lucas & Sonido": {
-        imagen: RUTA_IMAGENES_CATALOGO + "catalogo-dj-lucas-sonido.jpg",
+        imagen: RUTA_IMAGENES_CATALOGO + "catalogo-dj-lucas-sonido-450w.jpg",
         alt: "DJ con auriculares mezclando en una consola frente a una pista iluminada",
         descripcion: "Equipamiento de audio completo de alta fidelidad, iluminación robótica y pista de baile.",
         capacidad: "Hasta 300 personas",
@@ -154,6 +153,8 @@ const estadoApp = {
     evento: null,            // Instancia de Evento (incluye Presupuesto y ListaInvitados)
     catalogo: null,          // Instancia de CatalogoProveedores
     tarjetasCatalogo: new Map(), // Proveedor -> nodo de la tarjeta en el DOM
+    presentacionProveedores: null,
+    errorCatalogo: false,
     persistencia: null       // Instancia de ServicioPersistenciaEvento (fachada)
 };
 
@@ -231,6 +232,8 @@ function obtenerReferenciasUI() {
         totalPresupuesto: porId("total-presupuesto"),
         btnCalcularPresupuesto: porId("btn-calcular-presupuesto"),
         alertaPresupuesto: porId("alerta-presupuesto"),
+        graficoPresupuesto: porId("grafico-presupuesto"),
+        avisoGraficoPresupuesto: porId("aviso-grafico-presupuesto"),
 
         // Resumen Financiero (barra lateral), sincronizado con el Flujo 2
         resumenPresupuestoTotal: porId("resumen-presupuesto-total"),
@@ -246,6 +249,8 @@ function obtenerReferenciasUI() {
         contenedorCatalogo: porId("contenedor-catalogo"),
         contadorCatalogo: porId("contador-catalogo"),
         catalogoVacio: porId("catalogo-vacio"),
+        graficoCatalogo: porId("grafico-catalogo"),
+        avisoGraficoCatalogo: porId("aviso-grafico-catalogo"),
 
         // Flujo 4: Gestionar invitados
         formInvitado: porId("form-invitado"),
@@ -825,7 +830,64 @@ function recalcularPresupuesto(ui) {
 
     // 4. Render y persistencia.
     renderDesglosePresupuesto(ui, resultado);
+    actualizarGraficoPresupuesto(ui, resultado);
     persistirEvento(ui);
+}
+
+/** Aviso del gráfico cuando Chart.js no se pudo cargar (CDN caído o archivo rechazado por el SRI). */
+const MENSAJE_GRAFICO_NO_DISPONIBLE = "El gráfico no está disponible: no se pudo cargar la librería Chart.js.";
+
+/**
+ * Chart.js (Dev Librerías Externas): muestra el gráfico de un canvas o, si no hay datos
+ * que graficar, lo destruye y explica el motivo en el aviso. Así nunca queda en pantalla
+ * un canvas en blanco ni un gráfico con datos de un cálculo anterior. El contenedor
+ * [data-grafico-contenedor] mantiene su alto fijo en ambos casos, sin mover el layout.
+ * @param {HTMLCanvasElement|null} canvas - Canvas destino.
+ * @param {HTMLElement|null} aviso - Párrafo que explica por qué no hay gráfico.
+ * @param {Object|null} config - Configuración de Chart.js (se ignora si hayDatos es false).
+ * @param {boolean} hayDatos - true si hay datos válidos para graficar.
+ * @param {string} mensajeVacio - Texto del aviso cuando no hay datos que graficar.
+ */
+function pintarGrafico(canvas, aviso, config, hayDatos, mensajeVacio) {
+    if (!canvas) return;
+    let mensaje = hayDatos ? "" : mensajeVacio;
+    if (hayDatos) {
+        // El canvas debe estar visible antes de crear el gráfico para que Chart.js mida el contenedor.
+        canvas.hidden = false;
+        if (!GraficoService.renderizar(canvas, config)) mensaje = MENSAJE_GRAFICO_NO_DISPONIBLE;
+    } else {
+        GraficoService.destruir(canvas);
+    }
+    canvas.hidden = mensaje !== "";
+    if (aviso) {
+        aviso.textContent = mensaje;
+        aviso.hidden = mensaje === "";
+    }
+}
+
+/**
+ * Chart.js (Dev Librerías Externas): gráfico de gasto de los ítems del Presupuesto,
+ * etiquetado con la categoría de cada ítem. Usa los subtotales que ya calculó el
+ * modelo (`resultado.subtotales`), sin hacer cuentas en el controlador (Regla 1).
+ * Complementa la tabla, no la reemplaza. Los valores son subtotales sin descuento.
+ * @param {Object} ui - Referencias del DOM.
+ * @param {{subtotales: number[], subtotal: number}} resultado - Cálculo del modelo para el estado actual.
+ */
+function actualizarGraficoPresupuesto(ui, resultado) {
+    if (!ui.graficoPresupuesto) return;
+    const items = estadoApp.evento.presupuesto.items;
+    pintarGrafico(ui.graficoPresupuesto, ui.avisoGraficoPresupuesto, {
+        type: "doughnut",
+        data: {
+            labels: items.map((item) => item.categoria),
+            datasets: [{ data: resultado.subtotales }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { title: { display: true, text: "Gasto por categoría" } }
+        }
+    }, resultado.subtotal > 0, "Todavía no hay gasto para mostrar en el gráfico.");
 }
 
 /**
@@ -843,6 +905,9 @@ function reemplazarItemsPresupuesto(presupuesto, items) {
 function bloquearResultadoPresupuesto(ui, mensaje) {
     if (ui.btnCalcularPresupuesto) ui.btnCalcularPresupuesto.disabled = true;
     if (ui.totalPresupuesto) ui.totalPresupuesto.textContent = "—";
+    // El gráfico no puede quedar con los datos del último cálculo válido mientras el total muestra "—".
+    pintarGrafico(ui.graficoPresupuesto, ui.avisoGraficoPresupuesto, null, false,
+        "El gráfico se muestra cuando las cantidades y el descuento son válidos.");
     renderResumenFinanciero(ui, null);
     renderMensaje(ui.alertaPresupuesto, "error", mensaje);
 }
@@ -906,13 +971,12 @@ function renderDesglosePresupuesto(ui, resultado) {
    ========================================================================== */
 
 /**
- * Arma el CatalogoProveedores desde el modelo (DATOS_SEMILLA), genera las
- * opciones del filtro y registra el filtrado en tiempo real.
+ * Carga el catálogo y registra el filtrado en tiempo real.
  */
 function configurarFlujoCatalogo(ui) {
     if (!ui.contenedorCatalogo || !ui.buscarCatalogo) return;
 
-    construirCatalogo(ui);
+    iniciarCargaCatalogo(ui);
 
     // La búsqueda es en vivo: el submit (tecla Enter) no debe recargar la página.
     if (ui.formCatalogo) {
@@ -922,25 +986,82 @@ function configurarFlujoCatalogo(ui) {
     if (ui.categoriaCatalogo) {
         ui.categoriaCatalogo.addEventListener("change", () => filtrarCatalogo(ui));
     }
-
-    filtrarCatalogo(ui);
 }
 
 /**
- * RC10: crea el CatalogoProveedores con CatalogoProveedores.fromJSON(), que
- * reconstruye y valida cada Proveedor. El HTML ya no aporta tarjetas: el
- * catálogo proviene del modelo y las tarjetas se generan en renderCatalogo().
+ * Inicia la carga del catálogo sin dejar promesas rechazadas sin manejar: si
+ * fallara también el fallback, el error se informa en el aviso general.
  * @param {Object} ui - Referencias del DOM.
  */
-function construirCatalogo(ui) {
+function iniciarCargaCatalogo(ui) {
+    construirCatalogo(ui).catch((error) => {
+        renderAvisoGlobal(ui, "No se pudo cargar el catálogo: " + error.message);
+    });
+}
+
+/** Versión de la última carga del catálogo: permite descartar respuestas de cargas anteriores. */
+let versionCargaCatalogo = 0;
+
+/**
+ * Carga el catálogo remoto o usa la semilla si ambos intentos fallan.
+ * @param {Object} ui - Referencias del DOM.
+ * @returns {Promise<void>} Finalización de la carga y el renderizado.
+ */
+async function construirCatalogo(ui) {
+    const version = ++versionCargaCatalogo;
     estadoApp.tarjetasCatalogo.clear();
+    if (ui.buscarCatalogo) ui.buscarCatalogo.disabled = true;
+    if (ui.categoriaCatalogo) ui.categoriaCatalogo.disabled = true;
+    if (ui.contadorCatalogo) ui.contadorCatalogo.textContent = "";
+    if (ui.catalogoVacio) ui.catalogoVacio.hidden = true;
+    // Mientras carga (p. ej. al reintentar) no debe verse el gráfico de la carga anterior.
+    pintarGrafico(ui.graficoCatalogo, ui.avisoGraficoCatalogo, null, false, "Cargando el gráfico del catálogo…");
+    const carga = crearElemento("div", {
+        clase: "col-12",
+        atributos: { role: "status", "aria-live": "polite" }
+    });
+    carga.style.minHeight = "420px";
+    carga.append(
+        crearElemento("span", { clase: "spinner-border spinner-border-sm me-2", atributos: { "aria-hidden": "true" } }),
+        document.createTextNode("Cargando proveedores…")
+    );
+    ui.contenedorCatalogo.replaceChildren(carga);
     try {
-        estadoApp.catalogo = CatalogoProveedores.fromJSON(DATOS_SEMILLA.catalogo);
+        const datos = await ApiService.obtenerProveedores();
+        if (version !== versionCargaCatalogo) return;
+        const catalogo = ApiService.aCatalogo(datos);
+        if (datos.length > 0 && catalogo.proveedores.length === 0) {
+            throw new Error("No se pudieron convertir los proveedores del catálogo.");
+        }
+        estadoApp.catalogo = catalogo;
+        estadoApp.presentacionProveedores = new Map();
+        const datosPendientes = datos.slice();
+        catalogo.proveedores.forEach((proveedor) => {
+            const indice = datosPendientes.findIndex((dato) =>
+                dato.nombre === proveedor.nombre && dato.categoria === proveedor.categoria &&
+                dato.precio === proveedor.precio && dato.unidad === proveedor.unidad);
+            if (indice < 0) throw new Error("Faltan datos de presentación del proveedor " + proveedor.nombre);
+            const info = datosPendientes.splice(indice, 1)[0];
+            const imagen = info.imagen && /^[a-z0-9][\w.-]*$/i.test(info.imagen)
+                ? RUTA_IMAGENES_CATALOGO + info.imagen : "";
+            if (info.imagen && !imagen) console.warn("Imagen de proveedor inválida:", info.imagen);
+            estadoApp.presentacionProveedores.set(proveedor, { ...info, imagen });
+        });
+        estadoApp.errorCatalogo = false;
     } catch (error) {
-        estadoApp.catalogo = new CatalogoProveedores();
-        renderAvisoGlobal(ui, "No se pudo cargar el catálogo de proveedores: " + error.message);
+        if (version !== versionCargaCatalogo) return;
+        console.error("No se pudo cargar el catálogo actualizado:", error);
+        estadoApp.catalogo = CatalogoProveedores.fromJSON(DATOS_SEMILLA.catalogo);
+        estadoApp.presentacionProveedores = null;
+        estadoApp.errorCatalogo = true;
+    } finally {
+        if (version === versionCargaCatalogo) {
+            if (ui.buscarCatalogo) ui.buscarCatalogo.disabled = false;
+            if (ui.categoriaCatalogo) ui.categoriaCatalogo.disabled = false;
+        }
     }
     renderOpcionesCategoria(ui);
+    filtrarCatalogo(ui);
 }
 
 /**
@@ -982,9 +1103,7 @@ function obtenerResultadosCatalogo(texto, categoria) {
 
     const categoriaBuscada = Validador.esTextoNoVacio(categoria) ? Validador.normalizarTexto(categoria) : "";
     if (categoriaBuscada !== "" && categoriaBuscada !== "todas") {
-        resultados = resultados.filter(
-            (proveedor) => Validador.normalizarTexto(proveedor.categoria) === categoriaBuscada
-        );
+        resultados = ApiService.filtrarPorCategoria(resultados, categoria);
     }
     return resultados;
 }
@@ -1007,7 +1126,41 @@ function filtrarCatalogo(ui) {
  * (contador de resultados y mensaje de catálogo vacío).
  */
 function renderCatalogo(ui, resultados, texto) {
-    ui.contenedorCatalogo.replaceChildren(...resultados.map(obtenerTarjetaProveedor));
+    const contenido = resultados.map(obtenerTarjetaProveedor);
+    if (estadoApp.errorCatalogo) {
+        const aviso = crearElemento("div", { clase: "col-12" });
+        const mensaje = crearElemento("div", {
+            clase: "alert alert-warning",
+            atributos: { role: "status" },
+            texto: "No pudimos cargar el catálogo actualizado. Te mostramos la versión guardada. "
+        });
+        const boton = crearElemento("button", {
+            clase: "btn btn-outline-primary btn-sm",
+            texto: "Reintentar",
+            atributos: { type: "button" }
+        });
+        boton.addEventListener("click", () => iniciarCargaCatalogo(ui));
+        mensaje.append(boton);
+        aviso.append(mensaje);
+        contenido.unshift(aviso);
+        // Sin carga exitosa no hay resumen: se explica la ausencia del gráfico en vez de dejar un hueco.
+        pintarGrafico(ui.graficoCatalogo, ui.avisoGraficoCatalogo, null, false,
+            "El gráfico estará disponible cuando se cargue el catálogo actualizado.");
+    } else {
+        const resumenPorCategoria = ApiService.resumirCatalogo(resultados);
+        const resumen = document.createElement("div");
+        resumen.className = "col-12 small text-muted";
+        Object.entries(resumenPorCategoria).forEach(([categoria, datos]) => {
+            const linea = document.createElement("p");
+            linea.textContent = categoria + ": " + datos.cantidad +
+                (datos.cantidad === 1 ? " proveedor" : " proveedores") + " · " +
+                formatearMonto(datos.precioMinimo) + " – " + formatearMonto(datos.precioMaximo);
+            resumen.append(linea);
+        });
+        contenido.unshift(resumen);
+        actualizarGraficoCatalogo(ui, resumenPorCategoria);
+    }
+    ui.contenedorCatalogo.replaceChildren(...contenido);
 
     if (ui.contadorCatalogo) {
         ui.contadorCatalogo.textContent = resultados.length === 1
@@ -1024,6 +1177,34 @@ function renderCatalogo(ui, resultados, texto) {
 }
 
 /**
+ * Chart.js (Dev Librerías Externas): gráfico de proveedores por categoría, a
+ * partir del mismo resumen (reduce de ApiService.resumirCatalogo()) que ya
+ * muestra el texto de arriba. Complementa el resumen, no lo reemplaza.
+ * @param {Object} ui - Referencias del DOM.
+ * @param {Object} resumenPorCategoria - Salida de ApiService.resumirCatalogo().
+ */
+function actualizarGraficoCatalogo(ui, resumenPorCategoria) {
+    if (!ui.graficoCatalogo) return;
+    const categorias = Object.keys(resumenPorCategoria);
+    pintarGrafico(ui.graficoCatalogo, ui.avisoGraficoCatalogo, {
+        type: "bar",
+        data: {
+            labels: categorias,
+            datasets: [{
+                label: "Proveedores",
+                data: Object.values(resumenPorCategoria).map((datos) => datos.cantidad)
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: { y: { beginAtZero: true, ticks: { precision: 0 } } },
+            plugins: { title: { display: true, text: "Proveedores por categoría" } }
+        }
+    }, categorias.length > 0, "No hay proveedores para graficar con este filtro.");
+}
+
+/**
  * Devuelve la tarjeta de un proveedor, creándola la primera vez. La caché evita
  * reconstruir imágenes y botones en cada tecla del buscador.
  * @param {Proveedor} proveedor - Instancia del modelo.
@@ -1037,6 +1218,17 @@ function obtenerTarjetaProveedor(proveedor) {
 }
 
 /**
+ * Devuelve la imagen en resolución original para el modal de detalle: las tarjetas
+ * usan la versión de 450 px ("-450w"), que en pantallas de alta densidad se ve
+ * borrosa al ampliarse en el modal.
+ * @param {string} [imagen] - Ruta de la imagen de la tarjeta.
+ * @returns {string} Ruta de la imagen original, o cadena vacía si no hay imagen.
+ */
+function obtenerImagenModal(imagen) {
+    return imagen ? imagen.replace(/-450w(\.[a-z]+)$/i, "$1") : "";
+}
+
+/**
  * Crea la tarjeta completa de un Proveedor: imagen, insignia de categoría,
  * nombre, descripción, metadatos, precio por unidad y botones "Ver detalle"
  * (abre el Modal vía data-bs-toggle) y "Sumar al Evento" (Toast delegado).
@@ -1045,7 +1237,9 @@ function obtenerTarjetaProveedor(proveedor) {
  * @returns {HTMLElement} Columna de la grilla con la tarjeta.
  */
 function crearTarjetaProveedor(proveedor) {
-    const info = PRESENTACION_PROVEEDORES[proveedor.nombre] || {};
+    const info = estadoApp.presentacionProveedores
+        ? estadoApp.presentacionProveedores.get(proveedor) || {}
+        : PRESENTACION_PROVEEDORES[proveedor.nombre] || {};
     const precio = formatearMonto(proveedor.precio) + " / " + proveedor.unidad;
     const detalles = [proveedor.categoria, info.capacidad, info.zona].filter(Boolean).join(" · ");
 
@@ -1061,7 +1255,7 @@ function crearTarjetaProveedor(proveedor) {
 
     if (info.imagen) {
         tarjeta.append(crearElemento("img", {
-            atributos: { src: info.imagen, alt: info.alt || "", width: "1344", height: "655", loading: "lazy" }
+            atributos: { src: info.imagen, alt: info.alt || "", width: "450", height: "219", loading: "lazy" }
         }));
     }
 
@@ -1081,7 +1275,7 @@ function crearTarjetaProveedor(proveedor) {
         texto: "Sumar al Evento",
         atributos: {
             type: "button",
-            "aria-label": "Sumar " + proveedor.nombre + " al evento",
+            "aria-label": "Sumar al Evento: " + proveedor.nombre,
             "data-service-title": proveedor.nombre,
             "data-service-price": precio
         }
@@ -1099,7 +1293,7 @@ function crearTarjetaProveedor(proveedor) {
                 "data-bs-toggle": "modal",
                 "data-bs-target": "#modalDetalleServicio",
                 "data-service-title": proveedor.nombre,
-                "data-service-image": info.imagen || "",
+                "data-service-image": obtenerImagenModal(info.imagen),
                 "data-service-alt": info.alt || "",
                 "data-service-description": info.descripcion || "",
                 "data-service-details": detalles,

@@ -204,7 +204,7 @@ const FIXTURE_CANTIDADES = {
     "cantidad-transporte": "2"
 };
 
-function restaurarEstadoInicial() {
+async function restaurarEstadoInicial() {
     const ui = obtenerReferenciasUI();
 
     // RC22: el estado persistido se limpia a través de la fachada, igual que lo usa el controlador.
@@ -257,7 +257,7 @@ function restaurarEstadoInicial() {
     ui.btnCalcularPresupuesto.disabled = false;
     ui.btnAgregarInvitado.disabled = false;
 
-    construirCatalogo(ui);
+    await construirCatalogo(ui);
     recalcularPresupuesto(ui);
     renderInvitados(ui);
     filtrarCatalogo(ui);
@@ -281,8 +281,8 @@ describe("script.spec.js", function () {
 
 let ui;
 
-beforeEach(function () {
-    ui = restaurarEstadoInicial();
+beforeEach(async function () {
+    ui = await restaurarEstadoInicial();
 });
 
 describe("Flujo 1: Crear evento", function () {
@@ -401,8 +401,29 @@ describe("Flujo 2: Calcular presupuesto", function () {
     });
 });
 
-describe("Flujo 3: Buscar en catálogo", function () {
+describe("Flujo 3: Buscar en catálogo (REG-03: catálogo cargado por ApiService con fetch mockeado)", function () {
+    // REG-03: el catálogo de este flujo llega por ApiService.obtenerProveedores() con un
+    // fetch mockeado en el propio spec (spyOn pisa el stub de test-runner.html).
+    const CATALOGO_API_FLUJO_3 = {
+        version: 1,
+        proveedores: [
+            { nombre: "Gourmet Finger Food", categoria: "Catering", precio: 3500, unidad: "pax" },
+            { nombre: "Flores Pilar", categoria: "Decoración", precio: 70000, unidad: "base" },
+            { nombre: "DJ Lucas & Sonido", categoria: "Sonido", precio: 8000, unidad: "hora" }
+        ]
+    };
+
+    beforeEach(async function () {
+        spyOn(window, "fetch").and.callFake(() => Promise.resolve(new Response(
+            JSON.stringify(CATALOGO_API_FLUJO_3),
+            { status: 200, headers: { "Content-Type": "application/json" } }
+        )));
+        await construirCatalogo(ui);
+    });
+
     it("debería mostrar los 3 proveedores del catálogo sin ningún filtro", function () {
+        expect(window.fetch).toHaveBeenCalledOnceWith("api/proveedores.json", jasmine.any(Object));
+        expect(estadoApp.errorCatalogo).toBe(false);
         expect(ui.contadorCatalogo.textContent).toBe("3 proveedores encontrados");
     });
 
@@ -643,11 +664,18 @@ describe("Integración - Controlador y UI (RC14, RC15, RC16)", function () {
             spyOn(bootstrap.Toast.prototype, "show").and.callThrough();
         });
 
-        it("INT-RC15-01: cada botón .btn-sumar-evento de las tarjetas debería mostrar el Toast de Bootstrap con su servicio", function () {
+        // async: entre clic y clic se espera `shown.bs.toast`. Cada show() que termina su
+        // transición programa el autohide (data-bs-delay, 4 s) y Bootstrap solo guarda el
+        // último temporizador. Con los 3 clics seguidos, los 2 primeros quedaban huérfanos:
+        // dispose() no los limpiaba y, 4 s después, hide() sobre la instancia ya liberada
+        // lanzaba "Cannot read properties of null (reading 'classList')" fuera de la
+        // corrida. Esperando `shown`, el show() siguiente cancela el temporizador anterior.
+        it("INT-RC15-01: cada botón .btn-sumar-evento de las tarjetas debería mostrar el Toast de Bootstrap con su servicio", async function () {
             const botones = botonesSumarTarjetas();
             expect(botones.length).toBe(3);
 
-            botones.forEach(function (boton, posicion) {
+            for (const [posicion, boton] of botones.entries()) {
+                const mostrado = esperarEvento(toast(), "shown.bs.toast");
                 boton.click();
 
                 expect(bootstrap.Toast.getOrCreateInstance).toHaveBeenCalledWith(toast());
@@ -656,7 +684,8 @@ describe("Integración - Controlador y UI (RC14, RC15, RC16)", function () {
                     .toBe(boton.dataset.serviceTitle + " · " + boton.dataset.servicePrice);
                 expect(document.getElementById("toastConfirmacionMensaje").textContent).toBe("Experiencia agregada a tu evento");
                 expect(toast().classList.contains("show")).toBe(true);
-            });
+                await mostrado;
+            }
         });
 
         it("INT-RC15-02: el botón .btn-sumar-evento del Modal debería mostrar el Toast de Bootstrap con el servicio abierto", function () {
